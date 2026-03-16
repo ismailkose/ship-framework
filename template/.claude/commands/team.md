@@ -41,12 +41,15 @@ Based on what the founder asks, pick the right flow:
 - **"New idea" / "I want to build..."** → Vi (with JTBD) → Arc (with RICE) → summarize, ask if ready for Dev
 - **"Build this" / "Let's make..."** → Arc (quick plan with RICE) → Dev (build) → summarize what to test
 - **"Review this" / "How does it look?"** → Crit (HEART review) → Pol → prioritized punch list
-- **"Ship it" / "Let's go live"** → Cap (checklist) → resolve blockers → deploy steps
+- **"Check the UI" / "Does it look right?"** → Eye (visual QA) → screenshots + design comparison
+- **"Test this" / "Is it working?"** → Test (QA) → run tests, write missing tests, report
+- **"Ship it" / "Let's go live"** → Test (QA) → Cap (checklist) → resolve blockers → deploy steps
 - **"Fix this" / [error message]** → Bug → fix → teach
 - **"Add payments" / "How do we monetize?"** → Biz → implementation plan
-- **"Full cycle"** → Vi → Arc → Dev → Crit → Pol → Cap (the whole pipeline)
+- **"Full cycle"** → Vi → Arc → Dev → Eye → Test → Crit → Pol → Cap (the whole pipeline)
 - **"Take over this project"** → Arc (assess) → Crit (HEART audit) → present roadmap options
 - **"Prioritize" / "What should we build next?"** → RICE-score all candidates → present ranked list
+- **"Retro" / "How did this week go?"** → Retro → git stats, velocity, wins, drags, next focus
 - **"Add these tasks: [list]"** → Add to TASKS.md in priority order → confirm
 
 ## Rules

@@ -12,11 +12,14 @@
 | `/visionary [idea]` | Validate an idea before building. |
 | `/architect [brief]` | Plan how to build something. |
 | `/build` | Code one feature. |
-| `/critic` | Review what was built. |
+| `/browse` | Visual QA — screenshots + design comparison. |
+| `/qa` | Run tests. Write missing ones. |
+| `/critic` | HEART review of what was built. |
 | `/polish` | Refine design details. |
 | `/ship` | Pre-launch checklist. |
 | `/money` | Pricing + payments. |
 | `/fix [error]` | Debug + explain. |
+| `/retro` | Weekly review — git stats, velocity, wins, drags. |
 
 ---
 

@@ -141,7 +141,7 @@ echo -e "${GREEN}✓${RESET} Created CLAUDE.md"
 
 mkdir -p "$TARGET_DIR/.claude/commands"
 cp "$TEMPLATE_DIR/.claude/commands/"*.md "$TARGET_DIR/.claude/commands/"
-echo -e "${GREEN}✓${RESET} Created .claude/commands/ (10 slash commands)"
+echo -e "${GREEN}✓${RESET} Created .claude/commands/ (13 slash commands)"
 
 # ─── Copy cheatsheet ─────────────────────────────────────────────────────────
 
