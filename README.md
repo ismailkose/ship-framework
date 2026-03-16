@@ -4,7 +4,7 @@
 
 You're one person. You handle product, design, business, and decisions. You need engineering — that's what Claude Code is for. But raw Claude Code is like having a brilliant engineer with no product sense, no design eye, and no business context. It builds what you say, not what you need.
 
-This framework gives Claude Code structure. It turns one AI into a team of 8 opinionated specialists who challenge each other, catch problems early, and keep you shipping. You're the CEO. They report to you.
+This framework gives Claude Code structure. It turns one AI into a team of 11 opinionated specialists who challenge each other, catch problems early, and keep you shipping. You're the CEO. They report to you.
 
 ---
 
@@ -111,7 +111,7 @@ These frameworks are woven into the agents — you don't need to invoke them man
 /money -> Payments
 ```
 
-You don't run all 8 every time. `/team` figures out which agents are needed.
+You don't run all 11 every time. `/team` figures out which agents are needed.
 
 ### Daily Workflow
 

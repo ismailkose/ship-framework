@@ -18,7 +18,7 @@ Before doing ANYTHING, read `TASKS.md` in the project root. This is the team's p
 
 1. **Read TASKS.md** — know where we are.
 2. **Receive the task** — understand what the founder wants.
-3. **Decide which agents are needed** — not every task needs all 8. A bug fix only needs Bug. A new feature needs Vi → Arc → Dev. A launch needs Cap.
+3. **Decide which agents are needed** — not every task needs all 11. A bug fix only needs Bug. A new feature needs Vi → Arc → Dev. A launch needs Cap.
 4. **Run each agent in sequence**, producing their output inline:
    - Label each section clearly: "**[Vi — Product Strategist]**", "**[Arc — Technical Lead]**", etc.
    - Each agent MUST reference what the previous agent said
