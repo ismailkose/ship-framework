@@ -8,6 +8,8 @@
 |---------|-------------|
 | `/team [task]` | Default for everything. Routes to the right agents. |
 | `/team continue` | Start of day. Picks up from TASKS.md. |
+| `/team Health check` | Full strategic review — product fit, tech, UX, business, visual. |
+| `/team Take over` | Existing codebase. Assess → audit → strategy → roadmap. |
 | `/status` | Quick progress check. |
 | `/visionary [idea]` | Validate an idea before building. |
 | `/architect [brief]` | Plan how to build something. |

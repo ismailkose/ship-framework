@@ -431,8 +431,14 @@ doesn't start from scratch — they inherit what's there and take ownership.
 ### Step 2: /critic (Audit)
 > "Review what we have like a real user. What's the honest state of things?"
 
-### Step 3: You decide the roadmap
-With both assessments, YOU decide what to tackle first. Then:
+### Step 3: /visionary (Product Check)
+> "Based on what Arc and Crit found — is this product solving a real job? What's the magic moment?"
+
+### Step 4: /money (Business Check)
+> "Who would pay for this, and how? What's the simplest path to revenue?"
+
+### Step 5: You decide the roadmap
+With all four assessments, YOU decide what to tackle first. Then:
 > "/build Let's start with [the thing you chose]"
 
 ---
@@ -448,6 +454,7 @@ comes to you when there's a real decision to make.
 
 **Examples:**
 - `/team Take over this project and tell me what needs work`
+- `/team Health check on this project`
 - `/team I want to build a weekly summary email feature`
 - `/team The check-in flow feels clunky, review and fix it`
 - `/team Ship this to production`

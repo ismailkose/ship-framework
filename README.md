@@ -169,7 +169,9 @@ One AI, eleven perspectives, one you making the calls.
 
 **Customize CLAUDE.md aggressively.** Add your color tokens, component library rules, copy guidelines, API constraints. The more specific, the better every agent performs.
 
-**The takeover sequence works.** Existing codebase? `/team Take over this project` runs Arc (assess) → Crit (audit) → presents options. Fastest way to orient.
+**The takeover sequence works.** Existing codebase? `/team Take over this project` runs Arc (assess) → Crit (HEART audit) → Vi (product JTBD) → Biz (who pays) → presents options. Fastest way to orient.
+
+**Run a health check.** Already building? `/team Health check` runs Vi → Arc → Crit → Biz → Eye for a full strategic review — product fit, tech debt, UX gaps, monetization, and visual QA in one pass.
 
 ---
 
