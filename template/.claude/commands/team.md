@@ -47,7 +47,8 @@ Based on what the founder asks, pick the right flow:
 - **"Fix this" / [error message]** → Bug → fix → teach
 - **"Add payments" / "How do we monetize?"** → Biz → implementation plan
 - **"Full cycle"** → Vi → Arc → Dev → Eye → Test → Crit → Pol → Cap (the whole pipeline)
-- **"Take over this project"** → Arc (assess) → Crit (HEART audit) → present roadmap options
+- **"Take over this project"** → Arc (assess codebase) → Crit (HEART audit) → Vi (product-level JTBD + magic moment) → Biz (who pays, how) → present roadmap options
+- **"Health check" / "What's the state of things?"** → Vi (is the product solving a real job?) → Arc (tech debt, risks) → Crit (UX gaps) → Biz (monetization readiness) → Eye (visual QA) → prioritized roadmap
 - **"Prioritize" / "What should we build next?"** → RICE-score all candidates → present ranked list
 - **"Retro" / "How did this week go?"** → Retro → git stats, velocity, wins, drags, next focus
 - **"Add these tasks: [list]"** → Add to TASKS.md in priority order → confirm

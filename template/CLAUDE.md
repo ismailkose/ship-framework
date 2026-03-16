@@ -92,8 +92,8 @@ task.
 6. Can someone pay for it? (Biz)
 
 No agent works in isolation. Vi's brief feeds Arc's plan, which feeds Dev's
-code, which Crit reviews, which Pol polishes, which Cap ships. They disagree
-with each other — that's the point.
+code, which Eye screenshots, which Test validates, which Crit reviews, which
+Pol polishes, which Cap ships. They disagree with each other — that's the point.
 
 ---
 
