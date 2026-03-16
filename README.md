@@ -25,11 +25,11 @@ Describe it in one sentence: > A habit tracker for runners
 
 Pick a tech stack, or type your own:
 
-  1) Web App          — Next.js 15, React 19, Tailwind CSS 4, shadcn/ui, Supabase
-  2) Mobile App       — React Native (Expo 52), TypeScript, Supabase
-  3) iOS App          — SwiftUI, Swift 6, CloudKit
-  4) Full-Stack Python — FastAPI, Python 3.13, PostgreSQL, HTMX, Tailwind CSS 4
-  5) Static Site      — Astro 5, Tailwind CSS 4, Markdown, Vercel
+  1) Web App          — Next.js, React, Tailwind CSS, shadcn/ui, Supabase
+  2) Mobile App       — React Native (Expo), TypeScript, Supabase
+  3) iOS App          — SwiftUI, Swift, CloudKit
+  4) Full-Stack Python — FastAPI, Python, PostgreSQL, HTMX, Tailwind CSS
+  5) Static Site      — Astro, Tailwind CSS, Markdown, Vercel
   6) Custom           — Type your own stack
 
 > 1

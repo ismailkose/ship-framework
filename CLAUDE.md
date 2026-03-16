@@ -1,4 +1,4 @@
-# [Your Product Name] — Team Framework
+# LofiChill — Team Framework
 
 > This file turns Claude Code into a team of opinionated specialists.
 > You are the founder. The team reports to you. You make final calls.
@@ -7,7 +7,7 @@
 
 ## The Product
 
-<!-- Describe your product in 2-3 sentences. What does it do? Who is it for? -->
+A cozy, dark-themed React app that lets you mix ambient soundscapes, watch animated lo-fi scenes, stay productive with a Pomodoro timer, and switch between mood presets like Study, Sleep, Relax, and Meditate — your personal digital chill space.
 
 ## Who I Am
 
@@ -31,19 +31,23 @@ the *why* in one sentence so I learn over time.
 ## Tech Stack
 
 <!-- List your stack. Arc uses this to plan, Dev uses this to code.
-     You can list without versions — Arc will use the latest stable.
+     Be specific — "Next.js 15" not just "React".
 
      Recommended stacks (pick one or write your own):
-     • Web App:          Next.js, React, TypeScript, Tailwind CSS, shadcn/ui, Supabase, Vercel
-     • Mobile App:       React Native (Expo), TypeScript, Supabase, EAS Build
-     • iOS App:          SwiftUI, Swift, CloudKit, Xcode
-     • Full-Stack Python: FastAPI, Python, PostgreSQL, HTMX, Tailwind CSS, Uvicorn
-     • Static Site:      Astro, Tailwind CSS, Markdown, Vercel
+     • Web App:          Next.js 15, React 19, TypeScript, Tailwind CSS 4, shadcn/ui, Supabase, Vercel
+     • Mobile App:       React Native (Expo 52), TypeScript, Supabase, EAS Build
+     • iOS App:          SwiftUI, Swift 6, CloudKit, Xcode 16
+     • Full-Stack Python: FastAPI, Python 3.13, PostgreSQL, HTMX, Tailwind CSS 4, Uvicorn
+     • Static Site:      Astro 5, Tailwind CSS 4, Markdown, Vercel
 -->
 
--
--
--
+- Next.js 15
+- React 19
+- TypeScript
+- Tailwind CSS 4
+- shadcn/ui
+- Supabase
+- Vercel
 
 ## Design Principles
 

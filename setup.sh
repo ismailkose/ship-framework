@@ -29,31 +29,32 @@ read -p "Describe it in one sentence: > " PRODUCT_DESC
 echo ""
 
 echo -e "${DIM}Pick a tech stack, or type your own:${RESET}"
+echo -e "${DIM}(Don't worry about versions — Arc will use the latest stable when building.)${RESET}"
 echo ""
-echo -e "  1) ${BOLD}Web App${RESET}         — Next.js 15, React 19, Tailwind CSS 4, shadcn/ui, Supabase"
-echo -e "  2) ${BOLD}Mobile App${RESET}      — React Native (Expo 52), TypeScript, Supabase"
-echo -e "  3) ${BOLD}iOS App${RESET}         — SwiftUI, Swift 6, CloudKit"
-echo -e "  4) ${BOLD}Full-Stack Python${RESET} — FastAPI, Python 3.13, PostgreSQL, HTMX, Tailwind CSS 4"
-echo -e "  5) ${BOLD}Static Site${RESET}     — Astro 5, Tailwind CSS 4, Markdown, Vercel"
+echo -e "  1) ${BOLD}Web App${RESET}         — Next.js, React, Tailwind CSS, shadcn/ui, Supabase"
+echo -e "  2) ${BOLD}Mobile App${RESET}      — React Native (Expo), TypeScript, Supabase"
+echo -e "  3) ${BOLD}iOS App${RESET}         — SwiftUI, Swift, CloudKit"
+echo -e "  4) ${BOLD}Full-Stack Python${RESET} — FastAPI, Python, PostgreSQL, HTMX, Tailwind CSS"
+echo -e "  5) ${BOLD}Static Site${RESET}     — Astro, Tailwind CSS, Markdown, Vercel"
 echo -e "  6) ${BOLD}Custom${RESET}          — Type your own stack"
 echo ""
 read -p "> " STACK_CHOICE
 
 case $STACK_CHOICE in
   1)
-    TECH_STACK="Next.js 15, React 19, TypeScript, Tailwind CSS 4, shadcn/ui, Supabase, Vercel"
+    TECH_STACK="Next.js, React, TypeScript, Tailwind CSS, shadcn/ui, Supabase, Vercel"
     ;;
   2)
-    TECH_STACK="React Native (Expo 52), TypeScript, Supabase, EAS Build"
+    TECH_STACK="React Native (Expo), TypeScript, Supabase, EAS Build"
     ;;
   3)
-    TECH_STACK="SwiftUI, Swift 6, CloudKit, Xcode 16"
+    TECH_STACK="SwiftUI, Swift, CloudKit, Xcode"
     ;;
   4)
-    TECH_STACK="FastAPI, Python 3.13, PostgreSQL, HTMX, Tailwind CSS 4, Uvicorn"
+    TECH_STACK="FastAPI, Python, PostgreSQL, HTMX, Tailwind CSS, Uvicorn"
     ;;
   5)
-    TECH_STACK="Astro 5, Tailwind CSS 4, Markdown, Vercel"
+    TECH_STACK="Astro, Tailwind CSS, Markdown, Vercel"
     ;;
   6|*)
     if [ "$STACK_CHOICE" != "6" ] && [ -n "$STACK_CHOICE" ]; then
