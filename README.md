@@ -143,12 +143,15 @@ Claude Code gives you engineering. But without structure, it just builds whateve
 
 - Vi asks "why would anyone care?" before anything gets built
 - Arc asks "will this still work at 3am?" before the architecture is set
+- Eye screenshots the actual UI and compares it to the design
+- Test proves things work — or proves they don't
 - Crit asks "but what if I do THIS?" after every feature
 - Pol asks "does this feel right on a phone?" before shipping
 - Cap asks "why aren't we live yet?" when polish goes too long
 - Biz asks "how does this make money?" before it's too late
+- Retro asks "what actually happened this week?" to keep you honest
 
-One AI, eight perspectives, one you making the calls.
+One AI, eleven perspectives, one you making the calls.
 
 ---
 
