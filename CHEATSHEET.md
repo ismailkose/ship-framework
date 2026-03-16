@@ -14,14 +14,14 @@
 | `/visionary [idea]` | Validate an idea before building. |
 | `/architect [brief]` | Plan how to build something. |
 | `/build` | Code one feature. |
-| `/browse` | Visual QA — screenshots + design comparison. |
-| `/qa` | Run tests. Write missing ones. |
+| `/browse` | Visual QA — 6 phases: setup, screen map, mobile, interaction walkthrough, bug checklist, report. |
+| `/qa` | Test + fix — 8 phases: scope, run tests, explore like a user, document issues, write tests, health score, fix loop, report. |
 | `/critic` | HEART review of what was built. |
 | `/polish` | Refine design details. |
-| `/ship` | Pre-launch checklist. |
+| `/ship` | Deploy — 7 phases: pre-flight, tests, quality gate, readiness, deploy, post-deploy verify, report. |
 | `/money` | Pricing + payments. |
 | `/fix [error]` | Debug + explain. |
-| `/retro` | Weekly review — git stats, velocity, wins, drags. |
+| `/retro` | Weekly retro — 9 steps: data, metrics, streak, time patterns, hotspots, task health, narrative, trends, update. |
 
 ---
 
@@ -68,6 +68,21 @@ Score = (Reach × Impact × Confidence) / Effort
 | Effort | Person-weeks to build | number |
 
 Magic moment feature always goes first regardless of score.
+
+---
+
+## QA Health Score
+
+/qa computes a health score after testing:
+
+```
+Start at 100. Critical: -25, High: -15, Medium: -8, Low: -3
+```
+
+| 90-100 | Ship it |
+| 70-89 | Fix criticals and highs first |
+| 50-69 | Needs work |
+| Below 50 | Don't ship |
 
 ---
 

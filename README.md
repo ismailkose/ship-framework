@@ -1,6 +1,6 @@
-# Ship Framework
+ # Ship Framework
 
-**An AI product team for one-person teams.**
+**v2026.03.16** · **An AI product team for one-person teams.**
 
 You're one person. You handle product, design, business, and decisions. You need engineering — that's what Claude Code is for. But raw Claude Code is like having a brilliant engineer with no product sense, no design eye, and no business context. It builds what you say, not what you need.
 
@@ -49,23 +49,44 @@ That's it. Your team is running.
 
 ---
 
+## Updating
+
+```bash
+bash ship-framework/update.sh
+```
+
+That's it. The update script pulls the latest version automatically, then:
+- Shows your current version vs latest
+- Shows what changed (from the [changelog](CHANGELOG.md))
+- Updates your slash commands and cheatsheet
+- Stamps the new version in your CLAUDE.md footer
+- **Never touches** your CLAUDE.md content, TASKS.md, or project files
+
+**Checking your version:** Look at the bottom of your CLAUDE.md — it shows the Ship Framework version.
+
+**Watching for updates:** Star or watch the [repo](https://github.com/ismailkose/ship-framework) to get notified when new versions drop.
+
+Ship Framework uses date-based versioning (`YYYY.MM.DD`). Each release is tagged with the date it shipped.
+
+---
+
 ## The Team
 
-| Command | Name | Role | What they do |
-|---------|------|------|-------------|
-| `/team` | — | **Orchestrator** | Give it any instruction. It delegates to the right agents. |
-| `/visionary` | Vi | Product Strategist | Rips ideas apart. Kills feature creep. Finds the magic moment. |
-| `/architect` | Arc | Technical Lead | Turns briefs into buildable plans. Chooses boring tech. |
-| `/build` | Dev | Builder | Writes code, one feature at a time. Commits and explains. |
-| `/critic` | Crit | Product Reviewer | Uses it like a real user. Finds every rough edge. |
-| `/polish` | Pol | Design Director | Your design voice. Typography, spacing, transitions, copy. |
-| `/ship` | Cap | Release Manager | Gets it live. Hates "almost done." |
-| `/money` | Biz | Business Brain | Simplest path to revenue. Pricing, Stripe, conversion. |
-| `/browse` | Eye | Visual QA | Screenshots the app. Compares to designs. Catches visual bugs. |
-| `/qa` | Test | Tester | Runs tests, writes missing ones. Proves things work. |
-| `/fix` | Bug | Debugger | Fixes errors. Explains in plain English. Teaches you one thing. |
-| `/retro` | Retro | Retrospective | Weekly review. Git stats, velocity, wins, drags, next focus. |
-| `/status` | — | Status check | Quick snapshot of progress from TASKS.md. |
+| Command | Name | Role |
+|---------|------|------|
+| `/team` | — | **Orchestrator** — give it any instruction, it delegates to the right agents |
+| `/visionary` | Vi | **Product Strategist** — rips ideas apart, writes JTBD, finds the magic moment, picks HEART metric |
+| `/architect` | Arc | **Technical Lead** — turns briefs into buildable plans, RICE-scores the build order, estimates cost |
+| `/build` | Dev | **Builder** — writes code one feature at a time, commits and explains every decision |
+| `/critic` | Crit | **Product Reviewer** — uses it like a real user, reviews against HEART dimensions, finds rough edges |
+| `/polish` | Pol | **Design Director** — your design voice: typography, spacing, transitions, copy, mobile feel |
+| `/ship` | Cap | **Release Manager** — 7-phase deploy: pre-flight → tests → quality gate → readiness → deploy → verify → report |
+| `/money` | Biz | **Business Brain** — simplest path to revenue: pricing model, cost math, Stripe implementation |
+| `/browse` | Eye | **Visual QA** — 6-phase review: setup → screen map → mobile viewport → interaction walkthrough → bug checklist → report |
+| `/qa` | Test | **Tester** — 8-phase QA: scope → tests → explore like a user → document issues → write tests → health score → fix loop → report |
+| `/fix` | Bug | **Debugger** — translates errors to plain English, fixes them, teaches you one thing |
+| `/retro` | Retro | **Retrospective** — 9-step weekly review: git data, metrics, shipping streak, time patterns, hotspots, task health, narrative, trends |
+| `/status` | — | **Status check** — quick snapshot of progress from TASKS.md |
 
 **They disagree with each other.** Vi might want a feature that Arc thinks is over-engineered. Dev might build something that Crit finds confusing. Pol might want polish that Cap thinks delays launch. When they disagree, they present both sides — you make the call.
 
@@ -179,7 +200,7 @@ One AI, eleven perspectives, one you making the calls.
 
 **This is:** A structured workflow for one-person teams to ship real products using Claude Code.
 
-**This is not:** Multiple AI agents running in parallel. It's one AI wearing different hats. But the structure — forced disagreements, handoffs, checklists, persistent task tracking — catches problems that unstructured conversations miss.
+**This is not:** Multiple AI agents running in parallel. It's one AI wearing different hats. But the structure — forced disagreements, handoffs, multi-phase workflows, health scores, persistent task tracking — catches problems that unstructured conversations miss.
 
 ---
 
@@ -191,6 +212,15 @@ your-project/                    (generated by setup.sh)
   TASKS.md                       # Persistent task board
   CHEATSHEET.md                  # Quick reference card
   .claude/commands/              # 13 slash commands
+
+ship-framework/                  (the repo itself)
+  setup.sh                       # Interactive setup script
+  update.sh                      # Update existing projects
+  VERSION                        # Current version (YYYY.MM.DD)
+  CHANGELOG.md                   # What changed in each version
+  README.md                      # This file
+  CHEATSHEET.md                  # Template for quick reference
+  template/                      # Source templates
     team.md
     visionary.md
     architect.md
@@ -205,6 +235,24 @@ your-project/                    (generated by setup.sh)
     retro.md
     status.md
 ```
+
+---
+
+## Browser Support (Optional)
+
+Eye (Visual QA) and Cap (Ship) can take real screenshots of your app if Playwright is installed. During setup, you'll be asked if you want to enable this.
+
+**What it adds:** Real pixel-level screenshots at desktop and mobile viewports. Eye compares actual rendered pages against your design tokens. Cap screenshots your app before and after deploy.
+
+**Without Playwright:** Eye and Cap still work — they review your CSS, Tailwind classes, and component code against the design system. It's a code-level audit instead of a pixel-level one.
+
+**Adding it later:**
+```bash
+npm install -D @playwright/test
+npx playwright install chromium
+```
+
+That's it. Eye and Cap auto-detect Playwright and switch to screenshot mode.
 
 ---
 

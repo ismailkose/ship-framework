@@ -1,0 +1,161 @@
+#!/bin/bash
+
+# Ship Framework — Update
+# Updates slash commands and cheatsheet in an existing project.
+# Does NOT overwrite CLAUDE.md (that's customized per project).
+
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+TEMPLATE_DIR="$SCRIPT_DIR/template"
+
+# Colors
+BOLD='\033[1m'
+DIM='\033[2m'
+ORANGE='\033[38;5;208m'
+GREEN='\033[32m'
+YELLOW='\033[33m'
+RESET='\033[0m'
+
+# ─── Pull latest version ────────────────────────────────────────────────────
+
+echo ""
+echo -e "${DIM}Checking for updates...${RESET}"
+
+if [ -d "$SCRIPT_DIR/.git" ]; then
+  (cd "$SCRIPT_DIR" && git pull --quiet 2>/dev/null) && \
+  echo -e "${GREEN}✓${RESET} Pulled latest from GitHub" || \
+  echo -e "${YELLOW}⚠${RESET} Could not pull latest — continuing with local version"
+fi
+
+VERSION=$(cat "$SCRIPT_DIR/VERSION" 2>/dev/null || echo "unknown")
+
+echo ""
+echo -e "${BOLD}${ORANGE}Ship Framework${RESET} v${VERSION} — Update"
+echo ""
+
+# ─── Step 1: Find project directory ──────────────────────────────────────────
+
+echo -e "${DIM}Where is your project? (path to project root)${RESET}"
+echo -e "${DIM}Press Enter for current directory.${RESET}"
+read -p "> " TARGET_DIR
+
+if [ -z "$TARGET_DIR" ]; then
+  TARGET_DIR="."
+fi
+
+TARGET_DIR="$(cd "$TARGET_DIR" 2>/dev/null && pwd)" || {
+  echo "Error: Directory not found: $TARGET_DIR"
+  exit 1
+}
+
+# ─── Step 2: Check for existing install ──────────────────────────────────────
+
+if [ ! -f "$TARGET_DIR/CLAUDE.md" ]; then
+  echo ""
+  echo -e "${YELLOW}⚠${RESET} No CLAUDE.md found in $TARGET_DIR"
+  echo "  Run setup.sh first to create a new project."
+  exit 1
+fi
+
+if [ ! -d "$TARGET_DIR/.claude/commands" ]; then
+  echo ""
+  echo -e "${YELLOW}⚠${RESET} No .claude/commands/ found in $TARGET_DIR"
+  echo "  Run setup.sh first to create a new project."
+  exit 1
+fi
+
+# ─── Step 3: Detect current version ─────────────────────────────────────────
+
+CURRENT_VERSION=$(grep -oP 'Ship Framework.*?v\K[0-9.]+' "$TARGET_DIR/CLAUDE.md" 2>/dev/null || echo "unknown")
+
+echo ""
+echo -e "  Project:          ${BOLD}$TARGET_DIR${RESET}"
+echo -e "  Installed version: ${BOLD}$CURRENT_VERSION${RESET}"
+echo -e "  Latest version:    ${BOLD}$VERSION${RESET}"
+echo ""
+
+if [ "$CURRENT_VERSION" = "$VERSION" ]; then
+  echo -e "${GREEN}✓${RESET} Already up to date."
+  echo ""
+  exit 0
+fi
+
+# ─── Step 4: Show what changed ───────────────────────────────────────────────
+
+if [ -f "$SCRIPT_DIR/CHANGELOG.md" ]; then
+  echo -e "${BOLD}What's new in v${VERSION}:${RESET}"
+  echo ""
+  # Show the latest changelog entry (everything between first and second ## heading)
+  sed -n '/^## '"$VERSION"'/,/^## [0-9]/p' "$SCRIPT_DIR/CHANGELOG.md" | head -n -1
+  echo ""
+fi
+
+# ─── Step 5: Confirm update ─────────────────────────────────────────────────
+
+echo -e "${BOLD}This will update:${RESET}"
+echo "  • .claude/commands/  — all 13 slash commands"
+echo "  • CHEATSHEET.md      — quick reference card"
+echo "  • CLAUDE.md footer   — version stamp only"
+echo ""
+echo -e "${DIM}This will NOT touch:${RESET}"
+echo "  • CLAUDE.md content  — your product rules, design system, agent customizations"
+echo "  • TASKS.md           — your task board"
+echo ""
+read -p "Continue? (y/n) > " CONFIRM
+
+if [ "$CONFIRM" != "y" ] && [ "$CONFIRM" != "Y" ]; then
+  echo ""
+  echo "Update cancelled."
+  exit 0
+fi
+
+echo ""
+
+# ─── Step 6: Update slash commands ───────────────────────────────────────────
+
+# Count what's being updated
+UPDATED=0
+ADDED=0
+
+for cmd_file in "$TEMPLATE_DIR/.claude/commands/"*.md; do
+  filename=$(basename "$cmd_file")
+  if [ -f "$TARGET_DIR/.claude/commands/$filename" ]; then
+    UPDATED=$((UPDATED + 1))
+  else
+    ADDED=$((ADDED + 1))
+  fi
+done
+
+cp "$TEMPLATE_DIR/.claude/commands/"*.md "$TARGET_DIR/.claude/commands/"
+echo -e "${GREEN}✓${RESET} Updated .claude/commands/ ($UPDATED updated, $ADDED new)"
+
+# ─── Step 7: Update cheatsheet ───────────────────────────────────────────────
+
+cp "$SCRIPT_DIR/CHEATSHEET.md" "$TARGET_DIR/CHEATSHEET.md"
+echo -e "${GREEN}✓${RESET} Updated CHEATSHEET.md"
+
+# ─── Step 8: Update version stamp in CLAUDE.md ──────────────────────────────
+
+# Only update the version footer line — don't touch anything else
+if grep -q "Ship Framework" "$TARGET_DIR/CLAUDE.md"; then
+  # Replace the version in the existing footer
+  sed -i "s|Ship Framework.*v[0-9.]*|Ship Framework](https://github.com/ismailkose/ship-framework) v${VERSION}|g" "$TARGET_DIR/CLAUDE.md"
+  echo -e "${GREEN}✓${RESET} Updated version stamp in CLAUDE.md footer"
+else
+  # No footer exists — append one
+  echo "" >> "$TARGET_DIR/CLAUDE.md"
+  echo "---" >> "$TARGET_DIR/CLAUDE.md"
+  echo "" >> "$TARGET_DIR/CLAUDE.md"
+  echo "_Generated by [Ship Framework](https://github.com/ismailkose/ship-framework) v${VERSION}_" >> "$TARGET_DIR/CLAUDE.md"
+  echo -e "${GREEN}✓${RESET} Added version stamp to CLAUDE.md"
+fi
+
+# ─── Summary ─────────────────────────────────────────────────────────────────
+
+echo ""
+echo -e "${BOLD}${ORANGE}Updated!${RESET} v${CURRENT_VERSION} → v${VERSION}"
+echo ""
+echo -e "${DIM}Your CLAUDE.md content, TASKS.md, and project files are untouched.${RESET}"
+echo -e "${DIM}Only slash commands, cheatsheet, and version stamp were updated.${RESET}"
+echo ""
