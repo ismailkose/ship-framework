@@ -95,6 +95,7 @@ fi
 
 echo -e "${BOLD}This will update:${RESET}"
 echo "  • .claude/commands/  — all 13 slash commands"
+echo "  • references/        — agent reference files"
 echo "  • CHEATSHEET.md      — quick reference card"
 echo "  • CLAUDE.md footer   — version stamp only"
 echo ""
@@ -130,7 +131,15 @@ done
 cp "$TEMPLATE_DIR/.claude/commands/"*.md "$TARGET_DIR/.claude/commands/"
 echo -e "${GREEN}✓${RESET} Updated .claude/commands/ ($UPDATED updated, $ADDED new)"
 
-# ─── Step 7: Update cheatsheet ───────────────────────────────────────────────
+# ─── Step 7: Update references ────────────────────────────────────────────────
+
+if [ -d "$TEMPLATE_DIR/references" ]; then
+  mkdir -p "$TARGET_DIR/references"
+  cp "$TEMPLATE_DIR/references/"*.md "$TARGET_DIR/references/"
+  echo -e "${GREEN}✓${RESET} Updated references/"
+fi
+
+# ─── Step 8: Update cheatsheet ───────────────────────────────────────────────
 
 cp "$SCRIPT_DIR/CHEATSHEET.md" "$TARGET_DIR/CHEATSHEET.md"
 echo -e "${GREEN}✓${RESET} Updated CHEATSHEET.md"

@@ -149,6 +149,14 @@ mkdir -p "$TARGET_DIR/.claude/commands"
 cp "$TEMPLATE_DIR/.claude/commands/"*.md "$TARGET_DIR/.claude/commands/"
 echo -e "${GREEN}✓${RESET} Created .claude/commands/ (13 slash commands)"
 
+# ─── Copy references ─────────────────────────────────────────────────────────
+
+if [ -d "$TEMPLATE_DIR/references" ]; then
+  mkdir -p "$TARGET_DIR/references"
+  cp "$TEMPLATE_DIR/references/"*.md "$TARGET_DIR/references/"
+  echo -e "${GREEN}✓${RESET} Created references/ (animation guidelines)"
+fi
+
 # ─── Copy cheatsheet ─────────────────────────────────────────────────────────
 
 cp "$SCRIPT_DIR/CHEATSHEET.md" "$TARGET_DIR/CHEATSHEET.md"
@@ -266,6 +274,7 @@ echo "  • CLAUDE.md           — Your team framework"
 echo "  • TASKS.md            — Persistent task board"
 echo "  • CHEATSHEET.md       — Quick reference card"
 echo "  • .claude/commands/   — 13 slash commands"
+echo "  • references/         — Animation guidelines for agents"
 if [ "$BROWSER_ENABLED" = true ]; then
 echo "  • Playwright          — Browser screenshots enabled"
 fi

@@ -10,8 +10,9 @@ You must produce:
    - A one-line JTBD: "When I [situation], I want to [motivation], so I can [outcome]"
    - A RICE score: Reach (users/week) × Impact (3/2/1/0.5/0.25) × Confidence (100%/80%/50%) / Effort (person-weeks)
    The "magic moment" gets built FIRST regardless of score. Everything else goes by RICE. If a feature can't produce a clear JTBD, flag it — it might not be worth building.
-5. Risks & Unknowns — what could go wrong technically
-6. Disagreements — if the brief asks for something risky, say so
+5. Motion System (if the product has UI) — read `references/animation.md` Sections 1-2, then define: what animates, timing, easing, spring config, and reduced motion approach. Dev builds from this spec.
+6. Risks & Unknowns — what could go wrong technically
+7. Disagreements — if the brief asks for something risky, say so
 
 Reference what /visionary produced. Don't start from scratch.
 If you disagree with Vi's brief, state it clearly and offer your alternative.

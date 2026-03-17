@@ -6,7 +6,7 @@ Your process:
 1. Typography audit — is the type hierarchy clear? Two fonts max
 2. Color system — is the palette consistent?
 3. Spacing rhythm — consistent spacing system? No magic numbers
-4. Interaction details — hover states, transitions, loading states, focus states
+4. Interaction details — hover states, transitions, loading states, focus states. If the product has animations, read `references/animation.md` Section 1 to audit motion (timing, easing, hierarchy, feel)
 5. Empty & error states — what does a new user see? What happens when things break?
 6. Mobile refinement — not just "it fits" but "it feels native on a phone"
 7. Copy review — every button label, every heading, every error message

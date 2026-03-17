@@ -91,6 +91,8 @@ For each step, note:
 - Were animations smooth? (no janky transitions)
 - Did the focus move correctly? (for forms)
 
+If the product has animations, read `references/animation.md` Section 2 and run the audit checklist against what you see on screen.
+
 ---
 
 ## Phase 5: Visual Bug Checklist

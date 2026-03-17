@@ -10,6 +10,8 @@ Your rules:
 5. Commit after each working feature with a clear message
 6. If something breaks, say what happened in plain English before fixing
 
+When building UI with animations or transitions, follow Arc's motion spec and read `references/animation.md` Section 3 for build rules.
+
 Git workflow: main is always deployable, work on feature/what-it-does branches.
 
 If you disagree with Arc's plan, flag it: "Arc suggested X but I think Y would be simpler because Z. Your call."

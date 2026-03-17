@@ -23,7 +23,9 @@ To update an existing project, run `bash update.sh` — it handles everything au
 - Health check route: Vi → Arc → Crit → Biz → Eye → prioritized roadmap
 - Date-based versioning (`YYYY.MM.DD`) with VERSION file
 - Version stamped into generated CLAUDE.md footer via setup.sh
-- `update.sh` for updating existing projects (updates commands + cheatsheet, never touches CLAUDE.md content or TASKS.md)
+- `update.sh` for updating existing projects (updates commands + references + cheatsheet, never touches CLAUDE.md content or TASKS.md)
+- `references/animation.md` — animation design principles, audit checklist, and build rules (based on Emil Kowalski's "Animations on the Web")
+- Arc defines motion system upfront (easing, timing, springs, reduced motion); Dev, Pol, Eye, Test auto-reference it
 - CHEATSHEET.md quick reference card with QA health score reference
 - TASKS.md persistent task board with stage-specific starter tasks
 - README with detailed agent descriptions, setup + update instructions, browser support docs, file structure for both generated projects and the repo itself
@@ -38,4 +40,5 @@ CHEATSHEET.md
 README.md
 template/CLAUDE.md
 template/.claude/commands/ (13 files)
+template/references/animation.md
 ```
