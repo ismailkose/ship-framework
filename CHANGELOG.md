@@ -6,6 +6,39 @@ To update an existing project, run `bash update.sh` — it handles everything au
 
 ---
 
+## 2026.03.17 — Animation Reference
+
+### Added
+- `references/animation.md` — stack-agnostic animation reference with 4 sections
+- **Section 1: Design Principles** — motion budget (limit competing patterns per screen, not element count), easing table, golden rules, spring configs, motion hierarchy
+- **Section 2: Audit Checklist** — timing, easing, performance, accessibility, balance, and feel checks
+- **Section 3: Build Rules** — CSS-first foundations (universal, works in any stack) + Framer Motion patterns (React). Data-attribute triggers, CSS custom properties for dynamic values, keyframe animations
+- **Section 4: Pattern Library** — 8 reusable foundations based on Emil Kowalski's "Animations on the Web": reveal on hover, stacking & positioning, staggered reveal, shared element transition, dynamic resize, directional navigation, inline expansion, element-to-view expansion
+- Motion budget concept: 1-2 simultaneous motion patterns per screen. A staggered group counts as one pattern
+- Crit added as 6th agent checking animation balance
+- Arc's motion system now emphasizes restraint alongside spec
+- Dev references pattern library as learning material (adapt, don't copy)
+- CHEATSHEET.md: Added Motion Budget quick reference with hierarchy table
+- README.md: Added Animation Reference section, updated Arc and Crit descriptions
+
+### Updated
+- `template/.claude/commands/architect.md` — motion system includes budget + pattern awareness
+- `template/.claude/commands/build.md` — references Section 4 patterns
+- `template/.claude/commands/critic.md` — animation balance check added
+- `template/.claude/commands/browse.md` — animation audit checklist reference
+- `template/.claude/commands/polish.md` — motion feel audit reference
+- `template/.claude/commands/qa.md` — reduced motion and animation testing
+- `setup.sh` — copies references/ directory during project setup
+- `update.sh` — copies references/ during updates
+
+### How to update
+```bash
+bash ship-framework/update.sh
+```
+This updates your slash commands, references/, cheatsheet, and version stamp. Your CLAUDE.md content and TASKS.md are untouched.
+
+---
+
 ## 2026.03.16 — Initial Release
 
 ### Added
@@ -23,14 +56,10 @@ To update an existing project, run `bash update.sh` — it handles everything au
 - Health check route: Vi → Arc → Crit → Biz → Eye → prioritized roadmap
 - Date-based versioning (`YYYY.MM.DD`) with VERSION file
 - Version stamped into generated CLAUDE.md footer via setup.sh
-- `update.sh` for updating existing projects (updates commands + references + cheatsheet, never touches CLAUDE.md content or TASKS.md)
-- `references/animation.md` — stack-agnostic animation reference with 4 sections: Design Principles (motion budget, easing, hierarchy), Audit Checklist (timing, balance, accessibility), Build Rules (CSS-first foundations + Framer Motion), Pattern Library (8 reusable foundations based on Emil Kowalski's "Animations on the Web")
-- 8 pattern foundations: reveal on hover, stacking & positioning, staggered reveal, shared element transition, dynamic resize, directional navigation, inline expansion, element-to-view expansion
-- Motion budget concept: limit competing motion patterns per screen (not element count), Arc sets budget upfront, Crit checks balance after
-- 6 agents reference animation.md: Arc (spec + restraint), Dev (build rules + patterns), Pol (feel audit), Eye (visual check), Test (accessibility), Crit (balance check)
+- `update.sh` for updating existing projects (updates commands + cheatsheet, never touches CLAUDE.md content or TASKS.md)
 - CHEATSHEET.md quick reference card with QA health score reference
 - TASKS.md persistent task board with stage-specific starter tasks
-- README with detailed agent descriptions, setup + update instructions, browser support docs, file structure for both generated projects and the repo itself
+- README with detailed agent descriptions, setup + update instructions, browser support docs, file structure
 
 ### Files
 ```

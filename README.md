@@ -1,6 +1,6 @@
  # Ship Framework
 
-**v2026.03.16** · **An AI product team for one-person teams.**
+**v2026.03.17** · **An AI product team for one-person teams.**
 
 You're one person. You handle product, design, business, and decisions. You need engineering — that's what Claude Code is for. But raw Claude Code is like having a brilliant engineer with no product sense, no design eye, and no business context. It builds what you say, not what you need.
 
