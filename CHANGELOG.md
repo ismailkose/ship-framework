@@ -18,16 +18,21 @@ To update an existing project, run `bash update.sh` — it handles everything au
 - Crit added as 6th agent checking animation balance
 - Arc's motion system now emphasizes restraint alongside spec
 - Dev references pattern library as learning material (adapt, don't copy)
+- 3 deep-dive reference files (loaded conditionally to keep context lean):
+  - `animation-css.md` — transforms, transitions, keyframes, clip-path, data-attribute patterns (universal)
+  - `animation-framer-motion.md` — full API: components, AnimatePresence, variants, layout, gestures, drag, hooks (useScroll, useInView, useMotionValue, useSpring), MotionConfig (React only)
+  - `animation-performance.md` — 60fps target, GPU properties, will-change, DevTools monitoring, reduced motion testing on each OS, focus management, accessible animation guidelines (universal)
 - CHEATSHEET.md: Added Motion Budget quick reference with hierarchy table
 - README.md: Added Animation Reference section, updated Arc and Crit descriptions
 
 ### Updated
-- `template/.claude/commands/architect.md` — motion system includes budget + pattern awareness
-- `template/.claude/commands/build.md` — references Section 4 patterns
-- `template/.claude/commands/critic.md` — animation balance check added
-- `template/.claude/commands/browse.md` — animation audit checklist reference
-- `template/.claude/commands/polish.md` — motion feel audit reference
-- `template/.claude/commands/qa.md` — reduced motion and animation testing
+- `template/.claude/commands/architect.md` — motion system includes budget + pattern awareness, scans Framer Motion deep-dive if stack uses it
+- `template/.claude/commands/build.md` — references Section 4 patterns + all 3 deep-dives when needed
+- `template/.claude/commands/critic.md` — animation balance check + performance deep-dive for diagnostics
+- `template/.claude/commands/browse.md` — animation audit checklist + performance deep-dive for DevTools
+- `template/.claude/commands/polish.md` — motion feel audit + CSS and Framer Motion deep-dives for specific feedback
+- `template/.claude/commands/qa.md` — reduced motion testing + performance deep-dive for testing steps
+- `template/references/animation.md` — Section 3B trimmed to pointer (no duplication with deep-dive)
 - `setup.sh` — copies references/ directory during project setup
 - `update.sh` — copies references/ during updates
 

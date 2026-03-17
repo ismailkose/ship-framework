@@ -1,12 +1,12 @@
 # Animation Reference
 
 > Agents read the section relevant to their role.
-> Arc → Sections 1 + 2 (plan the motion system, set the motion budget).
-> Dev → Sections 3 + 4 (build it right, learn from patterns).
-> Pol → Sections 1 + 2 (audit the feel).
-> Eye → Section 2 (check what's on screen).
-> Test → Section 2 (verify it works).
-> Crit → Section 1 (check animation balance — is motion earning its place?).
+> Arc → Sections 1 + 2 (plan the motion system). Scan `animation-framer-motion.md` if stack uses it.
+> Dev → Sections 3 + 4 (build rules + patterns). Deep-dives: `animation-css.md`, `animation-framer-motion.md` (if stack), `animation-performance.md`.
+> Pol → Sections 1 + 2 (audit the feel). For specifics: `animation-css.md`, `animation-framer-motion.md` (if stack).
+> Eye → Section 2 (check what's on screen). For perf issues: `animation-performance.md`.
+> Test → Section 2 (verify it works). For reduced motion testing: `animation-performance.md`.
+> Crit → Section 1 (animation balance). For diagnosing issues: `animation-performance.md`.
 
 ---
 
@@ -311,179 +311,21 @@ Set `--index` from your template/framework. Keeps animation logic in CSS, trigge
 
 ### 3B: Framer Motion (React)
 
-If your stack uses React with Framer Motion, these are the framework-specific patterns.
-The foundations from 3A still apply — Framer Motion is just a nicer API for the same CSS concepts.
+If your stack uses React with Framer Motion, see `animation-framer-motion.md`
+for the full API reference — components, AnimatePresence, variants, layout
+animations, gestures, drag, hooks (useScroll, useInView, useMotionValue,
+useSpring, useTransform), transition options, and MotionConfig.
 
-#### Reduced Motion
+The foundations from 3A still apply — Framer Motion is a nicer API for the
+same CSS concepts.
 
-```tsx
-import { useReducedMotion } from "framer-motion"
+### Performance & Accessibility
 
-function Component() {
-  const reduced = useReducedMotion()
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: reduced ? 0 : 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: reduced ? 0 : 0.3 }}
-    />
-  )
-}
-```
+For the quick rules: only animate `transform` and `opacity`, use `will-change`
+sparingly, target 60fps, always respect `prefers-reduced-motion`.
 
-Global setting:
-
-```tsx
-import { MotionConfig, useReducedMotion } from "framer-motion"
-
-function App() {
-  const reduced = useReducedMotion()
-  return (
-    <MotionConfig reducedMotion={reduced ? "always" : "never"}>
-      <YourApp />
-    </MotionConfig>
-  )
-}
-```
-
-#### Exit Animations
-
-Always wrap removable elements in `AnimatePresence`:
-
-```tsx
-<AnimatePresence>
-  {isOpen && (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ duration: 0.2, ease: "easeOut" }}
-    />
-  )}
-</AnimatePresence>
-```
-
-Exit duration should be ~75% of enter duration.
-
-#### Staggered Lists
-
-```tsx
-const container = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.08 } }
-}
-const item = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0 }
-}
-
-<motion.ul variants={container} initial="hidden" animate="visible">
-  {items.map(i => <motion.li key={i} variants={item}>{i}</motion.li>)}
-</motion.ul>
-```
-
-Don't stagger more than 8 items — it's too slow.
-
-#### Spring Configs
-
-```tsx
-// Snappy — UI controls
-{ type: "spring", stiffness: 400, damping: 30 }
-
-// Gentle — larger elements
-{ type: "spring", stiffness: 200, damping: 20 }
-
-// Bouncy — playful
-{ type: "spring", stiffness: 300, damping: 10 }
-
-// Duration-based spring
-{ type: "spring", duration: 0.3, bounce: 0.2 }
-```
-
-#### Layout Animations
-
-`layout` prop is expensive. Use sparingly:
-
-```tsx
-<motion.div layout>           // Position AND size — most expensive
-<motion.div layout="position"> // Position only — cheaper
-<motion.div layout="size">     // Size only
-```
-
-#### Shared Layout (layoutId)
-
-When two elements represent the same thing in different states, give them the
-same `layoutId` — Framer Motion animates the transition automatically:
-
-```tsx
-{tabs.map(tab => (
-  <button key={tab} onClick={() => setActive(tab)}>
-    {tab}
-    {active === tab && (
-      <motion.div
-        layoutId="tab-indicator"
-        className="indicator"
-        transition={{ type: "spring", stiffness: 400, damping: 30 }}
-      />
-    )}
-  </button>
-))}
-```
-
-Set `borderRadius` in the `style` prop (not CSS class) to prevent distortion during layout animation.
-
-#### Directional Variants
-
-For navigation that slides in the direction of travel:
-
-```tsx
-const variants = {
-  initial: (direction: number) => ({
-    x: `${110 * direction}%`,
-    opacity: 0,
-  }),
-  active: { x: "0%", opacity: 1 },
-  exit: (direction: number) => ({
-    x: `${-110 * direction}%`,
-    opacity: 0,
-  }),
-}
-
-// direction = 1 for forward, -1 for back
-<AnimatePresence mode="popLayout" custom={direction}>
-  <motion.div
-    key={currentStep}
-    variants={variants}
-    initial="initial"
-    animate="active"
-    exit="exit"
-    custom={direction}
-  />
-</AnimatePresence>
-```
-
-#### Dynamic Height
-
-Use `react-use-measure` to animate container height when content changes:
-
-```tsx
-import useMeasure from "react-use-measure"
-
-const [ref, bounds] = useMeasure()
-
-<motion.div animate={{ height: bounds.height }}>
-  <div ref={ref}>
-    {/* content that changes size */}
-  </div>
-</motion.div>
-```
-
-### Performance Tips (all stacks)
-
-- `will-change: transform, opacity` — only on elements that actually animate. Remove after animation if possible.
-- Avoid creating new objects during render/animation (causes GC pauses).
-- Monitor with Chrome DevTools: Performance tab → record during animation. Target 60fps (16.67ms per frame).
-- If an animation stutters on mid-range devices, simplify or remove it.
+For deep-dive (DevTools monitoring, common perf issues, focus management,
+reduced motion testing on each OS): see `animation-performance.md`.
 
 ---
 

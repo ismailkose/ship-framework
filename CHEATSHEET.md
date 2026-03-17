@@ -102,6 +102,8 @@ Arc defines, Crit checks. Limit competing patterns per screen, not element count
 
 8 pattern foundations in `references/animation.md`: reveal on hover, stacking, staggered reveal, shared element transition, dynamic resize, directional navigation, inline expansion, element-to-view expansion.
 
+Deep-dives (loaded only when needed): `animation-css.md` (universal), `animation-framer-motion.md` (React), `animation-performance.md` (universal).
+
 6 agents check: Arc (spec + restraint) → Dev (build + adapt) → Pol (feel) → Eye (visual) → Test (accessibility) → Crit (balance)
 
 ---

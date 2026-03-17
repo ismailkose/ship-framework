@@ -46,7 +46,7 @@ Visit each affected page. At every page:
 
 **Depth rule:** Spend more time on the magic moment flow (from Vi's brief) and less on secondary pages.
 
-**Animation testing:** If the product has animations, read `references/animation.md` Section 2. Test: does `prefers-reduced-motion` actually disable/reduce animations? Do rapid clicks during animations break anything? Do animations stay smooth with real data?
+**Animation testing:** If the product has animations, read `references/animation.md` Section 2. Test: does `prefers-reduced-motion` actually disable/reduce animations? Do rapid clicks during animations break anything? Do animations stay smooth with real data? For reduced motion testing steps and performance monitoring: `references/animation-performance.md`.
 
 ---
 

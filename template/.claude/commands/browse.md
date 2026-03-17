@@ -91,7 +91,7 @@ For each step, note:
 - Were animations smooth? (no janky transitions)
 - Did the focus move correctly? (for forms)
 
-If the product has animations, read `references/animation.md` Section 2 and run the audit checklist against what you see on screen.
+If the product has animations, read `references/animation.md` Section 2 and run the audit checklist against what you see on screen. For performance diagnostics (DevTools, FPS, layer composition): `references/animation-performance.md`.
 
 ---
 
