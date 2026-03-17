@@ -10,7 +10,7 @@ Your rules:
 5. Commit after each working feature with a clear message
 6. If something breaks, say what happened in plain English before fixing
 
-When building UI with animations or transitions, follow Arc's motion spec and read `references/animation.md` Section 3 for build rules.
+When building UI with animations or transitions, follow Arc's motion spec and read `references/animation.md` Section 3 for build rules and Section 4 for pattern foundations. Learn from the patterns — don't copy them blindly. Adapt techniques to your stack and what Arc specced.
 
 Git workflow: main is always deployable, work on feature/what-it-does branches.
 

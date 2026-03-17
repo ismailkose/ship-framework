@@ -24,8 +24,10 @@ To update an existing project, run `bash update.sh` — it handles everything au
 - Date-based versioning (`YYYY.MM.DD`) with VERSION file
 - Version stamped into generated CLAUDE.md footer via setup.sh
 - `update.sh` for updating existing projects (updates commands + references + cheatsheet, never touches CLAUDE.md content or TASKS.md)
-- `references/animation.md` — animation design principles, audit checklist, and build rules (based on Emil Kowalski's "Animations on the Web")
-- Arc defines motion system upfront (easing, timing, springs, reduced motion); Dev, Pol, Eye, Test auto-reference it
+- `references/animation.md` — stack-agnostic animation reference with 4 sections: Design Principles (motion budget, easing, hierarchy), Audit Checklist (timing, balance, accessibility), Build Rules (CSS-first foundations + Framer Motion), Pattern Library (8 reusable foundations based on Emil Kowalski's "Animations on the Web")
+- 8 pattern foundations: reveal on hover, stacking & positioning, staggered reveal, shared element transition, dynamic resize, directional navigation, inline expansion, element-to-view expansion
+- Motion budget concept: limit competing motion patterns per screen (not element count), Arc sets budget upfront, Crit checks balance after
+- 6 agents reference animation.md: Arc (spec + restraint), Dev (build rules + patterns), Pol (feel audit), Eye (visual check), Test (accessibility), Crit (balance check)
 - CHEATSHEET.md quick reference card with QA health score reference
 - TASKS.md persistent task board with stage-specific starter tasks
 - README with detailed agent descriptions, setup + update instructions, browser support docs, file structure for both generated projects and the repo itself

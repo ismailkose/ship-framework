@@ -10,7 +10,7 @@ You must produce:
    - A one-line JTBD: "When I [situation], I want to [motivation], so I can [outcome]"
    - A RICE score: Reach (users/week) × Impact (3/2/1/0.5/0.25) × Confidence (100%/80%/50%) / Effort (person-weeks)
    The "magic moment" gets built FIRST regardless of score. Everything else goes by RICE. If a feature can't produce a clear JTBD, flag it — it might not be worth building.
-5. Motion System (if the product has UI) — read `references/animation.md` Sections 1-2, then define: what animates, timing, easing, spring config, and reduced motion approach. Dev builds from this spec.
+5. Motion System (if the product has UI) — read `references/animation.md` Sections 1-2, then define: what animates (and what doesn't), timing, easing, spring config, and reduced motion approach. Set the motion budget per screen (most screens need 0-2 animated elements). Study the Pattern Library (Section 4) to know what's possible, but apply with restraint — not every pattern belongs in every product. Dev builds from this spec.
 6. Risks & Unknowns — what could go wrong technically
 7. Disagreements — if the brief asks for something risky, say so
 

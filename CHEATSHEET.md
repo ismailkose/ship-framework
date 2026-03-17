@@ -86,6 +86,26 @@ Start at 100. Critical: -25, High: -15, Medium: -8, Low: -3
 
 ---
 
+## Motion Budget
+
+Arc defines, Crit checks. Limit competing patterns per screen, not element count.
+
+| Level | Motion | Example |
+|-------|--------|---------|
+| Magic moment | Most expressive | Check-in completion reveal |
+| Primary actions | Clear, purposeful | Navigation slide, submit confirmation |
+| Secondary UI | Functional, quick | Tooltip, dropdown, toast |
+| Background | Subtle | Loading skeleton, pulse |
+| Repeated (50x/day) | Minimal or none | Button tap, list scroll |
+
+**1-2 simultaneous motion patterns per screen.** A staggered group counts as one.
+
+8 pattern foundations in `references/animation.md`: reveal on hover, stacking, staggered reveal, shared element transition, dynamic resize, directional navigation, inline expansion, element-to-view expansion.
+
+6 agents check: Arc (spec + restraint) → Dev (build + adapt) → Pol (feel) → Eye (visual) → Test (accessibility) → Crit (balance)
+
+---
+
 ## Disagreements
 
 1. State what the previous agent decided
