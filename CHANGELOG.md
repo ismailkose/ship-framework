@@ -6,6 +6,52 @@ To update an existing project, run `bash update.sh` — it handles everything au
 
 ---
 
+## 2026.03.18 — Component Architecture + Setup Improvements
+
+### Added — Component Architecture
+- `references/components.md` — headless component architecture reference
+- Three-layer model: primitives (Base UI) → styled components (shadcn) → product components (yours)
+- Layering rule: design system overrides where it has opinions, headless primitives fill gaps
+- Stack-agnostic Section 1 (composition thinking) + React-specific Section 2 (Base UI + shadcn)
+- Anti-patterns: don't fight primitives, don't mix layers, don't rebuild accessibility
+- Web App stack default updated to shadcn/ui (Base UI)
+
+### Added — Extensible References
+- `references/README.md` — guide for adding custom references (design system, API patterns, domain rules)
+- Design system template inline — tokens, typography, spacing, component rules, patterns
+- Custom References section in CLAUDE.md template — routing notes tell agents when to read what
+- Framework references are always loaded; user references override where they have opinions
+
+### Added — Setup Improvements
+- `/team` first-run detection: checks for existing code, routes to Vi (fresh) or asks about assessing (existing)
+- `setup.sh` simplified: 3 questions (name, description, stack) — stage, directory, Playwright questions removed
+- Playwright installs automatically (graceful fail if no Node.js)
+- CLAUDE.md conflict handling: previous Ship Framework install → updates safely; existing CLAUDE.md → appends, never overwrites
+- Directory passed as argument: `bash setup.sh ./my-project`
+- Without-terminal setup guide in README
+
+### Updated
+- `template/.claude/commands/architect.md` — component architecture spec
+- `template/.claude/commands/build.md` — component architecture reference
+- `template/.claude/commands/critic.md` — adoption + accessibility checks
+- `template/.claude/commands/browse.md` — visual component consistency
+- `template/.claude/commands/polish.md` — keyboard nav, focus states
+- `template/.claude/commands/qa.md` — keyboard + screen reader testing
+- `template/.claude/commands/team.md` — first-run project state detection
+- `template/CLAUDE.md` — Custom References section, design system comment, Base UI stack
+- `setup.sh` — simplified to 3 questions, auto Playwright, conflict handling
+- `update.sh` — protects user's design-system.md during updates
+- CHEATSHEET.md: Component Architecture section
+- README.md: Updated setup, component architecture section, without-terminal guide
+
+### How to update
+```bash
+bash ship-framework/update.sh
+```
+This updates your slash commands, references/, cheatsheet, and version stamp. Your CLAUDE.md content and TASKS.md are untouched.
+
+---
+
 ## 2026.03.17 — Animation Reference
 
 ### Added
@@ -15,24 +61,24 @@ To update an existing project, run `bash update.sh` — it handles everything au
 - **Section 3: Build Rules** — CSS-first foundations (universal, works in any stack) + Framer Motion patterns (React). Data-attribute triggers, CSS custom properties for dynamic values, keyframe animations
 - **Section 4: Pattern Library** — 8 reusable foundations based on Emil Kowalski's "Animations on the Web": reveal on hover, stacking & positioning, staggered reveal, shared element transition, dynamic resize, directional navigation, inline expansion, element-to-view expansion
 - Motion budget concept: 1-2 simultaneous motion patterns per screen. A staggered group counts as one pattern
-- Crit added as 6th agent checking animation balance
-- Arc's motion system now emphasizes restraint alongside spec
-- Dev references pattern library as learning material (adapt, don't copy)
 - 3 deep-dive reference files (loaded conditionally to keep context lean):
   - `animation-css.md` — transforms, transitions, keyframes, clip-path, data-attribute patterns (universal)
   - `animation-framer-motion.md` — full API: components, AnimatePresence, variants, layout, gestures, drag, hooks (useScroll, useInView, useMotionValue, useSpring), MotionConfig (React only)
   - `animation-performance.md` — 60fps target, GPU properties, will-change, DevTools monitoring, reduced motion testing on each OS, focus management, accessible animation guidelines (universal)
-- CHEATSHEET.md: Added Motion Budget quick reference with hierarchy table
-- README.md: Added Animation Reference section, updated Arc and Crit descriptions
+- Crit added as 6th agent checking animation balance
+- Arc's motion system now emphasizes restraint alongside spec
+- Dev references pattern library as learning material (adapt, don't copy)
+- CHEATSHEET.md: Motion Budget quick reference with hierarchy table
+- README.md: Animation Reference section, updated Arc and Crit descriptions
 
 ### Updated
-- `template/.claude/commands/architect.md` — motion system includes budget + pattern awareness, scans Framer Motion deep-dive if stack uses it
-- `template/.claude/commands/build.md` — references Section 4 patterns + all 3 deep-dives when needed
-- `template/.claude/commands/critic.md` — animation balance check + performance deep-dive for diagnostics
-- `template/.claude/commands/browse.md` — animation audit checklist + performance deep-dive for DevTools
-- `template/.claude/commands/polish.md` — motion feel audit + CSS and Framer Motion deep-dives for specific feedback
-- `template/.claude/commands/qa.md` — reduced motion testing + performance deep-dive for testing steps
-- `template/references/animation.md` — Section 3B trimmed to pointer (no duplication with deep-dive)
+- `template/.claude/commands/architect.md` — motion system includes budget + pattern awareness
+- `template/.claude/commands/build.md` — references Section 4 patterns + deep-dives when needed
+- `template/.claude/commands/critic.md` — animation balance check + performance deep-dive
+- `template/.claude/commands/browse.md` — animation audit checklist + performance deep-dive
+- `template/.claude/commands/polish.md` — motion feel audit + CSS and Framer Motion deep-dives
+- `template/.claude/commands/qa.md` — reduced motion testing + performance deep-dive
+- `template/references/animation.md` — Section 3B trimmed to pointer (no duplication)
 - `setup.sh` — copies references/ directory during project setup
 - `update.sh` — copies references/ during updates
 
@@ -49,7 +95,7 @@ This updates your slash commands, references/, cheatsheet, and version stamp. Yo
 ### Added
 - 11 agents: Vi, Arc, Dev, Crit, Pol, Cap, Eye, Test, Bug, Retro, Biz
 - 13 slash commands including `/team` orchestrator and `/status`
-- `setup.sh` interactive setup (4 questions → full project scaffold)
+- `setup.sh` interactive setup (3 questions → full project scaffold)
 - Built-in product frameworks: JTBD, HEART, RICE
 - Multi-phase workflows for Eye (6 phases), Test (8 phases), Cap (7 phases), Retro (9 steps)
 - QA health score system (0-100 with severity-based deductions)

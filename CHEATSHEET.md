@@ -108,6 +108,22 @@ Deep-dives (loaded only when needed): `animation-css.md` (universal), `animation
 
 ---
 
+## Component Architecture
+
+Three layers: **Primitives** (headless — behavior + accessibility) → **Styled** (your design tokens applied) → **Product** (your features + business logic).
+
+**The layering rule:** Your design system overrides where it has opinions. Primitives fill the gaps.
+
+For React web: Base UI (primitives) + shadcn/ui (styled). Native stacks use platform primitives.
+
+Never rebuild accessibility (focus trapping, keyboard nav, ARIA) — use a primitive. Check `references/components.md`.
+
+**Extend:** Add `references/design-system.md` with your tokens and component rules. See `references/README.md` for the template.
+
+6 agents check: Arc (spec architecture) → Dev (build from primitives) → Pol (feel + keyboard) → Eye (visual consistency) → Test (keyboard + screen reader) → Crit (adoption + accessibility)
+
+---
+
 ## Disagreements
 
 1. State what the previous agent decided

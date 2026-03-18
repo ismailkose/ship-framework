@@ -49,6 +49,7 @@ Read the page's component files. Check CSS values, Tailwind classes, and design 
 2. Is the typography right? (font family, size, weight, hierarchy)
 3. Is the spacing consistent? (check against the spacing system)
 4. Does the border radius match? (check --radius value)
+5. Are components visually consistent? (check `references/design-system.md` if it exists for project tokens; check `references/components.md` Section 1 for the three-layer model)
 
 ---
 

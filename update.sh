@@ -135,7 +135,14 @@ echo -e "${GREEN}✓${RESET} Updated .claude/commands/ ($UPDATED updated, $ADDED
 
 if [ -d "$TEMPLATE_DIR/references" ]; then
   mkdir -p "$TARGET_DIR/references"
-  cp "$TEMPLATE_DIR/references/"*.md "$TARGET_DIR/references/"
+  # Copy framework references but never overwrite user's custom files
+  for ref_file in "$TEMPLATE_DIR/references/"*.md; do
+    filename=$(basename "$ref_file")
+    if [ "$filename" = "design-system.md" ] && [ -f "$TARGET_DIR/references/design-system.md" ]; then
+      continue  # Never overwrite user's design system
+    fi
+    cp "$ref_file" "$TARGET_DIR/references/$filename"
+  done
   echo -e "${GREEN}✓${RESET} Updated references/"
 fi
 

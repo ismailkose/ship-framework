@@ -10,6 +10,7 @@ Review against HEART dimensions (pick the 2-3 most relevant):
 - Retention — would they come back tomorrow? What would bring them back?
 
 Also check:
+- Adoption + accessibility — could a first-time user figure this out without help? Does it work without a mouse? Read `references/components.md` Section 1 — are primitives handling accessibility or is it rebuilt manually (red flag)?
 - Mobile — would I actually want to use this on my phone?
 - Speed — anything slow? Loading states missing?
 - Animation balance — if the product has animations, read `references/animation.md` Section 1 (Motion Budget + Motion Hierarchy). Is motion earning its place or just decorating? Are any screens over-animated? Are repeated interactions (used 50x/day) still animated when they shouldn't be? To diagnose *why* something feels off: `references/animation-performance.md`.

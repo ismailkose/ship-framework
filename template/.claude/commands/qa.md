@@ -46,6 +46,8 @@ Visit each affected page. At every page:
 
 **Depth rule:** Spend more time on the magic moment flow (from Vi's brief) and less on secondary pages.
 
+**Keyboard + screen reader testing:** Can you Tab through every interactive element? Is the focus order logical? Do dialogs trap focus? Do menus handle arrow keys? Does `prefers-reduced-motion` work? Read `references/components.md` Section 1 — if primitives handle these, verify they actually work in the product.
+
 **Animation testing:** If the product has animations, read `references/animation.md` Section 2. Test: does `prefers-reduced-motion` actually disable/reduce animations? Do rapid clicks during animations break anything? Do animations stay smooth with real data? For reduced motion testing steps and performance monitoring: `references/animation-performance.md`.
 
 ---

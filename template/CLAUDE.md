@@ -34,7 +34,7 @@ the *why* in one sentence so I learn over time.
      You can list without versions — Arc will use the latest stable.
 
      Recommended stacks (pick one or write your own):
-     • Web App:          Next.js, React, TypeScript, Tailwind CSS, shadcn/ui, Supabase, Vercel
+     • Web App:          Next.js, React, TypeScript, Tailwind CSS, shadcn/ui (Base UI), Supabase, Vercel
      • Mobile App:       React Native (Expo), TypeScript, Supabase, EAS Build
      • iOS App:          SwiftUI, Swift, CloudKit, Xcode
      • Full-Stack Python: FastAPI, Python, PostgreSQL, HTMX, Tailwind CSS, Uvicorn
@@ -55,7 +55,11 @@ the *why* in one sentence so I learn over time.
 - Ship ugly but working over pretty but broken
 
 <!-- Add your product's specific design vibe below:
-     e.g., "Warm and soft", "Clean and minimal", "Bold and energetic" -->
+     e.g., "Warm and soft", "Clean and minimal", "Bold and energetic"
+
+     Have a design system with tokens, components, or patterns?
+     Add them to references/design-system.md — agents will use your
+     rules automatically. See references/README.md for the template. -->
 
 ## Key Files
 
@@ -74,6 +78,30 @@ npm run dev
 <!-- List required env vars (never put real values here). -->
 
 Copy `.env.example` to `.env.local` and fill in your keys.
+
+---
+
+## Custom References
+
+<!-- The references/ directory contains guides agents read automatically.
+     Framework references (animation, components) are always available.
+     Add your own to extend the team's knowledge.
+
+     Your references override where they have opinions. Where they're silent,
+     agents fall back to framework defaults. For example: your design system
+     defines Button and Card but not Dialog — agents use yours for Button/Card
+     and reach for a headless primitive for Dialog, styled to match your tokens.
+
+     Format:
+     - references/your-file.md — Which agents read it and when
+
+     Example:
+     - references/design-system.md — Arc reads when planning UI. Dev reads
+       when building components. Pol reads when auditing design.
+     - references/api-patterns.md — Arc reads when planning data layer.
+       Dev reads when building API calls.
+
+     See references/README.md for the design system template. -->
 
 ---
 
