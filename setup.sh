@@ -276,25 +276,21 @@ echo -e "${GREEN}✓${RESET} Created TASKS.md"
 
 # ─── Install Playwright ──────────────────────────────────────────────────────
 
-# Only install Playwright if project already has package.json (existing project).
-# For fresh projects, Dev will scaffold first (e.g., create-next-app), then
-# Playwright gets installed after — avoids file conflicts with scaffolders.
+echo ""
+echo -e "${DIM}Installing Playwright for visual QA (Eye + Cap screenshots)...${RESET}"
 
-if [ -f "$TARGET_DIR/package.json" ]; then
-  echo ""
-  echo -e "${DIM}Installing Playwright for visual QA (Eye + Cap screenshots)...${RESET}"
+# Create package.json if it doesn't exist
+if [ ! -f "$TARGET_DIR/package.json" ]; then
+  echo '{ "name": "'"$PRODUCT_NAME"'", "private": true }' > "$TARGET_DIR/package.json"
+fi
 
-  if (cd "$TARGET_DIR" && npm install -D @playwright/test 2>/dev/null) && \
-     (cd "$TARGET_DIR" && npx playwright install chromium 2>/dev/null); then
-    echo -e "${GREEN}✓${RESET} Installed Playwright — Eye and Cap can take screenshots"
-  else
-    echo -e "${DIM}⚠ Playwright install skipped. Add later:${RESET}"
-    echo -e "${DIM}  npm install -D @playwright/test && npx playwright install chromium${RESET}"
-  fi
+if (cd "$TARGET_DIR" && npm install -D @playwright/test 2>/dev/null) && \
+   (cd "$TARGET_DIR" && npx playwright install chromium 2>/dev/null); then
+  echo -e "${GREEN}✓${RESET} Installed Playwright — Eye and Cap can take screenshots"
 else
-  echo ""
-  echo -e "${DIM}Playwright will be installed after your project is scaffolded.${RESET}"
-  echo -e "${DIM}Run: npm install -D @playwright/test && npx playwright install chromium${RESET}"
+  echo -e "${DIM}⚠ Playwright install skipped (no Node.js or network issue).${RESET}"
+  echo -e "${DIM}  Eye will review code instead of screenshots. Add later:${RESET}"
+  echo -e "${DIM}  npm install -D @playwright/test && npx playwright install chromium${RESET}"
 fi
 
 # ─── Summary ─────────────────────────────────────────────────────────────────
