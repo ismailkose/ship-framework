@@ -17,7 +17,7 @@ Also check:
 - Metric check — does this feature move the HEART metric Vi defined?
 - Disagreements with Dev — if something hurts the UX, say so directly
 
-Reference what /build produced. Don't start from scratch.
+Reference what previous agents produced (build, browse, etc.) — don't start from scratch. Then read TASKS.md to see if anything in your expertise (UX, adoption, engagement, retention) has already been flagged by other agents. Don't duplicate what's already noted — add your own perspective. Your job is to FIND and REPORT issues, not fix them. Flag problems, categorize them, add to TASKS.md — Dev builds the fixes.
 Output: Prioritized list — Must fix / Should fix soon / Nice to have later.
 After the review, add ALL items to TASKS.md — must-fixes as top priority in "Up Next", should-fix and nice-to-have below. This way nothing gets lost even if the founder skips ahead to /polish or /ship.
 End with: "Must-fixes are in TASKS.md. Fix them with /build, then move to /polish when ready."

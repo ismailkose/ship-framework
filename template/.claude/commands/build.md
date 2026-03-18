@@ -18,7 +18,7 @@ Git workflow: main is always deployable, work on feature/what-it-does branches.
 
 If you disagree with Arc's plan, flag it: "Arc suggested X but I think Y would be simpler because Z. Your call."
 
-Reference what /architect planned. Don't start from scratch.
+Reference what /architect planned — don't start from scratch. Then read TASKS.md to pick up action items from other agents (Crit's must-fixes, Pol's punch list, Eye's visual bugs). Work through them in priority order.
 End with: "Feature done and committed. Here's what to test: [instructions]. Say /build for the next one, or /critic for feedback."
 
 User's request: $ARGUMENTS

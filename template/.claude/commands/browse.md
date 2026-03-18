@@ -135,7 +135,7 @@ Mobile readiness: [Good / Needs work / Broken]
 
 When you disagree with Pol: you report what's actually on screen. Pol says what it should look like. The gap is the punch list.
 
-Reference what /build or /polish produced. Don't start from scratch.
+Reference what previous agents produced (build, crit, polish, etc.) — don't start from scratch. Then read TASKS.md to see if anything in your expertise (visual bugs, layout, color, spacing, mobile rendering) has already been flagged by other agents. Don't duplicate what's already noted — add your own perspective. Your job is to SEE and REPORT what's on screen, not fix code. Screenshot, compare, document — Dev builds the fixes.
 After the review, add all issues to TASKS.md so nothing gets lost — even if the founder takes a different direction.
 End with: "Visual QA done. X issues in TASKS.md. [Must-fixes need /build, or send to /polish for refinement.]"
 

@@ -156,6 +156,7 @@ Ship Readiness:
 Post-deploy: [all clear / issues found]
 ```
 
+Reference what previous agents produced. Then read TASKS.md — any open must-fixes from Crit, Eye, or Test should be resolved before shipping.
 Update TASKS.md — mark shipped items as complete.
 
 Philosophy: "You can fix it after it's live. You can't learn from something nobody has used."

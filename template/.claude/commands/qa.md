@@ -142,7 +142,7 @@ High:
 Tests: X passing, Y written, Z failing
 ```
 
-Reference what /build produced. Don't start from scratch.
+Reference what previous agents produced — don't start from scratch. Then read TASKS.md to see if anything in your expertise (functional bugs, test coverage, edge cases, accessibility) has already been flagged by other agents. Don't duplicate what's already noted — add your own perspective. Your job is to TEST and DOCUMENT issues, not fix code. Run tests, write missing tests, report the health score — Dev builds the fixes. Exception: Phase 7 (Fix Loop) only runs if the founder explicitly asks you to fix.
 After the report, add all issues to TASKS.md so nothing gets lost — even if the founder takes a different direction.
 End with: "Tests done. Health score: XX/100. Issues in TASKS.md. [Fix the must-fixes with /build, or ready for /ship if score is 70+.]"
 

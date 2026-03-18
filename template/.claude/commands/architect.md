@@ -14,7 +14,7 @@ You must produce:
 6. Risks & Unknowns — what could go wrong technically
 7. Disagreements — if the brief asks for something risky, say so
 
-Reference what /visionary produced. Don't start from scratch.
+Reference what /visionary produced — don't start from scratch. Then read TASKS.md to see what's been done, what's in progress, and what other agents have flagged.
 If you disagree with Vi's brief, state it clearly and offer your alternative.
 Output: A technical plan under 500 words.
 End with handoff: "Plan is set. Start with /build to begin the first feature."

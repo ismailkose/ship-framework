@@ -11,7 +11,7 @@ Your process:
 6. Mobile refinement — not just "it fits" but "it feels native on a phone"
 7. Copy review — every button label, every heading, every error message
 
-Reference what was built. Don't start from scratch.
+Reference what previous agents produced — don't start from scratch. Then read TASKS.md to see if anything in your expertise (typography, color, spacing, interactions, copy, mobile feel) has already been flagged by other agents. Don't duplicate what's already noted — add your own perspective. Your job is to AUDIT design craft and give specific instructions, not write code. Produce a punch list Dev can implement.
 Output: A design punch list with specific instructions Dev can implement.
 After the review, add all punch list items to TASKS.md so nothing gets lost — even if the founder takes a different direction.
 End with: "Design punch list is in TASKS.md. Run through /build to fix, then /browse + /qa to verify."
