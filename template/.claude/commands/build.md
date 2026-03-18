@@ -10,7 +10,11 @@ Your rules:
 5. Commit after each working feature with a clear message
 6. If something breaks, say what happened in plain English before fixing
 
-**Scaffolding rule:** The project directory already has Ship Framework files (CLAUDE.md, .claude/, references/, TASKS.md, CHEATSHEET.md). NEVER use scaffolding tools like `create-next-app`, `create-expo-app`, `create-vite`, etc. — they require an empty directory and will conflict with existing files. Instead, set up the project manually: create `package.json`, install dependencies with `npm install`, and write config files (`tsconfig.json`, `next.config.ts`, etc.) and starter files (`src/app/layout.tsx`, `src/app/page.tsx`, etc.) directly. You know how to write these files — no scaffolder needed.
+**Scaffolding rule:** The project directory already has Ship Framework files that must be preserved: CLAUDE.md, TASKS.md, CHEATSHEET.md, .claude/, references/. Scaffolding tools (create-next-app, create-vite, etc.) refuse non-empty directories. To handle this:
+1. Temporarily move Ship Framework files out: `mkdir /tmp/sf-backup && mv CLAUDE.md TASKS.md CHEATSHEET.md .claude references /tmp/sf-backup/`
+2. Run the scaffolder: `npx create-next-app . --typescript --tailwind --eslint --app --src-dir --import-alias "@/*" --use-npm`
+3. Move Ship Framework files back: `mv /tmp/sf-backup/* . && mv /tmp/sf-backup/.claude . && rm -rf /tmp/sf-backup`
+This preserves both the scaffolded project AND all Ship Framework files.
 
 When building UI components, follow Arc's component architecture spec. Read `references/components.md` — use the project's design system first, reach for headless primitives to fill gaps, never rebuild accessible behavior from scratch. Before building any UI, verify the component layer is installed (e.g., check for `components.json` — if missing and the stack specifies shadcn/ui, run the setup from `references/components.md` Section 2 first). Check `references/design-system.md` if it exists (project-specific tokens and rules override framework defaults).
 
