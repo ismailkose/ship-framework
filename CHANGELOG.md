@@ -6,7 +6,17 @@ To update an existing project, run `bash update.sh` — it handles everything au
 
 ---
 
-## 2026.03.18 — Component Architecture + Setup Improvements
+## 2026.03.18 — Component Architecture + Animation Gaps + Setup Improvements
+
+### Added — Animation Principles & Gap Fixes
+- 9 animation principles added to `animation.md` Section 1: anticipation, staging, follow-through, secondary action, squash & stretch, exaggeration, arcs, solid drawing, appeal — based on Disney's 12 Principles adapted for UI, with technique foundations from [Raphael Salaja's userinterface.wiki](https://www.userinterface.wiki/)
+- 3 new "When NOT to Animate" rules: context menus (no entrance), keyboard navigation (always instant), high-frequency interactions (zero animation)
+- Exit-matches-initial golden rule: exit animation properties should mirror enter
+- Stagger max tightened to 30-50ms per item (was 50-100ms)
+- Spring velocity preservation for drag gestures
+- Pattern 5 (Dynamic Resize) strengthened with container gotchas: guard initial zero, callback ref, two-div loop warning, transition delay for natural feel, overflow hidden
+- Advanced AnimatePresence patterns added to `animation-framer-motion.md`: useIsPresent, usePresence + safeToRemove, nested exit coordination with propagate prop
+- AnimatePresence mode "wait" duration warning added
 
 ### Added — Component Architecture
 - `references/components.md` — headless component architecture reference

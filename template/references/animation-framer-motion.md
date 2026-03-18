@@ -92,8 +92,97 @@ import { AnimatePresence, motion } from "framer-motion"
 | Mode | Behavior | Use when |
 |------|----------|----------|
 | `sync` | Enter + exit overlap | Crossfade, parallel transitions |
-| `wait` | Exit completes, then enter starts | Sequential page transitions |
-| `popLayout` | Exiting element removed from flow | Step wizards, tabs with different heights |
+| `wait` | Exit completes, then enter starts | Sequential page transitions. Note: nearly doubles perceived duration — adjust timing |
+| `popLayout` | Exiting element removed from flow | Step wizards, tabs with different heights, list reordering |
+
+### Reading Presence State
+
+Components can detect they're exiting and change behavior:
+
+```tsx
+import { useIsPresent } from "framer-motion"
+
+function Card() {
+  const isPresent = useIsPresent()
+  // true while mounted normally, false during exit animation
+
+  return (
+    <motion.div
+      style={{ position: isPresent ? "static" : "absolute" }}
+      // Disable interactions during exit:
+      // pointerEvents: isPresent ? "auto" : "none"
+    >
+      {isPresent ? "Normal content" : "Exiting..."}
+    </motion.div>
+  )
+}
+```
+
+**Important:** `useIsPresent` must be called from a child component of
+AnimatePresence — not in the parent where you conditionally render. This
+means you need a separate component, not inline JSX.
+
+### Manual Exit Control
+
+For async cleanup (saving drafts, network requests) before unmounting:
+
+```tsx
+import { usePresence } from "framer-motion"
+
+function Notification() {
+  const [isPresent, safeToRemove] = usePresence()
+
+  useEffect(() => {
+    if (!isPresent) {
+      // Do async cleanup, then signal safe to unmount
+      saveDraft().then(() => safeToRemove())
+    }
+  }, [isPresent, safeToRemove])
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      {isPresent ? "Active" : "Saving..."}
+    </motion.div>
+  )
+}
+```
+
+The exit animation runs in parallel with your async work. The element
+unmounts when both the animation finishes and `safeToRemove` is called.
+
+### Nested Exit Coordination
+
+By default, nested AnimatePresence children vanish instantly when the parent
+exits. The `propagate` prop triggers exit animations on both levels:
+
+```tsx
+<AnimatePresence>
+  {show && (
+    <motion.div exit={{ opacity: 0 }} transition={{ duration: 0.8 }}>
+      <AnimatePresence propagate>
+        {items.map(item => (
+          <motion.div
+            key={item}
+            exit={{ opacity: 0, filter: "blur(10px)" }}
+            transition={{ duration: 0.5 }}
+          >
+            {item}
+          </motion.div>
+        ))}
+      </AnimatePresence>
+    </motion.div>
+  )}
+</AnimatePresence>
+```
+
+Without `propagate`, the children disappear immediately when the parent
+exits. With it, both parent and children animate their exits. Coordinate
+the durations — child exits should complete within the parent's exit
+duration.
 
 ---
 

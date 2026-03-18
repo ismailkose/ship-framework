@@ -58,18 +58,19 @@ the fact. If you can't justify an animation in one sentence, cut it.
 ### Golden Rules
 
 1. **Exits are ~75% of enter duration.** If enter is 300ms, exit is ~200ms.
-2. **Only animate transform and opacity.** These are GPU-accelerated. Everything else causes layout recalculation.
-3. **200-300ms is the sweet spot.** Most UI animations should be in this range.
-4. **Smaller elements = faster animations.** Scale duration with element size.
-5. **User-initiated = faster response.** Direct actions should feel immediate.
-6. **System-initiated = can be slower.** Background transitions can take longer.
+2. **Exit mirrors initial.** If it fades + scales in, it should fade + scale out. Matching properties creates visual symmetry.
+3. **Only animate transform and opacity.** These are GPU-accelerated. Everything else causes layout recalculation.
+4. **200-300ms is the sweet spot.** Most UI animations should be in this range.
+5. **Smaller elements = faster animations.** Scale duration with element size.
+6. **User-initiated = faster response.** Direct actions should feel immediate.
+7. **System-initiated = can be slower.** Background transitions can take longer.
 
 ### Default Patterns
 
 - **Content appearing:** fade + rise (`opacity: 0, y: 8` → `opacity: 1, y: 0`). The classic — use it as your default.
 - **Modals/dialogs:** scale + fade (`opacity: 0, scale: 0.95` → `opacity: 1, scale: 1`).
 - **Navigation:** translate (slide). Moving to a new view = slide. Opening something important = scale.
-- **Lists/grids:** stagger children 50-100ms apart. More than 8 items? Don't stagger — too slow.
+- **Lists/grids:** stagger children 30-50ms apart (max 50ms per item). More than 8 items? Don't stagger — too slow.
 - **Button press:** `scale(0.97)` on active, 100ms ease-out.
 - **Hover lift:** `translateY(-4px)` + shadow increase, 200ms ease-out.
 
@@ -85,6 +86,11 @@ Springs feel more natural than duration-based timing for interactive elements:
 
 Match the spring to the product's personality. Health apps feel gentle. Games feel bouncy. Productivity tools feel snappy.
 
+**Velocity preservation:** For drag gestures, pass the input velocity to the
+spring so the element continues with the user's momentum instead of starting
+from zero. Without velocity, a flicked element stops dead and then springs —
+with it, the motion feels continuous and physical.
+
 ### Motion Hierarchy
 
 Not everything deserves the same level of motion:
@@ -95,11 +101,91 @@ Not everything deserves the same level of motion:
 4. **Background elements** (loading, skeleton) → subtle, non-distracting
 5. **Repeated actions** (button clicked 50x/day) → minimal or no animation
 
+### Animation Principles
+
+These come from Disney's 12 Principles of Animation, adapted for UI. They're
+the "why" behind motion decisions — learn them so you can evaluate whether
+animation *feels* right, not just whether it *runs* correctly.
+
+**Anticipation** — Prepare the user for what comes next. A button compresses
+slightly before submitting. A pull-to-refresh has elastic resistance hinting
+at the release action. A card lifts on hover before the click opens it.
+Reserve anticipation for moments that matter — if every micro-interaction
+has a wind-up, the interface feels sluggish.
+
+*Foundation: `whileTap={{ scale: 0.95 }}` on buttons is anticipation.
+Elastic drag with `dragElastic` + threshold trigger is anticipation.
+The technique is: hint at the coming action through physical response.*
+
+**Staging** — Direct the user's attention. When a complex panel opens,
+don't animate everything at once — the eye scatters. Dim the background,
+bring the focal element forward, sequence reveals so there's one clear
+thing to look at. Think of it as directing a film: you're manipulating
+attention, not just showing information.
+
+*Foundation: dim background + `layoutId` morphing to focal element +
+sequential state reveals (color picker → name edit → done). The technique
+is: one focal point at a time, everything else recedes.*
+
+**Follow-through & Overlapping Action** — Nothing stops all at once. When
+an element arrives at its destination, it overshoots slightly and settles.
+Springs handle this naturally — that's why spring animations feel more alive
+than linear easing. The danger is latency: too much follow-through and the
+interface feels slow.
+
+*Foundation: springs with low damping create natural overshoot-and-settle.
+The technique is: let elements finish moving at different rates — don't
+lock everything to the same rigid timeline.*
+
+**Secondary Action** — Supporting flourishes that reinforce the main action
+without stealing focus. A checkmark pops after a successful submit. A
+spinner rotates while loading. Text morphs from "Back Up Now" → "Backing"
+→ "Backed Up!" These don't carry the message alone — they amplify it.
+
+*Foundation: animated button label with inline state transitions (icon +
+text morph + width animation). The technique is: the secondary action
+supports the primary — if you removed it, the meaning stays but the
+feeling diminishes.*
+
+**Squash & Stretch** — Subtle deformation conveys weight and personality.
+An icon that slightly stretches horizontally and compresses vertically on
+state change feels alive. Keep it subtle: `scaleX: 1.05, scaleY: 0.95`
+range. Too much turns professional software into a cartoon.
+
+*Foundation: `animate={{ scaleX: [1.3, 1], scaleY: [0.8, 1] }}` with a
+spring. The technique is: opposing scale axes with spring physics create
+a brief deformation that reads as weight and energy.*
+
+**Exaggeration** — Push past physical accuracy to make a point land harder.
+Useful for onboarding sequences, empty states, celebrations, or error
+notifications. An element might bounce higher or scale larger than physically
+realistic to emphasize the moment. Use sparingly — exaggeration works because
+most of your UI is restrained.
+
+**Arcs** — Straight-line movement feels mechanical. A gentle curve adds
+realism. Most useful for hero moments and playful interactions. For
+utilitarian interfaces, straight lines are fine — but when you need magic,
+reach for a curve. Apple's Dynamic Island elements flow along curved paths
+that feel inevitable.
+
+**Solid Drawing** — CSS `perspective` defines how far an object sits from
+the viewer, giving 3D transforms actual depth. If an icon rotates in 3D,
+it shouldn't suddenly look flat. Consistency in how things scale, skew,
+and rotate maintains the illusion of volume.
+
+**Appeal** — The sum of all techniques applied with care. It's the difference
+between software you tolerate and software you love. When everything is fast,
+craft becomes the differentiator. Great animation is invisible — users don't
+think "nice ease-out curve," they think "this feels good."
+
 ### When NOT to Animate
 
 - Loading states that block interaction — don't make people wait for an animation to finish
 - Error messages that need immediate attention — show them instantly
 - Actions the user performs very frequently — animation becomes annoying
+- Context menus — no entrance animation, exit only. They're used constantly; entrance animation compounds into irritation
+- Keyboard navigation — Tab focus movement must be instant. Never animate focus ring transitions between elements
+- High-frequency interactions — search typing, rapid scrolling, text selection. These happen too fast for animation to help
 - When it adds no value to the experience — remove it
 - When `prefers-reduced-motion` is set — always respect this
 - When the motion budget for this screen is already spent — resist the urge
@@ -501,17 +587,22 @@ Solves the "animate height: auto" problem that CSS can't do natively.
 FAQ lists, settings panels, any content that grows or shrinks.
 
 **Key techniques:**
-- Inner element is measured (ref + bounds)
-- Outer element animates `height` to measured value
-- `overflow: hidden` on outer clips during transition
-- This is one exception to "never animate height" — the outer container
-  animates height while inner content uses transform
+- **Two-div pattern:** outer div animates, inner div measures. Never both on the same element — that creates a loop (animation changes size → triggers measurement → triggers animation)
+- Use a callback ref (not `useRef`) for measurement hooks so the observer attaches when the DOM is ready
+- `overflow: hidden` on the outer div clips content during the transition
+- Guard initial render: `bounds.height > 0 ? bounds.height : "auto"` prevents animation from 0 on mount
+- Add a small transition delay (~50ms) so the resize feels like it's naturally catching up to the content
+- This is one exception to "never animate height" — the outer container animates height while inner content uses transform
+- Works for width too (buttons changing labels, multi-step forms)
 
 ```tsx
-{/* Framer Motion + react-use-measure */}
+{/* Framer Motion + useMeasure */}
 const [ref, bounds] = useMeasure()
 
-<motion.div animate={{ height: bounds.height }} style={{ overflow: "hidden" }}>
+<motion.div
+  animate={{ height: bounds.height > 0 ? bounds.height : "auto" }}
+  style={{ overflow: "hidden" }}
+>
   <div ref={ref}>
     {/* Content that changes size */}
     {expanded && <p>Extra content here</p>}
@@ -522,7 +613,9 @@ const [ref, bounds] = useMeasure()
 **The principle:** Users expect containers to grow and shrink smoothly — a
 sudden height jump feels broken. The measure-then-animate pattern works in
 any framework. In CSS-only stacks, `calc-size(auto)` is emerging but not widely
-supported yet. Until then, you need JS measurement.
+supported yet. Until then, you need JS measurement. Don't overuse this
+pattern — it's a subtle effect for buttons, accordions, and interactive
+elements, not every container on the page.
 
 ---
 
@@ -692,4 +785,4 @@ API` with `view-transition-name` achieves a similar coordinated morph.
 
 ---
 
-*Based on principles from [Emil Kowalski's "Animations on the Web"](https://animations.dev/) and the [animate-skill](https://github.com/delphi-ai/animate-skill).*
+*Based on principles from [Emil Kowalski's "Animations on the Web"](https://animations.dev/), [Raphael Salaja's userinterface.wiki](https://www.userinterface.wiki/), and the [animate-skill](https://github.com/delphi-ai/animate-skill).*
