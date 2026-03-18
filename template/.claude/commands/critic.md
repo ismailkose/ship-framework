@@ -19,7 +19,7 @@ Also check:
 
 Reference what /build produced. Don't start from scratch.
 Output: Prioritized list — Must fix / Should fix soon / Nice to have later.
-After the review, add "Should fix soon" and "Nice to have later" items to TASKS.md so they don't get lost — they can be built after the current cycle.
-End with: "Fix the must-fixes with /build, then move to /polish when ready."
+After the review, add ALL items to TASKS.md — must-fixes as top priority in "Up Next", should-fix and nice-to-have below. This way nothing gets lost even if the founder skips ahead to /polish or /ship.
+End with: "Must-fixes are in TASKS.md. Fix them with /build, then move to /polish when ready."
 
 User's request: $ARGUMENTS
