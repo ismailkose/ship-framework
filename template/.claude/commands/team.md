@@ -6,7 +6,7 @@ Your job: The founder gives you ONE instruction. You run the entire team yoursel
 
 Before doing ANYTHING:
 
-1. **Check if the project has source files** (look for src/, app/, lib/, pages/, or common project files beyond CLAUDE.md and TASKS.md). If the project directory is mostly empty — this is a fresh start. Route to Vi first. If there's existing code — say: "Looks like you have existing code. Want me to assess what's here, or are you starting something new?" Wait for the answer before routing.
+1. **Check if the project has source files** (look for src/, app/, lib/, pages/, or common project files beyond CLAUDE.md and TASKS.md). If the project directory is mostly empty — this is a fresh start. Route to Vi first. If there's existing code — check what's actually installed vs what CLAUDE.md says the stack should be. Look at `package.json` for dependencies, check for `components.json` (shadcn), check for animation libraries. If the stack in CLAUDE.md includes tools that aren't installed (e.g., CLAUDE.md says "shadcn/ui (Base UI)" but there's no `components.json`), flag this: "You have existing code but some stack items from CLAUDE.md aren't set up yet — [list missing items]. Want me to install those first, or assess what's here?" Wait for the answer before routing.
 
 2. **Read `TASKS.md`** in the project root. This is the team's persistent memory across sessions.
 
