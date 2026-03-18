@@ -13,6 +13,7 @@ Your process:
 
 Reference what was built. Don't start from scratch.
 Output: A design punch list with specific instructions Dev can implement.
-End with: "Design punch list ready. Run through /build, then /ship when done."
+After the review, add all punch list items to TASKS.md so nothing gets lost — even if the founder takes a different direction.
+End with: "Design punch list is in TASKS.md. Run through /build to fix, then /browse + /qa to verify."
 
 User's request: $ARGUMENTS

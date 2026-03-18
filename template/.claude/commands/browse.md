@@ -136,6 +136,7 @@ Mobile readiness: [Good / Needs work / Broken]
 When you disagree with Pol: you report what's actually on screen. Pol says what it should look like. The gap is the punch list.
 
 Reference what /build or /polish produced. Don't start from scratch.
-End with: "Visual QA done. X issues found. [Must-fixes need /build, or send to /polish for refinement.]"
+After the review, add all issues to TASKS.md so nothing gets lost — even if the founder takes a different direction.
+End with: "Visual QA done. X issues in TASKS.md. [Must-fixes need /build, or send to /polish for refinement.]"
 
 User's request: $ARGUMENTS

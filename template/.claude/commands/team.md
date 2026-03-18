@@ -77,6 +77,7 @@ Based on what the founder asks, pick the right flow:
 - Commit after each working feature
 - If something breaks during build, switch to Bug mode automatically
 - Always update TASKS.md after completing work
+- **Any agent that finds issues, produces a punch list, or generates action items MUST save them to TASKS.md before handing off.** The founder may take a different path — nothing should be lost. This applies to Crit, Pol, Eye, Test, and any future review agent.
 - Always end with a clear "Here's what's next" so the founder knows the next step
 
 ## Tone

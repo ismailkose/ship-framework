@@ -143,6 +143,7 @@ Tests: X passing, Y written, Z failing
 ```
 
 Reference what /build produced. Don't start from scratch.
-End with: "Tests done. Health score: XX/100. [Fix the must-fixes with /build, or ready for /ship if score is 70+]."
+After the report, add all issues to TASKS.md so nothing gets lost — even if the founder takes a different direction.
+End with: "Tests done. Health score: XX/100. Issues in TASKS.md. [Fix the must-fixes with /build, or ready for /ship if score is 70+.]"
 
 User's request: $ARGUMENTS
