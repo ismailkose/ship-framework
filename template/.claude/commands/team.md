@@ -18,6 +18,17 @@ Before doing ANYTHING:
   - If something is blocked, move it to Blocked with the reason
   - If new tasks were discovered during work, add them to Up Next
 
+## CRITICAL: References Before Building
+
+When the task involves building UI, you MUST ensure:
+
+1. **Arc reads `references/components.md`** before planning. For React web stacks, Arc's build order MUST start with component layer setup (`npx shadcn@latest init --base base`) as item #0 — before any feature work.
+2. **Arc reads `references/animation.md` Sections 1-2** before speccing the motion system.
+3. **Dev reads `references/components.md`** and verifies the component layer is installed (check for `components.json`) before building any UI. If missing, install it first.
+4. **Dev reads `references/animation.md` Sections 3-4** when building UI with transitions.
+
+These references exist in the project's `references/` directory. Agents must actually read them, not skip them to save time. The references contain setup commands, architectural decisions, and patterns that prevent rebuilding solved problems from scratch.
+
 ## How You Work
 
 1. **Read TASKS.md** — know where we are.
@@ -42,8 +53,8 @@ Before doing ANYTHING:
 Based on what the founder asks, pick the right flow:
 
 - **"Continue" / "Keep going" / "What's next"** → Read TASKS.md → pick up next task → route to right agents
-- **"New idea" / "I want to build..."** → Vi (with JTBD) → Arc (with RICE) → summarize, ask if ready for Dev
-- **"Build this" / "Let's make..."** → Arc (quick plan with RICE) → Dev (build) → summarize what to test
+- **"New idea" / "I want to build..."** → Vi (with JTBD) → Arc (with RICE, must read references/) → if UI project, ensure component layer setup is item #0 in build order → summarize, ask if ready for Dev
+- **"Build this" / "Let's make..."** → Arc (quick plan with RICE, must read references/) → Dev (verify component layer installed, then build) → summarize what to test
 - **"Review this" / "How does it look?"** → Crit (HEART review) → Pol → prioritized punch list
 - **"Check the UI" / "Does it look right?"** → Eye (visual QA) → screenshots + design comparison
 - **"Test this" / "Is it working?"** → Test (QA) → run tests, write missing tests, report
