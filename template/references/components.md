@@ -153,14 +153,25 @@ DirectionProvider, Field, Fieldset, Form, Input, Menu, NumberField, Popover,
 PreviewCard, Progress, RadioGroup, ScrollArea, Select, Separator, Slider,
 Switch, Tabs, TextArea, Toast, Toggle, ToggleGroup, Tooltip.
 
-### shadcn/ui on Top
+### Setup: shadcn/ui with Base UI
 
-When using shadcn/ui with Base UI primitives:
+**Initialize shadcn with Base UI as the primitive layer:**
 
-1. Configure `components.json` to use Base UI as the primitive layer
-2. Install components: `npx shadcn@latest add button dialog select`
-3. Components are copied to your project — modify freely
-4. Your design tokens in `globals.css` control the visual output
+```bash
+npx shadcn@latest init --base base
+```
+
+The `--base base` flag selects Base UI instead of Radix. This creates
+`components.json` configured for Base UI primitives.
+
+**Then install components as needed:**
+
+```bash
+npx shadcn@latest add button dialog select
+```
+
+Components are copied into your project — modify freely. Your design tokens
+in `globals.css` control the visual output.
 
 shadcn/ui handles the Layer 1 → Layer 2 connection. You focus on Layer 3.
 
