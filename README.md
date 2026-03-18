@@ -41,8 +41,9 @@ Pick a tech stack, or type your own:
 ✓ Created TASKS.md
 ✓ Installed Playwright
 
-Done! Open Claude Code and type:
-  /team I want to build Trackwise
+Copy the command below and paste it right here to start building:
+
+  claude "/team I want to build Trackwise"
 ```
 
 That's it. Your team is running.
@@ -248,7 +249,7 @@ The framework includes a stack-agnostic animation reference (`references/animati
 
 **How it works:** Arc defines a motion system when planning (what animates, timing, easing, motion budget). Dev builds from Arc's spec using the build rules. Pol and Eye audit the feel and visuals. Test checks accessibility (`prefers-reduced-motion`). Crit checks whether animation is earning its place or just decorating.
 
-**What's in it:** The main reference (`animation.md`) has design principles, an audit checklist, CSS-first build rules, and 8 pattern foundations based on [Emil Kowalski's "Animations on the Web"](https://animations.dev/). Three deep-dive files provide API-level detail: `animation-css.md` (transforms, transitions, keyframes, clip-path — universal), `animation-framer-motion.md` (full Framer Motion API — React only), and `animation-performance.md` (60fps optimization, DevTools monitoring, reduced motion testing — universal). Agents load deep-dives only when building or reviewing animations, keeping context lean.
+**What's in it:** The main reference (`animation.md`) has design principles (including 9 from Disney's 12 Principles adapted for UI), motion budget, an audit checklist, CSS-first build rules, and 8 pattern foundations. Three deep-dive files provide API-level detail: `animation-css.md` (transforms, transitions, keyframes, clip-path — universal), `animation-framer-motion.md` (full Framer Motion API including advanced AnimatePresence patterns — React only), and `animation-performance.md` (60fps optimization, DevTools monitoring, reduced motion testing — universal). Agents load deep-dives only when building or reviewing animations, keeping context lean. Based on [Emil Kowalski's "Animations on the Web"](https://animations.dev/) and [Raphael Salaja's userinterface.wiki](https://www.userinterface.wiki/).
 
 **Motion budget:** The core restraint concept. Limit competing motion patterns per screen (not element count) — a staggered group of 6 cards is one pattern, that's fine. Four unrelated animations fighting for attention is four patterns, that's too much. Arc sets the budget, Crit checks it.
 

@@ -100,9 +100,11 @@ Arc defines, Crit checks. Limit competing patterns per screen, not element count
 
 **1-2 simultaneous motion patterns per screen.** A staggered group counts as one.
 
-8 pattern foundations in `references/animation.md`: reveal on hover, stacking, staggered reveal, shared element transition, dynamic resize, directional navigation, inline expansion, element-to-view expansion.
+9 animation principles: anticipation, staging, follow-through, secondary action, squash & stretch, exaggeration, arcs, solid drawing, appeal.
 
-Deep-dives (loaded only when needed): `animation-css.md` (universal), `animation-framer-motion.md` (React), `animation-performance.md` (universal).
+8 pattern foundations: reveal on hover, stacking, staggered reveal, shared element transition, dynamic resize, directional navigation, inline expansion, element-to-view expansion.
+
+Deep-dives (loaded only when needed): `animation-css.md` (universal), `animation-framer-motion.md` (React, includes advanced AnimatePresence), `animation-performance.md` (universal).
 
 6 agents check: Arc (spec + restraint) → Dev (build + adapt) → Pol (feel) → Eye (visual) → Test (accessibility) → Crit (balance)
 
