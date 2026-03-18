@@ -492,13 +492,13 @@ you want a specific perspective. But /team is the default way to work.
     |
 /build -> Code, one feature at a time
     |
+/critic -> HEART review (must-fixes go back to /build, rest goes to TASKS.md)
+    |
+/polish -> Design refinement (may send back to /build)
+    |
 /browse -> Visual QA (screenshots + design comparison)
     |
 /qa -> Run tests, write missing tests
-    |
-/critic -> HEART review (may send back to /build)
-    |
-/polish -> Design refinement (may send back to /build)
     |
 /ship -> Launch checklist + deploy
     |

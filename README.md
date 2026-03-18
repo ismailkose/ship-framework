@@ -43,7 +43,7 @@ Pick a tech stack, or type your own:
 
 Copy the command below and paste it right here to start building:
 
-  claude "/team I want to build Trackwise"
+claude "/team I want to build Trackwise"
 ```
 
 That's it. Your team is running.
@@ -126,13 +126,13 @@ These frameworks are woven into the agents — you don't need to invoke them man
     |
 /build -> Code, one feature at a time
     |
+/critic -> HEART review (must-fixes go back to /build, rest to TASKS.md)
+    |
+/polish -> Design refinement (may send back to /build)
+    |
 /browse -> Visual QA (screenshots + design comparison)
     |
 /qa -> Run tests, write missing tests
-    |
-/critic -> HEART review (may send back to /build)
-    |
-/polish -> Design refinement (may send back to /build)
     |
 /ship -> Launch checklist + deploy
     |
@@ -156,6 +156,8 @@ You don't run all 11 every time. `/team` figures out which agents are needed.
 # Quick check
 /status
 ```
+
+**Once `/team` is running, just talk naturally.** You don't need to type `/team` again within the same session. Say "go ahead", "build it", "looks good, next feature", "the dashboard feels off, review it" — the team stays active and routes to the right agents automatically. You only need `/team` again when you start a new Claude Code session.
 
 ### The Task Board
 
