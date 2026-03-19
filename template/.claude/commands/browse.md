@@ -92,6 +92,14 @@ For each step, note:
 - Were animations smooth? (no janky transitions)
 - Did the focus move correctly? (for forms)
 
+**Interaction state check (between each step):**
+- Does focus ring or selection state from the previous step leak into the current step?
+- Do hover/active states clear when moving to a new view?
+- Does scroll position reset to top on step transitions?
+- If you go back, does the previous step restore its state correctly?
+- After a rapid double-click, does the UI stay consistent (no flash, no duplicate submissions)?
+- On mobile: do touch/hover states get stuck after tapping?
+
 If the product has animations, read `references/animation.md` Section 2 and run the audit checklist against what you see on screen. For performance diagnostics (DevTools, FPS, layer composition): `references/animation-performance.md`.
 
 ---

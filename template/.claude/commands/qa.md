@@ -48,6 +48,14 @@ Visit each affected page. At every page:
 
 **Keyboard + screen reader testing:** Can you Tab through every interactive element? Is the focus order logical? Do dialogs trap focus? Do menus handle arrow keys? Does `prefers-reduced-motion` work? Read `references/components.md` Section 1 — if primitives handle these, verify they actually work in the product.
 
+**State transition testing:** Walk through multi-step flows (wizards, onboarding, check-in sequences) and test state between steps:
+- Does focus/selection state from the previous step leak into the next step?
+- Does going back restore the previous step's selections?
+- Does refreshing mid-flow preserve or correctly reset progress?
+- Do disabled/loading states clear after async actions complete?
+- After interrupting an animation (rapid click, back button mid-transition), does the UI recover?
+- On mobile: do hover/touch states get stuck after interaction?
+
 **Animation testing:** If the product has animations, read `references/animation.md` Section 2. Test: does `prefers-reduced-motion` actually disable/reduce animations? Do rapid clicks during animations break anything? Do animations stay smooth with real data? For reduced motion testing steps and performance monitoring: `references/animation-performance.md`.
 
 ---
