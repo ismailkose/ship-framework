@@ -74,9 +74,29 @@ the fact. If you can't justify an animation in one sentence, cut it.
 - **Button press:** `scale(0.97)` on active, 100ms ease-out.
 - **Hover lift:** `translateY(-4px)` + shadow increase, 200ms ease-out.
 
-### Spring Animations
+### Springs vs Easing: When to Use Which
 
-Springs feel more natural than duration-based timing for interactive elements:
+Before choosing curves or parameters, ask one question: **is this motion
+reacting to the user, or is the system speaking?**
+
+- **User-driven** (drag, flick, press, gesture) → **spring.** Springs survive
+  interruption because they don't assume the interaction is finished. If the
+  user changes their mind mid-animation, a spring adapts. An easing curve
+  breaks because it has a fixed start and end in time.
+- **System-driven** (state change, notification, page transition) → **easing.**
+  The system is announcing a change — it needs a clear beginning and end.
+  Easing curves communicate this cleanly.
+- **Time-based** (progress bar, loader, scrubbing) → **linear.** Linear
+  preserves the 1:1 relationship between time and progress. If a progress
+  bar eased in or out, the user couldn't predict how long it would take.
+- **High-frequency** (typing, keyboard nav, fast toggles) → **none.**
+  Animation adds noise, not value.
+
+**If it feels slow, shorten the duration first** — before touching easing
+curves. Shorter timing almost always improves perceived responsiveness more
+than curve adjustments.
+
+### Spring Configs
 
 | Personality | Stiffness | Damping | Use Case |
 |-------------|-----------|---------|----------|
