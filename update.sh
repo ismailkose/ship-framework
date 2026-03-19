@@ -87,7 +87,8 @@ if [ -f "$SCRIPT_DIR/CHANGELOG.md" ]; then
   echo -e "${BOLD}What's new in v${VERSION}:${RESET}"
   echo ""
   # Show the latest changelog entry (everything between first and second ## heading)
-  sed -n '/^## '"$VERSION"'/,/^## [0-9]/p' "$SCRIPT_DIR/CHANGELOG.md" | head -n -1
+  # Using sed instead of head -n -1 for macOS compatibility
+  sed -n '/^## '"$VERSION"'/,/^## [0-9]/{ /^## [0-9]/!p; }' "$SCRIPT_DIR/CHANGELOG.md"
   echo ""
 fi
 
