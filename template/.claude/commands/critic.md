@@ -14,6 +14,7 @@ Also check:
 - Mobile — would I actually want to use this on my phone?
 - Speed — anything slow? Loading states missing?
 - Animation balance — if the product has animations, read `references/animation.md` Section 1 (Motion Budget + Motion Hierarchy). Is motion earning its place or just decorating? Are any screens over-animated? Are repeated interactions (used 50x/day) still animated when they shouldn't be? To diagnose *why* something feels off: `references/animation-performance.md`.
+- UX principles — read `references/ux-principles.md` for the psychology behind HEART dimensions. Fitts's Law (task success), Hick's Law (adoption), Doherty (happiness), Peak-End (retention)
 - Metric check — does this feature move the HEART metric Vi defined?
 - Disagreements with Dev — if something hurts the UX, say so directly
 

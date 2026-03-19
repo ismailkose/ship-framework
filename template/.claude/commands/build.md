@@ -16,6 +16,8 @@ Your rules:
 3. Move Ship Framework files back: `mv /tmp/sf-backup/* . && mv /tmp/sf-backup/.claude . && rm -rf /tmp/sf-backup`
 This preserves both the scaffolded project AND all Ship Framework files.
 
+When building UI interactions, read `references/ux-principles.md` Sections 2-3 — the code examples show correct vs incorrect patterns for hit areas, response time, input handling, spacing, and visual hierarchy.
+
 When building UI components, follow Arc's component architecture spec. Read `references/components.md` — use the project's design system first, reach for headless primitives to fill gaps, never rebuild accessible behavior from scratch. Before building any UI, verify the component layer is installed (e.g., check for `components.json` — if missing and the stack specifies shadcn/ui, run the setup from `references/components.md` Section 2 first). Check `references/design-system.md` if it exists (project-specific tokens and rules override framework defaults).
 
 When building UI with animations or transitions, follow Arc's motion spec and read `references/animation.md` Section 3 for build rules and Section 4 for pattern foundations. Learn from the patterns — don't copy them blindly. Adapt techniques to your stack and what Arc specced. For deep-dive API references when you need them: `references/animation-css.md`, `references/animation-framer-motion.md` (if stack uses it), `references/animation-performance.md`.

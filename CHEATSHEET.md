@@ -126,6 +126,22 @@ Never rebuild accessibility (focus trapping, keyboard nav, ARIA) — use a primi
 
 ---
 
+## UX Principles
+
+20 principles in 4 groups. `references/ux-principles.md`.
+
+**Making Decisions Easy:** Hick's Law (fewer choices), Miller's Law (chunk data ~7 items), Cognitive Load (remove noise), Progressive Disclosure (basics first), Tesler's Law (system absorbs complexity), Pareto (optimize the 20%).
+
+**Making Interactions Work:** Fitts's Law (44px targets, expand hit areas), Doherty Threshold (<400ms or fake it), Postel's Law (accept messy input), Goal Gradient (show progress).
+
+**Making Layout Communicate:** Proximity (spacing = grouping), Similarity (same function = same look), Common Region (boundaries group), Uniform Connectedness (lines link), Von Restorff (different = remembered), Prägnanz (simplify), Serial Position (key items first/last).
+
+**Making Experiences Stick:** Peak-End Rule (invest in endings), Zeigarnik (show incomplete), Jakob's Law (use familiar patterns), Aesthetic-Usability (polish = trust).
+
+5 agents use: Arc (screen planning) → Dev (build patterns) → Vi (magic moment) → Pol (layout craft) → Crit (HEART psychology)
+
+---
+
 ## Disagreements
 
 1. State what the previous agent decided

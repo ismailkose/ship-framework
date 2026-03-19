@@ -23,9 +23,11 @@ Before doing ANYTHING:
 When the task involves building UI, you MUST ensure:
 
 1. **Arc reads `references/components.md`** before planning. For React web stacks, Arc's build order MUST start with component layer setup (`npx shadcn@latest init --base base`) as item #0 — before any feature work.
-2. **Arc reads `references/animation.md` Sections 1-2** before speccing the motion system.
-3. **Dev reads `references/components.md`** and verifies the component layer is installed (check for `components.json`) before building any UI. If missing, install it first.
-4. **Dev reads `references/animation.md` Sections 3-4** when building UI with transitions.
+2. **Arc reads `references/ux-principles.md` Sections 1-2** when planning screen maps — Hick's Law, Miller's Law affect how many options per screen.
+3. **Arc reads `references/animation.md` Sections 1-2** before speccing the motion system.
+4. **Dev reads `references/components.md`** and verifies the component layer is installed (check for `components.json`) before building any UI. If missing, install it first.
+5. **Dev reads `references/ux-principles.md` Sections 2-3** when building UI interactions — hit areas, response time, spacing, visual hierarchy.
+6. **Dev reads `references/animation.md` Sections 3-4** when building UI with transitions.
 
 These references exist in the project's `references/` directory. Agents must actually read them, not skip them to save time. The references contain setup commands, architectural decisions, and patterns that prevent rebuilding solved problems from scratch.
 

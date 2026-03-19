@@ -6,6 +6,51 @@ To update an existing project, run `bash update.sh` — it handles everything au
 
 ---
 
+## 2026.03.19 — UX Principles + Spring Decision Framework + Interaction State Checks
+
+### Added — UX Principles
+- `references/ux-principles.md` — 20 UX principles in 4 groups with incorrect/correct code examples
+- **Making Decisions Easy:** Hick's Law, Miller's Law, Cognitive Load, Progressive Disclosure, Tesler's Law, Pareto Principle
+- **Making Interactions Work:** Fitts's Law (hit area expansion), Doherty Threshold (<400ms), Postel's Law (flexible input), Goal Gradient (show progress)
+- **Making Layout Communicate:** Proximity, Similarity, Common Region, Uniform Connectedness, Von Restorff, Prägnanz, Serial Position
+- **Making Experiences Stick:** Peak-End Rule, Zeigarnik Effect, Jakob's Law, Aesthetic-Usability Effect
+- Based on [Jon Yablonski's Laws of UX](https://lawsofux.com/) and [Raphael Salaja's userinterface.wiki](https://www.userinterface.wiki/)
+
+### Added — Spring Decision Framework
+- "Springs vs Easing: When to Use Which" added to `animation.md` — user-driven → spring, system-driven → easing, time-based → linear, high-frequency → none
+- "If it feels slow, shorten duration first" debugging tip
+- Based on Raphael Salaja's "To Spring or Not To Spring"
+
+### Added — Interaction State Checks
+- Eye (browse.md) Phase 4: 6 interaction state checks between steps — focus ring leaking, hover persistence, scroll reset, back button state, double-click, mobile touch
+- QA (qa.md) Phase 3: state transition testing for multi-step flows — focus leaking, back button, refresh mid-flow, loading state clearing, animation interruption, mobile touch
+
+### Added — Agent Collaboration
+- All review agents (Crit, Pol, Eye, QA) reference previous agents first, then read TASKS.md, and stay in their lane (only Dev writes code)
+- Universal rule: any agent that produces action items saves them to TASKS.md before handoff
+- Reordered flow: build → crit → polish → browse → qa → ship (fix UX first, polish second, verify last)
+- Scaffolding rule restored in build.md (move SF files out, scaffold, move back)
+
+### Updated
+- `template/.claude/commands/architect.md` — reads ux-principles for screen planning
+- `template/.claude/commands/build.md` — reads ux-principles for UI interactions, scaffolding rule
+- `template/.claude/commands/critic.md` — reads ux-principles for HEART psychology
+- `template/.claude/commands/polish.md` — reads ux-principles for layout craft
+- `template/.claude/commands/visionary.md` — reads Peak-End Rule for magic moment
+- `template/.claude/commands/team.md` — ux-principles in CRITICAL section, updated flow order
+- `template/.claude/commands/browse.md` — interaction state checks, stays in lane
+- `template/.claude/commands/qa.md` — state transition testing, stays in lane
+- CHEATSHEET.md: UX Principles section
+- README.md: UX Principles section, updated file structure
+
+### How to update
+```bash
+bash ship-framework/update.sh
+```
+This updates your slash commands, references/, cheatsheet, and version stamp. Your CLAUDE.md content and TASKS.md are untouched.
+
+---
+
 ## 2026.03.18 — Component Architecture + Animation Gaps + Setup Improvements
 
 ### Added — Animation Principles & Gap Fixes

@@ -11,6 +11,7 @@ when to load them.
 - `animation-framer-motion.md` — Framer Motion API (React only)
 - `animation-performance.md` — 60fps optimization, reduced motion testing
 - `components.md` — Headless component architecture, three-layer model
+- `ux-principles.md` — 20 UX principles with incorrect/correct code examples
 
 ## Adding Your Own
 
