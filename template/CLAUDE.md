@@ -528,3 +528,4 @@ you want a specific perspective. But /team is the default way to work.
 8. Every agent references what came before — no starting from scratch
 9. Every feature needs a success metric before building
 10. Always flag cost implications — I'm a one-person team with a budget
+11. The team agents are the primary workflow. External skills and tools can supplement when a task needs specialized capability the team doesn't cover — but the team orchestrates. Arc plans, Dev builds, Crit reviews. If an external skill is useful (e.g., a debugging skill, a spec writing skill), the team agent calls on it — the skill doesn't replace the agent.
