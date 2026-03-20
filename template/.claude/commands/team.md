@@ -8,7 +8,23 @@ Before doing ANYTHING:
 
 1. **Check if the project has source files** (look for src/, app/, lib/, pages/, or common project files beyond CLAUDE.md and TASKS.md). If the project directory is mostly empty — this is a fresh start. Route to Vi first. If there's existing code — check what's actually installed vs what CLAUDE.md says the stack should be. Look at `package.json` for dependencies, check for `components.json` (shadcn), check for animation libraries. If the stack in CLAUDE.md includes tools that aren't installed (e.g., CLAUDE.md says "shadcn/ui (Base UI)" but there's no `components.json`), flag this: "You have existing code but some stack items from CLAUDE.md aren't set up yet — [list missing items]. Want me to install those first, or assess what's here?" Wait for the answer before routing.
 
-2. **Read `TASKS.md`** in the project root. This is the team's persistent memory across sessions.
+2. **Skill Conflict Check** — Check if external skills or plugins are installed that overlap with team agents. Look for installed skills matching these patterns:
+   - Product thinking: brainstorming, feature-spec, user-research
+   - Technical planning: writing-plans, system-design, architecture
+   - Building: executing-plans, subagent-driven-development
+   - Debugging: systematic-debugging, debug
+   - Code review: code-review, design-critique
+   - Design: ux-writing, design-system-management
+   - Testing: testing-strategy
+   - Deployment: deploy-checklist
+   - Visual QA: accessibility-review
+
+   If overlapping skills are detected, warn ONCE at the start of the session:
+   "⚠️ Detected external skills that overlap with team agents: [list skills → which agent they overlap with]. Ship Framework's team handles these areas. External skills may interfere with the workflow — they can hijack routing and break the agent chain. Consider disabling them, or know that the team will ignore them and handle these areas itself."
+
+   After warning, proceed normally — team agents always take priority over external skills for their domain. If an external skill tries to activate during a team flow, the team agent overrides it.
+
+3. **Read `TASKS.md`** in the project root. This is the team's persistent memory across sessions.
 
 - Check what's been completed, what's in progress, and what's up next
 - If the founder says "continue" or "keep going" — pick up the next task from TASKS.md
@@ -49,6 +65,54 @@ These references exist in the project's `references/` directory. Agents must act
    - What was built or planned
    - What to test or check
    - What's next on the task board
+
+## Plan Expansion (automatic step)
+
+After Arc delivers the plan and the founder approves it, automatically run a Plan Expansion pass for complex build order items (3+ files, multi-step, or integration work):
+
+1. Identify which build order items are complex (3+ files, or touching core architecture)
+2. For each complex item, expand into bite-sized steps:
+   - **File map** — which files to create or modify, what each is responsible for
+   - **Steps** (2-5 minutes each): write failing test → run → verify fails → write minimal code → run → verify passes → commit
+   - **Exact file paths** — `src/components/X.tsx`, not "the X component"
+   - **Exact verification commands** — `npm test src/lib/__tests__/X.test.ts`
+   - **Exact commit scope** — which files, what message
+3. Simple items (1-2 files, clear scope) stay as one-liners — no expansion needed
+4. If a single item needs more than 10 steps, split it into 2 separate build order items
+
+The founder doesn't see the expansion unless they ask. It's Arc briefing Dev — the founder already approved the plan at the overview level.
+
+## Execution Mode (for build phases)
+
+When Arc's plan has multiple build order items, choose an execution mode:
+
+**Sequential (default):** Dev builds one feature at a time. Good for tightly coupled features, early-stage codebases, or when the founder wants to review each one.
+
+**Parallel dispatch:** For 3+ independent tasks that don't share files. Dispatch a fresh subagent per task with:
+- The exact task from Arc's plan (full text, not a reference)
+- The relevant context (what was built before, what files exist)
+- Clear constraints (don't touch files outside your task)
+- Expected output (what to build, what tests to pass, what to commit)
+
+After each subagent completes:
+1. Verify their work (run tests, check the code)
+2. Check for conflicts between parallel tasks
+3. If conflicts: resolve them before continuing
+4. Mark task complete, move to next
+
+**When to use parallel:**
+- Tasks touch different files/components
+- No shared state between tasks
+- Each task has its own tests
+- Build order items are RICE-scored independently
+
+**When NOT to use parallel:**
+- Tasks share files or state
+- Later tasks depend on earlier tasks
+- The founder wants to review each step
+- First time building in a new codebase (sequential builds context)
+
+**Don't ask the founder which mode.** Default to sequential. Switch to parallel when you see 3+ independent tasks and the codebase is established. Mention it: "Arc's plan has 5 independent tasks. I'm running them in parallel to save time — I'll verify each one and come back with results."
 
 ## Task Routing
 

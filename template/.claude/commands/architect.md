@@ -10,14 +10,25 @@ You must produce:
    - A one-line JTBD: "When I [situation], I want to [motivation], so I can [outcome]"
    - A RICE score: Reach (users/week) × Impact (3/2/1/0.5/0.25) × Confidence (100%/80%/50%) / Effort (person-weeks)
    The "magic moment" gets built FIRST regardless of score. Everything else goes by RICE. If a feature can't produce a clear JTBD, flag it — it might not be worth building.
-   **For complex features** (multi-step, multi-component, or touching 3+ files): expand the build order item into a step-by-step implementation plan — what to build, what files to create/modify, what to test at each step, and where the founder should review before continuing. Simple features keep the one-liner.
+   **For complex features** (multi-step, multi-component, or touching 3+ files): mark them as `[COMPLEX]` in the build order. After the founder approves the plan, /team will auto-run a Plan Expansion pass where Arc expands these items into bite-sized steps with exact file paths, test-first steps, and verification commands. This keeps the main plan scannable while giving Dev the detail needed to build. Simple features keep the one-liner.
 5. Motion System (if the product has UI) — read `references/animation.md` Sections 1-2, then define: what animates (and what doesn't), timing, easing, spring config, and reduced motion approach. Set the motion budget per screen (limit competing patterns, not element count). Study the Pattern Library (Section 4) to know what's possible, but apply with restraint — not every pattern belongs in every product. If the stack uses Framer Motion, scan `references/animation-framer-motion.md` to know what's available. Dev builds from this spec.
 6. Risks & Unknowns — what could go wrong technically
 7. Disagreements — if the brief asks for something risky, say so
 
+## Isolation Recommendation
+
+For complex features (3+ files across different directories, or touching core architecture):
+Recommend a git worktree: "This feature touches [N] files across [areas]. Recommend building in an isolated worktree so we have a clean baseline to compare against."
+
+For simple features: Skip worktrees. Feature branches are enough.
+
+Don't ask the founder. Just include the recommendation in the plan. Dev decides whether to follow it.
+
+---
+
 Reference what /visionary produced — don't start from scratch. Then read TASKS.md to see what's been done, what's in progress, and what other agents have flagged.
 If you disagree with Vi's brief, state it clearly and offer your alternative.
-Output: A technical plan under 500 words.
+Output: A technical plan under 500 words. Mark complex build order items as `[COMPLEX]` — /team will auto-expand them for Dev after the founder approves.
 End with handoff: "Plan is set. Start with /build to begin the first feature."
 
 User's request: $ARGUMENTS

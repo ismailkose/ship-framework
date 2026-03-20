@@ -6,6 +6,75 @@ To update an existing project, run `bash update.sh` — it handles everything au
 
 ---
 
+## 2026.03.20 — Engineering Hardening: TDD, Verification, Systematic Debugging, Plan Expansion, Parallel Dispatch, Worktrees, Branch Finishing, Skill Conflict Detection
+
+### Added — Verification Before Completion (Rule #12)
+- Universal rule: never claim something works without running the verification command and showing output
+- Reinforced in Dev (build.md), Test (qa.md), and Cap (ship.md)
+- For changes under 10 lines, manual check is acceptable; full suite for anything larger
+
+### Added — Skill Conflict Detection (Rule #13)
+- /team checks for installed external skills that overlap with team agents at session start
+- Covers all agents: Vi, Arc, Dev, Bug, Crit, Pol, Test, Cap, Eye
+- Warns once, then team agents take priority over external skills in their domains
+- Prevents skills like Superpowers' brainstorming from hijacking Vi's product thinking role
+
+### Added — TDD Enforcement
+- Dev (build.md): test-first is the default for new functions, bug fixes, behavior changes
+- Red-green-refactor cycle with iron rule: code before test = delete and start over
+- Skip TDD for config, pure layout, generated code, or when founder says "skip tests"
+- Test (qa.md): TDD verification check — flags when Dev wrote tests after code
+
+### Added — Plan Expansion
+- Arc's plan stays under 500 words (overview for the founder)
+- After founder approves, /team auto-runs a Plan Expansion pass for `[COMPLEX]` items
+- Expands into bite-sized steps: file map, test-first steps, exact paths, verification commands
+- Founder doesn't see expansion unless they ask — it's Arc briefing Dev
+
+### Added — Systematic Debugging (/fix rewrite)
+- Bug keeps patient teacher personality, gains 4-phase methodology
+- Phase 1: Investigate (translate, reproduce, check changes, trace data flow)
+- Phase 2: Find the pattern (compare working vs broken code)
+- Phase 3: Hypothesis (one change at a time, no stacking fixes)
+- Phase 4: Fix and verify (failing test, fix root cause, show evidence, teach one thing)
+- 3-strikes rule: 3+ failed fixes = architectural problem, route to Arc
+
+### Added — Git Worktrees
+- Arc recommends worktrees for features touching 3+ files across different directories
+- Dev (build.md): worktree workflow with baseline verification
+- Cap (ship.md): worktree cleanup in Phase 0
+
+### Added — Branch Finishing (Phase 0 in /ship)
+- New Phase 0 before deployment: resolve branch state
+- Options: merge to main, create PR, keep branch
+- Auto-merges when unambiguous; presents options when multiple branches exist
+- Verifies tests on merged result before proceeding
+
+### Added — Parallel Dispatch
+- /team can dispatch 3+ independent tasks in parallel (fresh subagent per task)
+- Each subagent gets full task text, context, constraints, expected output
+- Verified after each: run tests, check conflicts, mark complete
+- Auto-selects: defaults to sequential, switches to parallel for independent tasks
+- Rule #2 updated: "one feature at a time" becomes default-with-exception
+
+### Updated
+- `template/CLAUDE.md` — Rules #12-13, updated Bug/Dev/Arc/Team sections
+- `template/.claude/commands/fix.md` — Complete rewrite (was 16 lines, now ~80)
+- `template/.claude/commands/build.md` — TDD rules, verification, worktree workflow
+- `template/.claude/commands/architect.md` — Plan expansion markers, isolation recommendation
+- `template/.claude/commands/team.md` — Skill conflict detection, plan expansion, parallel dispatch
+- `template/.claude/commands/qa.md` — TDD verification check, verification rule
+- `template/.claude/commands/ship.md` — Phase 0 (branch finishing), verification rule
+- `CHEATSHEET.md` — TDD, verification, conflict detection sections
+
+### How to update
+```bash
+bash ship-framework/update.sh
+```
+This updates your slash commands, references/, cheatsheet, and version stamp. Your CLAUDE.md content and TASKS.md are untouched.
+
+---
+
 ## 2026.03.19 — UX Principles + Spring Decision Framework + Interaction State Checks
 
 ### Added — UX Principles

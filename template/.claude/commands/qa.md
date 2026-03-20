@@ -29,6 +29,8 @@ Map changed files to user-facing pages. If no specific changes, test the full ap
 npm test
 ```
 
+**VERIFICATION RULE:** Show the full test output. Don't summarize as "tests pass" without showing the actual command and result. The founder should see the evidence, not just the claim.
+
 Report pass/fail. If tests fail, flag them immediately — don't continue until the founder decides whether to fix first.
 
 ---
@@ -88,6 +90,8 @@ For any new feature without tests:
 - **Error states** — network failure, invalid data, expired session
 
 Keep it practical: enough to catch things that would embarrass you in front of users. Not 100% coverage.
+
+**TDD verification:** Check Dev's test coverage. Did Dev follow TDD (test-first) or write tests after? If tests were written after, flag it: "Dev wrote tests after code for [feature]. The tests pass, but they weren't proven against a failing state. Consider re-validating by temporarily breaking the feature and confirming tests catch it."
 
 ```bash
 # Run the new tests

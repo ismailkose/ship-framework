@@ -1,6 +1,6 @@
  # Ship Framework
 
-**v2026.03.19** · **An AI product team for one-person teams.**
+**v2026.03.20** · **An AI product team for one-person teams.**
 
 You're one person. You handle product, design, business, and decisions. You need engineering — that's what Claude Code is for. But raw Claude Code is like having a brilliant engineer with no product sense, no design eye, and no business context. It builds what you say, not what you need.
 
@@ -87,11 +87,11 @@ Ship Framework uses date-based versioning (`YYYY.MM.DD`). Each release is tagged
 | `/build` | Dev | **Builder** — writes code one feature at a time, commits and explains every decision |
 | `/critic` | Crit | **Product Reviewer** — uses it like a real user, reviews against HEART dimensions, checks animation balance, finds rough edges |
 | `/polish` | Pol | **Design Director** — your design voice: typography, spacing, transitions, copy, mobile feel |
-| `/ship` | Cap | **Release Manager** — 7-phase deploy: pre-flight → tests → quality gate → readiness → deploy → verify → report |
+| `/ship` | Cap | **Release Manager** — 8-phase deploy: branch resolution → pre-flight → tests → quality gate → readiness → deploy → verify → report |
 | `/money` | Biz | **Business Brain** — simplest path to revenue: pricing model, cost math, Stripe implementation |
 | `/browse` | Eye | **Visual QA** — 6-phase review: setup → screen map → mobile viewport → interaction walkthrough → bug checklist → report |
 | `/qa` | Test | **Tester** — 8-phase QA: scope → tests → explore like a user → document issues → write tests → health score → fix loop → report |
-| `/fix` | Bug | **Debugger** — translates errors to plain English, fixes them, teaches you one thing |
+| `/fix` | Bug | **Debugger** — 4-phase systematic debugging: investigate, find pattern, hypothesize, fix + verify. 3-strikes rule escalates to Arc. Teaches one thing |
 | `/retro` | Retro | **Retrospective** — 9-step weekly review: git data, metrics, shipping streak, time patterns, hotspots, task health, narrative, trends |
 | `/status` | — | **Status check** — quick snapshot of progress from TASKS.md |
 
@@ -110,6 +110,21 @@ The team uses three product frameworks so decisions are structured, not gut-feel
 - **RICE Scoring** — Arc scores every item in the build order: (Reach × Impact × Confidence) / Effort. When agents disagree on priority, RICE is the tiebreaker.
 
 These frameworks are woven into the agents — you don't need to invoke them manually.
+
+---
+
+## Engineering Rigor
+
+The team enforces engineering discipline automatically — no extra commands needed:
+
+- **TDD (Test-Driven Development)** — Dev writes failing tests first, then minimal code to pass. Code before test = delete and start over. Skip TDD for config, layout, or when you say "skip tests."
+- **Verification Before Completion** — Every agent must run the verification command and show output before claiming success. No "should work" — evidence only.
+- **Systematic Debugging** — Bug investigates root cause before fixing. 4 phases: investigate → find pattern → hypothesize → fix. If 3 fixes fail, it's an architecture problem — Bug calls Arc.
+- **Plan Expansion** — Arc writes a clean overview (under 500 words). For complex features, /team auto-expands into bite-sized steps with exact file paths and verification commands. You approve the overview; Dev gets the detail.
+- **Parallel Dispatch** — When the plan has 3+ independent tasks, /team dispatches fresh agents per task for faster iteration. Each agent is verified before moving on.
+- **Git Worktrees** — For complex features touching 3+ files, Arc recommends isolated worktrees with verified baselines.
+- **Branch Finishing** — Cap resolves branch state before deploying: merge, PR, or keep. Verifies tests on merged result.
+- **Skill Conflict Detection** — /team warns when external skills overlap with team agents. The team always takes priority in its domains.
 
 ---
 

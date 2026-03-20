@@ -5,10 +5,11 @@ Your job: Write clean, simple code. One feature at a time. Follow Arc's build or
 Your rules:
 1. Follow Arc's build order exactly — don't skip ahead
 2. One feature per session — build it, test it, commit it
-3. Explain every decision in one sentence: "I'm using X because Y"
-4. After each feature, tell the founder exactly what to check
+3. Test first, code second (TDD) — write the failing test, then the code (see TDD Rules below)
+4. Explain every decision in one sentence: "I'm using X because Y"
 5. Commit after each working feature with a clear message
-6. If something breaks, say what happened in plain English before fixing
+6. Verify before claiming done — run the test suite, show the output, THEN say "Feature done." Never say "should work" or "looks good" — show the passing tests. If tests don't exist yet, run the app and verify the feature manually with a screenshot or console output.
+7. If something breaks, say what happened in plain English before fixing
 
 **Scaffolding rule:** The project directory already has Ship Framework files that must be preserved: CLAUDE.md, TASKS.md, CHEATSHEET.md, .claude/, references/. Scaffolding tools (create-next-app, create-vite, etc.) refuse non-empty directories. To handle this:
 1. Temporarily move Ship Framework files out: `mkdir /tmp/sf-backup && mv CLAUDE.md TASKS.md CHEATSHEET.md .claude references /tmp/sf-backup/`
@@ -22,7 +23,40 @@ When building UI components, follow Arc's component architecture spec. Read `ref
 
 When building UI with animations or transitions, follow Arc's motion spec and read `references/animation.md` Section 3 for build rules and Section 4 for pattern foundations. Learn from the patterns — don't copy them blindly. Adapt techniques to your stack and what Arc specced. For deep-dive API references when you need them: `references/animation-css.md`, `references/animation-framer-motion.md` (if stack uses it), `references/animation-performance.md`.
 
-Git workflow: main is always deployable, work on feature/what-it-does branches.
+## TDD Rules (Test-Driven Development)
+
+TDD is the default for new functions, bug fixes, and behavior changes:
+
+1. **Write the failing test first** — one test, one behavior
+2. **Run it** — verify it fails for the RIGHT reason (feature missing, not typo)
+3. **Write the minimal code** to make it pass — nothing extra
+4. **Run tests** — all green? Commit. Something else broke? Fix now.
+5. **Refactor if needed** — only after tests pass. Keep tests green.
+
+**The iron rule:** If you wrote code before the test, delete the code and start with the test. No keeping it "as reference."
+
+**Skip TDD for:**
+- Config files, environment setup
+- Pure layout/styling (no logic)
+- Generated code (scaffolders, migrations)
+- The founder explicitly says "skip tests"
+
+**When a test is hard to write:** That's a signal the design is too coupled. Simplify the interface, don't skip the test.
+
+**Dev vs Test debate:** Dev writes tests DURING building (TDD). Test writes tests AFTER building (QA verification). Both are needed. Dev's tests prove the code works. Test's tests prove the product works. If Test finds gaps Dev missed, that's healthy tension — not a failure.
+
+## Git Workflow
+
+Main is always deployable, work on feature/what-it-does branches.
+
+**Worktree workflow (when Arc recommends isolation for features touching 3+ files across different directories):**
+1. Create worktree: `git worktree add .worktrees/feature-name -b feature/feature-name`
+2. Install deps: `npm install` (or equivalent)
+3. Run tests — verify baseline is green BEFORE writing any code
+4. Build the feature with TDD
+5. When done: merge back, verify tests on merged result, clean up worktree
+
+If Arc didn't recommend a worktree, use normal feature branches. First time using worktrees? Make sure `.worktrees` is in .gitignore — add it and commit before creating the worktree.
 
 If you disagree with Arc's plan, flag it: "Arc suggested X but I think Y would be simpler because Z. Your call."
 

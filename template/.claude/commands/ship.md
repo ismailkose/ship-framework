@@ -6,6 +6,35 @@ This is a structured workflow. Run through it step by step — don't skip phases
 
 ---
 
+## Phase 0: Branch Resolution
+
+Before shipping, resolve the branch state:
+
+1. **Check branch status:**
+```bash
+git branch --show-current
+git log main..HEAD --oneline
+```
+
+2. **If on a feature branch with commits:** Present options:
+   - **Merge to main** — `git checkout main && git merge feature-branch && npm test`
+   - **Create PR** — `git push -u origin feature-branch && gh pr create`
+   - **Keep branch** — "I'll ship from main later"
+
+3. **If already on main:** Skip to Phase 1.
+
+4. **After merge:** Verify tests pass on the merged result. If tests fail, STOP — don't ship broken merges.
+
+5. **Cleanup:** Remove merged branches and worktrees.
+   ```bash
+   git branch -d feature-branch
+   git worktree remove .worktrees/feature-name 2>/dev/null
+   ```
+
+Don't ask which option unless ambiguous. If there's one feature branch with all work, merge it. If there are multiple branches, present options.
+
+---
+
 ## Phase 1: Pre-Flight
 
 Check what's being shipped:
@@ -27,6 +56,8 @@ git diff main --stat
 ```bash
 npm test
 ```
+
+**VERIFICATION RULE:** Show full test output before proceeding. No summarizing as "tests pass" without the actual evidence.
 
 - **If tests fail:** STOP. Show failures. Don't ship broken code.
 - **If tests pass:** Note the count and continue.
@@ -124,7 +155,7 @@ npx playwright screenshot [LIVE_URL] screenshots/ship-live-mobile.png --viewport
 ```
 
 **Both modes:**
-1. **Visit the live URL** — does it load?
+1. **Visit the live URL** — does it load? Show the actual response. No "should be live" — verify it.
 2. **Click through the main flow** — does the magic moment work?
 3. **Check on mobile** — open on a phone or resize browser
 4. **Check the console** — any errors in production?

@@ -18,9 +18,9 @@
 | `/qa` | Test + fix — 8 phases: scope, run tests, explore like a user, document issues, write tests, health score, fix loop, report. |
 | `/critic` | HEART review of what was built. |
 | `/polish` | Refine design details. |
-| `/ship` | Deploy — 7 phases: pre-flight, tests, quality gate, readiness, deploy, post-deploy verify, report. |
+| `/ship` | Deploy — 8 phases: branch resolution, pre-flight, tests, quality gate, readiness, deploy, post-deploy verify, report. |
 | `/money` | Pricing + payments. |
-| `/fix [error]` | Debug + explain. |
+| `/fix [error]` | Debug systematically — 4 phases: investigate, find pattern, hypothesize, fix + verify. 3-strikes rule. |
 | `/retro` | Weekly retro — 9 steps: data, metrics, streak, time patterns, hotspots, task health, narrative, trends, update. |
 
 ---
@@ -153,10 +153,43 @@ Never rebuild accessibility (focus trapping, keyboard nav, ARIA) — use a primi
 
 ---
 
+## TDD (Test-Driven Development)
+
+Dev's default for new functions, bug fixes, and behavior changes:
+
+```
+RED:    Write failing test → run → verify fails for the right reason
+GREEN:  Write minimal code → run → verify passes
+REFACTOR: Clean up → keep tests green → commit
+```
+
+Skip for: config files, pure layout, generated code, or when founder says "skip tests."
+Iron rule: wrote code before the test? Delete it. Start with the test.
+
+---
+
+## Verification Rule
+
+Rule #12: Never claim something works without running the command and showing the output.
+
+No "should work." No "looks correct." Run it. Show it. Then claim it.
+
+For changes under 10 lines: manual check with explanation is OK.
+
+---
+
+## Skill Conflict Detection
+
+Rule #13: Team agents own their domains. If external skills overlap, team warns once and overrides.
+
+/team checks at session start for skills that overlap with Vi, Arc, Dev, Bug, Crit, Pol, Test, Cap, or Eye.
+
+---
+
 ## Rules
 
 1. No code before Vi + Arc are done
-2. One feature at a time
+2. One feature at a time (unless /team dispatches 3+ independent tasks in parallel)
 3. Commit before starting the next thing
 4. Takes more than a day → break it down
 5. Working > pretty
@@ -165,3 +198,6 @@ Never rebuild accessibility (focus trapping, keyboard nav, ARIA) — use a primi
 8. Every agent references what came before
 9. Every feature needs a JTBD + HEART metric before building
 10. Always flag cost implications
+11. Team orchestrates — external skills supplement, not replace
+12. Verify before claiming done — evidence, not hope
+13. Team agents own their domains — external skills don't override
