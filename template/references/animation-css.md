@@ -341,4 +341,52 @@ Keeps animation logic in CSS, data in JS. Clean separation, works everywhere.
 
 ---
 
-*Reference adapted from [Emil Kowalski's "Animations on the Web"](https://animations.dev/).*
+## View Transitions API
+
+CSS-native shared element transitions — no libraries needed. The browser snapshots
+the current state, applies your DOM changes, then animates between them.
+
+### Basic Usage
+
+```css
+/* Give elements a shared identity */
+.thumbnail { view-transition-name: hero; }
+.detail-image { view-transition-name: hero; }
+
+/* Control the transition animation */
+::view-transition-group(hero) {
+  animation-duration: 300ms;
+  animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+
+/* Style the old/new snapshots individually */
+::view-transition-old(hero) { animation: fade-out 200ms ease; }
+::view-transition-new(hero) { animation: fade-in 300ms ease; }
+```
+
+```js
+// Trigger from JS
+document.startViewTransition(() => {
+  // Make your DOM changes here
+  dialog.showModal();
+});
+```
+
+### When to Use
+
+- **Lightbox/detail views** — thumbnail morphs to full image
+- **Page transitions** — elements glide to new positions across navigations
+- **State changes** — card expands to detail, list item opens to form
+
+### When NOT to Use
+
+- High-frequency interactions (tabs, toggles) — too slow
+- Elements that don't share visual identity — confusing morph
+- When Framer Motion `layoutId` is available — more control, better DX
+
+This is Pattern 4 (shared element transition) from `animation.md` implemented
+in pure CSS. Use when you don't have Framer Motion or want zero-JS transitions.
+
+---
+
+*Reference adapted from [Emil Kowalski's "Animations on the Web"](https://animations.dev/) and [Raphael Salaja's userinterface.wiki](https://www.userinterface.wiki/).*

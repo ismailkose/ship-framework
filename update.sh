@@ -99,10 +99,13 @@ echo "  • .claude/commands/  — all 13 slash commands"
 echo "  • references/        — agent reference files"
 echo "  • CHEATSHEET.md      — quick reference card"
 echo "  • CLAUDE.md footer   — version stamp only"
+echo "  • DECISIONS.md       — created if missing (new template)"
+echo "  • CONTEXT.md         — created if missing (new template)"
 echo ""
 echo -e "${DIM}This will NOT touch:${RESET}"
 echo "  • CLAUDE.md content  — your product rules, design system, agent customizations"
 echo "  • TASKS.md           — your task board"
+echo "  • Existing DECISIONS.md or CONTEXT.md — only created if missing"
 echo ""
 read -p "Continue? (y/n) > " CONFIRM
 
@@ -152,7 +155,19 @@ fi
 cp "$SCRIPT_DIR/CHEATSHEET.md" "$TARGET_DIR/CHEATSHEET.md"
 echo -e "${GREEN}✓${RESET} Updated CHEATSHEET.md"
 
-# ─── Step 8: Update version stamp in CLAUDE.md ──────────────────────────────
+# ─── Step 8b: Create DECISIONS.md and CONTEXT.md if missing ─────────────────
+
+if [ ! -f "$TARGET_DIR/DECISIONS.md" ] && [ -f "$TEMPLATE_DIR/DECISIONS.md" ]; then
+  cp "$TEMPLATE_DIR/DECISIONS.md" "$TARGET_DIR/DECISIONS.md"
+  echo -e "${GREEN}✓${RESET} Created DECISIONS.md (new in this version)"
+fi
+
+if [ ! -f "$TARGET_DIR/CONTEXT.md" ] && [ -f "$TEMPLATE_DIR/CONTEXT.md" ]; then
+  cp "$TEMPLATE_DIR/CONTEXT.md" "$TARGET_DIR/CONTEXT.md"
+  echo -e "${GREEN}✓${RESET} Created CONTEXT.md (new in this version)"
+fi
+
+# ─── Step 9: Update version stamp in CLAUDE.md ──────────────────────────────
 
 # Only update the version footer line — don't touch anything else
 if grep -q "Ship Framework" "$TARGET_DIR/CLAUDE.md"; then
