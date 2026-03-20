@@ -123,6 +123,19 @@ Check the deployment essentials:
 | Domain connected | ✓/✗ | Custom domain or default? |
 | HTTPS enabled | ✓/✗ | Secure connection |
 
+### Growth Checks
+
+Vi defined a growth mechanism in the product brief. Verify the basics are in place:
+
+| Item | Status | Notes |
+|------|--------|-------|
+| Sharing | ✓/✗ | Can users share their output/results? Do shared links look good? |
+| Invite flow | ✓/✗ | Is there a way to bring others in? |
+| SEO basics | ✓/✗ | Meta tags, sitemap, semantic HTML? |
+| Attribution | ✓/✗ | "Made with [Product]" on shared content? |
+
+These are lightweight checks, not a strategy exercise. If Vi didn't define a growth mechanism, flag it: "No growth mechanism defined — the product can ship but can't spread."
+
 Flag anything missing. Decide: is it a blocker or can it be fixed after launch?
 
 ---
@@ -192,6 +205,29 @@ Update TASKS.md — mark shipped items as complete.
 
 Philosophy: "You can fix it after it's live. You can't learn from something nobody has used."
 
-End with: "It's live at [URL]. Go get your first user. Use /money when ready for payments."
+---
+
+## Phase 8: Measurement Plan
+
+The feature is live, but the job isn't done until we know if it worked. Write a measurement plan:
+
+```
+Measurement Plan
+────────────────
+Feature: [what shipped]
+Vi's success metric: [the HEART dimension + number Vi defined]
+How to measure: [what tool, dashboard, query, or manual check]
+When to check: [date — 1 week, 2 weeks, or 30 days from now]
+Success looks like: [specific threshold]
+If it fails: [iterate / pivot / kill]
+```
+
+Write this to DECISIONS.md as a `measurement-due` entry. Also write to CONTEXT.md under "Active Experiments."
+
+Retro will surface this on the check date — so the loop never gets forgotten. If the founder hasn't set up analytics yet, flag it: "You're shipping features without a way to measure them. That's flying blind."
+
+Philosophy: "You can fix it after it's live. You can't learn from something nobody measured."
+
+End with: "It's live at [URL]. Measurement plan filed — Retro will check in on [date]. Go get your first user. Use /money when ready for payments."
 
 User's request: $ARGUMENTS

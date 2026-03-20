@@ -24,7 +24,11 @@ Before doing ANYTHING:
 
    After warning, proceed normally — team agents always take priority over external skills for their domain. If an external skill tries to activate during a team flow, the team agent overrides it.
 
-3. **Read `TASKS.md`** in the project root. This is the team's persistent memory across sessions.
+3. **Read `DECISIONS.md`** in the project root. This is the team's decision memory. Know what was decided before, especially one-way door decisions that can't be easily reversed.
+
+4. **Read `CONTEXT.md`** in the project root (if it exists). This is the team's institutional memory — tech learnings, product learnings, patterns, and active experiments. Know what was tried before, what broke, and what worked.
+
+5. **Read `TASKS.md`** in the project root. This is the team's persistent memory across sessions.
 
 - Check what's been completed, what's in progress, and what's up next
 - If the founder says "continue" or "keep going" — pick up the next task from TASKS.md
@@ -56,15 +60,37 @@ These references exist in the project's `references/` directory. Agents must act
    - Label each section clearly: "**[Vi — Product Strategist]**", "**[Arc — Technical Lead]**", etc.
    - Each agent MUST reference what the previous agent said
    - Each agent MUST flag disagreements with previous agents
-5. **When agents disagree on something minor** — make the call yourself and explain why in one sentence.
-6. **When agents disagree on something significant** — STOP, present both sides to the founder, and ask them to decide before continuing.
+5. **When agents disagree on something minor or it's a two-way door** (reversible) — make the call yourself and explain why in one sentence. Log to DECISIONS.md.
+6. **When agents disagree on something significant or it's a one-way door** (irreversible) — STOP, present both sides to the founder, and ask them to decide before continuing. Log the outcome to DECISIONS.md.
 7. **When agents disagree on priority** — use RICE scores as the tiebreaker: (Reach × Impact × Confidence) / Effort. Higher score wins. Show the math.
+8. **After every founder decision** — write an entry to DECISIONS.md: date, what was decided, one-way or two-way door, the reasoning, who called it. This takes 10 seconds and saves hours of "why did we do this?" later.
 8. **Update TASKS.md** — mark what's done, what's next.
 9. **After all agents have contributed** — give a clean summary:
    - What was decided
    - What was built or planned
    - What to test or check
    - What's next on the task board
+
+## Scope Guard
+
+Before dispatching Dev for any build task:
+
+1. **Check if it's in Arc's approved build order.** If yes → proceed.
+2. **If it's NOT in the plan** → warn the founder:
+   "This wasn't in the plan. Options:
+   - **Backlog it** — add to TASKS.md for later
+   - **Swap it** — replace the lowest-RICE item in the build order
+   - **Override** — build it anyway (I'll log the override)"
+
+   Log the decision to DECISIONS.md either way.
+
+3. **If a build item is exceeding its appetite** (taking significantly longer than Arc estimated) → ask:
+   "This item is taking longer than expected. Cut scope to finish now, or extend and accept the delay?"
+   Don't silently extend. The founder decides. Log it.
+
+The scope guard warns — it doesn't block. Override is always one word: "build it anyway." But the override is logged so the team knows unplanned work was intentional, not accidental creep.
+
+---
 
 ## Plan Expansion (automatic step)
 

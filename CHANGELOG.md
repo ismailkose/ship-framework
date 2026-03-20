@@ -6,7 +6,69 @@ To update an existing project, run `bash update.sh` — it handles everything au
 
 ---
 
-## 2026.03.20 — Engineering Hardening: TDD, Verification, Systematic Debugging, Plan Expansion, Parallel Dispatch, Worktrees, Branch Finishing, Skill Conflict Detection
+## 2026.03.20 — Product Intelligence, Institutional Memory, Engineering Hardening
+
+### Added — Decision Log (Rule #14)
+- New `DECISIONS.md` template — agents write automatically after every significant decision
+- One-way door (irreversible, think carefully) vs two-way door (reversible, decide fast) classification
+- /team reads at session start, logs after founder decisions and agent disagreements
+- Arc logs architecture decisions, Retro reviews weekly
+- Disagreement rule updated: classify door type before deciding
+
+### Added — Context File (Institutional Memory)
+- New `CONTEXT.md` template — persistent project knowledge across sessions
+- Sections: Tech Learnings, Product Learnings, Patterns, Active Experiments
+- Bug writes after fixes, Arc writes after planning, Retro writes after retros
+- /team reads at session start — session 10 is as informed as session 1
+- "Taking Over" flow now starts by reading CONTEXT.md and DECISIONS.md
+
+### Added — Post-Launch Loop (Measurement Plans)
+- Cap writes Phase 9: Measurement Plan after every ship
+- Records: feature, metric, how to measure, when to check, success/failure thresholds
+- Filed to DECISIONS.md and CONTEXT.md Active Experiments
+- Retro enforces: surfaces due measurements every weekly retro, never drops them
+- Vi's success metric now includes how to verify, when to check, what failure looks like
+
+### Added — Scope Guard (Rule #15)
+- /team checks every task against Arc's approved build order before dispatching Dev
+- Unplanned work gets flagged: backlog it, swap a planned item, or override
+- Overrides logged to DECISIONS.md — intentional, not accidental creep
+- Arc adds time appetite per build order item — fixed time, variable scope
+- If item exceeds appetite: "Cut scope or extend?" — no silent extensions
+
+### Added — Vi Upgrade: PMF + North Star + Growth
+- Item 9: PMF Signal — Sean Ellis "very disappointed" survey for existing products, reference customer targets for new products
+- Item 10: Growth Mechanism — viral, content, product-led, or paid. Pick the primary loop
+- Item 7 upgraded: Success Metric becomes North Star approach — measure value delivered, not captured
+- Brief stays under 300 words — items 9-10 are one sentence each
+
+### Added — Biz Upgrade: Pricing Strategy
+- Expanded from 5 steps to 9 — Biz becomes a business strategist, not just a payment integrator
+- Step 1: Willingness-to-pay conversations before suggesting a price
+- Free-tier strategy: sample premium features in the free experience
+- Self-serve ceiling: flags when pricing suggests sales-led motion (~$10K)
+- Pricing iteration: revisit every 6 months, grandfather existing users
+
+### Added — Growth Threading (Vi + Cap)
+- Vi defines growth mechanism upfront (item 10 in product brief)
+- Cap checks growth basics at ship time: sharing, invite flow, SEO, attribution
+- No new agent — growth is a thread through existing team, not a separate role
+
+### Updated
+- `template/CLAUDE.md` — Rules #14-15, Vi items 9-10, Biz 5→8 steps, Cap 7→9 phases, disagreement rule, workflow mentions
+- `template/DECISIONS.md` — New template file
+- `template/CONTEXT.md` — New template file
+- `template/.claude/commands/team.md` — Reads DECISIONS.md + CONTEXT.md at start, scope guard, decision logging
+- `template/.claude/commands/architect.md` — Logs to DECISIONS.md + CONTEXT.md, appetite per item
+- `template/.claude/commands/visionary.md` — PMF, North Star, growth mechanism, measurement timing
+- `template/.claude/commands/money.md` — Expanded to 9-step pricing strategy
+- `template/.claude/commands/ship.md` — Phase 9 (measurement plan), growth checks in Phase 4
+- `template/.claude/commands/retro.md` — Reads DECISIONS.md, checks measurement plans, writes CONTEXT.md
+- `template/.claude/commands/fix.md` — Writes to CONTEXT.md after fixes
+
+---
+
+## 2026.03.20a — Engineering Hardening: TDD, Verification, Systematic Debugging, Plan Expansion, Parallel Dispatch, Worktrees, Branch Finishing, Skill Conflict Detection
 
 ### Added — Verification Before Completion (Rule #12)
 - Universal rule: never claim something works without running the verification command and showing output

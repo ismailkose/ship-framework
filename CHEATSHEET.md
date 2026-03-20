@@ -11,17 +11,17 @@
 | `/team Health check` | Full strategic review — product fit, tech, UX, business, visual. |
 | `/team Take over` | Existing codebase. Assess → audit → strategy → roadmap. |
 | `/status` | Quick progress check. |
-| `/visionary [idea]` | Validate an idea before building. |
+| `/visionary [idea]` | Validate an idea before building. 10 items: bar test, workaround, JTBD, magic moment, kill list, 2-week bet, North Star metric, who pays, PMF signal, growth mechanism. |
 | `/architect [brief]` | Plan how to build something. |
 | `/build` | Code one feature. |
 | `/browse` | Visual QA — 6 phases: setup, screen map, mobile, interaction walkthrough, bug checklist, report. |
 | `/qa` | Test + fix — 8 phases: scope, run tests, explore like a user, document issues, write tests, health score, fix loop, report. |
 | `/critic` | HEART review of what was built. |
 | `/polish` | Refine design details. |
-| `/ship` | Deploy — 8 phases: branch resolution, pre-flight, tests, quality gate, readiness, deploy, post-deploy verify, report. |
-| `/money` | Pricing + payments. |
+| `/ship` | Deploy — 9 phases: branch resolution, pre-flight, tests, quality gate, readiness + growth checks, deploy, post-deploy verify, report, measurement plan. |
+| `/money` | Pricing strategy — 9 steps: WTP, model, free line, price, free-tier, self-serve ceiling, implementation, iteration, disagreements. |
 | `/fix [error]` | Debug systematically — 4 phases: investigate, find pattern, hypothesize, fix + verify. 3-strikes rule. |
-| `/retro` | Weekly retro — 9 steps: data, metrics, streak, time patterns, hotspots, task health, narrative, trends, update. |
+| `/retro` | Weekly retro — 10 steps: data, metrics, streak, time patterns, hotspots, task health, decision + measurement review, narrative, trends, update CONTEXT.md. |
 
 ---
 
@@ -186,6 +186,73 @@ Rule #13: Team agents own their domains. If external skills overlap, team warns 
 
 ---
 
+## Decision Log
+
+Rule #14: Every significant decision gets logged to DECISIONS.md automatically.
+
+Format: date, decision, type (one-way door / two-way door), reasoning, who called it.
+
+One-way door = irreversible, spend more time. Two-way door = reversible, decide fast.
+
+/team reads at session start. Retro reviews weekly.
+
+---
+
+## Scope Guard
+
+Rule #15: No unplanned work without an explicit override.
+
+/team checks tasks against Arc's build order. Not in the plan → backlog, swap, or override.
+Arc sets appetite per item. Exceeding appetite → "cut scope or extend?"
+Override = one word. Logged to DECISIONS.md.
+
+---
+
+## Post-Launch Loop
+
+Cap writes a measurement plan after every ship (Phase 9):
+- Feature, metric, how to measure, when to check, success/failure thresholds
+- Filed to DECISIONS.md + CONTEXT.md
+
+Retro enforces: surfaces due measurements every weekly retro. Never drops them.
+
+---
+
+## Context File
+
+CONTEXT.md = institutional memory. Agents write, /team reads at session start.
+
+- Bug writes after fixes (Tech Learnings)
+- Arc writes after planning (Tech Learnings)
+- Retro writes after retros (Product Learnings, Patterns)
+- Cap writes after shipping (Active Experiments)
+
+---
+
+## PMF + North Star + Growth
+
+Vi's brief now includes:
+- Item 9: PMF Signal — "Would 40%+ be very disappointed without this?"
+- Item 10: Growth Mechanism — viral, content, product-led, or paid
+- Item 7: North Star metric — value delivered, not captured
+
+Cap checks growth basics at ship time: sharing, invite flow, SEO, attribution.
+
+---
+
+## Pricing Strategy
+
+Biz expanded from 5 to 9 steps:
+1. WTP first (ask before guessing)
+2-4. Model, free line, price point
+5. Free-tier: sample premium in free
+6. Self-serve ceiling (~$10K)
+7. Implementation (Stripe)
+8. Iterate every 6 months
+9. Disagreements
+
+---
+
 ## Rules
 
 1. No code before Vi + Arc are done
@@ -201,3 +268,5 @@ Rule #13: Team agents own their domains. If external skills overlap, team warns 
 11. Team orchestrates — external skills supplement, not replace
 12. Verify before claiming done — evidence, not hope
 13. Team agents own their domains — external skills don't override
+14. Log every significant decision to DECISIONS.md — one-way/two-way door
+15. No unplanned work without override — scope guard enforces the plan

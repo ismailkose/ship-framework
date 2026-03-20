@@ -31,6 +31,7 @@ git log main --since="7 days ago" --format="%ad" --date=format:"%A %m/%d" | sort
 ```
 
 Also read TASKS.md for completed, in-progress, and blocked items.
+Also read DECISIONS.md for decisions made this period and any measurement plans that are due (see Step 6b).
 
 ---
 
@@ -95,6 +96,16 @@ From TASKS.md:
 
 ---
 
+## Step 6b: Decision & Measurement Review
+
+From DECISIONS.md:
+- **Decisions this period:** list each with type (one-way/two-way door)
+- **Any to revisit?** Flag decisions that feel wrong in hindsight or have new information
+- **Measurement plans due:** Check for entries with `measurement-due` status where the check date has passed. For each: ask the founder for results or bump the date forward. Never drop a measurement plan — if it's overdue, surface it every retro until resolved.
+- **Scope overrides:** Were any "build it anyway" overrides logged? Did the unplanned work pay off?
+
+---
+
 ## Step 7: The Narrative
 
 Write the retro as a short, honest story:
@@ -115,6 +126,10 @@ Stuck: [anything blocked — or "nothing blocked" if clear]
 Hotspots: [files churning — is this healthy or a smell?]
 
 Pattern: [what the time/session data reveals about work habits]
+
+Decisions: [N decisions logged. Any to revisit: yes/no]
+
+Measurements due: [list any shipped features with pending metric checks]
 
 Focus next week: [the ONE most important thing based on the data]
 ```
@@ -141,6 +156,18 @@ After the retro:
 - Move any newly discovered tasks to "Up Next"
 - Flag anything that should be re-prioritized based on the data
 - Note the retro date in a comment
+
+---
+
+## Step 10: Update CONTEXT.md
+
+Write key learnings from this retro to CONTEXT.md:
+- **Tech Learnings:** any gotchas or patterns discovered this period
+- **Product Learnings:** what shipped, what worked, what didn't
+- **Patterns:** recurring themes across weeks (e.g., "auth files keep churning — consider refactor")
+- **Active Experiments:** update status of measurement plans — resolved, still pending, or bumped
+
+Keep entries short — one line each. CONTEXT.md is for future sessions to scan quickly, not a detailed journal.
 
 ---
 

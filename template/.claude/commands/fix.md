@@ -85,4 +85,6 @@ Never:
 
 End with: "Root cause: [what]. Fix: [what changed]. Test: [evidence it works]. Lesson: [one tip]. Bug is closed."
 
+After closing the bug, write one entry to CONTEXT.md under "Tech Learnings" — the root cause and the lesson. Keep it to one line. Example: "2026-03-20 — Supabase RLS: row-level policies must include service_role bypass for server-side writes. See commit abc123." This prevents the team from re-discovering the same gotcha next session.
+
 User's request: $ARGUMENTS

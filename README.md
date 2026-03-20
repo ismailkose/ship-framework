@@ -82,17 +82,17 @@ Ship Framework uses date-based versioning (`YYYY.MM.DD`). Each release is tagged
 | Command | Name | Role |
 |---------|------|------|
 | `/team` | — | **Orchestrator** — give it any instruction, it delegates to the right agents |
-| `/visionary` | Vi | **Product Strategist** — rips ideas apart, writes JTBD, finds the magic moment, picks HEART metric |
+| `/visionary` | Vi | **Product Strategist** — rips ideas apart, writes JTBD, finds the magic moment, picks North Star metric, checks PMF, defines growth mechanism |
 | `/architect` | Arc | **Technical Lead** — turns briefs into buildable plans, RICE-scores the build order, defines motion system, estimates cost |
 | `/build` | Dev | **Builder** — writes code one feature at a time, commits and explains every decision |
 | `/critic` | Crit | **Product Reviewer** — uses it like a real user, reviews against HEART dimensions, checks animation balance, finds rough edges |
 | `/polish` | Pol | **Design Director** — your design voice: typography, spacing, transitions, copy, mobile feel |
-| `/ship` | Cap | **Release Manager** — 8-phase deploy: branch resolution → pre-flight → tests → quality gate → readiness → deploy → verify → report |
-| `/money` | Biz | **Business Brain** — simplest path to revenue: pricing model, cost math, Stripe implementation |
+| `/ship` | Cap | **Release Manager** — 9-phase deploy: branch resolution → pre-flight → tests → quality gate → readiness + growth checks → deploy → verify → report → measurement plan |
+| `/money` | Biz | **Business Brain** — 9-step pricing strategy: WTP, model, free line, price, free-tier, self-serve ceiling, implementation, iteration |
 | `/browse` | Eye | **Visual QA** — 6-phase review: setup → screen map → mobile viewport → interaction walkthrough → bug checklist → report |
 | `/qa` | Test | **Tester** — 8-phase QA: scope → tests → explore like a user → document issues → write tests → health score → fix loop → report |
 | `/fix` | Bug | **Debugger** — 4-phase systematic debugging: investigate, find pattern, hypothesize, fix + verify. 3-strikes rule escalates to Arc. Teaches one thing |
-| `/retro` | Retro | **Retrospective** — 9-step weekly review: git data, metrics, shipping streak, time patterns, hotspots, task health, narrative, trends |
+| `/retro` | Retro | **Retrospective** — 10-step weekly review: git data, metrics, shipping streak, time patterns, hotspots, task health, decision + measurement review, narrative, trends, update CONTEXT.md |
 | `/status` | — | **Status check** — quick snapshot of progress from TASKS.md |
 
 **They disagree with each other.** Vi might want a feature that Arc thinks is over-engineered. Dev might build something that Crit finds confusing. Pol might want polish that Cap thinks delays launch. When they disagree, they present both sides — you make the call.
@@ -110,6 +110,19 @@ The team uses three product frameworks so decisions are structured, not gut-feel
 - **RICE Scoring** — Arc scores every item in the build order: (Reach × Impact × Confidence) / Effort. When agents disagree on priority, RICE is the tiebreaker.
 
 These frameworks are woven into the agents — you don't need to invoke them manually.
+
+---
+
+## Product Intelligence
+
+The team builds institutional memory and closes loops that most solo teams leave open:
+
+- **Decision Log** (`DECISIONS.md`) — Every significant decision is logged automatically: what, why, who called it, and whether it's a one-way door (irreversible) or two-way door (reversible). Retro reviews weekly. Three weeks later you know exactly why Supabase was chosen over Firebase.
+- **Context File** (`CONTEXT.md`) — Persistent knowledge across sessions. Bug writes after fixes, Arc writes after planning, Retro writes after reviews. Session 10 is as informed as session 1.
+- **Post-Launch Loop** — Cap writes a measurement plan after every ship: what to measure, when to check, what success looks like. Retro enforces it weekly. No feature goes unmeasured.
+- **Scope Guard** — /team checks every task against Arc's build order. Unplanned work gets flagged: backlog, swap, or override. No accidental scope creep.
+- **PMF + Growth** — Vi checks for product-market fit signals and defines a growth mechanism before building. Cap verifies growth basics at ship time.
+- **Pricing Strategy** — Biz starts with willingness-to-pay, not guessing. Includes free-tier strategy, self-serve ceiling, and 6-month iteration cadence.
 
 ---
 
@@ -135,7 +148,7 @@ The team enforces engineering discipline automatically — no extra commands nee
 ```
 /team (orchestrator — delegates automatically)
     |
-/visionary -> Product brief + JTBD + HEART metric + who pays
+/visionary -> Product brief + JTBD + North Star metric + PMF signal + growth mechanism
     |
 /architect -> RICE-scored build order + cost estimate
     |
@@ -149,9 +162,9 @@ The team enforces engineering discipline automatically — no extra commands nee
     |
 /qa -> Run tests, write missing tests
     |
-/ship -> Launch checklist + deploy
+/ship -> Launch checklist + deploy + measurement plan
     |
-/money -> Payments
+/money -> Pricing strategy
 ```
 
 You don't run all 11 every time. `/team` figures out which agents are needed.
