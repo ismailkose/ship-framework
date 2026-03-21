@@ -22,6 +22,7 @@
 | `/money` | Pricing strategy — 9 steps: WTP, model, free line, price, free-tier, self-serve ceiling, implementation, iteration, disagreements. |
 | `/fix [error]` | Debug systematically — 4 phases: investigate, find pattern, hypothesize, fix + verify. 3-strikes rule. |
 | `/retro` | Weekly retro — 10 steps: data, metrics, streak, time patterns, hotspots, task health, decision + measurement review, narrative, trends, update CONTEXT.md. |
+| `/ship-update` | Update Ship Framework to latest version — pulls, compares, updates commands + references. |
 
 ---
 

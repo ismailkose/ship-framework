@@ -98,7 +98,7 @@ fi
 # ─── Step 5: Confirm update ─────────────────────────────────────────────────
 
 echo -e "${BOLD}This will update:${RESET}"
-echo "  • .claude/commands/  — all 14 slash commands"
+echo "  • .claude/commands/  — all 15 slash commands"
 echo "  • references/        — agent reference files"
 echo "  • CHEATSHEET.md      — quick reference card"
 echo "  • CLAUDE.md footer   — version stamp only"

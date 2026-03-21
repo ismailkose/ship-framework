@@ -29,9 +29,14 @@ To update an existing project, run `bash update.sh` — it handles everything au
 - `update.sh` also zero-prompt — accepts directory as argument
 
 ### Added — /health Command
-- Dedicated slash command for project health checks (14 total commands)
+- Dedicated slash command for project health checks
 - Runs Vi → Arc → Crit → Biz → Eye health check flow
 - Shows up in autocomplete instead of requiring `/team health check`
+
+### Added — /ship-update Command
+- Update Ship Framework from inside Claude Code — no terminal needed
+- Pulls latest, compares versions, shows changelog, updates commands + references
+- Replaces `bash update.sh` as the primary update method (15 total commands)
 
 ---
 

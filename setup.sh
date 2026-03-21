@@ -171,7 +171,7 @@ fi
 
 mkdir -p "$TARGET_DIR/.claude/commands"
 cp "$TEMPLATE_DIR/.claude/commands/"*.md "$TARGET_DIR/.claude/commands/"
-echo -e "${GREEN}✓${RESET} Created .claude/commands/ (14 slash commands)"
+echo -e "${GREEN}✓${RESET} Created .claude/commands/ (15 slash commands)"
 
 # ─── Copy references ─────────────────────────────────────────────────────────
 
@@ -271,7 +271,7 @@ echo "  • TASKS.md            — Persistent task board"
 echo "  • DECISIONS.md        — Decision log"
 echo "  • CONTEXT.md          — Institutional memory"
 echo "  • CHEATSHEET.md       — Quick reference card"
-echo "  • .claude/commands/   — 14 slash commands"
+echo "  • .claude/commands/   — 15 slash commands"
 echo "  • references/         — Animation + component architecture guides"
 echo ""
 echo -e "${BOLD}Next step:${RESET} Open Claude Code in your project directory and type:"
