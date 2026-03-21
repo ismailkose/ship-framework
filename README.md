@@ -1,6 +1,6 @@
  # Ship Framework
 
-**v2026.03.20** · **An AI product team for one-person teams.**
+**v2026.03.20b** · **An AI product team for one-person teams.**
 
 You're one person. You handle product, design, business, and decisions. You need engineering — that's what Claude Code is for. But raw Claude Code is like having a brilliant engineer with no product sense, no design eye, and no business context. It builds what you say, not what you need.
 
@@ -18,7 +18,7 @@ bash ship-framework/setup.sh
 Zero prompts. The script copies all files and installs Playwright — no questions asked:
 
 ```
-Ship Framework v2026.03.20 — Setup
+Ship Framework v2026.03.20b — Setup
 
 ✓ Created CLAUDE.md
 ✓ Created .claude/commands/ (14 slash commands)

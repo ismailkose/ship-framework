@@ -6,6 +6,35 @@ To update an existing project, run `bash update.sh` — it handles everything au
 
 ---
 
+## 2026.03.20b — Zero-Prompt Setup, Apple HIG, Product Intelligence, Institutional Memory
+
+### Added — Apple HIG Reference for iOS/SwiftUI
+- New `references/hig-ios.md` — concrete specs from Apple's Human Interface Guidelines
+- Navigation patterns (tab bar, NavigationStack, sheets) with when-to-use rules
+- Layout & safe areas (device dimensions, margins, safe area rules)
+- Dynamic Type scale (all 11 text styles with sizes, weights, usage)
+- Semantic color system (backgrounds, labels, accents) with dark mode support
+- Touch & interaction (44pt targets, standard gestures, haptic feedback patterns)
+- Spring animations (response/damping parameters, not CSS easing)
+- System components (List, Form, NavigationStack, SF Symbols) with "use this, not that" table
+- App Store rejection common causes checklist
+- Only loaded when tech stack includes SwiftUI/iOS — web projects skip it
+
+### Changed — Zero-Prompt Setup + Default Mode
+- `setup.sh` is now fully zero-prompt — no interactive questions at all
+- Product name, description, and tech stack all gathered by `/team` on first run inside Claude Code
+- Eliminates terminal multiline paste issues entirely — all context gathering happens in conversation
+- `/team` detects `SHIP_SETUP` comment markers in CLAUDE.md and asks all missing items in one message
+- Every conversation now defaults to `/team` mode — no need to invoke it explicitly
+- `update.sh` also zero-prompt — accepts directory as argument
+
+### Added — /health Command
+- Dedicated slash command for project health checks (14 total commands)
+- Runs Vi → Arc → Crit → Biz → Eye health check flow
+- Shows up in autocomplete instead of requiring `/team health check`
+
+---
+
 ## 2026.03.20 — Product Intelligence, Institutional Memory, Engineering Hardening, View Transitions
 
 ### Added — Decision Log (Rule #14)
@@ -54,33 +83,11 @@ To update an existing project, run `bash update.sh` — it handles everything au
 - Cap checks growth basics at ship time: sharing, invite flow, SEO, attribution
 - No new agent — growth is a thread through existing team, not a separate role
 
-### Added — Apple HIG Reference for iOS/SwiftUI
-- New `references/hig-ios.md` — concrete specs from Apple's Human Interface Guidelines
-- Navigation patterns (tab bar, NavigationStack, sheets) with when-to-use rules
-- Layout & safe areas (device dimensions, margins, safe area rules)
-- Dynamic Type scale (all 11 text styles with sizes, weights, usage)
-- Semantic color system (backgrounds, labels, accents) with dark mode support
-- Touch & interaction (44pt targets, standard gestures, haptic feedback patterns)
-- Spring animations (response/damping parameters, not CSS easing)
-- System components (List, Form, NavigationStack, SF Symbols) with "use this, not that" table
-- App Store rejection common causes checklist
-- Only loaded when tech stack includes SwiftUI/iOS — web projects skip it
-
 ### Added — View Transitions API Reference
 - CSS-native shared element transitions added to `animation-css.md`
 - `view-transition-name`, `::view-transition-group()`, `::view-transition-old/new()` with code examples
 - When to use (lightbox, page transitions, state changes) and when not to (high-frequency, Framer Motion available)
 - Connects to Pattern 4 (shared element transition) in `animation.md`
-
-### Changed — Zero-Prompt Setup + Default Mode
-- `setup.sh` is now fully zero-prompt — no interactive questions at all
-- Product name, description, and tech stack all gathered by `/team` on first run inside Claude Code
-- Eliminates terminal multiline paste issues entirely — all context gathering happens in conversation
-- `/team` detects `SHIP_SETUP` comment markers in CLAUDE.md and asks all missing items in one message
-- Every conversation now defaults to `/team` mode — no need to invoke it explicitly
-- `setup.sh` now creates `DECISIONS.md` and `CONTEXT.md` during fresh setup and existing-install updates
-- `update.sh` creates both files if missing (for users upgrading from older versions)
-- `README.md` file structure updated to list both new template files
 
 ### Updated
 - `template/CLAUDE.md` — Rules #14-15, Vi items 9-10, Biz 5→8 steps, Cap 7→9 phases, disagreement rule, workflow mentions
