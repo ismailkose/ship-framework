@@ -5,11 +5,11 @@
 > interfaces that work with how people actually think, not against it.
 >
 > **Agent routing:**
-> Arc → Sections 1 + 2 (plan screens + interactions). Hick's Law, Miller's Law, Progressive Disclosure affect screen architecture.
-> Dev → Sections 2 + 3 (build UI). Code examples show correct vs incorrect patterns. Learn the technique, adapt to your stack.
-> Vi → Section 4 (define magic moment). Peak-End and Goal Gradient shape the core experience.
-> Crit → Sections 1-4 (review everything). These principles are the "why" behind HEART dimensions.
-> Pol → Sections 3 + 4 (audit design craft). Proximity, similarity, visual hierarchy live here.
+> Arc → Sections 1 + 2 + 5 (plan screens + interactions + platform patterns). Hick's Law, Miller's Law, Progressive Disclosure affect screen architecture. Section 5 has control hierarchy, thumb zone, onboarding, writing, accessibility, inclusion.
+> Dev → Sections 2 + 3 + 5 (build UI). Code examples show correct vs incorrect patterns. Section 5 has device capabilities, data entry, loading, accessibility rules.
+> Vi → Section 4 + 5 (define magic moment + onboarding + writing voice). Peak-End and Goal Gradient shape the core experience.
+> Crit → Sections 1-5 (review everything). These principles are the "why" behind HEART dimensions. Section 5 adds accessibility and inclusion checks.
+> Pol → Sections 3 + 4 + 5 (audit design craft + writing + branding). Proximity, similarity, visual hierarchy, UX writing, and branding rules.
 
 ---
 
@@ -661,4 +661,333 @@ thrown together, even if the functionality is identical.
 
 ---
 
-*Based on [Jon Yablonski's Laws of UX](https://lawsofux.com/) and [Raphael Salaja's userinterface.wiki](https://www.userinterface.wiki/).*
+## Section 5: Platform-Aware Design
+
+These principles come from Apple's Human Interface Guidelines but apply to
+any well-designed app — web, mobile, or desktop. They're the patterns users
+already expect because they use them in every other app on their device.
+
+### Control Hierarchy
+
+> Primary actions visible. Secondary actions discoverable.
+
+The most important action on screen should be immediately visible — a prominent
+button, a clear CTA. Secondary actions (delete, archive, share) live behind
+swipe gestures, long press, overflow menus, or hover states. Don't give
+everything equal weight.
+
+```tsx
+// Incorrect — all actions equally visible
+<div className={styles.actions}>
+  <Button>Edit</Button>
+  <Button>Share</Button>
+  <Button>Archive</Button>
+  <Button>Delete</Button>
+  <Button>Duplicate</Button>
+</div>
+
+// Correct — primary visible, secondary discoverable
+<div className={styles.actions}>
+  <Button variant="primary">Edit</Button>
+  <MoreMenu actions={["Share", "Archive", "Duplicate", "Delete"]} />
+</div>
+```
+
+### Thumb Zone
+
+> Place primary actions where thumbs naturally rest — the bottom third of mobile screens.
+
+People hold phones one-handed. The top of the screen is hard to reach.
+Navigation can live at the top (it's infrequent), but primary CTAs belong
+at the bottom where they're easy to tap without shifting grip.
+
+```tsx
+// Incorrect — primary CTA at top of mobile screen
+<div className={styles.page}>
+  <Button className={styles.topCta}>Add Item</Button>
+  <ItemList items={items} />
+</div>
+
+// Correct — primary CTA in bottom-reachable area
+<div className={styles.page}>
+  <ItemList items={items} />
+  <FloatingAction label="Add Item" icon="plus" />
+</div>
+```
+
+### Respect System Preferences
+
+> Adapt to the user's chosen appearance, motion, and text size settings.
+
+Users set their preferences once at the system level and expect every app to
+honor them. Dark mode, reduced motion, larger text, high contrast — these
+aren't features to build, they're expectations to meet.
+
+```css
+/* Respect reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Respect color scheme preference */
+:root {
+  color-scheme: light dark;
+}
+```
+
+### Use Device Capabilities
+
+> Replace manual input with platform features whenever possible.
+
+Camera for scanning, location for addresses, biometrics for auth, payment
+APIs for checkout. Every manual input field is a chance to ask: can the
+device provide this automatically?
+
+```tsx
+// Incorrect — manual address entry
+<Input label="Address" placeholder="Type your full address..." />
+
+// Correct — use device capabilities first, manual fallback
+<LocationPicker
+  onDetect={(location) => setAddress(location)}
+  fallback={<Input label="Address" placeholder="Or type manually" />}
+/>
+```
+
+### Onboarding
+
+> Teach through interaction, not instruction. Delay sign-in until value is shown.
+
+The best onboarding is the product itself. Show the core value before asking
+for anything — no sign-up wall, no tutorial carousel, no permission requests
+upfront. Let people experience the product first, then ask for commitment.
+
+```tsx
+// Incorrect — wall of permissions before value
+function App() {
+  return isSignedIn ? <Dashboard /> : <SignUpForm />;
+}
+
+// Correct — value first, sign-in when needed
+function App() {
+  return (
+    <div>
+      <CoreExperience /> {/* works without sign-in */}
+      {needsAccount && <SignInPrompt reason="Save your progress" />}
+    </div>
+  );
+}
+```
+
+### Smart Data Entry
+
+> Get data from the system. Offer choices instead of text fields. Validate inline.
+
+Every text field is friction. Prefer pickers, toggles, and selectors over
+free-text. Pre-fill from context (location, clipboard, previous entries).
+Validate as they type — don't wait until submit to show errors.
+
+```tsx
+// Incorrect — all text fields, validate on submit
+<form onSubmit={validateAll}>
+  <input placeholder="Country" />
+  <input placeholder="Phone" />
+  <input placeholder="Date" />
+</form>
+
+// Correct — smart inputs, inline validation
+<form>
+  <CountryPicker defaultValue={detectCountry()} />
+  <PhoneInput format="auto" validateOnChange />
+  <DatePicker defaultValue={today()} />
+</form>
+```
+
+### Feedback Hierarchy
+
+> Match the significance of the event to the weight of the feedback.
+
+Not every success needs a modal. Not every error needs a banner. Small
+confirmations → subtle animation or haptic. Important warnings → inline
+message. Critical errors → modal that requires action.
+
+```tsx
+// Incorrect — modal for every outcome
+function handleSave() {
+  await save(data);
+  alert("Saved successfully!"); // too heavy
+}
+
+// Correct — feedback matches significance
+function handleSave() {
+  await save(data);
+  toast("Saved"); // subtle, non-blocking
+}
+
+function handleDelete() {
+  const confirmed = await confirm("Delete this permanently?");
+  if (confirmed) await deleteItem(id); // modal for destructive action
+}
+```
+
+### Loading & Launching
+
+> Show content immediately. Restore previous state. Never show a blank screen.
+
+The first thing users see should be content, not a spinner. Use skeleton
+screens, cached data, or optimistic UI. When users return to your app,
+put them exactly where they left off — don't reset to home.
+
+```tsx
+// Incorrect — blank screen while loading
+function Feed() {
+  const { data, loading } = useFeed();
+  if (loading) return <Spinner />;
+  return <FeedList items={data} />;
+}
+
+// Correct — skeleton then content
+function Feed() {
+  const { data, loading } = useFeed();
+  return <FeedList items={data} skeleton={loading} />;
+}
+```
+
+### Modality
+
+> Use modals only when there's a clear benefit. Keep them focused. Always provide dismiss.
+
+Modals interrupt flow. Use them for self-contained tasks (compose, confirm
+destructive action, complete a sub-task) — not for information that could
+be inline. Every modal needs a visible way to dismiss.
+
+### Settings
+
+> Smart defaults first. Minimize options. Put task-specific settings in context.
+
+If your defaults are good, most people never touch settings. Put rarely
+changed options in a settings screen. Put task-specific options (sort, filter,
+view toggle) directly in the screen they affect — don't make people leave
+their task to customize it.
+
+### Charts & Data
+
+> Keep charts simple. Add detail on demand. Make them accessible.
+
+A chart should communicate one insight clearly. Don't pack every metric
+into one visualization. Use consistent chart types and colors across your
+app. Always provide text alternatives for accessibility — chart images
+alone aren't enough.
+
+### UX Writing
+
+> Determine voice, match tone to context, be action-oriented, and build language patterns.
+
+Words are part of the interface. Determine your app's voice early (trustworthy?
+playful? professional?) and keep it consistent. Then vary tone by context —
+celebratory for achievements, direct for errors, encouraging for onboarding.
+
+```tsx
+// Incorrect — vague, passive, blame-y
+<p>Error: Invalid input was detected.</p>
+<button>Click here</button>
+
+// Correct — clear, action-oriented, helpful
+<p>Choose a password with at least 8 characters.</p>
+<button>Create account</button>
+```
+
+**Rules:**
+- Action-oriented labels: use verbs on buttons ("Send", "Save", "Continue"), not vague phrases ("Let's do it!", "Click here")
+- Consistent capitalization: pick title case or sentence case per element type and stick with it
+- Use possessive pronouns sparingly: "Favorites" is clearer than "Your Favorites"
+- Avoid "we" — it's unclear who "we" refers to. Say "Unable to load" not "We're having trouble"
+- Clear error messages: explain what went wrong and what to do next, placed near the problem
+- Empty states: guide users with next steps and a CTA — never leave a blank screen
+- Write for each device: "tap" on mobile, "click" on desktop, match gesture vocabulary
+- Build language patterns: use consistent terms for navigation ("Continue", "Next", "Done") across all flows
+
+### Accessibility
+
+> Design for everyone. Perceivable, operable, understandable, robust.
+
+Accessibility isn't a feature — it's a quality bar. Every interface should
+work for people with visual, hearing, motor, and cognitive differences.
+The rules below are universal minimums.
+
+**Contrast and visibility:**
+- 4.5:1 contrast ratio for body text (WCAG AA)
+- 3:1 for large text (18pt+) and bold text
+- Never use color alone to convey meaning — pair with shape, icon, or text
+- Support increased contrast mode / high contrast themes
+
+**Tap targets and spacing:**
+- 44×44pt minimum on touch devices, 28×28pt on desktop
+- 12pt padding between elements with bezels, 24pt for elements without
+- Simple gestures for common interactions — avoid complex multitouch
+
+**Keyboard and assistive tech:**
+- All core functionality reachable via keyboard alone
+- Meaningful focus order (don't trap focus, don't skip elements)
+- Proper labels for screen readers — every interactive element needs a label
+- Provide alternatives to gestures: if swipe-to-delete, also offer a button
+
+**Motion and timing:**
+- Respect `prefers-reduced-motion` — reduce or eliminate animations
+- Avoid time-boxed auto-dismissing elements — let users control their pace
+- No flashing content faster than 3 times per second
+
+```tsx
+// Incorrect — color-only status, no label
+<span style={{ color: isActive ? "green" : "red" }}>●</span>
+
+// Correct — color + text + aria label
+<span
+  style={{ color: isActive ? "green" : "red" }}
+  aria-label={isActive ? "Active" : "Inactive"}
+>
+  {isActive ? "● Active" : "○ Inactive"}
+</span>
+```
+
+### Inclusion
+
+> Plain language, no jargon, represent diversity, avoid stereotypes.
+
+Inclusive design starts with language. Use simple, direct words. Avoid
+colloquial expressions (culture-specific, hard to translate). Use
+gender-neutral terms. Represent a range of people in images and examples.
+Never use a disability as a negative metaphor.
+
+**Rules:**
+- Plain language over jargon — define technical terms when you must use them
+- Gender-neutral: "they" over "he or she", role names over gendered titles
+- People-first language for disabilities: "person with low vision" not "blind user"
+- Avoid culture-specific metaphors, idioms, and humor in UI copy
+- Security questions / personalization: reference universal experiences, not assumptions
+- Represent diverse people in illustrations, avatars, and examples
+- Test with localization in mind: plain language translates better
+
+### Branding
+
+> Branding defers to content. Express identity through voice, accent color, and typography.
+
+Your brand comes through in how the product feels, not how much logo is on
+screen. Use accent color, consistent voice, and thoughtful typography to
+express identity. Standard platform patterns build trust — don't override
+them for brand uniqueness.
+
+**Rules:**
+- One accent color for interactive elements — consistent across the app
+- Custom font for headings is fine; use system font for body text (legibility)
+- Don't plaster logos on every screen — people know which app they're using
+- Launch screens are not branding opportunities — they disappear too fast
+- Place UI components in expected locations — familiarity beats novelty
+- Standard patterns first, brand expression second
+
+---
+
+*Based on [Jon Yablonski's Laws of UX](https://lawsofux.com/), [Raphael Salaja's userinterface.wiki](https://www.userinterface.wiki/), and [Apple Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines).*

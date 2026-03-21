@@ -6,6 +6,44 @@ To update an existing project, run `bash update.sh` — it handles everything au
 
 ---
 
+## 2026.03.21 — Apple HIG Deep Integration: 24 Patterns + Foundations + UX Writing & Accessibility
+
+### Added — Platform-Aware Design (ux-principles.md Section 5)
+- 15 new universal principles distilled from 24 Apple HIG pages
+- Control Hierarchy, Thumb Zone, System Preferences, Device Capabilities
+- Onboarding, Smart Data Entry, Feedback Hierarchy, Loading & Launching
+- Modality, Settings, Charts & Data
+- UX Writing: voice/tone, action-oriented labels, clear errors, empty states, language patterns
+- Accessibility: contrast ratios, tap targets, keyboard nav, reduced motion, color-independence
+- Inclusion: plain language, gender-neutral copy, people-first disability language, avoid stereotypes
+- Branding: defers to content, accent color, standard patterns first, no logo spam
+- All with incorrect/correct code examples matching existing ux-principles style
+
+### Added — App Lifecycle Patterns (hig-ios.md Section 8)
+- Onboarding with TipKit (popover, annotation, hint styles) + code example
+- Account management: Sign in with Apple, passkeys, account deletion requirement
+- Notifications: 4 interruption levels table (passive/active/time-sensitive/critical) with rules
+- Multitasking: save/restore state, audio interruption handling, background task completion
+- Settings: zero-settings goal, ⌘-Comma keyboard shortcut, respect systemwide settings
+- Haptics expanded: 9 pattern types with weights and use cases (impact×5 + notification×3 + selection)
+- Swift Charts: mark types, accessibility labels, consistent chart types, interactive overlay
+
+### Added — iOS Foundations (hig-ios.md Section 9)
+- Extended Typography: min sizes per platform, avoid light weights, UIFontMetrics for custom fonts, emphasized weights
+- Extended Color: system vs grouped background hierarchy, Liquid Glass color rules (iOS 26+), foreground color table
+- Dark Mode: base vs elevated backgrounds, no app-specific toggle, test with Increase Contrast + Reduce Transparency
+- Materials: Liquid Glass (regular/clear variants, don't use in content layer), standard material thicknesses
+- Images: @2x/@3x scale factors, SVG/PDF for icons, color profiles, prefer SF Symbols
+- Layout: size classes (compact/regular per device), iPad NavigationSplitView, convertible tab bar, backgroundExtensionEffect
+
+### Changed — Agent Routing Updated
+- team.md: Arc reads ux-principles.md Section 5 for writing, accessibility, inclusion
+- team.md: Dev reads hig-ios.md Sections 2-6 + 8-9 (includes foundations)
+- team.md: Pol now reads Section 5 for writing and branding rules
+- CHEATSHEET.md: UX Principles count updated to 35, HIG sections expanded with Foundations
+
+---
+
 ## 2026.03.20b — Zero-Prompt Setup, Apple HIG, Product Intelligence, Institutional Memory
 
 ### Added — Apple HIG Reference for iOS/SwiftUI

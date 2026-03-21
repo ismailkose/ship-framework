@@ -129,7 +129,7 @@ Never rebuild accessibility (focus trapping, keyboard nav, ARIA) — use a primi
 
 ## UX Principles
 
-20 principles in 4 groups. `references/ux-principles.md`.
+35 principles in 5 groups. `references/ux-principles.md`.
 
 **Making Decisions Easy:** Hick's Law (fewer choices), Miller's Law (chunk data ~7 items), Cognitive Load (remove noise), Progressive Disclosure (basics first), Tesler's Law (system absorbs complexity), Pareto (optimize the 20%).
 
@@ -139,7 +139,9 @@ Never rebuild accessibility (focus trapping, keyboard nav, ARIA) — use a primi
 
 **Making Experiences Stick:** Peak-End Rule (invest in endings), Zeigarnik (show incomplete), Jakob's Law (use familiar patterns), Aesthetic-Usability (polish = trust).
 
-5 agents use: Arc (screen planning) → Dev (build patterns) → Vi (magic moment) → Pol (layout craft) → Crit (HEART psychology)
+**Platform-Aware Design:** Control Hierarchy (primary visible, secondary discoverable), Thumb Zone (CTAs in bottom third), Respect System Preferences (dark mode, reduced motion, text size), Use Device Capabilities (camera, location, biometrics over manual input), Onboarding (value before sign-in), Smart Data Entry (pickers over text, inline validation), Feedback Hierarchy (match weight to significance), Loading & Launching (skeleton screens, restore state), Modality (only when clear benefit), Settings (smart defaults, in-context options), Charts (simple, accessible, consistent), UX Writing (voice + tone, action-oriented labels, clear errors, empty states), Accessibility (4.5:1 contrast, 44pt targets, keyboard nav, reduced motion), Inclusion (plain language, gender-neutral, people-first, no jargon), Branding (defers to content, accent color, standard patterns first).
+
+5 agents use: Arc (screen planning + Section 5) → Dev (build patterns + Section 5) → Vi (magic moment + onboarding + writing) → Pol (layout craft + writing + branding) → Crit (HEART psychology + accessibility + inclusion)
 
 ---
 
@@ -160,6 +162,10 @@ Never rebuild accessibility (focus trapping, keyboard nav, ARIA) — use a primi
 **Motion:** Spring animations (response: 0.35, damping: 0.85), not CSS easing. Under 0.4s. `matchedGeometryEffect` for hero transitions.
 
 **Components:** System first (`List`, `Form`, `NavigationStack`, `TabView`, `.sheet`, `.alert`, `.searchable`). SF Symbols for icons.
+
+**App Lifecycle:** Onboarding (TipKit for discovery, delay sign-in), Accounts (Sign in with Apple, passkeys, deletion required), Notifications (4 levels: passive/active/time-sensitive/critical), Multitasking (save/restore state, handle audio interruptions), Settings (smart defaults, ⌘-Comma, task-specific in-context), Haptics (9 patterns: 5 impact weights + success/warning/error/selection), Swift Charts (BarMark/LineMark/PointMark, accessibility labels, consistent types).
+
+**Foundations (new):** Extended Typography (min sizes, avoid light weights, custom font scaling with UIFontMetrics), Extended Color (system vs grouped backgrounds, Liquid Glass color, foreground color table), Dark Mode (base vs elevated, no app-specific toggle, test with Increase Contrast), Materials (Liquid Glass regular/clear variants, standard material thicknesses), Images (@2x/@3x, SVG/PDF for icons, color profiles), Layout (size classes compact/regular, iPad NavigationSplitView, convertible tab bar, backgroundExtensionEffect).
 
 ---
 
