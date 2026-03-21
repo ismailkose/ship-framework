@@ -1,12 +1,13 @@
 #!/bin/bash
 
 # Ship Framework — Update
-# Zero-prompt update. Updates slash commands, references, and cheatsheet.
-# Does NOT overwrite CLAUDE.md content (that's customized per project).
+# Zero-prompt update. Syncs the full template structure to your project.
+# Does NOT overwrite user-customized files (CLAUDE.md content, TASKS.md, design-system.md).
 #
 # Usage:
 #   bash ship-framework/update.sh              # updates current directory
 #   bash ship-framework/update.sh ./my-project  # updates specified directory
+#   bash ship-framework/update.sh ./my-project --add-framework healthkit,storekit
 
 set -e
 
@@ -20,6 +21,26 @@ ORANGE='\033[38;5;208m'
 GREEN='\033[32m'
 YELLOW='\033[33m'
 RESET='\033[0m'
+
+# ─── Protected files ────────────────────────────────────────────────────────
+# These are NEVER overwritten — they contain user customizations.
+# New template files ARE added if they don't exist yet in the project.
+
+PROTECTED_FILES=(
+  "CLAUDE.md"          # User's product rules, design system, agent customizations
+  "TASKS.md"           # User's task board
+  "references/design-system.md"  # User's design tokens
+)
+
+is_protected() {
+  local relpath="$1"
+  for pf in "${PROTECTED_FILES[@]}"; do
+    if [ "$relpath" = "$pf" ]; then
+      return 0
+    fi
+  done
+  return 1
+}
 
 # ─── Pull latest version ────────────────────────────────────────────────────
 
@@ -39,9 +60,8 @@ echo -e "${BOLD}${ORANGE}Ship Framework${RESET} v${VERSION} — Update"
 echo ""
 
 # ─── Step 1: Find project directory ──────────────────────────────────────────
-# Accept as argument or default to current directory
 
-if [ -n "$1" ]; then
+if [ -n "$1" ] && [ "${1:0:2}" != "--" ]; then
   TARGET_DIR="$1"
 else
   TARGET_DIR="."
@@ -89,121 +109,106 @@ fi
 if [ -f "$SCRIPT_DIR/CHANGELOG.md" ]; then
   echo -e "${BOLD}What's new in v${VERSION}:${RESET}"
   echo ""
-  # Show the latest changelog entry (everything between first and second ## heading)
-  # Using sed instead of head -n -1 for macOS compatibility
   sed -n '/^## '"$VERSION"'/,/^## [0-9]/{ /^## [0-9]/!p; }' "$SCRIPT_DIR/CHANGELOG.md"
   echo ""
 fi
 
-# ─── Step 5: Confirm update ─────────────────────────────────────────────────
+# ─── Step 5: Show what will be updated ───────────────────────────────────────
 
-echo -e "${BOLD}This will update:${RESET}"
-echo "  • .claude/commands/  — all 15 slash commands"
-echo "  • references/        — agent reference files (core + SwiftUI + Swift essentials)"
-echo "  • references/frameworks/ — your selected iOS framework references"
+echo -e "${BOLD}This will sync from template:${RESET}"
+echo "  • .claude/commands/  — slash commands (new + updated)"
+echo "  • references/        — all reference files (new + updated)"
 echo "  • CHEATSHEET.md      — quick reference card"
-echo "  • CLAUDE.md footer   — version stamp only"
-echo "  • DECISIONS.md       — created if missing (new template)"
-echo "  • CONTEXT.md         — created if missing (new template)"
+echo "  • Any new template files added in this version"
 echo ""
 echo -e "${DIM}This will NOT touch:${RESET}"
 echo "  • CLAUDE.md content  — your product rules, design system, agent customizations"
 echo "  • TASKS.md           — your task board"
-echo "  • Existing DECISIONS.md or CONTEXT.md — only created if missing"
+echo "  • references/design-system.md — your design tokens"
 echo ""
 echo ""
 
-# ─── Step 6: Update slash commands ───────────────────────────────────────────
+# ─── Step 6: Generic template sync ──────────────────────────────────────────
+# Walks the entire template/ directory and syncs to the project.
+# - New files: created
+# - Existing files: updated (unless protected)
+# - New directories: created
+# - Protected files: never touched if they exist
 
-# Count what's being updated
-UPDATED=0
-ADDED=0
+TOTAL_UPDATED=0
+TOTAL_NEW=0
+TOTAL_SKIPPED=0
 
-for cmd_file in "$TEMPLATE_DIR/.claude/commands/"*.md; do
-  filename=$(basename "$cmd_file")
-  if [ -f "$TARGET_DIR/.claude/commands/$filename" ]; then
-    UPDATED=$((UPDATED + 1))
-  else
-    ADDED=$((ADDED + 1))
-  fi
-done
+sync_template_dir() {
+  local src_dir="$1"
+  local dst_dir="$2"
+  local rel_prefix="$3"  # relative path prefix for display and protection check
 
-cp "$TEMPLATE_DIR/.claude/commands/"*.md "$TARGET_DIR/.claude/commands/"
-echo -e "${GREEN}✓${RESET} Updated .claude/commands/ ($UPDATED updated, $ADDED new)"
+  mkdir -p "$dst_dir"
 
-# ─── Step 7: Update references ────────────────────────────────────────────────
+  # Sync files
+  for src_file in "$src_dir"/*; do
+    [ -e "$src_file" ] || continue
+    local filename=$(basename "$src_file")
+    local relpath="${rel_prefix}${filename}"
 
-if [ -d "$TEMPLATE_DIR/references" ]; then
-  mkdir -p "$TARGET_DIR/references"
-  # Copy framework references but never overwrite user's custom files
-  for ref_file in "$TEMPLATE_DIR/references/"*.md; do
-    filename=$(basename "$ref_file")
-    if [ "$filename" = "design-system.md" ] && [ -f "$TARGET_DIR/references/design-system.md" ]; then
-      continue  # Never overwrite user's design system
-    fi
-    cp "$ref_file" "$TARGET_DIR/references/$filename"
-  done
-  echo -e "${GREEN}✓${RESET} Updated references/"
-fi
+    if [ -d "$src_file" ]; then
+      # Directory — recurse
+      if [ -d "$dst_dir/$filename" ]; then
+        sync_template_dir "$src_file" "$dst_dir/$filename" "${relpath}/"
+      else
+        # New directory — create and copy everything
+        mkdir -p "$dst_dir/$filename"
+        sync_template_dir "$src_file" "$dst_dir/$filename" "${relpath}/"
+      fi
+    elif [ -f "$src_file" ]; then
+      # File — check protection
+      if is_protected "$relpath" && [ -f "$dst_dir/$filename" ]; then
+        TOTAL_SKIPPED=$((TOTAL_SKIPPED + 1))
+        continue
+      fi
 
-# ─── Step 7b: Update framework references ──────────────────────────────────────
-# Only update frameworks that already exist in the project (user selected these).
-# To add new frameworks: bash update.sh ~/MyApp --add-framework healthkit,storekit
-
-if [ -d "$TARGET_DIR/references/frameworks" ] && [ -d "$TEMPLATE_DIR/references/frameworks" ]; then
-  FW_UPDATED=0
-  for fw_file in "$TARGET_DIR/references/frameworks/"*.md; do
-    filename=$(basename "$fw_file")
-    if [ -f "$TEMPLATE_DIR/references/frameworks/$filename" ]; then
-      cp "$TEMPLATE_DIR/references/frameworks/$filename" "$TARGET_DIR/references/frameworks/$filename"
-      FW_UPDATED=$((FW_UPDATED + 1))
-    fi
-  done
-  echo -e "${GREEN}✓${RESET} Updated references/frameworks/ ($FW_UPDATED framework references)"
-fi
-
-# Handle --add-framework flag
-if [ "$2" = "--add-framework" ] && [ -n "$3" ]; then
-  mkdir -p "$TARGET_DIR/references/frameworks"
-  IFS=',' read -ra NEW_FW <<< "$3"
-  for fw in "${NEW_FW[@]}"; do
-    fw=$(echo "$fw" | xargs)
-    if [ -f "$TEMPLATE_DIR/references/frameworks/${fw}.md" ]; then
-      cp "$TEMPLATE_DIR/references/frameworks/${fw}.md" "$TARGET_DIR/references/frameworks/"
-      echo -e "${GREEN}✓${RESET} Added framework reference: ${fw}"
-    else
-      echo -e "${YELLOW}⚠${RESET}  Framework reference not found: ${fw}"
-      echo -e "${DIM}  Available: $(ls "$TEMPLATE_DIR/references/frameworks/" 2>/dev/null | sed 's/\.md//g' | tr '\n' ', ' | sed 's/,$//')${RESET}"
+      if [ -f "$dst_dir/$filename" ]; then
+        TOTAL_UPDATED=$((TOTAL_UPDATED + 1))
+      else
+        TOTAL_NEW=$((TOTAL_NEW + 1))
+      fi
+      cp "$src_file" "$dst_dir/$filename"
     fi
   done
+}
+
+# Sync template/ → project root
+echo -e "${DIM}Syncing template...${RESET}"
+sync_template_dir "$TEMPLATE_DIR" "$TARGET_DIR" ""
+
+if [ $TOTAL_NEW -gt 0 ]; then
+  echo -e "${GREEN}✓${RESET} Template synced ($TOTAL_UPDATED updated, ${BOLD}$TOTAL_NEW new${RESET}, $TOTAL_SKIPPED protected)"
+else
+  echo -e "${GREEN}✓${RESET} Template synced ($TOTAL_UPDATED updated, $TOTAL_SKIPPED protected)"
 fi
 
-# ─── Step 8: Update cheatsheet ───────────────────────────────────────────────
+# ─── Step 7: Update cheatsheet ───────────────────────────────────────────────
 
 cp "$SCRIPT_DIR/CHEATSHEET.md" "$TARGET_DIR/CHEATSHEET.md"
 echo -e "${GREEN}✓${RESET} Updated CHEATSHEET.md"
 
-# ─── Step 8b: Create DECISIONS.md and CONTEXT.md if missing ─────────────────
+# ─── Step 8: Create root-level template files if missing ─────────────────────
+# Files that live at project root (not inside template/) but ship with the framework.
 
-if [ ! -f "$TARGET_DIR/DECISIONS.md" ] && [ -f "$TEMPLATE_DIR/DECISIONS.md" ]; then
-  cp "$TEMPLATE_DIR/DECISIONS.md" "$TARGET_DIR/DECISIONS.md"
-  echo -e "${GREEN}✓${RESET} Created DECISIONS.md (new in this version)"
-fi
-
-if [ ! -f "$TARGET_DIR/CONTEXT.md" ] && [ -f "$TEMPLATE_DIR/CONTEXT.md" ]; then
-  cp "$TEMPLATE_DIR/CONTEXT.md" "$TARGET_DIR/CONTEXT.md"
-  echo -e "${GREEN}✓${RESET} Created CONTEXT.md (new in this version)"
-fi
+for root_file in DECISIONS.md CONTEXT.md; do
+  if [ ! -f "$TARGET_DIR/$root_file" ] && [ -f "$TEMPLATE_DIR/$root_file" ]; then
+    cp "$TEMPLATE_DIR/$root_file" "$TARGET_DIR/$root_file"
+    echo -e "${GREEN}✓${RESET} Created $root_file (new in this version)"
+  fi
+done
 
 # ─── Step 9: Update version stamp in CLAUDE.md ──────────────────────────────
 
-# Only update the version footer line — don't touch anything else
 if grep -q "Ship Framework" "$TARGET_DIR/CLAUDE.md"; then
-  # Replace the version in the existing footer
   sed -i "s|Ship Framework.*v[0-9.]*|Ship Framework](https://github.com/ismailkose/ship-framework) v${VERSION}|g" "$TARGET_DIR/CLAUDE.md"
   echo -e "${GREEN}✓${RESET} Updated version stamp in CLAUDE.md footer"
 else
-  # No footer exists — append one
   echo "" >> "$TARGET_DIR/CLAUDE.md"
   echo "---" >> "$TARGET_DIR/CLAUDE.md"
   echo "" >> "$TARGET_DIR/CLAUDE.md"
@@ -211,11 +216,32 @@ else
   echo -e "${GREEN}✓${RESET} Added version stamp to CLAUDE.md"
 fi
 
+# ─── Handle --add-framework flag ─────────────────────────────────────────────
+
+# Check all args for --add-framework
+for i in "$@"; do
+  if [ "$prev_arg" = "--add-framework" ]; then
+    mkdir -p "$TARGET_DIR/references/frameworks"
+    IFS=',' read -ra NEW_FW <<< "$i"
+    for fw in "${NEW_FW[@]}"; do
+      fw=$(echo "$fw" | xargs)
+      if [ -f "$TEMPLATE_DIR/references/frameworks/${fw}.md" ]; then
+        cp "$TEMPLATE_DIR/references/frameworks/${fw}.md" "$TARGET_DIR/references/frameworks/"
+        echo -e "${GREEN}✓${RESET} Added framework reference: ${fw}"
+      else
+        echo -e "${YELLOW}⚠${RESET}  Framework reference not found: ${fw}"
+        echo -e "${DIM}  Available: $(ls "$TEMPLATE_DIR/references/frameworks/" 2>/dev/null | sed 's/\.md//g' | tr '\n' ', ' | sed 's/,$//')${RESET}"
+      fi
+    done
+  fi
+  prev_arg="$i"
+done
+
 # ─── Summary ─────────────────────────────────────────────────────────────────
 
 echo ""
 echo -e "${BOLD}${ORANGE}Updated!${RESET} v${CURRENT_VERSION} → v${VERSION}"
 echo ""
-echo -e "${DIM}Your CLAUDE.md content, TASKS.md, and project files are untouched.${RESET}"
-echo -e "${DIM}Only slash commands, cheatsheet, and version stamp were updated.${RESET}"
+echo -e "${DIM}Your CLAUDE.md content, TASKS.md, and design-system.md are untouched.${RESET}"
+echo -e "${DIM}All template files (commands, references, frameworks) are synced.${RESET}"
 echo ""

@@ -46,9 +46,26 @@ To update an existing project, run `bash update.sh` — it handles everything au
 - Arc reads `swiftui-core.md` Section 1 for navigation planning
 - Eye reads `hig-ios.md` Section 10 + `swiftui-core.md` Section 9 for reviews
 
+### Changed — CLAUDE.md Split (Two-File Architecture)
+- CLAUDE.md now contains ONLY user content: product name, description, stack, design principles, key files, custom references
+- All framework content (agent definitions, product frameworks, rules, workflows) moved to `.claude/team-rules.md`
+- `team-rules.md` is managed by Ship Framework and synced on every update — users never edit it
+- CLAUDE.md is protected and never overwritten — users customize it freely
+- All 12 slash commands updated to read both files: CLAUDE.md for product context, `.claude/team-rules.md` for agent definitions and rules
+- Solves the update gap: framework improvements (new agents, rule changes, routing updates) now reach existing projects automatically
+
+### Changed — Generic Template Sync (update.sh rewrite)
+- Replaced piecemeal hardcoded sync blocks with recursive `sync_template_dir` function
+- Walks entire `template/` directory: creates new dirs, copies new files, updates existing files, skips protected files
+- Protected files: CLAUDE.md, TASKS.md, `references/design-system.md` — never overwritten
+- Reports counts: "Template synced (X updated, Y new, Z protected)"
+- Any new files/directories added to `template/` in future versions automatically sync to existing projects
+- `setup.sh` existing-install path now delegates to `update.sh` (single source of truth)
+- `/ship-update` command rewritten to use `update.sh` — no duplicate sync logic
+
 ### Changed — Setup & Update
 - `setup.sh`: copies SwiftUI core + Swift essentials automatically for iOS projects, copies all framework refs (or selective via `SHIP_FRAMEWORKS` env var)
-- `update.sh`: updates existing framework refs, new `--add-framework` flag to add frameworks later
+- `update.sh`: generic recursive sync, `--add-framework` flag for selective framework addition
 
 ### Previous in this version — Apple HIG Deep Integration: 24 Patterns + Foundations + UX Writing & Accessibility
 
