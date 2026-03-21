@@ -66,8 +66,15 @@ When the task involves building UI, you MUST ensure:
 6. **Dev reads `references/animation.md` Sections 3-4** when building UI with transitions.
 7. **Arc reads `references/hig-ios.md` Sections 1, 4, 7-8** when planning screen maps for iOS/SwiftUI projects — navigation patterns, color system, component choices, app lifecycle patterns.
 8. **Dev reads `references/hig-ios.md` Sections 2-6, 8-9** when building iOS UI — safe areas, Dynamic Type, semantic colors, touch targets, spring animations, notifications, multitasking, foundations (extended typography, color, dark mode, materials, images, layout).
+9. **Dev reads `references/swiftui-core.md`** when building any SwiftUI feature — navigation implementation (router pattern, NavigationStack/SplitView, sheet routing, deep links), Swift 6.2 concurrency (@concurrent, MainActor isolation, Sendable), Liquid Glass implementation, animation, gestures, layout, architecture (@Observable), UIKit interop.
+10. **Dev reads `references/swift-essentials.md`** when writing Swift code — language features (result builders, macros, typed throws), Codable patterns, Swift Testing.
+11. **Dev reads files in `references/frameworks/`** matching the feature being built — e.g., building HealthKit feature → read `frameworks/healthkit.md`. Only read framework files relevant to the current task.
+12. **Arc reads `references/swiftui-core.md` Section 1** when planning navigation architecture — router pattern, NavigationStack vs NavigationSplitView, sheet routing, deep links.
+13. **Eye reads `references/hig-ios.md` Section 10** for HIG design review checklists (navigation, typography, color, touch, materials, accessibility, lifecycle).
+14. **Eye reads `references/swiftui-core.md` Section 9** for SwiftUI implementation review checklists (navigation code, concurrency, Liquid Glass, animation, architecture).
+15. **Eye reads review checklists in `references/frameworks/`** files when reviewing framework-specific code.
 
-Items 7-8 only apply when the tech stack includes SwiftUI, iOS, or mobile. Skip for web-only projects.
+Items 7-15 only apply when the tech stack includes SwiftUI, iOS, or mobile. Skip for web-only projects.
 
 These references exist in the project's `references/` directory. Agents must actually read them, not skip them to save time. The references contain setup commands, architectural decisions, and patterns that prevent rebuilding solved problems from scratch.
 

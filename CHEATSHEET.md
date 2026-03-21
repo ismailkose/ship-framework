@@ -165,7 +165,62 @@ Never rebuild accessibility (focus trapping, keyboard nav, ARIA) — use a primi
 
 **App Lifecycle:** Onboarding (TipKit for discovery, delay sign-in), Accounts (Sign in with Apple, passkeys, deletion required), Notifications (4 levels: passive/active/time-sensitive/critical), Multitasking (save/restore state, handle audio interruptions), Settings (smart defaults, ⌘-Comma, task-specific in-context), Haptics (9 patterns: 5 impact weights + success/warning/error/selection), Swift Charts (BarMark/LineMark/PointMark, accessibility labels, consistent types).
 
-**Foundations (new):** Extended Typography (min sizes, avoid light weights, custom font scaling with UIFontMetrics), Extended Color (system vs grouped backgrounds, Liquid Glass color, foreground color table), Dark Mode (base vs elevated, no app-specific toggle, test with Increase Contrast), Materials (Liquid Glass regular/clear variants, standard material thicknesses), Images (@2x/@3x, SVG/PDF for icons, color profiles), Layout (size classes compact/regular, iPad NavigationSplitView, convertible tab bar, backgroundExtensionEffect).
+**Foundations:** Extended Typography (min sizes, avoid light weights, custom font scaling with UIFontMetrics), Extended Color (system vs grouped backgrounds, Liquid Glass color, foreground color table), Dark Mode (base vs elevated, no app-specific toggle, test with Increase Contrast), Materials (Liquid Glass regular/clear variants, standard material thicknesses), Images (@2x/@3x, SVG/PDF for icons, color profiles), Layout (size classes compact/regular, iPad NavigationSplitView, convertible tab bar, backgroundExtensionEffect).
+
+**Design Review Checklists (Section 10):** Navigation, Typography, Color, Touch, Materials/Liquid Glass, Accessibility, App Lifecycle — Eye uses during `/review`.
+
+---
+
+## SwiftUI Core Implementation (when stack includes iOS)
+
+`references/swiftui-core.md`. Always loaded for iOS/SwiftUI projects.
+
+**Navigation Implementation:** NavigationStack + NavigationPath (programmatic push/pop/pop-to-root), route enum pattern, router pattern (@Observable @MainActor, per-tab stacks), NavigationSplitView (iPad), sheet routing (.sheet(item:), enum-driven, .presentationSizing), deep links (.onOpenURL, universal links, AASA).
+
+**Swift 6.2 Concurrency:** Default MainActor isolation (SE-0466), @concurrent for background work, nonisolated(nonsending) default, Task.immediate (SE-0472), actor isolation rules, Sendable rules, structured concurrency (async let, TaskGroup), synchronization primitives (Mutex, OSAllocatedUnfairLock, Atomic), actor reentrancy.
+
+**Liquid Glass Implementation:** .glassEffect() API (regular/clear/tint/interactive), GlassEffectContainer (grouping, spacing, blending), morphing transitions (glassEffectID + @Namespace), glassEffectUnion, button styles (.glass/.glassProminent), scroll edge effects, backgroundExtensionEffect, ToolbarSpacer.
+
+**Animation:** Spring animations (preferred), transitions, matchedGeometryEffect, PhaseAnimator, KeyframeAnimator, Reduce Motion support.
+
+**Gestures:** Tap, long press, drag, MagnifyGesture, RotateGesture, gesture composition (simultaneous/sequenced/exclusive).
+
+**Layout:** layoutPriority, ViewThatFits, Grid, custom Layout protocol, ContentUnavailableView, ScrollView enhancements.
+
+**Architecture:** @Observable + @State ownership, Environment for DI, Observations (SE-0475).
+
+**UIKit Interop:** UIViewRepresentable, UIViewControllerRepresentable, UIHostingController.
+
+**Review Checklists (Section 9):** Navigation, Concurrency, Liquid Glass, Animation, Architecture — Eye + Dev self-check.
+
+---
+
+## Swift Essentials (when stack includes iOS)
+
+`references/swift-essentials.md`.
+
+**Swift Language:** Result builders, property wrappers, macros, opaque types (some/any), pattern matching, typed throws, key protocols (Hashable, Identifiable, Codable, Sendable).
+
+**Codable:** JSONDecoder/JSONEncoder setup, custom CodingKeys, custom init(from:)/encode(to:), nested containers, null/missing key handling.
+
+**Swift Testing:** @Test macro, #expect/#require, @Suite, parameterized tests, traits, async support, XCTest migration.
+
+---
+
+## iOS Framework References (conditional)
+
+`references/frameworks/`. 40 framework-specific references. Only read when building features that use that framework. Each has: triage, core API, code examples, common mistakes, review checklist.
+
+**Data & Storage:** swiftdata, cloudkit, contacts, eventkit
+**App Experience:** storekit, app-intents, live-activities, widgetkit, app-clips, alarmkit
+**Auth & Notifications:** authentication, push-notifications, permissionkit
+**AI & ML:** coreml, vision-framework, speech
+**Media:** photos-camera, musickit, passkit
+**Hardware:** core-bluetooth, core-motion, core-nfc, pencilkit, realitykit
+**Platform:** callkit, energykit, homekit, shareplay, weatherkit
+**Engineering:** networking, security, accessibility, localization, background-processing, debugging, device-integrity, metrickit, app-store-review
+
+Add more later: `bash update.sh ~/MyApp --add-framework healthkit,storekit`
 
 ---
 

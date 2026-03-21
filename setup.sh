@@ -67,6 +67,17 @@ if [ -f "$TARGET_DIR/CLAUDE.md" ]; then
       echo -e "${GREEN}✓${RESET} Updated references/"
     fi
 
+    # Update existing framework references (only ones already in project)
+    if [ -d "$TARGET_DIR/references/frameworks" ] && [ -d "$TEMPLATE_DIR/references/frameworks" ]; then
+      for fw_file in "$TARGET_DIR/references/frameworks/"*.md; do
+        filename=$(basename "$fw_file")
+        if [ -f "$TEMPLATE_DIR/references/frameworks/$filename" ]; then
+          cp "$TEMPLATE_DIR/references/frameworks/$filename" "$TARGET_DIR/references/frameworks/$filename"
+        fi
+      done
+      echo -e "${GREEN}✓${RESET} Updated references/frameworks/"
+    fi
+
     # Update cheatsheet
     cp "$SCRIPT_DIR/CHEATSHEET.md" "$TARGET_DIR/CHEATSHEET.md"
     echo -e "${GREEN}✓${RESET} Updated CHEATSHEET.md"
@@ -178,7 +189,38 @@ echo -e "${GREEN}✓${RESET} Created .claude/commands/ (15 slash commands)"
 if [ -d "$TEMPLATE_DIR/references" ]; then
   mkdir -p "$TARGET_DIR/references"
   cp "$TEMPLATE_DIR/references/"*.md "$TARGET_DIR/references/"
-  echo -e "${GREEN}✓${RESET} Created references/ (animation, components, UX, Apple HIG)"
+  echo -e "${GREEN}✓${RESET} Created references/ (animation, components, UX, Apple HIG, SwiftUI core, Swift essentials)"
+fi
+
+# ─── Copy iOS framework references (conditional) ────────────────────────────
+# The frameworks/ directory contains 40 optional iOS framework references.
+# All are copied by default. Projects can remove ones they don't need,
+# or use --frameworks flag to select specific ones.
+# Dev agent only reads framework files matching the current task.
+
+if [ -d "$TEMPLATE_DIR/references/frameworks" ]; then
+  mkdir -p "$TARGET_DIR/references/frameworks"
+
+  if [ -n "$SHIP_FRAMEWORKS" ]; then
+    # Selective copy: SHIP_FRAMEWORKS="swiftdata,healthkit,storekit"
+    IFS=',' read -ra SELECTED <<< "$SHIP_FRAMEWORKS"
+    COPIED=0
+    for fw in "${SELECTED[@]}"; do
+      fw=$(echo "$fw" | xargs)  # trim whitespace
+      if [ -f "$TEMPLATE_DIR/references/frameworks/${fw}.md" ]; then
+        cp "$TEMPLATE_DIR/references/frameworks/${fw}.md" "$TARGET_DIR/references/frameworks/"
+        COPIED=$((COPIED + 1))
+      else
+        echo -e "${YELLOW}⚠${RESET}  Framework reference not found: ${fw}"
+      fi
+    done
+    echo -e "${GREEN}✓${RESET} Created references/frameworks/ ($COPIED selected frameworks)"
+  else
+    # Copy all — agent only reads what's relevant to the task
+    cp "$TEMPLATE_DIR/references/frameworks/"*.md "$TARGET_DIR/references/frameworks/"
+    TOTAL=$(ls "$TEMPLATE_DIR/references/frameworks/"*.md 2>/dev/null | wc -l | xargs)
+    echo -e "${GREEN}✓${RESET} Created references/frameworks/ ($TOTAL iOS framework references)"
+  fi
 fi
 
 # ─── Copy cheatsheet ─────────────────────────────────────────────────────────

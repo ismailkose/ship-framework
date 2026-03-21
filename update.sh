@@ -99,7 +99,8 @@ fi
 
 echo -e "${BOLD}This will update:${RESET}"
 echo "  • .claude/commands/  — all 15 slash commands"
-echo "  • references/        — agent reference files"
+echo "  • references/        — agent reference files (core + SwiftUI + Swift essentials)"
+echo "  • references/frameworks/ — your selected iOS framework references"
 echo "  • CHEATSHEET.md      — quick reference card"
 echo "  • CLAUDE.md footer   — version stamp only"
 echo "  • DECISIONS.md       — created if missing (new template)"
@@ -143,6 +144,38 @@ if [ -d "$TEMPLATE_DIR/references" ]; then
     cp "$ref_file" "$TARGET_DIR/references/$filename"
   done
   echo -e "${GREEN}✓${RESET} Updated references/"
+fi
+
+# ─── Step 7b: Update framework references ──────────────────────────────────────
+# Only update frameworks that already exist in the project (user selected these).
+# To add new frameworks: bash update.sh ~/MyApp --add-framework healthkit,storekit
+
+if [ -d "$TARGET_DIR/references/frameworks" ] && [ -d "$TEMPLATE_DIR/references/frameworks" ]; then
+  FW_UPDATED=0
+  for fw_file in "$TARGET_DIR/references/frameworks/"*.md; do
+    filename=$(basename "$fw_file")
+    if [ -f "$TEMPLATE_DIR/references/frameworks/$filename" ]; then
+      cp "$TEMPLATE_DIR/references/frameworks/$filename" "$TARGET_DIR/references/frameworks/$filename"
+      FW_UPDATED=$((FW_UPDATED + 1))
+    fi
+  done
+  echo -e "${GREEN}✓${RESET} Updated references/frameworks/ ($FW_UPDATED framework references)"
+fi
+
+# Handle --add-framework flag
+if [ "$2" = "--add-framework" ] && [ -n "$3" ]; then
+  mkdir -p "$TARGET_DIR/references/frameworks"
+  IFS=',' read -ra NEW_FW <<< "$3"
+  for fw in "${NEW_FW[@]}"; do
+    fw=$(echo "$fw" | xargs)
+    if [ -f "$TEMPLATE_DIR/references/frameworks/${fw}.md" ]; then
+      cp "$TEMPLATE_DIR/references/frameworks/${fw}.md" "$TARGET_DIR/references/frameworks/"
+      echo -e "${GREEN}✓${RESET} Added framework reference: ${fw}"
+    else
+      echo -e "${YELLOW}⚠${RESET}  Framework reference not found: ${fw}"
+      echo -e "${DIM}  Available: $(ls "$TEMPLATE_DIR/references/frameworks/" 2>/dev/null | sed 's/\.md//g' | tr '\n' ', ' | sed 's/,$//')${RESET}"
+    fi
+  done
 fi
 
 # ─── Step 8: Update cheatsheet ───────────────────────────────────────────────

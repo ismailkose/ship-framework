@@ -1,8 +1,9 @@
 # Apple Human Interface Guidelines — iOS/SwiftUI Reference
 
 > **When to read:** Arc reads Sections 1, 4, 7-8 when planning screen maps for iOS/SwiftUI projects.
-> Dev reads Sections 2-6, 8-9 when building iOS UI. Eye reads Section 7 when reviewing.
+> Dev reads Sections 2-6, 8-9 when building iOS UI. Eye reads Sections 7 + 10 when reviewing.
 > Section 9 deepens Sections 2-4 with extended typography, color, dark mode, materials, images, and layout specs.
+> Section 10 has design review checklists for Eye agent.
 >
 > This is not a replacement for Apple's full HIG — it's the concrete specs and rules
 > that prevent common mistakes and App Store rejections. For the full guide:
@@ -730,6 +731,66 @@ var body: some View {
   }
 }
 ```
+
+---
+
+## Section 10: Design Review Checklists
+
+Consolidated HIG-level checklists for Eye agent during `/review`. These check design
+compliance — for code-level implementation checklists, see `swiftui-core.md` Section 9.
+
+### Navigation
+- [ ] Correct navigation model chosen (Tab Bar, Stack, or Flat) — not mixed at same level
+- [ ] Tab bar has max 5 tabs, each with SF Symbol icon + label
+- [ ] Back button always visible in push navigation
+- [ ] Large title collapses on scroll where appropriate
+- [ ] NavigationSplitView used for iPad sidebar layouts
+- [ ] Deep links handled with `.onOpenURL`
+
+### Typography
+- [ ] Dynamic Type supported — all text scales with system setting
+- [ ] No text smaller than 11pt on iOS
+- [ ] Max 2 font families (SF Pro + one brand font)
+- [ ] Custom fonts scale via `UIFontMetrics`
+- [ ] Tested with largest accessibility size (AX5) and smallest (xSmall)
+- [ ] At large font sizes, horizontal layouts switch to stacked vertical
+
+### Color
+- [ ] Semantic colors used (`Color(.label)`, `Color(.systemBackground)`, etc.)
+- [ ] System backgrounds match style: grouped for forms/lists, system for flat content
+- [ ] 4.5:1 contrast ratio for body text, 3:1 for 18pt+ or bold
+- [ ] Increased-contrast variants provided for custom colors
+- [ ] Liquid Glass color applied sparingly — reserve for primary actions
+- [ ] Tested in both light and dark modes with Increase Contrast on
+
+### Touch & Interaction
+- [ ] All tap targets minimum 44×44pt
+- [ ] Primary actions in thumb zone (bottom half of screen)
+- [ ] Destructive actions require confirmation
+- [ ] Swipe actions discoverable and reversible
+- [ ] Haptics match their documented meanings — not repurposed
+
+### Materials & Liquid Glass
+- [ ] Liquid Glass used only for controls/navigation, not content layer
+- [ ] Standard components (tab bar, toolbar, nav bar) use automatic glass
+- [ ] Custom glass applied sparingly — not on every surface
+- [ ] `if #available(iOS 26, *)` with fallback UI
+- [ ] Tested with Reduce Transparency enabled
+
+### Accessibility
+- [ ] VoiceOver labels on all interactive elements
+- [ ] Meaningful accessibility hints for non-obvious controls
+- [ ] Images have accessibility labels or are marked decorative
+- [ ] Reduce Motion respected — alternative animations provided
+- [ ] Reduce Transparency respected — content remains readable
+- [ ] Keyboard navigation works for all flows (iPad + external keyboard)
+
+### App Lifecycle
+- [ ] State saved on background, restored on foreground
+- [ ] Permissions requested in context with explanation — not on first launch
+- [ ] Notifications use correct interruption level (not Time Sensitive for marketing)
+- [ ] Sign in with Apple offered first when auth is needed
+- [ ] Account deletion option available (App Store requirement)
 
 ---
 

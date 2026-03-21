@@ -6,7 +6,51 @@ To update an existing project, run `bash update.sh` — it handles everything au
 
 ---
 
-## 2026.03.21 — Apple HIG Deep Integration: 24 Patterns + Foundations + UX Writing & Accessibility
+## 2026.03.21 — SwiftUI Implementation Deep-Dive + 40 Conditional Framework References
+
+### Added — SwiftUI Core Implementation (swiftui-core.md)
+- New always-included reference for iOS projects (9 sections)
+- Navigation implementation: NavigationStack, NavigationPath, router pattern, NavigationSplitView, sheet routing, deep links
+- Swift 6.2 concurrency: default MainActor isolation (SE-0466), @concurrent, nonisolated(nonsending), Task.immediate, actor isolation, Sendable, structured concurrency, synchronization primitives
+- Liquid Glass implementation: .glassEffect() API, GlassEffectContainer, morphing transitions, glass union, button styles, scroll edge effects
+- Animation: spring animations, transitions, matchedGeometryEffect, PhaseAnimator, KeyframeAnimator, Reduce Motion
+- Gestures: tap, drag, magnify, rotate, gesture composition
+- Layout: ViewThatFits, Grid, custom Layout, ContentUnavailableView, ScrollView enhancements
+- Architecture: @Observable, Environment DI, Observations (SE-0475)
+- UIKit interop: UIViewRepresentable, UIViewControllerRepresentable, UIHostingController
+- Review checklists for all sections
+
+### Added — Swift Essentials (swift-essentials.md)
+- Swift 6.2 language features, Codable patterns, Swift Testing (@Test, #expect, @Suite)
+
+### Added — 40 Conditional Framework References (references/frameworks/)
+- Data & Storage: swiftdata, cloudkit, contacts, eventkit
+- App Experience: storekit, app-intents, live-activities, widgetkit, app-clips, alarmkit
+- Auth & Notifications: authentication, push-notifications, permissionkit
+- AI & ML: coreml, vision-framework, speech
+- Media: photos-camera, musickit, passkit
+- Hardware: core-bluetooth, core-motion, core-nfc, pencilkit, realitykit
+- Platform: callkit, energykit, homekit, shareplay, weatherkit
+- Engineering: networking, security, accessibility, localization, background-processing, debugging, device-integrity, metrickit, app-store-review
+- Each file: triage workflow, core API, code examples, common mistakes, review checklist
+- Conditional loading: all copied by default, `SHIP_FRAMEWORKS` env var for selective install
+- Add later: `bash update.sh ~/MyApp --add-framework healthkit,storekit`
+
+### Added — Design Review Checklists (hig-ios.md Section 10)
+- Navigation, Typography, Color, Touch, Materials/Liquid Glass, Accessibility, App Lifecycle checklists
+- Eye agent reads during `/review`
+
+### Changed — Agent Routing (team.md)
+- Items 9-15: SwiftUI core, Swift essentials, conditional frameworks, design checklists, implementation checklists
+- Dev reads `swiftui-core.md` for all SwiftUI features, `swift-essentials.md` for Swift code, relevant `frameworks/` files
+- Arc reads `swiftui-core.md` Section 1 for navigation planning
+- Eye reads `hig-ios.md` Section 10 + `swiftui-core.md` Section 9 for reviews
+
+### Changed — Setup & Update
+- `setup.sh`: copies SwiftUI core + Swift essentials automatically for iOS projects, copies all framework refs (or selective via `SHIP_FRAMEWORKS` env var)
+- `update.sh`: updates existing framework refs, new `--add-framework` flag to add frameworks later
+
+### Previous in this version — Apple HIG Deep Integration: 24 Patterns + Foundations + UX Writing & Accessibility
 
 ### Added — Platform-Aware Design (ux-principles.md Section 5)
 - 15 new universal principles distilled from 24 Apple HIG pages
