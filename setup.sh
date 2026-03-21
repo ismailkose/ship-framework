@@ -178,7 +178,7 @@ echo -e "${GREEN}✓${RESET} Created .claude/commands/ (14 slash commands)"
 if [ -d "$TEMPLATE_DIR/references" ]; then
   mkdir -p "$TARGET_DIR/references"
   cp "$TEMPLATE_DIR/references/"*.md "$TARGET_DIR/references/"
-  echo -e "${GREEN}✓${RESET} Created references/ (animation + component architecture)"
+  echo -e "${GREEN}✓${RESET} Created references/ (animation, components, UX, Apple HIG)"
 fi
 
 # ─── Copy cheatsheet ─────────────────────────────────────────────────────────

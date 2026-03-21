@@ -54,6 +54,18 @@ To update an existing project, run `bash update.sh` — it handles everything au
 - Cap checks growth basics at ship time: sharing, invite flow, SEO, attribution
 - No new agent — growth is a thread through existing team, not a separate role
 
+### Added — Apple HIG Reference for iOS/SwiftUI
+- New `references/hig-ios.md` — concrete specs from Apple's Human Interface Guidelines
+- Navigation patterns (tab bar, NavigationStack, sheets) with when-to-use rules
+- Layout & safe areas (device dimensions, margins, safe area rules)
+- Dynamic Type scale (all 11 text styles with sizes, weights, usage)
+- Semantic color system (backgrounds, labels, accents) with dark mode support
+- Touch & interaction (44pt targets, standard gestures, haptic feedback patterns)
+- Spring animations (response/damping parameters, not CSS easing)
+- System components (List, Form, NavigationStack, SF Symbols) with "use this, not that" table
+- App Store rejection common causes checklist
+- Only loaded when tech stack includes SwiftUI/iOS — web projects skip it
+
 ### Added — View Transitions API Reference
 - CSS-native shared element transitions added to `animation-css.md`
 - `view-transition-name`, `::view-transition-group()`, `::view-transition-old/new()` with code examples

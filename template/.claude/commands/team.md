@@ -64,6 +64,10 @@ When the task involves building UI, you MUST ensure:
 4. **Dev reads `references/components.md`** and verifies the component layer is installed (check for `components.json`) before building any UI. If missing, install it first.
 5. **Dev reads `references/ux-principles.md` Sections 2-3** when building UI interactions — hit areas, response time, spacing, visual hierarchy.
 6. **Dev reads `references/animation.md` Sections 3-4** when building UI with transitions.
+7. **Arc reads `references/hig-ios.md` Sections 1, 4, 7** when planning screen maps for iOS/SwiftUI projects — navigation patterns, color system, component choices.
+8. **Dev reads `references/hig-ios.md` Sections 2-6** when building iOS UI — safe areas, Dynamic Type, semantic colors, touch targets, spring animations.
+
+Items 7-8 only apply when the tech stack includes SwiftUI, iOS, or mobile. Skip for web-only projects.
 
 These references exist in the project's `references/` directory. Agents must actually read them, not skip them to save time. The references contain setup commands, architectural decisions, and patterns that prevent rebuilding solved problems from scratch.
 

@@ -142,6 +142,26 @@ Never rebuild accessibility (focus trapping, keyboard nav, ARIA) — use a primi
 
 ---
 
+## Apple HIG — iOS/SwiftUI (when stack includes iOS)
+
+`references/hig-ios.md`. Only loaded for iOS/SwiftUI projects.
+
+**Navigation:** Tab bar (max 5, 49pt), NavigationStack (push/pop, large titles), sheets (half/full, swipe dismiss). Don't mix at the same level.
+
+**Layout:** Safe areas always respected. Status bar 59pt (Dynamic Island), nav bar 44pt, tab bar 49pt, home indicator 34pt. Margins 16pt iPhone, 20pt Pro Max.
+
+**Typography:** Dynamic Type scale — Large Title 34pt, Title 28pt, Body 17pt, Caption 12pt. Always use `.font(.body)`, never hardcode sizes.
+
+**Colors:** Semantic system colors (`.background`, `.primary`, `.secondary`) — auto dark mode. One tint color for the app. 4.5:1 contrast ratio.
+
+**Touch:** 44×44pt minimum. 8pt between targets. Never disable swipe-back. Use system haptics.
+
+**Motion:** Spring animations (response: 0.35, damping: 0.85), not CSS easing. Under 0.4s. `matchedGeometryEffect` for hero transitions.
+
+**Components:** System first (`List`, `Form`, `NavigationStack`, `TabView`, `.sheet`, `.alert`, `.searchable`). SF Symbols for icons.
+
+---
+
 ## Disagreements
 
 1. State what the previous agent decided

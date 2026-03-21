@@ -12,6 +12,7 @@ when to load them.
 - `animation-performance.md` — 60fps optimization, reduced motion testing
 - `components.md` — Headless component architecture, three-layer model
 - `ux-principles.md` — 20 UX principles with incorrect/correct code examples
+- `hig-ios.md` — Apple HIG for iOS/SwiftUI: navigation, layout, Dynamic Type, colors, touch, motion, components (iOS projects only)
 
 ## Adding Your Own
 
