@@ -8,7 +8,7 @@
 |---------|-------------|
 | `/team [task]` | Default for everything. Routes to the right agents. |
 | `/team continue` | Start of day. Picks up from TASKS.md. |
-| `/team Health check` | Full strategic review — product fit, tech, UX, business, visual. |
+| `/health` | Full strategic review — product fit, tech, UX, business, visual. |
 | `/team Take over` | Existing codebase. Assess → audit → strategy → roadmap. |
 | `/status` | Quick progress check. |
 | `/visionary [idea]` | Validate an idea before building. 10 items: bar test, workaround, JTBD, magic moment, kill list, 2-week bet, North Star metric, who pays, PMF signal, growth mechanism. |
@@ -104,7 +104,7 @@ Arc defines, Crit checks. Limit competing patterns per screen, not element count
 
 8 pattern foundations: reveal on hover, stacking, staggered reveal, shared element transition, dynamic resize, directional navigation, inline expansion, element-to-view expansion.
 
-Deep-dives (loaded only when needed): `animation-css.md` (universal), `animation-framer-motion.md` (React, includes advanced AnimatePresence), `animation-performance.md` (universal).
+Deep-dives (loaded only when needed): `animation-css.md` (universal, includes View Transitions API), `animation-framer-motion.md` (React, includes advanced AnimatePresence), `animation-performance.md` (universal).
 
 6 agents check: Arc (spec + restraint) → Dev (build + adapt) → Pol (feel) → Eye (visual) → Test (accessibility) → Crit (balance)
 

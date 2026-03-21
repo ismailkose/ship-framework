@@ -6,9 +6,25 @@ Your job: The founder gives you ONE instruction. You run the entire team yoursel
 
 Before doing ANYTHING:
 
-1. **Check if the project has source files** (look for src/, app/, lib/, pages/, or common project files beyond CLAUDE.md and TASKS.md). If the project directory is mostly empty — this is a fresh start. Route to Vi first. If there's existing code — check what's actually installed vs what CLAUDE.md says the stack should be. Look at `package.json` for dependencies, check for `components.json` (shadcn), check for animation libraries. If the stack in CLAUDE.md includes tools that aren't installed (e.g., CLAUDE.md says "shadcn/ui (Base UI)" but there's no `components.json`), flag this: "You have existing code but some stack items from CLAUDE.md aren't set up yet — [list missing items]. Want me to install those first, or assess what's here?" Wait for the answer before routing.
+1. **Check CLAUDE.md for first-run setup** — Look for `SHIP_SETUP` HTML comments left by setup.sh. These indicate the project hasn't been configured yet. Handle ALL of these before routing to any agent — they're the team's foundation.
 
-2. **Skill Conflict Check** — Check if external skills or plugins are installed that overlap with team agents. Look for installed skills matching these patterns:
+   **If `<!-- SHIP_SETUP: product name not set -->` is in the title or body:**
+   Ask: "What's your product called?"
+   Wait for the answer, then replace every instance of the comment with their product name in CLAUDE.md. Also update the TASKS.md title.
+
+   **If `<!-- SHIP_SETUP: product description not set -->` is in "The Product" section:**
+   Ask: "Tell me about your product — what does it do and who is it for? (Paste as much as you want.)"
+   Wait for the answer, then replace the comment with their description in CLAUDE.md.
+
+   **If `<!-- SHIP_SETUP: tech stack not set -->` is in "Tech Stack" section:**
+   Ask: "What tech stack do you want to use? (e.g., Next.js + Supabase, React Native + Expo, or describe what you're building and I'll recommend one.)"
+   Wait for the answer, then format as bullet points and replace the comment in CLAUDE.md. Also update TASKS.md Notes section.
+
+   Ask all missing items in ONE message if multiple are missing (don't ask one at a time). Example: "Before we start, I need three things: (1) What's your product called? (2) What does it do and who is it for? (3) What tech stack?" Wait for the answer, fill in CLAUDE.md and TASKS.md, then proceed.
+
+2. **Check if the project has source files** (look for src/, app/, lib/, pages/, or common project files beyond CLAUDE.md and TASKS.md). If the project directory is mostly empty — this is a fresh start. Route to Vi first. If there's existing code — check what's actually installed vs what CLAUDE.md says the stack should be. Look at `package.json` for dependencies, check for `components.json` (shadcn), check for animation libraries. If the stack in CLAUDE.md includes tools that aren't installed (e.g., CLAUDE.md says "shadcn/ui (Base UI)" but there's no `components.json`), flag this: "You have existing code but some stack items from CLAUDE.md aren't set up yet — [list missing items]. Want me to install those first, or assess what's here?" Wait for the answer before routing.
+
+3. **Skill Conflict Check** — Check if external skills or plugins are installed that overlap with team agents. Look for installed skills matching these patterns:
    - Product thinking: brainstorming, feature-spec, user-research
    - Technical planning: writing-plans, system-design, architecture
    - Building: executing-plans, subagent-driven-development
@@ -24,11 +40,11 @@ Before doing ANYTHING:
 
    After warning, proceed normally — team agents always take priority over external skills for their domain. If an external skill tries to activate during a team flow, the team agent overrides it.
 
-3. **Read `DECISIONS.md`** in the project root. This is the team's decision memory. Know what was decided before, especially one-way door decisions that can't be easily reversed.
+4. **Read `DECISIONS.md`** in the project root. This is the team's decision memory. Know what was decided before, especially one-way door decisions that can't be easily reversed.
 
-4. **Read `CONTEXT.md`** in the project root (if it exists). This is the team's institutional memory — tech learnings, product learnings, patterns, and active experiments. Know what was tried before, what broke, and what worked.
+5. **Read `CONTEXT.md`** in the project root (if it exists). This is the team's institutional memory — tech learnings, product learnings, patterns, and active experiments. Know what was tried before, what broke, and what worked.
 
-5. **Read `TASKS.md`** in the project root. This is the team's persistent memory across sessions.
+6. **Read `TASKS.md`** in the project root. This is the team's persistent memory across sessions.
 
 - Check what's been completed, what's in progress, and what's up next
 - If the founder says "continue" or "keep going" — pick up the next task from TASKS.md

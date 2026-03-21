@@ -7,7 +7,7 @@ when to load them.
 ## What Ships with the Framework
 
 - `animation.md` — Motion budget, build rules, 8 pattern foundations
-- `animation-css.md` — CSS transforms, transitions, keyframes (universal)
+- `animation-css.md` — CSS transforms, transitions, keyframes, View Transitions API (universal)
 - `animation-framer-motion.md` — Framer Motion API (React only)
 - `animation-performance.md` — 60fps optimization, reduced motion testing
 - `components.md` — Headless component architecture, three-layer model

@@ -1,8 +1,12 @@
 #!/bin/bash
 
 # Ship Framework — Update
-# Updates slash commands and cheatsheet in an existing project.
-# Does NOT overwrite CLAUDE.md (that's customized per project).
+# Zero-prompt update. Updates slash commands, references, and cheatsheet.
+# Does NOT overwrite CLAUDE.md content (that's customized per project).
+#
+# Usage:
+#   bash ship-framework/update.sh              # updates current directory
+#   bash ship-framework/update.sh ./my-project  # updates specified directory
 
 set -e
 
@@ -35,12 +39,11 @@ echo -e "${BOLD}${ORANGE}Ship Framework${RESET} v${VERSION} — Update"
 echo ""
 
 # ─── Step 1: Find project directory ──────────────────────────────────────────
+# Accept as argument or default to current directory
 
-echo -e "${DIM}Where is your project? (path to project root)${RESET}"
-echo -e "${DIM}Press Enter for current directory.${RESET}"
-read -p "> " TARGET_DIR
-
-if [ -z "$TARGET_DIR" ]; then
+if [ -n "$1" ]; then
+  TARGET_DIR="$1"
+else
   TARGET_DIR="."
 fi
 
@@ -95,7 +98,7 @@ fi
 # ─── Step 5: Confirm update ─────────────────────────────────────────────────
 
 echo -e "${BOLD}This will update:${RESET}"
-echo "  • .claude/commands/  — all 13 slash commands"
+echo "  • .claude/commands/  — all 14 slash commands"
 echo "  • references/        — agent reference files"
 echo "  • CHEATSHEET.md      — quick reference card"
 echo "  • CLAUDE.md footer   — version stamp only"
@@ -107,14 +110,6 @@ echo "  • CLAUDE.md content  — your product rules, design system, agent cust
 echo "  • TASKS.md           — your task board"
 echo "  • Existing DECISIONS.md or CONTEXT.md — only created if missing"
 echo ""
-read -p "Continue? (y/n) > " CONFIRM
-
-if [ "$CONFIRM" != "y" ] && [ "$CONFIRM" != "Y" ]; then
-  echo ""
-  echo "Update cancelled."
-  exit 0
-fi
-
 echo ""
 
 # ─── Step 6: Update slash commands ───────────────────────────────────────────

@@ -1,7 +1,8 @@
 #!/bin/bash
 
-# Ship Framework — Interactive Setup
-# Generates a customized CLAUDE.md, TASKS.md, and slash commands for your project.
+# Ship Framework — Setup
+# Zero-prompt install. Copies files, installs Playwright. That's it.
+# All product context (name, description, stack) is gathered by /team on first run.
 #
 # Usage:
 #   bash ship-framework/setup.sh              # sets up in current directory
@@ -23,7 +24,6 @@ RESET='\033[0m'
 
 echo ""
 echo -e "${BOLD}${ORANGE}Ship Framework${RESET} v${VERSION} — Setup"
-echo -e "${DIM}Let's set up your AI product team.${RESET}"
 echo ""
 
 # ─── Target directory ─────────────────────────────────────────────────────
@@ -43,7 +43,6 @@ TARGET_DIR="$(cd "$TARGET_DIR" 2>/dev/null && pwd)" || {
 
 # ─── Check for existing CLAUDE.md ─────────────────────────────────────────
 
-MERGE_MODE=false
 if [ -f "$TARGET_DIR/CLAUDE.md" ]; then
   if grep -q "## /team" "$TARGET_DIR/CLAUDE.md" 2>/dev/null; then
     # Previous Ship Framework install — safe to update
@@ -93,71 +92,19 @@ if [ -f "$TARGET_DIR/CLAUDE.md" ]; then
     exit 0
   else
     # Their own CLAUDE.md — append mode
-    MERGE_MODE=true
     echo -e "${YELLOW}⚠${RESET}  Found existing CLAUDE.md (not from Ship Framework)."
     echo -e "${DIM}Ship Framework will append to your existing file, not replace it.${RESET}"
     echo ""
   fi
 fi
 
-# ─── Three questions ──────────────────────────────────────────────────────
+# ─── Generate CLAUDE.md (no prompts — placeholders for /team) ─────────────
 
-read -p "What's your product called? > " PRODUCT_NAME
-echo ""
+PRODUCT_NAME="<!-- SHIP_SETUP: product name not set -->"
+PRODUCT_DESC="<!-- SHIP_SETUP: product description not set -->"
+STACK_BULLETS="<!-- SHIP_SETUP: tech stack not set -->"
 
-read -p "Describe it in one sentence: > " PRODUCT_DESC
-echo ""
-
-echo -e "${DIM}Pick a tech stack, or type your own:${RESET}"
-echo -e "${DIM}(Don't worry about versions — Arc will use the latest stable when building.)${RESET}"
-echo ""
-echo -e "  1) ${BOLD}Web App${RESET}         — Next.js, React, Tailwind CSS, shadcn/ui (Base UI), Supabase"
-echo -e "  2) ${BOLD}Mobile App${RESET}      — React Native (Expo), TypeScript, Supabase"
-echo -e "  3) ${BOLD}iOS App${RESET}         — SwiftUI, Swift, CloudKit"
-echo -e "  4) ${BOLD}Full-Stack Python${RESET} — FastAPI, Python, PostgreSQL, HTMX, Tailwind CSS"
-echo -e "  5) ${BOLD}Static Site${RESET}     — Astro, Tailwind CSS, Markdown, Vercel"
-echo -e "  6) ${BOLD}Custom${RESET}          — Type your own stack"
-echo ""
-read -p "> " STACK_CHOICE
-
-case $STACK_CHOICE in
-  1)
-    TECH_STACK="Next.js, React, TypeScript, Tailwind CSS, shadcn/ui (Base UI), Supabase, Vercel"
-    ;;
-  2)
-    TECH_STACK="React Native (Expo), TypeScript, Supabase, EAS Build"
-    ;;
-  3)
-    TECH_STACK="SwiftUI, Swift, CloudKit, Xcode"
-    ;;
-  4)
-    TECH_STACK="FastAPI, Python, PostgreSQL, HTMX, Tailwind CSS, Uvicorn"
-    ;;
-  5)
-    TECH_STACK="Astro, Tailwind CSS, Markdown, Vercel"
-    ;;
-  6|*)
-    if [ "$STACK_CHOICE" != "6" ] && [ -n "$STACK_CHOICE" ]; then
-      TECH_STACK="$STACK_CHOICE"
-    else
-      echo ""
-      echo -e "${DIM}Type your stack (comma-separated):${RESET}"
-      read -p "> " TECH_STACK
-    fi
-    ;;
-esac
-echo ""
-
-# ─── Generate CLAUDE.md ─────────────────────────────────────────────────────
-
-IFS=',' read -ra STACK_ITEMS <<< "$TECH_STACK"
-STACK_BULLETS=""
-for item in "${STACK_ITEMS[@]}"; do
-  trimmed="$(echo "$item" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
-  STACK_BULLETS="${STACK_BULLETS}- ${trimmed}\n"
-done
-
-if [ "$MERGE_MODE" = true ]; then
+if [ -f "$TARGET_DIR/CLAUDE.md" ]; then
   # Append Ship Framework to existing CLAUDE.md
   python3 << 'PYEOF' - "$TEMPLATE_DIR/CLAUDE.md" "$TARGET_DIR/CLAUDE.md" "$PRODUCT_NAME" "$PRODUCT_DESC" "$STACK_BULLETS" "$VERSION"
 import sys
@@ -166,7 +113,7 @@ template_path = sys.argv[1]
 output_path = sys.argv[2]
 product_name = sys.argv[3]
 product_desc = sys.argv[4]
-stack_bullets = sys.argv[5].replace('\\n', '\n').strip()
+stack_bullets = sys.argv[5]
 version = sys.argv[6]
 
 with open(template_path, 'r') as f:
@@ -200,7 +147,7 @@ template_path = sys.argv[1]
 output_path = sys.argv[2]
 product_name = sys.argv[3]
 product_desc = sys.argv[4]
-stack_bullets = sys.argv[5].replace('\\n', '\n').strip()
+stack_bullets = sys.argv[5]
 version = sys.argv[6]
 
 with open(template_path, 'r') as f:
@@ -224,7 +171,7 @@ fi
 
 mkdir -p "$TARGET_DIR/.claude/commands"
 cp "$TEMPLATE_DIR/.claude/commands/"*.md "$TARGET_DIR/.claude/commands/"
-echo -e "${GREEN}✓${RESET} Created .claude/commands/ (13 slash commands)"
+echo -e "${GREEN}✓${RESET} Created .claude/commands/ (14 slash commands)"
 
 # ─── Copy references ─────────────────────────────────────────────────────────
 
@@ -241,8 +188,8 @@ echo -e "${GREEN}✓${RESET} Created CHEATSHEET.md"
 
 # ─── Create TASKS.md ─────────────────────────────────────────────────────────
 
-cat > "$TARGET_DIR/TASKS.md" << TASKSEOF
-# $PRODUCT_NAME — Team Task Board
+cat > "$TARGET_DIR/TASKS.md" << 'TASKSEOF'
+# Team Task Board
 
 > This is the team's persistent memory. /team reads this every session.
 > When a task is done, move it to Completed with a date and one-line summary.
@@ -258,7 +205,7 @@ cat > "$TARGET_DIR/TASKS.md" << TASKSEOF
 
 ## Up Next (priority order)
 
-1. [ ] Type /team to get started — it'll figure out what to do first
+1. [ ] Type /team to get started — it'll set up your project and figure out what to do first
 
 ---
 
@@ -279,7 +226,6 @@ cat > "$TARGET_DIR/TASKS.md" << TASKSEOF
 <!-- Persistent notes the team needs across sessions.
      Examples: installed dependencies, design system info, API quirks, etc. -->
 
-- Tech stack: $TECH_STACK
 TASKSEOF
 
 echo -e "${GREEN}✓${RESET} Created TASKS.md"
@@ -299,11 +245,11 @@ fi
 # ─── Install Playwright ──────────────────────────────────────────────────────
 
 echo ""
-echo -e "${DIM}Installing Playwright for visual QA (Eye + Cap screenshots)...${RESET}"
+echo -e "${DIM}Installing Playwright for visual QA...${RESET}"
 
 # Create package.json if it doesn't exist
 if [ ! -f "$TARGET_DIR/package.json" ]; then
-  echo '{ "name": "'"$PRODUCT_NAME"'", "private": true }' > "$TARGET_DIR/package.json"
+  echo '{ "name": "my-project", "private": true }' > "$TARGET_DIR/package.json"
 fi
 
 if (cd "$TARGET_DIR" && npm install -D @playwright/test 2>/dev/null) && \
@@ -311,8 +257,7 @@ if (cd "$TARGET_DIR" && npm install -D @playwright/test 2>/dev/null) && \
   echo -e "${GREEN}✓${RESET} Installed Playwright — Eye and Cap can take screenshots"
 else
   echo -e "${DIM}⚠ Playwright install skipped (no Node.js or network issue).${RESET}"
-  echo -e "${DIM}  Eye will review code instead of screenshots. Add later:${RESET}"
-  echo -e "${DIM}  npm install -D @playwright/test && npx playwright install chromium${RESET}"
+  echo -e "${DIM}  Add later: npm install -D @playwright/test && npx playwright install chromium${RESET}"
 fi
 
 # ─── Summary ─────────────────────────────────────────────────────────────────
@@ -326,10 +271,12 @@ echo "  • TASKS.md            — Persistent task board"
 echo "  • DECISIONS.md        — Decision log"
 echo "  • CONTEXT.md          — Institutional memory"
 echo "  • CHEATSHEET.md       — Quick reference card"
-echo "  • .claude/commands/   — 13 slash commands"
+echo "  • .claude/commands/   — 14 slash commands"
 echo "  • references/         — Animation + component architecture guides"
 echo ""
-echo "Copy the command below and paste it right here to start building:"
+echo -e "${BOLD}Next step:${RESET} Open Claude Code in your project directory and type:"
 echo ""
-echo -e "${BOLD}claude \"/team I want to build $PRODUCT_NAME\"${RESET}"
+echo -e "  ${BOLD}/team I want to build [your idea]${RESET}"
+echo ""
+echo -e "${DIM}/team will ask for your product name, description, and tech stack on first run.${RESET}"
 echo ""
