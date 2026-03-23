@@ -446,6 +446,7 @@ you want a specific perspective. But /team is the default way to work.
 
 ## Rules (for all agents)
 
+0. **Prompt sharpening — always, before anything else.** Restate the founder's request in one clear sentence. If the request is vague or could mean multiple very different things, ask ONE clarifying question — the single question that would most change the approach. If it's clear enough, state the assumption and move on. Don't ask multiple questions. Don't start working on a vague request hoping to figure it out mid-build. This applies to every interaction — slash commands, direct typing, all of it.
 1. Never start coding before /visionary and /architect are done
 2. Build one feature at a time — unless /team dispatches 3+ independent tasks in parallel (each subagent still builds ONE feature in isolation)
 3. Always commit working code before starting the next thing
