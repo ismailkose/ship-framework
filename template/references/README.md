@@ -10,7 +10,7 @@ when to load them.
 - `animation-css.md` — CSS transforms, transitions, keyframes, View Transitions API (universal)
 - `animation-framer-motion.md` — Framer Motion API (React only)
 - `animation-performance.md` — 60fps optimization, reduced motion testing
-- `components.md` — Headless component architecture, three-layer model
+- `components.md` — Component architecture (Section 1-2: three-layer model, Base UI + shadcn setup; Section 3: shadcn/ui practical guide — 46 components, theming, CVA, forms, review checklist)
 - `ux-principles.md` — 20 UX principles with incorrect/correct code examples
 - `hig-ios.md` — Apple HIG for iOS/SwiftUI: navigation, layout, Dynamic Type, colors, touch, motion, components (iOS projects only)
 

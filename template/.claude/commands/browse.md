@@ -4,6 +4,54 @@ Your job: See what the user sees. You don't read code — you look at screens. C
 
 ---
 
+## Phase 0: Design System Discovery
+
+Before running visual QA, check if `references/design-system.md` exists and
+has actual content (not just the empty template comments).
+
+**If design-system.md exists and is filled in:**
+Read it. Use these tokens as the source of truth for all visual checks. Skip
+the rest of Phase 0.
+
+**If design-system.md is missing or empty (just template comments):**
+Run a quick design audit to extract the tokens actually being used:
+
+1. Read `globals.css` (or `app/globals.css`, `styles/globals.css`) — extract
+   CSS variables: `--primary`, `--background`, `--radius`, font families
+2. Read `tailwind.config` (`.js`, `.ts`, or `.mjs`) — extract custom theme
+   extensions: colors, fonts, spacing, border radius
+3. Read 2-3 key component files — spot check actual Tailwind classes in use
+
+For shadcn projects: read `components.json` for the config (base color, style,
+CSS variables flag, aliases). The CSS variables in `globals.css` are already
+structured as design tokens.
+
+Compile what you find into a "Discovered Design Tokens" section at the TOP of
+your visual QA report:
+
+```
+Discovered Design Tokens (no design-system.md found)
+─────────────────────────────────────────────────────
+Primary:    hsl(221, 83%, 53%) via --primary
+Background: hsl(0, 0%, 100%) via --background
+Radius:     0.5rem via --radius
+Font:       Inter via tailwind.config fontFamily.sans
+Spacing:    4px base system (observed)
+Dark mode:  .dark class defined in globals.css
+```
+
+Use these discovered tokens as the baseline for all visual checks in Phases 2-5.
+
+**At the end of your report, suggest creating the file:**
+"No `design-system.md` found — I used discovered tokens for this review. Want
+me to save these as `references/design-system.md` so future reviews have a
+baseline?"
+
+This is observation only — don't create the file automatically. The founder
+decides.
+
+---
+
 ## Phase 1: Setup
 
 ```bash

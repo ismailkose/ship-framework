@@ -125,6 +125,23 @@ Never rebuild accessibility (focus trapping, keyboard nav, ARIA) — use a primi
 
 6 agents check: Arc (spec architecture) → Dev (build from primitives) → Pol (feel + keyboard) → Eye (visual consistency) → Test (keyboard + screen reader) → Crit (adoption + accessibility)
 
+**shadcn/ui Practical Guide (Section 3, React web stacks):**
+
+46 components in 7 categories. Install bundles:
+```bash
+# Forms:    form input label button select checkbox radio-group switch textarea
+# Data:     table badge avatar progress skeleton calendar
+# Overlays: dialog sheet popover tooltip alert-dialog drawer
+# Nav:      navigation-menu breadcrumb pagination command dropdown-menu
+# Layout:   card accordion tabs separator sidebar
+```
+
+Theming: HSL CSS variables in `globals.css` — `--primary`, `--secondary`, `--muted`, `--destructive`, `--accent`, `--border`, `--ring`, `--radius`. Each has a `-foreground` pair. Dark mode via `.dark` class.
+
+Key patterns: `cn()` for class merging, CVA for variants, react-hook-form + zod for forms, wrapper components for behavior (don't modify `components/ui/`).
+
+Review checklist (Section 3.9): theming consistency, no hardcoded hex, `cn()` usage, form validation, focus indicators.
+
 ---
 
 ## UX Principles

@@ -73,8 +73,12 @@ When the task involves building UI, you MUST ensure:
 13. **Eye reads `references/hig-ios.md` Section 10** for HIG design review checklists (navigation, typography, color, touch, materials, accessibility, lifecycle).
 14. **Eye reads `references/swiftui-core.md` Section 9** for SwiftUI implementation review checklists (navigation code, concurrency, Liquid Glass, animation, architecture).
 15. **Eye reads review checklists in `references/frameworks/`** files when reviewing framework-specific code.
+16. **Dev reads `references/components.md` Section 3** when building React UI with shadcn — component catalog, theming, CVA variants, form patterns, composite components.
+17. **Arc reads `references/components.md` Section 3.1** (component catalog) when planning which shadcn components a feature needs — check what exists before speccing custom components.
+18. **Eye reads `references/components.md` Section 3.9** (review checklist) when reviewing React web projects — theming consistency, component quality, form validation, accessibility.
 
 Items 7-15 only apply when the tech stack includes SwiftUI, iOS, or mobile. Skip for web-only projects.
+Items 16-18 only apply when the tech stack includes React + shadcn/ui. Skip for non-React projects.
 
 These references exist in the project's `references/` directory. Agents must actually read them, not skip them to save time. The references contain setup commands, architectural decisions, and patterns that prevent rebuilding solved problems from scratch.
 
@@ -172,8 +176,8 @@ After each subagent completes:
 Based on what the founder asks, pick the right flow:
 
 - **"Continue" / "Keep going" / "What's next"** → Read TASKS.md → pick up next task → route to right agents
-- **"New idea" / "I want to build..."** → Vi (with JTBD) → Arc (with RICE, must read references/) → if UI project, ensure component layer setup is item #0 in build order → summarize, ask if ready for Dev
-- **"Build this" / "Let's make..."** → Arc (quick plan with RICE, must read references/) → Dev (verify component layer installed, then build) → summarize what to test
+- **"New idea" / "I want to build..."** → Vi (sharpen idea → brief with JTBD) → Arc (with RICE, must read references/) → if UI project, ensure component layer setup is item #0 in build order → summarize, ask if ready for Dev
+- **"Build this" / "Let's make..."** → Arc (sharpen request → quick plan with RICE, must read references/) → Dev (verify component layer installed, then build) → summarize what to test
 - **"Review this" / "How does it look?"** → Crit (HEART review) → Pol → prioritized punch list
 - **"Check the UI" / "Does it look right?"** → Eye (visual QA) → screenshots + design comparison
 - **"Test this" / "Is it working?"** → Test (QA) → run tests, write missing tests, report

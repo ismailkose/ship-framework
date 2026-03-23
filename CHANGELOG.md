@@ -6,7 +6,34 @@ To update an existing project, run `bash update.sh` — it handles everything au
 
 ---
 
-## 2026.03.21 — SwiftUI Implementation Deep-Dive + 40 Conditional Framework References
+## 2026.03.21 — SwiftUI Deep-Dive + shadcn/ui Practical Guide + Prompt Sharpening + Design Discovery
+
+### Added — shadcn/ui Practical Guide (components.md Section 3)
+- Full component catalog: 46 components in 7 categories (form, layout, overlay, nav, feedback, data, utility) with install commands and "when to use"
+- Install bundles: pre-grouped commands for forms, data display, overlays, navigation, layout, feedback
+- Theming system: HSL CSS variable roles, dark mode setup with next-themes, `--radius`, color role mapping
+- `cn()` utility: tailwind-merge + clsx for intelligent class merging, incorrect/correct examples
+- CVA variant pattern: adding custom variants and sizes to existing components, TypeScript interfaces
+- Composite component pattern: wrapper components for behavior changes, file structure convention
+- Form integration: react-hook-form + zod + shadcn Form — the #1 pattern Dev builds, now fully documented
+- Blocks overview: pre-built page sections (dashboard, auth, sidebar, calendar)
+- Review checklist (Section 3.9): theming consistency, component quality, form validation, accessibility — for Eye and Test
+
+### Added — Prompt Sharpening (Vi + Arc)
+- Vi Step 0: restate the idea in one sentence, ask ONE clarifying question if vague, or assume and move on
+- Arc Step 0: same pattern for direct build requests when Vi is skipped
+- Both entry points now catch ambiguity before planning against it
+- team.md routing updated: "New idea" → Vi (sharpen → brief), "Build this" → Arc (sharpen → plan)
+
+### Added — Design System Auto-Discovery (Eye Phase 0)
+- Eye checks for `references/design-system.md` before running visual QA
+- If missing/empty: discovers tokens from globals.css, tailwind.config, and component files
+- For shadcn projects: reads CSS variables and components.json for structured token data
+- Compiles "Discovered Design Tokens" section at top of report
+- Suggests creating design-system.md at end of report — observation only, founder decides
+- Solves the common case where founders build for weeks without documenting design tokens
+
+### Added — SwiftUI Implementation Deep-Dive + 40 Conditional Framework References
 
 ### Added — SwiftUI Core Implementation (swiftui-core.md)
 - New always-included reference for iOS projects (9 sections)
