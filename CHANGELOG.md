@@ -6,7 +6,7 @@ To update an existing project, run `bash update.sh` — it handles everything au
 
 ---
 
-## 2026.03.22 — Production Chat UI Reference + Global Prompt Sharpening
+## 2026.03.22 — Production Chat UI Reference + Quality Loop + Prompt Sharpening
 
 ### Added — Chat UI Reference (`references/frameworks/chat-ui.md`)
 - Part 1: Universal principles — architecture philosophy, message animation sequencing, the blank size problem (4 failed approaches + what works), keyboard management (6 behaviors + edge cases), floating composer cascade, streaming text with animation pool pattern, markdown rendering, performance principles, shared API architecture
@@ -21,6 +21,11 @@ To update an existing project, run `bash update.sh` — it handles everything au
 - Added Rule 0 to team-rules.md — restate the founder's request in one clear sentence before doing anything
 - Applies to ALL interactions (slash commands, direct typing, everything)
 - Ask ONE clarifying question if vague, or assume and move on
+
+### Added — Quality Loop Rules (team-rules.md Rules 16-18)
+- Rule 16: 3-attempt retry limit — Dev tries 3 different approaches, then escalates to Arc or founder. No spinning on the same problem.
+- Rule 17: Screenshot evidence required — Eye defaults to "NEEDS WORK" on UI changes unless there's actual screenshot proof. No "looks correct based on the code."
+- Rule 18: Mid-build status reporting — progress update after each completed task during multi-task builds. Founder never has to ask "where are we?"
 
 ### Changed — Agent Routing (team.md)
 - Items 19-21: Chat UI reference routing for Dev, Arc, Eye
