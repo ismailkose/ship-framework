@@ -77,8 +77,13 @@ When the task involves building UI, you MUST ensure:
 17. **Arc reads `references/components.md` Section 3.1** (component catalog) when planning which shadcn components a feature needs — check what exists before speccing custom components.
 18. **Eye reads `references/components.md` Section 3.9** (review checklist) when reviewing React web projects — theming consistency, component quality, form validation, accessibility.
 
+19. **Dev reads `references/frameworks/chat-ui.md` Part 1 + Part 2** (SwiftUI) or **Part 1 + Part 3** (React Native) when building any chat, messaging, or AI assistant interface. Part 1 is universal — read it regardless of stack.
+20. **Arc reads `references/frameworks/chat-ui.md` Sections 1.1 + 1.3 + 1.9** when planning chat architecture — philosophy, blank size problem, and shared API pattern.
+21. **Eye reads `references/frameworks/chat-ui.md` Part 5** (review checklist) when reviewing any chat UI — animation sequencing, keyboard edge cases, streaming, performance.
+
 Items 7-15 only apply when the tech stack includes SwiftUI, iOS, or mobile. Skip for web-only projects.
 Items 16-18 only apply when the tech stack includes React + shadcn/ui. Skip for non-React projects.
+Items 19-21 only apply when the project includes a chat or conversational AI interface.
 
 These references exist in the project's `references/` directory. Agents must actually read them, not skip them to save time. The references contain setup commands, architectural decisions, and patterns that prevent rebuilding solved problems from scratch.
 

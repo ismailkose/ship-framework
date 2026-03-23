@@ -6,6 +6,30 @@ To update an existing project, run `bash update.sh` — it handles everything au
 
 ---
 
+## 2026.03.22 — Production Chat UI Reference + Global Prompt Sharpening
+
+### Added — Chat UI Reference (`references/frameworks/chat-ui.md`)
+- Part 1: Universal principles — architecture philosophy, message animation sequencing, the blank size problem (4 failed approaches + what works), keyboard management (6 behaviors + edge cases), floating composer cascade, streaming text with animation pool pattern, markdown rendering, performance principles, shared API architecture
+- Part 2: SwiftUI full code examples — @Observable state, PhaseAnimator, .contentMargins(), KeyboardObserver, GlassEffectContainer, actor-based animation pool, AttributedString markdown, native menus/sheets
+- Part 3: React Native full code examples — context providers, Reanimated shared values, contentInset blank size, react-native-keyboard-controller, Liquid Glass, createUsePool fade system, TextInput native patch, initial scroll-to-end
+- Part 4: Platform comparison table (SwiftUI vs React Native vs Web/Other)
+- Part 5: Review checklist for Eye — animation, blank size, keyboard, composer, streaming, performance
+- Source: Vercel v0 iOS engineering blog + krispuckett/V0Swift SwiftUI translation
+- Conditional framework: add with `--add-framework chat-ui`
+
+### Changed — Rule 0: Global Prompt Sharpening
+- Added Rule 0 to team-rules.md — restate the founder's request in one clear sentence before doing anything
+- Applies to ALL interactions (slash commands, direct typing, everything)
+- Ask ONE clarifying question if vague, or assume and move on
+
+### Changed — Agent Routing (team.md)
+- Items 19-21: Chat UI reference routing for Dev, Arc, Eye
+- Dev reads Part 1 + platform-specific part when building chat interfaces
+- Arc reads architecture + blank size + API sections when planning chat
+- Eye reads Part 5 review checklist when reviewing chat UI
+
+---
+
 ## 2026.03.21 — SwiftUI Deep-Dive + shadcn/ui Practical Guide + Prompt Sharpening + Design Discovery
 
 ### Added — shadcn/ui Practical Guide (components.md Section 3)
