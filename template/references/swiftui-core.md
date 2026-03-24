@@ -515,12 +515,73 @@ Button("Primary") { }
   .buttonStyle(.glassProminent)  // prominent
 ```
 
-### Scroll Edge Effects & Background Extension
+### Scroll Edge Effects (Progressive Blur) & Background Extension
+
+The scroll edge effect is the **progressive blur** that fades content as it scrolls
+behind a bar or edge. This is a system-provided effect — do NOT build it manually.
 
 ```swift
+// WRONG — don't hand-roll progressive blur
+.overlay(alignment: .top) {
+  LinearGradient(...)
+    .blur(radius: 10)
+    .frame(height: 40)
+}
+
+// WRONG — don't wrap UIVisualEffectView with gradient mask
+UIViewRepresentable { UIVisualEffectView(effect: UIBlurEffect(...)) }
+
+// CORRECT — one line, system progressive blur (iOS 26+)
 ScrollView { content }
   .scrollEdgeEffectStyle(.soft, for: .top)
+```
 
+**Styles:**
+
+| Style | Effect | When to use |
+|-------|--------|-------------|
+| `.automatic` | System decides (default) | Most scroll views — let the system handle it |
+| `.soft` | Progressive blur fade | Chat UIs, feeds, any content scrolling behind a bar |
+| `.hard` | Sharp cutoff with divider line | Settings lists, sidebars, structured content |
+
+```swift
+// Apply to specific edges
+ScrollView { content }
+  .scrollEdgeEffectStyle(.soft, for: .top)
+  .scrollEdgeEffectStyle(.hard, for: .bottom)
+
+// Hide edge effect entirely
+ScrollView { content }
+  .scrollEdgeEffectHidden(true, for: .bottom)
+
+// Apply to all edges at once
+ScrollView { content }
+  .scrollEdgeEffectStyle(.hard, for: .all)
+```
+
+**UIKit equivalent** (for `UIViewRepresentable` or pure UIKit):
+
+```swift
+scrollView.topEdgeEffect.style = .soft      // progressive blur
+scrollView.bottomEdgeEffect.style = .hard   // sharp divider
+scrollView.leftEdgeEffect.isHidden = true   // disable for edge
+```
+
+**safeAreaBar** (iOS 26+) — custom bar that automatically extends scroll edge effects:
+
+```swift
+// WRONG — safeAreaInset doesn't extend the edge effect into the bar
+ScrollView { content }
+  .safeAreaInset(edge: .bottom) { MyToolbar() }
+
+// CORRECT — safeAreaBar extends the progressive blur behind the bar
+ScrollView { content }
+  .safeAreaBar(edge: .bottom) { MyToolbar() }
+```
+
+**backgroundExtensionEffect** — extend content behind sidebars/inspectors:
+
+```swift
 content
   .backgroundExtensionEffect()  // extend behind sidebars/inspectors
 
@@ -840,6 +901,262 @@ ScrollView(.horizontal) {
 
 ---
 
+## Section 6.5: Use the Real API — Don't Hack These
+
+> **Rule 19: Apple API first — no custom builds when a system API exists.**
+>
+> Before building ANY custom component, check Apple's documentation first. If Apple
+> provides it as a native SwiftUI modifier, UIKit API, or system framework — use it.
+> No custom implementations when a system equivalent exists. Eye rejects any code that
+> custom-builds something Apple already provides natively.
+>
+> The items below are the 9 most common violations. Every one has a clean SwiftUI API
+> that replaces 50-200 lines of hacky workaround code. If you find yourself writing
+> UIKit bridge code, wrapping `UIViewRepresentable`, or importing `UIKit` for any of
+> these — stop and use the SwiftUI modifier instead.
+
+### Haptic Feedback — sensoryFeedback (iOS 17+)
+
+```swift
+// WRONG — UIKit bridge for haptics
+import UIKit
+UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+UINotificationFeedbackGenerator().notificationOccurred(.success)
+
+// CORRECT — pure SwiftUI, semantic haptics
+@State private var taskCompleted = false
+
+Button("Complete") { taskCompleted = true }
+  .sensoryFeedback(.success, trigger: taskCompleted)
+```
+
+**Available feedback types:**
+
+| Type | When to use |
+|------|-------------|
+| `.success` | Task completed successfully |
+| `.warning` | Something needs attention |
+| `.error` | Something failed |
+| `.selection` | Picker or value changed |
+| `.increase` / `.decrease` | Value crossed a threshold |
+| `.impact` | Physical metaphor (tap, drop) |
+| `.impact(weight: .heavy, intensity: 0.8)` | Custom weight + intensity |
+| `.start` / `.stop` | Activity began or ended |
+| `.levelChange` | Discrete pressure levels |
+| `.alignment` | Dragged item snapped to guide |
+
+```swift
+// Conditional feedback
+.sensoryFeedback(trigger: sliderValue) { oldVal, newVal in
+  newVal > threshold ? .impact(weight: .heavy) : nil
+}
+
+// During continuous gesture (e.g., drag snapping to grid)
+.sensoryFeedback(.alignment, trigger: snappedToGrid)
+```
+
+### containerRelativeFrame — No More GeometryReader Hacks (iOS 17+)
+
+```swift
+// WRONG — GeometryReader for percentage-based sizing
+GeometryReader { geo in
+  Image("hero")
+    .resizable()
+    .frame(width: geo.size.width * 0.9, height: geo.size.height * 0.4)
+}
+
+// CORRECT — containerRelativeFrame (doesn't break layout or lazy loading)
+Image("hero")
+  .resizable()
+  .containerRelativeFrame(.horizontal) { length, _ in length * 0.9 }
+  .containerRelativeFrame(.vertical) { length, _ in length * 0.4 }
+```
+
+```swift
+// Carousel cards that are 85% of scroll view width
+ScrollView(.horizontal) {
+  LazyHStack(spacing: 16) {
+    ForEach(items) { item in
+      CardView(item: item)
+        .containerRelativeFrame(.horizontal, count: 1, span: 1, spacing: 16)
+    }
+  }
+  .scrollTargetLayout()
+}
+.scrollTargetBehavior(.viewAligned)
+```
+
+**Rule:** `GeometryReader` is a last resort — it breaks `LazyVStack`/`LazyHStack`
+performance, forces eager evaluation, and causes layout ambiguity. Use
+`containerRelativeFrame` for percentage sizing, `ViewThatFits` for adaptive
+layout, and `Layout` protocol for custom arrangements.
+
+### symbolEffect — Animated SF Symbols (iOS 17+)
+
+```swift
+// WRONG — manual animation on SF Symbol
+Image(systemName: "checkmark.circle")
+  .rotationEffect(.degrees(isLoading ? 360 : 0))
+  .animation(.linear(duration: 1).repeatForever(), value: isLoading)
+
+// CORRECT — built-in symbol animations
+Image(systemName: "checkmark.circle")
+  .symbolEffect(.bounce, value: taskComplete)       // bounce on trigger
+
+Image(systemName: "wifi")
+  .symbolEffect(.variableColor.iterative)            // animated signal bars
+
+Image(systemName: "arrow.down.circle")
+  .symbolEffect(.pulse, isActive: isDownloading)     // pulse while active
+
+// Replace one symbol with another (animated transition)
+Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+  .contentTransition(.symbolEffect(.replace))
+```
+
+**Available effects:** `.bounce`, `.pulse`, `.variableColor`, `.scale`,
+`.appear`, `.disappear`, `.replace`, `.wiggle`, `.breathe`, `.rotate`
+
+### scrollDismissesKeyboard (iOS 16+)
+
+```swift
+// WRONG — tap gesture to dismiss keyboard
+.onTapGesture {
+  UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder),
+    to: nil, from: nil, for: nil)
+}
+
+// WRONG — custom ViewModifier wrapping UIKit
+struct DismissKeyboardOnScroll: ViewModifier { ... }
+
+// CORRECT — one modifier on the ScrollView
+ScrollView {
+  LazyVStack { /* messages */ }
+}
+.scrollDismissesKeyboard(.interactively)  // dismiss as you scroll
+```
+
+**Modes:**
+
+| Mode | Behavior |
+|------|----------|
+| `.automatic` | System decides based on context |
+| `.immediately` | Keyboard hides as soon as scroll starts |
+| `.interactively` | Keyboard tracks finger — drag down to dismiss |
+| `.never` | Keyboard stays open during scroll |
+
+### presentationDetents + Sheet Customization (iOS 16+)
+
+```swift
+// WRONG — custom bottom sheet with DragGesture + offset + dimming
+struct CustomBottomSheet: View {
+  @State private var offset: CGFloat = 0
+  @GestureState private var dragOffset: CGFloat = 0
+  // ... 100+ lines of gesture math and animation
+
+// CORRECT — native sheet detents
+.sheet(item: $selectedItem) { item in
+  DetailView(item: item)
+    .presentationDetents([.medium, .large])              // snap points
+    .presentationDetents([.fraction(0.3), .height(200)]) // custom sizes
+    .presentationDragIndicator(.visible)                  // grabber
+    .presentationBackground(.ultraThinMaterial)            // blur background
+    .presentationCornerRadius(24)                          // corner radius
+    .presentationBackgroundInteraction(.enabled(upThrough: .medium))  // interact behind
+    .interactiveDismissDisabled(hasUnsavedChanges)        // prevent accidental dismiss
+}
+```
+
+### FocusState — Keyboard Management (iOS 15+)
+
+```swift
+// WRONG — UITextField wrapper just for keyboard control
+struct FocusableTextField: UIViewRepresentable {
+  func makeUIView(context: Context) -> UITextField { ... }
+  // ... 50 lines of coordinator code
+
+// CORRECT — native focus management
+@FocusState private var focusedField: Field?
+
+enum Field { case username, password }
+
+VStack {
+  TextField("Username", text: $username)
+    .focused($focusedField, equals: .username)
+    .submitLabel(.next)
+    .onSubmit { focusedField = .password }
+
+  SecureField("Password", text: $password)
+    .focused($focusedField, equals: .password)
+    .submitLabel(.go)
+    .onSubmit { login() }
+}
+.toolbar {
+  ToolbarItemGroup(placement: .keyboard) {
+    Spacer()
+    Button("Done") { focusedField = nil }  // dismiss keyboard
+  }
+}
+.onAppear { focusedField = .username }  // auto-focus on appear
+```
+
+**Key points:**
+- `@FocusState` is `nil` when nothing is focused — set to `nil` to dismiss keyboard
+- `.submitLabel()` changes the return key: `.done`, `.go`, `.send`, `.next`, `.search`
+- `.onSubmit` fires when user taps return — chain focus between fields
+- `ToolbarItemGroup(placement: .keyboard)` adds buttons above the keyboard
+
+### toolbarVisibility — Hide/Show Bars (iOS 16+)
+
+```swift
+// WRONG — global side effects
+UINavigationBar.appearance().isHidden = true
+
+// WRONG — deprecated modifier
+.navigationBarHidden(true)
+
+// CORRECT — scoped, per-view, no side effects
+.toolbarVisibility(.hidden, for: .navigationBar)
+.toolbarVisibility(.hidden, for: .tabBar)
+.toolbarVisibility(.visible, for: .bottomBar)
+```
+
+**Bars you can control:** `.navigationBar`, `.tabBar`, `.bottomBar`,
+`.windowToolbar` (macOS)
+
+**Visibility values:** `.automatic` (system decides), `.visible`, `.hidden`
+
+### MeshGradient (iOS 18+)
+
+```swift
+// WRONG — stacking multiple LinearGradients with blend modes
+ZStack {
+  LinearGradient(colors: [.blue, .purple], ...)
+  RadialGradient(colors: [.pink, .clear], ...)
+    .blendMode(.overlay)
+}
+
+// CORRECT — native mesh gradient with control points
+MeshGradient(
+  width: 3, height: 3,
+  points: [
+    .init(0, 0), .init(0.5, 0), .init(1, 0),
+    .init(0, 0.5), .init(0.5, 0.5), .init(1, 0.5),
+    .init(0, 1), .init(0.5, 1), .init(1, 1)
+  ],
+  colors: [
+    .red, .purple, .indigo,
+    .orange, .cyan, .blue,
+    .yellow, .green, .mint
+  ]
+)
+.ignoresSafeArea()
+```
+
+Animate by changing point positions or colors with `withAnimation`.
+
+---
+
 ## Section 7: Architecture Patterns
 
 ### @Observable (iOS 17+)
@@ -1036,6 +1353,18 @@ hostingController.didMove(toParent: self)
 - [ ] View models are `@MainActor`
 - [ ] `.task` used for async work on appear
 - [ ] Environment used for dependency injection
+
+### No-Hack APIs (Section 6.5)
+- [ ] No `GeometryReader` for percentage sizing — use `containerRelativeFrame`
+- [ ] No `UIImpactFeedbackGenerator` — use `.sensoryFeedback()` modifier
+- [ ] No manual keyboard dismiss gesture — use `.scrollDismissesKeyboard()`
+- [ ] No custom bottom sheet with `DragGesture` — use `.presentationDetents()`
+- [ ] No `UITextField` wrapper for focus — use `@FocusState` + `.focused()`
+- [ ] No `UINavigationBar.appearance()` — use `.toolbarVisibility()`
+- [ ] No manual blur overlay on scroll edges — use `.scrollEdgeEffectStyle(.soft)`
+- [ ] No stacked `LinearGradient` hacks — use `MeshGradient` (iOS 18+)
+- [ ] SF Symbol animations use `.symbolEffect()`, not manual rotation/opacity
+- [ ] `.safeAreaBar()` used instead of `.safeAreaInset()` when edge effects needed (iOS 26+)
 
 ---
 

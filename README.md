@@ -135,6 +135,8 @@ The team enforces engineering discipline automatically — no extra commands nee
 - **3-Attempt Retry Limit (Rule 16)** — When Dev can't get something working, retry up to 3 times with different approaches. After 3 failures, escalate to Arc for a new approach or to you for a decision. No spinning.
 - **Screenshot Evidence Required (Rule 17)** — Eye defaults to "NEEDS WORK" on UI changes unless there's actual screenshot proof. No "looks correct based on the code."
 - **Mid-Build Status (Rule 18)** — During multi-task builds, progress update after each completed task. You never have to ask "where are we?"
+- **Apple API First (Rule 19)** — No custom builds when a system API exists. Before building any custom component, agents check Apple documentation first. If Apple provides it natively, use it. Eye rejects PRs that custom-build something Apple already provides.
+- **No-Hack API Enforcement** — Section 6.5 of swiftui-core.md catches 9 patterns agents commonly get wrong (progressive blur, haptics, keyboard dismiss, sheet detents, focus state, toolbar visibility, containerRelativeFrame, symbolEffect, MeshGradient). Each shows the WRONG approach so agents recognize it and the CORRECT one-liner.
 
 ---
 
@@ -345,7 +347,7 @@ For iOS projects, the framework includes deep references that agents read automa
 
 **Apple HIG** (`references/hig-ios.md`) — Human Interface Guidelines foundations: typography (Dynamic Type, SF Pro, SF Mono), color (semantic system colors, accessibility contrast), layout (safe areas, readability widths), touch targets (44pt minimum), materials and Liquid Glass, accessibility, inclusion, branding, UX writing, and design review checklists.
 
-**SwiftUI Core** (`references/swiftui-core.md`) — Implementation reference covering navigation (NavigationStack, router pattern, deep links), Swift 6.2 concurrency (default MainActor isolation, @concurrent, structured concurrency), Liquid Glass API (.glassEffect, morphing, scroll edge), animation (spring, PhaseAnimator, KeyframeAnimator), gestures, layout (ViewThatFits, Grid, custom Layout), architecture (@Observable, Environment DI), and UIKit interop.
+**SwiftUI Core** (`references/swiftui-core.md`) — Implementation reference covering navigation (NavigationStack, router pattern, deep links), Swift 6.2 concurrency (default MainActor isolation, @concurrent, structured concurrency), Liquid Glass API (.glassEffect, morphing, scroll edge effects with progressive blur), animation (spring, PhaseAnimator, KeyframeAnimator), gestures, layout (ViewThatFits, Grid, custom Layout), **No-Hack API Reference** (Section 6.5 — 9 patterns agents get wrong: progressive blur, haptics, containerRelativeFrame, symbolEffect, keyboard dismiss, sheet detents, FocusState, toolbar visibility, MeshGradient), architecture (@Observable, Environment DI), and UIKit interop.
 
 **Swift Essentials** (`references/swift-essentials.md`) — Swift 6.2 language features, Codable patterns, and Swift Testing (@Test, #expect, @Suite).
 

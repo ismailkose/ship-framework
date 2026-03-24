@@ -6,7 +6,29 @@ To update an existing project, run `bash update.sh` — it handles everything au
 
 ---
 
-## 2026.03.22 — Production Chat UI Reference + Quality Loop + Prompt Sharpening
+## 2026.03.23 — Production Chat UI Reference + Quality Loop + Prompt Sharpening + No-Hack APIs
+
+### Added — Rule 19: Apple API First (`team-rules.md`)
+- No custom builds when a system API exists — check Apple documentation before building anything custom
+- Eye rejects any PR that custom-builds something Apple already provides natively
+- Applies to: UI effects, layout, presentation, navigation, accessibility, data flow
+
+### Added — No-Hack API Reference (`references/swiftui-core.md` Section 6.5)
+- 9 common patterns where agents try hacky workarounds instead of using the real SwiftUI API
+- Each entry shows the WRONG approach (so agents recognize what not to do) and the CORRECT one-liner
+- Progressive blur / scroll edge effects: `.scrollEdgeEffectStyle(.soft)` — not custom blur overlays
+- safeAreaBar (iOS 26): `.safeAreaBar(edge:)` — extends scroll edge effects into custom bars
+- Haptic feedback: `.sensoryFeedback()` — not `UIImpactFeedbackGenerator` bridge code
+- containerRelativeFrame: percentage sizing without `GeometryReader`
+- symbolEffect: animated SF Symbols without manual rotation/opacity
+- scrollDismissesKeyboard: `.scrollDismissesKeyboard(.interactively)` — not tap gesture hacks
+- presentationDetents: native half-sheets — not custom `DragGesture` bottom sheets
+- FocusState: `@FocusState` + `.focused()` — not `UITextField` wrapping
+- toolbarVisibility: `.toolbarVisibility(.hidden, for:)` — not `UINavigationBar.appearance()`
+- MeshGradient (iOS 18): native mesh gradients — not stacked `LinearGradient` hacks
+- Review checklist added to Section 9 for Eye to catch these during review
+- Scroll Edge Effects section expanded with full SwiftUI + UIKit API, styles table, safeAreaBar
+- chat-ui.md floating composer section updated with progressive blur implementation guidance
 
 ### Added — Chat UI Reference (`references/frameworks/chat-ui.md`)
 - Part 1: Universal principles — architecture philosophy, message animation sequencing, the blank size problem (4 failed approaches + what works), keyboard management (6 behaviors + edge cases), floating composer cascade, streaming text with animation pool pattern, markdown rendering, performance principles, shared API architecture

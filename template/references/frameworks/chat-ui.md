@@ -168,9 +168,16 @@ Don't underestimate keyboard handling — it's where most chat UIs feel "off."
 **The pattern:** Composer is absolutely positioned at the bottom, floats above
 content, sticks above keyboard, with progressive blur/glass behind it.
 
+**Progressive blur implementation:** In SwiftUI, use `.scrollEdgeEffectStyle(.soft, for: .bottom)`
+on the `ScrollView` for the progressive blur behind the composer — this is the native API,
+not a custom blur overlay. For the composer bar itself, use `.safeAreaBar(edge: .bottom)` (iOS 26+)
+which automatically extends the scroll edge effect into the bar area. See `swiftui-core.md`
+Section 3 → Scroll Edge Effects for full API reference. **Do NOT hand-roll progressive blur
+with `UIVisualEffectView`, gradient masks, or `CIGaussianBlur` — the system API handles this.**
+
 **Key behaviors:**
 
-1. Composer sits at bottom with blur/glass background
+1. Composer sits at bottom with blur/glass background (`.glassEffect()` or `.ultraThinMaterial`)
 2. When keyboard opens, composer rises above it (sticky)
 3. Composer height is tracked and fed into content inset calculation
 4. When user types new lines, composer grows and content scrolls up (only if at
