@@ -224,6 +224,32 @@ guard DCAppAttestService.shared.isSupported else {
 let assertion = try await service.generateAssertion(forPayload: challenge, clientInput: Data())
 ```
 
+**Mistake 2b: AppAttestManager not thread-safe**
+```swift
+// ❌ WRONG — Race conditions on Keychain access
+class AppAttestManager {
+    private var keyId: String?  // Non-thread-safe
+    func generateKeyIfNeeded() async throws -> String { ... }
+}
+
+// ✅ CORRECT — Use actor for thread safety
+actor AppAttestManager {
+    private let service = DCAppAttestService.shared
+    private var keyId: String?  // Thread-safe within actor
+
+    func generateKeyIfNeeded() async throws -> String {
+        if let existingKeyId = loadKeyIdFromKeychain() {
+            self.keyId = existingKeyId
+            return existingKeyId
+        }
+        let newKeyId = try await service.generateKey()
+        saveKeyIdToKeychain(newKeyId)
+        self.keyId = newKeyId
+        return newKeyId
+    }
+}
+```
+
 **Mistake 3: Trusting assertion without server verification**
 ```swift
 // ❌ WRONG — Client-side verification only
@@ -259,6 +285,42 @@ let assertion = try await service.generateAssertion(...)
 let keyID = "key-\(Date().formatted(.iso8601))" // Include timestamp
 let assertion = try await service.generateAssertion(...)
 // Server validates latest key rotation
+```
+
+**Mistake 5b: No retry logic on transient errors**
+```swift
+// ❌ WRONG — Fails on temporary Apple server issue
+try await attestKey()
+
+// ✅ CORRECT — Retry with exponential backoff for serverUnavailable
+func attestKeyWithRetry(maxAttempts: Int = 3) async throws -> Data {
+    var lastError: Error?
+    for attempt in 0..<maxAttempts {
+        do {
+            return try await attestKey()
+        } catch let error as DCError where error.code == .serverUnavailable {
+            lastError = error
+            let delay = UInt64(pow(2.0, Double(attempt))) * 1_000_000_000
+            try await Task.sleep(nanoseconds: delay)
+        } catch {
+            throw error  // Non-retryable; propagate immediately
+        }
+    }
+    throw lastError ?? DeviceIntegrityError.attestationFailed
+}
+```
+
+**Mistake 5c: Not deleting invalidated keys**
+```swift
+// ❌ WRONG — Keep trying to attest with invalidated key
+case .invalidKey:
+    throw DCError.invalidKey
+
+// ✅ CORRECT — Delete from Keychain and regenerate
+case .invalidKey:
+    deleteKeyIdFromKeychain()
+    let newKeyId = try await generateKeyIfNeeded()
+    return try await attestKey()
 ```
 
 ---

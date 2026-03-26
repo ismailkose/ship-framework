@@ -1,6 +1,6 @@
 # URLSession — iOS Reference
 
-> **When to read:** Dev reads this when building features that use URLSession for data fetching, uploads, downloads, or background network operations.
+> **When to read:** Dev reads this when building features that use URLSession for data fetching, uploads, downloads, background network operations, request middleware, pagination, or network reachability monitoring.
 
 ---
 
@@ -21,10 +21,14 @@
 | **URLRequest** | HTTP request builder | `url`, `httpMethod`, `timeoutInterval`, `allHTTPHeaderFields` |
 | **URLResponse/HTTPURLResponse** | Response metadata | `statusCode`, `headerFields`, `mimeType` |
 | **URLCache** | Disk/memory caching | `cachedResponse(for:)`, `storeCachedResponse:forRequest:` |
-| **async/await API** | Modern data fetching | `data(from:)`, `data(for:)`, `download(from:)`, `upload(for:data:)` |
+| **async/await API** | Modern data fetching | `data(from:)`, `data(for:)`, `download(from:)`, `upload(for:data:)`, `bytes(for:)` |
 | **Codable Integration** | Type-safe JSON | `JSONDecoder()` with `data(from:)` result |
 | **Background Sessions** | Network after app suspend | `.background(withIdentifier:)` + delegate |
 | **Certificate Pinning** | Security validation | `urlSession(_:didReceive:completionHandler:)` in delegate |
+| **RequestMiddleware** | Composable request interceptors | `protocol RequestMiddleware`, pre-request hooks for auth/logging |
+| **Endpoint struct** | Type-safe request building | `path`, `method`, `queryItems`, `headers` with `url(relativeTo:)` |
+| **AsyncStream pagination** | Streaming paginated results | `AsyncSequence` for cursor/offset-based pagination |
+| **NWPathMonitor** | Network reachability | Wrapped in `AsyncStream` for structured concurrency |
 
 ---
 
@@ -67,6 +71,99 @@ func uploadFile(at fileURL: URL, to endpoint: URL) async throws {
     let (data, response) = try await URLSession.shared.upload(for: request, fromFile: fileURL)
     guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
         throw NetworkError.invalidResponse
+    }
+}
+```
+
+**Example 4: Endpoint struct and APIClient with middleware**
+```swift
+struct Endpoint: Sendable {
+    let path: String
+    var method: String = "GET"
+    var queryItems: [URLQueryItem] = []
+    var headers: [String: String] = [:]
+
+    func url(relativeTo baseURL: URL) -> URL {
+        guard let components = URLComponents(
+            url: baseURL.appendingPathComponent(path),
+            resolvingAgainstBaseURL: true
+        ) else {
+            preconditionFailure("Invalid URL components for path: \(path)")
+        }
+        var mutableComponents = components
+        if !queryItems.isEmpty {
+            mutableComponents.queryItems = queryItems
+        }
+        guard let url = mutableComponents.url else {
+            preconditionFailure("Failed to construct URL from components")
+        }
+        return url
+    }
+}
+
+protocol RequestMiddleware: Sendable {
+    func prepare(_ request: URLRequest) async throws -> URLRequest
+}
+
+struct AuthMiddleware: RequestMiddleware {
+    let tokenProvider: @Sendable () async throws -> String
+
+    func prepare(_ request: URLRequest) async throws -> URLRequest {
+        var request = request
+        let token = try await tokenProvider()
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        return request
+    }
+}
+```
+
+**Example 5: Retry with exponential backoff**
+```swift
+func withRetry<T: Sendable>(
+    maxAttempts: Int = 3,
+    initialDelay: Duration = .seconds(1),
+    operation: @Sendable () async throws -> T
+) async throws -> T {
+    var lastError: Error?
+    for attempt in 0..<maxAttempts {
+        do {
+            return try await operation()
+        } catch {
+            lastError = error
+            if error is CancellationError { throw error }
+            if case NetworkError.httpError(let code, _) = error,
+               (400..<500).contains(code), code != 429 { throw error }
+            if attempt < maxAttempts - 1 {
+                try await Task.sleep(for: initialDelay * Int(pow(2.0, Double(attempt))))
+            }
+        }
+    }
+    throw lastError!
+}
+```
+
+**Example 6: Network reachability with AsyncStream**
+```swift
+import Network
+
+func networkStatusStream() -> AsyncStream<NWPath.Status> {
+    AsyncStream { continuation in
+        let monitor = NWPathMonitor()
+        monitor.pathUpdateHandler = { continuation.yield($0.status) }
+        continuation.onTermination = { _ in monitor.cancel() }
+        monitor.start(queue: DispatchQueue(label: "NetworkMonitor"))
+    }
+}
+
+// Usage
+for await status in networkStatusStream() {
+    switch status {
+    case .satisfied:
+        print("Network available")
+    case .unsatisfied:
+        print("Network unavailable")
+    @unknown default:
+        break
     }
 }
 ```
@@ -163,6 +260,11 @@ config.timeoutIntervalForRequest = 60 // Fallback timeout
 - [ ] No network requests on main thread (async/await handles this)?
 - [ ] User-facing errors are localized, not raw HTTP codes?
 - [ ] Rate limiting or retry logic considered for failed requests?
+- [ ] Endpoint struct used for type-safe request building with `url(relativeTo:)`?
+- [ ] RequestMiddleware protocol implemented for cross-cutting concerns (auth, logging)?
+- [ ] `withRetry()` function excludes CancellationError and 4xx client errors?
+- [ ] Pagination checks `Task.isCancelled` between pages?
+- [ ] Network reachability monitored via `NWPathMonitor` wrapped in `AsyncStream`?
 
 ---
 

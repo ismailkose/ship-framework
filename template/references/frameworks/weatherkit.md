@@ -148,6 +148,95 @@ func getMinutelyForecast(latitude: Double, longitude: Double) async throws -> [M
 }
 ```
 
+### Example 6: Selective query with tuple unpacking
+```swift
+let (current, hourly) = try await weatherService.weather(
+    for: location,
+    including: .current, .hourly
+)
+```
+
+### Example 7: Check weather availability
+```swift
+let availability = try await weatherService.weather(
+    for: location,
+    including: .availability
+)
+
+if availability.alertAvailability == .available {
+    // Safe to fetch alerts
+}
+```
+
+### Example 8: Use current.symbolName for SF Symbols
+```swift
+let current = try await weatherService.weather(for: location, including: .current)
+let symbolName = current.symbolName  // e.g., "sun.max.fill"
+Image(systemName: symbolName)
+```
+
+### Example 8b: Selective Query with Tuple Unpacking
+```swift
+let (current, hourly) = try await weatherService.weather(
+    for: location,
+    including: .current, .hourly
+)
+```
+
+### Example 8c: Check WeatherAvailability
+```swift
+let availability = try await weatherService.weather(
+    for: location,
+    including: .availability
+)
+
+if availability.alertAvailability == .available {
+    // Safe to fetch alerts
+}
+```
+
+### Example 9: WeatherCache Actor Pattern
+```swift
+actor WeatherCache {
+    private var cached: CurrentWeather?
+    private var lastFetch: Date?
+
+    func current(for location: CLLocation) async throws -> CurrentWeather {
+        if let cached, let lastFetch,
+           Date.now.timeIntervalSince(lastFetch) < 600 {
+            return cached
+        }
+        let fresh = try await WeatherService.shared.weather(
+            for: location, including: .current
+        )
+        cached = fresh
+        lastFetch = .now
+        return fresh
+    }
+}
+```
+
+### Example 9: WeatherCache actor pattern
+```swift
+actor WeatherCache {
+    private var cached: CurrentWeather?
+    private var lastFetch: Date?
+
+    func current(for location: CLLocation) async throws -> CurrentWeather {
+        if let cached, let lastFetch,
+           Date.now.timeIntervalSince(lastFetch) < 600 {
+            return cached
+        }
+        let fresh = try await WeatherService.shared.weather(
+            for: location, including: .current
+        )
+        cached = fresh
+        lastFetch = .now
+        return fresh
+    }
+}
+```
+
 ### Example 6: Check data availability
 ```swift
 import WeatherKit

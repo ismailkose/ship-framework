@@ -249,6 +249,26 @@ await transaction.finish()
 <!-- Document in notes: "Required for legacy payment gateway, HTTPS not supported" -->
 ```
 
+**Mistake 6: Missing Swift 6 concurrency annotations**
+```swift
+// ❌ WRONG — ATT request off main thread, StoreKit without actor context
+Task.detached {
+    let status = await ATTrackingManager.requestTrackingAuthorization()
+}
+
+// ✅ CORRECT — Use @MainActor, mark Sendable types
+@MainActor
+func requestTracking() async {
+    let status = await ATTrackingManager.requestTrackingAuthorization()
+}
+
+// For shared state, mark Sendable
+@MainActor
+final class AppState: Sendable {
+    nonisolated var staticValue: String { "constant" }
+}
+```
+
 ---
 
 ## Review Checklist

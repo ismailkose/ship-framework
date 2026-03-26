@@ -23,6 +23,12 @@
 | `.dynamicIsland()` | Dynamic Island presentation | Compact, expanded, minimal regions |
 | `PushToken` | Remote notification token | From activity.pushTokenUpdates |
 | `WidgetKit` view support | Lock screen + Dynamic Island rendering | Uses SwiftUI structures |
+| `ActivityStyle` | Activity persistence mode | `.standard` (persists) vs `.transient` (auto-dismiss) — iOS 26+ |
+| `ClServiceSession` (iOS 18+) | Manages authorization | Manages location access for Live Activities |
+| Scheduled Live Activities (iOS 26+) | Start at future time | System-initiated without app |
+| Channel-based push (iOS 18+) | Broadcast updates | Send to multiple activities via channel name |
+| `NSSupportsLiveActivitiesFrequentUpdates` | Increase push budget | For updates > 1/minute (sports, tracking) |
+| `.keylineTint()` | Dynamic Island border tint | Apply subtle color to DI border |
 
 ## Code Examples
 
@@ -214,6 +220,107 @@ struct DeliveryApp: App {
 }
 ```
 
+### APNs Payload Format
+
+Send HTTP/2 POST to APNs with headers and JSON body:
+
+**Headers:**
+- `apns-push-type: liveactivity`
+- `apns-topic: <bundle-id>.push-type.liveactivity`
+- `apns-priority: 5` (low) or `10` (high, shows alert)
+
+**Update Payload:**
+
+```json
+{
+    "aps": {
+        "timestamp": 1700000000,
+        "event": "update",
+        "content-state": {
+            "driverName": "Alex",
+            "estimatedDeliveryTime": {
+                "lowerBound": 1700000000,
+                "upperBound": 1700001800
+            },
+            "currentStep": "delivering"
+        },
+        "stale-date": 1700000300,
+        "alert": {
+            "title": "Delivery Update",
+            "body": "Your driver is nearby!"
+        }
+    }
+}
+```
+
+**End Payload:** Same structure with `"event": "end"` and optional `"dismissal-date"`.
+
+### Push-to-Start (iOS 17.2+)
+
+```swift
+Task {
+    for await token in Activity<DeliveryAttributes>.pushToStartTokenUpdates {
+        let tokenString = token.map { String(format: "%02x", $0) }.joined()
+        try await ServerAPI.shared.registerPushToStartToken(tokenString)
+    }
+}
+```
+
+### Scheduled Live Activities (iOS 26+)
+
+```swift
+let scheduledDate = Calendar.current.date(
+    from: DateComponents(year: 2026, month: 3, day: 15, hour: 19, minute: 0)
+)!
+
+let activity = try Activity.request(
+    attributes: attributes,
+    content: content,
+    pushType: .token,
+    start: scheduledDate
+)
+```
+
+### ActivityStyle (iOS 26+)
+
+```swift
+// Standard: persists until explicitly ended (default)
+let activity = try Activity.request(
+    attributes: attributes, content: content,
+    pushType: .token, style: .standard
+)
+
+// Transient: system may dismiss automatically (for short-lived updates)
+let activity = try Activity.request(
+    attributes: attributes, content: content,
+    pushType: .token, style: .transient
+)
+```
+
+### Channel-Based Push (iOS 18+)
+
+```swift
+let activity = try Activity.request(
+    attributes: attributes, content: content,
+    pushType: .channel("delivery-updates")
+)
+```
+
+### Lock Screen Sizing Details
+
+```swift
+ActivityConfiguration(for: DeliveryAttributes.self) { context in
+    // Lock Screen content -- keep under ~160 points height
+    VStack(alignment: .leading, spacing: 8) {
+        Text("Order #\(context.attributes.orderNumber)").font(.headline)
+        Text(context.state.driverName).font(.subheadline)
+    }.padding()
+} dynamicIsland: { context in
+    DynamicIsland { /* ... */ }
+}
+.supplementalActivityFamilies([.small, .medium])  // Opt into compact sizing
+```
+
 ## Common Mistakes
 
 | ❌ Incorrect | ✅ Correct |
@@ -223,6 +330,9 @@ struct DeliveryApp: App {
 | Updating with nil values causing crashes | Always provide complete ContentState; don't omit fields |
 | Not dismissing activity after completion | Call `activity.end(dismissalPolicy: .immediate)` when done |
 | Over-updating frequency; excessive state changes | Throttle updates; rapid updates drain battery and stress system |
+| Missing `NSSupportsLiveActivities` in Info.plist | Add `NSSupportsLiveActivities = YES` to host app's Info.plist (not extension) |
+| Frequent updates without budget declaration | Add `NSSupportsLiveActivitiesFrequentUpdates = YES` for > 1/minute updates |
+| Forgetting to set `NSSupportsLiveActivitiesFrequentUpdates` | Required for sports, ride tracking, live scores |
 
 ## Review Checklist
 
@@ -238,6 +348,15 @@ struct DeliveryApp: App {
 - [ ] No UI blocking; all activity ops async
 - [ ] Update frequency throttled (not > every 15 seconds)
 - [ ] Activity removed from active set after dismissal
+- [ ] APNs payload format correct (headers + JSON structure)
+- [ ] Push-to-start tokens registered (iOS 17.2+)
+- [ ] Scheduled Live Activities use `start:` parameter (iOS 26+)
+- [ ] `ActivityStyle` set appropriately (`.standard` vs `.transient`)
+- [ ] Channel-based push used for broadcasts (iOS 18+)
+- [ ] `NSSupportsLiveActivitiesFrequentUpdates` declared if > 1/minute updates
+- [ ] `.keylineTint()` applied to Dynamic Island for branding
+- [ ] Lock Screen layout under ~160 points height
+- [ ] `.supplementalActivityFamilies([.small, .medium])` configured
 
 ---
 _Source: Apple Developer Documentation · Condensed for Ship Framework agent reference_

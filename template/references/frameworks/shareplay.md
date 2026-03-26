@@ -18,10 +18,14 @@
 | `GroupActivity` | Protocol defining shared activity (what's being coordinated) |
 | `GroupSession` | Active session between participants; handles message passing |
 | `GroupStateObserver` | Monitors session state (active, inactive, joined, left) |
+| `GroupSessionMessenger` | Message transport with delivery modes (reliable vs. unreliable) |
+| `GroupSessionJournal` | File/data transfer system for large payloads |
+| `GroupActivityMetadata` | Activity metadata with type enumeration |
 | `Shareable` | Protocol for objects that can sync state across session |
 | `SharedImmutableReference` | Reference to immutable data synced in group |
 | `SharedMutableReference` | Mutable state binding (SwiftUI) synced across group |
 | `AVPlayer` | Extended to support synchronized playback in group sessions |
+| `AVPlaybackCoordinator` | Coordinates media playback across participants |
 | `GroupActivitySharingController` | UI for inviting others to activity |
 
 **Key Protocols:**
@@ -134,7 +138,7 @@ struct QuizMessage: Codable {
 }
 ```
 
-**Example 3: Synchronized AVPlayer playback**
+**Example 3: Synchronized AVPlayer playback with AVPlaybackCoordinator**
 ```swift
 import AVKit
 import GroupActivities
@@ -166,28 +170,63 @@ class WatchPartyViewController: AVPlayerViewController {
             for await session in WatchPartyActivity.sessions() {
                 groupSession = session
 
-                // Sync playback with session
-                try? await configureGroupPlayback(for: session)
+                // Sync playback with session using AVPlaybackCoordinator
+                configureGroupPlayback(for: session)
 
                 // Monitor participant status
                 Task {
-                    for await state in session.states(of: GroupStateObserver.self) {
-                        if state.isActive {
-                            print("Session active with \(state.localParticipant.displayName)")
-                        }
+                    for await participants in session.$activeParticipants.values {
+                        print("Active participants: \(participants.count)")
                     }
                 }
             }
         }
     }
 
-    func configureGroupPlayback(for session: GroupSession<WatchPartyActivity>) async throws {
-        // Use GroupPlaybackCoordinator to sync playback
-        let coordinator = try await GroupPlaybackCoordinator(session: session)
+    func configureGroupPlayback(for session: GroupSession<WatchPartyActivity>) {
+        // Connect player's coordinator to the session
+        let coordinator = player.playbackCoordinator
+        coordinator.coordinateWithSession(session)
 
-        // Player will sync across participants
+        // Player will automatically sync across participants
         // When initiator plays, others play
         // When initiator seeks, others seek
+    }
+}
+```
+
+**Example 3b: GroupSessionMessenger with delivery modes**
+```swift
+// Reliable (default) -- guaranteed delivery, ordered
+let reliableMessenger = GroupSessionMessenger(
+    session: session,
+    deliveryMode: .reliable
+)
+
+// Unreliable -- faster, no guarantees (good for frequent position updates)
+let unreliableMessenger = GroupSessionMessenger(
+    session: session,
+    deliveryMode: .unreliable
+)
+
+// Use .reliable for state-changing actions (play/pause, selections)
+// Use .unreliable for high-frequency ephemeral data (cursor positions, drawing strokes)
+```
+
+**Example 3c: GroupSessionJournal for file transfer**
+```swift
+let journal = GroupSessionJournal(session: session)
+
+// Upload a file
+let attachment = try await journal.add(imageData)
+
+// Observe incoming attachments
+Task {
+    for await attachments in journal.attachments {
+        for attachment in attachments {
+            let data = try await attachment.load(Data.self)
+            handleReceivedFile(data)
+        }
     }
 }
 ```
@@ -277,20 +316,54 @@ func handleSession(_ session: GroupSession<Activity>) {
 }
 ```
 
+**Mistake 6: Not handling late-joiner state**
+```swift
+// ❌ WRONG: Broadcasting state without handling late joiners
+func onJoin() {
+    // New participant has no idea what the current state is
+}
+
+// ✅ CORRECT: Send full state to new participants
+func handleParticipants(_ participants: Set<Participant>) {
+    let newParticipants = participants.subtracting(knownParticipants)
+    for participant in newParticipants {
+        Task {
+            try await messenger?.send(currentState, to: .only(participant))
+        }
+    }
+    knownParticipants = participants
+}
+```
+
+**Mistake 7: Using GroupSessionMessenger for large data**
+```swift
+// ❌ WRONG: Messenger has a per-message size limit
+let largeImage = try Data(contentsOf: imageURL)  // 5 MB
+try await messenger.send(largeImage, to: .all)    // May fail
+
+// ✅ CORRECT: Use GroupSessionJournal for files
+let journal = GroupSessionJournal(session: session)
+try await journal.add(largeImage)
+```
+
 ---
 
 ## Review Checklist
 
 - [ ] `GroupActivity` protocol adopted with `metadata` property implemented
+- [ ] `GroupActivityMetadata.type` set correctly (watchTogether, listenTogether, createTogether, etc.)
 - [ ] Activity is `Codable` with all properties serializable
 - [ ] `activity.activate()` called before using sessions
 - [ ] `GroupSession.sessions()` async sequence properly iterated
 - [ ] Optional `groupSession` property validated before use
 - [ ] Message types conform to `Codable` (no UIImage, UIView, etc.)
+- [ ] `GroupSessionMessenger` created with appropriate `deliveryMode` (.reliable vs .unreliable)
+- [ ] Late-joining participants receive current state on connection
 - [ ] Observer tasks canceled in `deinit` or `onChange` when session ends
 - [ ] `GroupStateObserver` monitored for participant join/leave events
 - [ ] Participant display names shown in UI (from `participant.displayName`)
-- [ ] For AVPlayer: `GroupPlaybackCoordinator` configured (not manual sync)
+- [ ] For AVPlayer: `AVPlaybackCoordinator` configured (not manual sync)
+- [ ] `GroupSessionJournal` used for large file transfers instead of messenger
 - [ ] Error messages from `activate()` handled gracefully
 - [ ] Session messages sent with `try? await session.send(message)`
 - [ ] SharePlay entitlement enabled in Xcode capabilities

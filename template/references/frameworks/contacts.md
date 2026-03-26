@@ -26,7 +26,75 @@
 | `CNPhoneNumber` | Phone number; validated format |
 | `CNPostalAddress` | Street, city, state, ZIP, country |
 | `CNContactRelation` | Relationship type (manager, spouse, parent, etc.) |
-| `CNAuthorizationStatus` | `.authorized`, `.denied`, `.restricted`, `.notDetermined` |
+| `CNAuthorizationStatus` | `.authorized`, `.denied`, `.restricted`, `.notDetermined`, `.limited` (iOS 18+) |
+
+### Authorization States
+| Status | Meaning |
+|---|---|
+| `.notDetermined` | User has not been prompted yet |
+| `.authorized` | Full read/write access granted |
+| `.denied` | User denied access; direct to Settings |
+| `.restricted` | Parental controls or MDM restrict access |
+| `.limited` | iOS 18+: user granted access to selected contacts only |
+
+### Composite Key Descriptors
+Use `CNContactFormatter.descriptorForRequiredKeys(for:)` to fetch all keys needed for formatting a contact's name:
+
+```swift
+let nameKeys = CNContactFormatter.descriptorForRequiredKeys(for: .fullName)
+let keys: [CNKeyDescriptor] = [nameKeys, CNContactPhoneNumbersKey as CNKeyDescriptor]
+```
+
+## Authorization States (iOS 18+)
+
+iOS 18 adds `.limited` authorization where the user grants access to selected contacts only:
+
+```swift
+let status = CNContactStore.authorizationStatus(for: .contacts)
+switch status {
+case .authorized:
+    // Full read/write access
+    break
+case .limited:
+    // iOS 18+: User granted access to selected contacts only
+    break
+case .denied, .restricted:
+    // Direct user to Settings
+    break
+case .notDetermined:
+    // Will prompt on first use
+    break
+@unknown default:
+    break
+}
+```
+
+## Contact Picker Predicate Filtering
+
+Filter the contact picker to show only contacts matching specific criteria:
+
+```swift
+let picker = CNContactPickerViewController()
+// Only show contacts that have an email address
+picker.predicateForEnablingContact = NSPredicate(format: "emailAddresses.@count > 0")
+// Selecting a contact returns it directly (no detail card)
+picker.predicateForSelectionOfContact = NSPredicate(value: true)
+```
+
+## CNContactStoreDidChange Observer
+
+Observe contact store changes to refresh cached CNContact objects:
+
+```swift
+NotificationCenter.default.addObserver(
+    forName: .CNContactStoreDidChange,
+    object: nil,
+    queue: .main
+) { _ in
+    // Refetch contacts -- cached CNContact objects are stale
+    refreshContacts()
+}
+```
 
 ---
 
@@ -111,6 +179,27 @@ func createContact(givenName: String, familyName: String, phone: String) throws 
     } catch {
         print("Save error: \(error)")
     }
+}
+```
+
+### Example 3b: Filter the contact picker using predicates
+```swift
+let picker = CNContactPickerViewController()
+// Only show contacts that have an email address
+picker.predicateForEnablingContact = NSPredicate(format: "emailAddresses.@count > 0")
+// Selecting a contact returns it directly (no detail card)
+picker.predicateForSelectionOfContact = NSPredicate(value: true)
+```
+
+### Example 3c: Observe contact store changes
+```swift
+NotificationCenter.default.addObserver(
+    forName: .CNContactStoreDidChange,
+    object: nil,
+    queue: .main
+) { _ in
+    // Refetch contacts -- cached CNContact objects are stale
+    refreshContacts()
 }
 ```
 

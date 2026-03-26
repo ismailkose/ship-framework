@@ -123,6 +123,48 @@ func processDatabaseQuery() async {
 }
 ```
 
+### Custom Metrics with mxSignpost and OSSignposter
+
+For production telemetry integrated with MetricKit, use `mxSignpost()` with `MXSignpostIntervalData`.
+Create an `OSSignposter` actor for thread-safe custom metric emission:
+
+```swift
+import os
+
+// Create a MetricKit log handle for custom metrics
+let metricLog = MXMetricManager.makeLogHandle(category: "Networking")
+
+// Actor pattern for thread-safe signpost emission
+actor NetworkMetricsRecorder {
+    func recordRequest(duration: TimeInterval, bytes: Int) {
+        let signpostID = MXSignpostIntervalData.makeSignpostID(log: metricLog)
+
+        mxSignpost(.begin, log: metricLog, name: "APIRequest", signpostID: signpostID)
+        defer {
+            mxSignpost(.end, log: metricLog, name: "APIRequest", signpostID: signpostID,
+                      "Duration: %.2fs, Bytes: %d", duration, bytes)
+        }
+
+        // Recording happens within the signpost interval
+    }
+}
+
+// Or use OSSignposter for standard (non-MetricKit) signposts
+let paster = OSSignposter(subsystem: "com.example.app", category: "DataLoad")
+
+func loadData() async {
+    let state = paster.beginInterval("loadData")
+    defer { paster.endInterval("loadData", state) }
+
+    let result = await fetchFromNetwork()
+    process(result)
+}
+```
+
+**Note:** Limit custom metrics to critical code paths. The system caps the number
+of unique signpost names per log handle to reduce on-device overhead. Custom
+metrics appear in `MXMetricPayload.signpostMetrics` for analysis.
+
 ---
 
 ## Common Mistakes
@@ -213,6 +255,143 @@ class DataFetcher {
     }
 }
 ```
+
+**Mistake 6: Ignoring Thread Sanitizer warnings**
+```swift
+// ❌ WRONG — Concurrent access from multiple threads
+var cache: [String: Data] = [:]
+
+func getCached(_ key: String) -> Data? {
+    return cache[key]  // Main thread
+}
+
+func updateCache(_ key: String, _ value: Data) {
+    DispatchQueue.global().async {
+        self.cache[key] = value  // Background thread — data race!
+    }
+}
+
+// ✅ CORRECT — Protect shared mutable state with an actor
+actor CacheActor {
+    var cache: [String: Data] = [:]
+
+    func getCached(_ key: String) -> Data? {
+        cache[key]
+    }
+
+    func updateCache(_ key: String, _ value: Data) {
+        cache[key] = value
+    }
+}
+
+// Usage enforces synchronization
+await cacheActor.updateCache("key", data)
+let result = await cacheActor.getCached("key")
+```
+
+Enable Thread Sanitizer in Scheme > Run > Diagnostics > Thread Sanitizer.
+Note: TSan cannot run simultaneously with Address Sanitizer.
+
+### mxSignpost() with OSSignpostID and OSSignposter
+
+For production telemetry integrated with MetricKit, use `mxSignpost()` with `MXSignpostIntervalData`.
+Create an `OSSignposter` actor for thread-safe custom metric emission:
+
+```swift
+import os
+
+// Create a MetricKit log handle for custom metrics
+let metricLog = MXMetricManager.makeLogHandle(category: "Networking")
+
+// Actor pattern for thread-safe signpost emission
+actor NetworkMetricsRecorder {
+    func recordRequest(duration: TimeInterval, bytes: Int) {
+        let signpostID = MXSignpostIntervalData.makeSignpostID(log: metricLog)
+
+        mxSignpost(.begin, log: metricLog, name: "APIRequest", signpostID: signpostID)
+        defer {
+            mxSignpost(.end, log: metricLog, name: "APIRequest", signpostID: signpostID,
+                      "Duration: %.2fs, Bytes: %d", duration, bytes)
+        }
+
+        // Recording happens within the signpost interval
+    }
+}
+
+// Or use OSSignposter for standard (non-MetricKit) signposts
+let paster = OSSignposter(subsystem: "com.example.app", category: "DataLoad")
+
+func loadData() async {
+    let state = paster.beginInterval("loadData")
+    defer { paster.endInterval("loadData", state) }
+
+    let result = await fetchFromNetwork()
+    process(result)
+}
+```
+
+### xctrace CLI for CI Profiling
+
+Profile app performance in continuous integration pipelines without the GUI:
+
+```bash
+# Record Time Profiler trace from CLI
+xcrun xctrace record --device "My iPhone" \
+    --template "Time Profiler" \
+    --output profile.trace \
+    --launch MyApp.app
+
+# Export trace data as XML for automated analysis
+xcrun xctrace export --input profile.trace --xpath '/trace-toc/run/data/table'
+
+# List available templates
+xcrun xctrace list templates
+
+# List connected devices
+xcrun xctrace list devices
+```
+
+Use `xctrace` in CI pipelines to catch performance regressions automatically.
+Parse exported metrics programmatically to set pass/fail thresholds.
+
+### Thread Sanitizer Data Race Patterns
+
+Enable Thread Sanitizer in Scheme > Run > Diagnostics > Thread Sanitizer.
+Protect shared mutable state with actors:
+
+```swift
+// ❌ WRONG — Concurrent access from multiple threads
+var cache: [String: Data] = [:]
+
+func getCached(_ key: String) -> Data? {
+    return cache[key]  // Main thread
+}
+
+func updateCache(_ key: String, _ value: Data) {
+    DispatchQueue.global().async {
+        self.cache[key] = value  // Background thread — data race!
+    }
+}
+
+// ✅ CORRECT — Protect shared mutable state with an actor
+actor CacheActor {
+    var cache: [String: Data] = [:]
+
+    func getCached(_ key: String) -> Data? {
+        cache[key]
+    }
+
+    func updateCache(_ key: String, _ value: Data) {
+        cache[key] = value
+    }
+}
+
+// Usage enforces synchronization
+await cacheActor.updateCache("key", data)
+let result = await cacheActor.getCached("key")
+```
+
+**Note:** TSan cannot run simultaneously with Address Sanitizer.
 
 ---
 

@@ -26,6 +26,27 @@
 | **Siri** | Voice commands | `INSiriKit`, no explicit request needed |
 | **File Access** | Documents/downloads | `NSOpenPanel` (macOS), or user selection on iOS |
 | **Tracking (IDFA)** | App Tracking Transparency | `ATTrackingManager.trackingAuthorizationStatus` |
+| **PermissionKit (iOS 26+)** | Child communication safety | `AskCenter.shared.ask()`, `CommunicationTopic`, `CommunicationHandle` |
+| **CommunicationHandle** | Contact identifier | `.phoneNumber`, `.emailAddress`, `.custom` |
+| **CommunicationTopic** | Action types for contact | All 9 actions: message, audioCall, videoCall, chat, follow, friend, connect, etc. |
+| **CommunicationTopic.PersonInformation** | Display name & avatar | Name components, profile image for rich prompts |
+| **PermissionQuestion** | Request template | Includes handles, actions, person information |
+| **PermissionButton** | SwiftUI trigger (replaces deprecated `CommunicationLimitsButton`) | Initiates permission request flow |
+| **AskCenter** | Singleton async manager (@MainActor) | Sends requests, observes responses with `responses(for:)` |
+
+### PermissionKit Communication Actions (All 9)
+
+| Action | Description |
+|---|---|
+| `.message` | Text messaging |
+| `.audioCall` | Voice call |
+| `.videoCall` | Video call |
+| `.call` | Generic call |
+| `.chat` | Chat communication |
+| `.follow` | Follow a user |
+| `.beFollowed` | Allow being followed |
+| `.friend` | Friend request |
+| `.connect` | Connection request |
 
 ---
 
@@ -384,6 +405,50 @@ if status == .authorized || status == .limited {
 } else if status == .denied {
     showError()
 }
+```
+
+**Mistake 6: PermissionKit not on @MainActor context**
+```swift
+// ❌ WRONG — AskCenter called off main thread
+Task.detached {
+    try await AskCenter.shared.ask(question, in: viewController)
+}
+
+// ✅ CORRECT — Use @MainActor for AskCenter
+@MainActor
+Task {
+    try await AskCenter.shared.ask(question, in: viewController)
+}
+
+// OR in view controller method
+override func viewDidLoad() {
+    super.viewDidLoad()
+    Task { @MainActor in
+        try await AskCenter.shared.ask(question, in: self)
+    }
+}
+```
+
+**Mistake 7: Not observing responses (fire-and-forget)**
+```swift
+// ❌ WRONG — Send request without listening for result
+try await AskCenter.shared.ask(question, in: viewController)
+// Parent's decision is never received
+
+// ✅ CORRECT — Observe responses in background
+Task {
+    for await response in AskCenter.shared.responses(for: CommunicationTopic.self) {
+        switch response.choice.answer {
+        case .approval:
+            enableCommunication()
+        case .denial:
+            showDeniedMessage()
+        @unknown default:
+            break
+        }
+    }
+}
+try await AskCenter.shared.ask(question, in: viewController)
 ```
 
 ---

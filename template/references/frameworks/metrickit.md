@@ -289,6 +289,227 @@ func authenticateUser() async {
 }
 ```
 
+### MXCallStackTree JSON Extraction for Symbolication
+
+Crash, hang, and disk-write diagnostics include `MXCallStackTree`. Extract and
+symbolicate the JSON representation for triage:
+
+```swift
+func handleCrash(_ crash: MXCrashDiagnostic) {
+    let tree = crash.callStackTree
+    let treeJSON = tree.jsonRepresentation()  // Returns Data
+
+    let exceptionType = crash.exceptionType
+    let signal = crash.signal
+    let reason = crash.terminationReason
+
+    // Upload treeJSON with dSYMs to analytics service for symbolication
+    uploadDiagnostic(
+        type: "crash",
+        exceptionType: exceptionType,
+        signal: signal,
+        reason: reason,
+        callStack: treeJSON
+    )
+}
+
+func handleHang(_ hang: MXHangDiagnostic) {
+    let tree = hang.callStackTree
+    let duration = hang.hangDuration  // Measurement<UnitDuration>
+    let treeJSON = tree.jsonRepresentation()
+
+    uploadDiagnostic(type: "hang", duration: duration, callStack: treeJSON)
+}
+```
+
+The JSON structure contains frames with binary name, offset, and address. Use
+`atos` or upload dSYMs to your analytics backend for symbolic conversion.
+
+### MXSignpostIntervalData for Custom Metrics
+
+Custom signposts emitted via `mxSignpost()` appear in the daily payload with memory
+and CPU statistics:
+
+```swift
+func didReceive(_ payloads: [MXMetricPayload]) {
+    for payload in payloads {
+        if let signposts = payload.signpostMetrics {
+            for metric in signposts {
+                let name = metric.signpostName
+                let category = metric.signpostCategory
+                let count = metric.totalCount
+
+                if let intervalData = metric.signpostIntervalData {
+                    let avgMemory = intervalData.averageMemory
+                    let cumulativeCPUTime = intervalData.cumulativeCPUTime
+                    let peakMemory = intervalData.peakMemory
+                }
+            }
+        }
+    }
+}
+```
+
+### MXLaunchTaskID for Extended Launch Measurement
+
+Track post-first-draw setup (database loading, state restoration) as part of the
+launch metric:
+
+```swift
+let taskID = MXLaunchTaskID("com.example.app.loadDatabase")
+
+MXMetricManager.shared.extendLaunchMeasurement(forTaskID: taskID)
+// Perform extended launch work...
+await database.load()
+MXMetricManager.shared.finishExtendedLaunchMeasurement(forTaskID: taskID)
+```
+
+Extended launch times appear under `histogrammedExtendedLaunch` in
+`MXAppLaunchMetric`.
+
+### Retrieving Past Payloads
+
+If the subscriber was not registered when payloads arrived, retrieve them using
+`pastPayloads` and `pastDiagnosticPayloads`:
+
+```swift
+let pastMetrics = MXMetricManager.shared.pastPayloads
+let pastDiags = MXMetricManager.shared.pastDiagnosticPayloads
+
+for payload in pastMetrics {
+    // Process previously missed metric payloads
+    persistPayload(payload.jsonRepresentation())
+}
+
+for diag in pastDiags {
+    // Process previously missed diagnostic payloads
+    persistPayload(diag.jsonRepresentation())
+}
+```
+
+### App Exit Metrics
+
+The daily metric payload includes app exit data (normal exits, crashes, watchdog
+kills, memory pressure):
+
+```swift
+if let exits = payload.applicationExitMetrics {
+    let fgExitData = exits.foregroundExitData  // Normal, abnormal, watchdog, memory exits
+    let bgExitData = exits.backgroundExitData
+
+    // Check specific exit types
+    print("Foreground normal exits: \(fgExitData.normalExitCount)")
+    print("Background memory exits: \(bgExitData.memoryResourceLimitExitCount)")
+}
+```
+
+### MXCallStackTree JSON for Symbolication
+
+Crash, hang, and disk-write diagnostics include `MXCallStackTree`. Extract and symbolicate the JSON representation for triage:
+
+```swift
+func handleCrash(_ crash: MXCrashDiagnostic) {
+    let tree = crash.callStackTree
+    let treeJSON = tree.jsonRepresentation()  // Returns Data
+
+    let exceptionType = crash.exceptionType
+    let signal = crash.signal
+    let reason = crash.terminationReason
+
+    // Upload treeJSON with dSYMs to analytics service for symbolication
+    uploadDiagnostic(
+        type: "crash",
+        exceptionType: exceptionType,
+        signal: signal,
+        reason: reason,
+        callStack: treeJSON
+    )
+}
+
+func handleHang(_ hang: MXHangDiagnostic) {
+    let tree = hang.callStackTree
+    let duration = hang.hangDuration  // Measurement<UnitDuration>
+    let treeJSON = tree.jsonRepresentation()
+
+    uploadDiagnostic(type: "hang", duration: duration, callStack: treeJSON)
+}
+```
+
+The JSON structure contains frames with binary name, offset, and address. Use `atos` or upload dSYMs to your analytics backend for symbolic conversion.
+
+### MXSignpostIntervalData for Custom Metrics
+
+Custom signposts emitted via `mxSignpost()` appear in the daily payload with memory and CPU statistics:
+
+```swift
+func didReceive(_ payloads: [MXMetricPayload]) {
+    for payload in payloads {
+        if let signposts = payload.signpostMetrics {
+            for metric in signposts {
+                let name = metric.signpostName
+                let category = metric.signpostCategory
+                let count = metric.totalCount
+
+                if let intervalData = metric.signpostIntervalData {
+                    let avgMemory = intervalData.averageMemory
+                    let cumulativeCPUTime = intervalData.cumulativeCPUTime
+                    let peakMemory = intervalData.peakMemory
+                }
+            }
+        }
+    }
+}
+```
+
+### MXLaunchTaskID for Extended Launch Measurement
+
+Track post-first-draw setup (database loading, state restoration) as part of the launch metric:
+
+```swift
+let taskID = MXLaunchTaskID("com.example.app.loadDatabase")
+
+MXMetricManager.shared.extendLaunchMeasurement(forTaskID: taskID)
+// Perform extended launch work...
+await database.load()
+MXMetricManager.shared.finishExtendedLaunchMeasurement(forTaskID: taskID)
+```
+
+Extended launch times appear under `histogrammedExtendedLaunch` in `MXAppLaunchMetric`.
+
+### Retrieving Past Payloads
+
+If the subscriber was not registered when payloads arrived, retrieve them using `pastPayloads` and `pastDiagnosticPayloads`:
+
+```swift
+let pastMetrics = MXMetricManager.shared.pastPayloads
+let pastDiags = MXMetricManager.shared.pastDiagnosticPayloads
+
+for payload in pastMetrics {
+    // Process previously missed metric payloads
+    persistPayload(payload.jsonRepresentation())
+}
+
+for diag in pastDiags {
+    // Process previously missed diagnostic payloads
+    persistPayload(diag.jsonRepresentation())
+}
+```
+
+### App Exit Metrics
+
+The daily metric payload includes app exit data (normal exits, crashes, watchdog kills, memory pressure):
+
+```swift
+if let exits = payload.applicationExitMetrics {
+    let fgExitData = exits.foregroundExitData  // Normal, abnormal, watchdog, memory exits
+    let bgExitData = exits.backgroundExitData
+
+    // Check specific exit types
+    print("Foreground normal exits: \(fgExitData.normalExitCount)")
+    print("Background memory exits: \(bgExitData.memoryResourceLimitExitCount)")
+}
+```
+
 ---
 
 ## Review Checklist

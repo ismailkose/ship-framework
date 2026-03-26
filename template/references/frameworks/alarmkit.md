@@ -1,6 +1,6 @@
 # AlarmKit — iOS Reference
 
-> **When to read:** Dev reads this when scheduling alarms, customizing alarm UI, managing recurring alarms, or integrating with system alarm features (iOS 18+).
+> **When to read:** Dev reads this when scheduling alarms, customizing alarm UI with Lock Screen and Dynamic Island, managing recurring alarms, implementing countdown timers, handling snooze/stop actions, or integrating system alarm features (iOS 26+).
 
 ---
 
@@ -13,18 +13,24 @@
 
 ## Core API
 
-| Type | Purpose |
-|------|---------|
-| `AlarmAttributes` | SwiftUI dynamic island metadata for alarm (time, label, sound) |
-| `ActivityKit` | Framework for managing live activities and alarm status |
-| `AlarmScheduler` | Schedule and manage alarms in system |
-| `AlarmNotification` | Customizable alarm notification with sound, haptics, UI |
-| `AlarmCharacteristics` | Defines alarm behavior (snooze, repeat, vibration pattern) |
+| Type | Purpose | Key Methods |
+|------|---------|--------------|
+| `AlarmManager` | Central API for scheduling, pausing, resuming, stopping alarms | `requestAuthorization()`, `schedule(id:configuration:)`, `alarmUpdates`, `pause(id:)`, `resume(id:)`, `stop(id:)`, `countdown(id:)`, `cancel(id:)` |
+| `AlarmManager.AlarmConfiguration` | Configuration enum (alarm or timer) with schedule, attributes, intents, sound | `.alarm(schedule:...)` or `.timer(duration:...)` |
+| `Alarm.Schedule` | When the alarm fires (fixed date or relative time) | `.fixed(Date)`, `.relative(RelativeSchedule)` |
+| `Alarm.Schedule.RelativeSchedule` | Time of day and recurrence pattern | `.never`, `.weekly([.monday, ...])`, `time: TimeComponents` |
+| `Alarm.CountdownDuration` | Pre-alert and post-alert countdown phases | `preAlert`, `postAlert` seconds |
+| `AlarmAttributes` | Live Activity attributes with presentation, metadata, tint color | `presentation`, `metadata`, `tintColor` |
+| `AlarmPresentation` | UI content for alert, countdown, and paused states | `.alert(Alert)`, `.countdown(Countdown)`, `.paused(Paused)` |
+| `AlarmPresentationState` | System-managed content state with mode (alert/countdown/paused) | `mode`, `alarmID` |
+| `AlarmButton` | Action button appearance (text, color, icon) | `text`, `textColor`, `systemImageName` |
+| `ActivityKit` | Framework for managing live activities and alarm status | `Activity<AlarmAttributes>` |
 
-**Key Types:**
-- `AlarmAttributes` — Live activity content (time, label, sound choice)
-- `AlertConfiguration` — Sound, haptic feedback, notification sound
-- `RecurrencePattern` — Daily, weekly, custom patterns
+**Key Concepts:**
+- `AlarmManager.authorizationUpdates` — AsyncSequence for authorization state changes
+- `AlarmManager.alarmUpdates` — AsyncSequence for alarm state transitions
+- `AlarmButton` behavior enum — `.countdown` (snooze) or `.custom` (open app)
+- Widget extension **required** for non-alerting countdown/paused Live Activity UI
 
 ---
 
@@ -170,103 +176,80 @@ struct AlarmView: View {
 }
 ```
 
-**Example 3: Manage recurring alarms and snooze**
+**Example 3: Alarm Schedule types**
 ```swift
-import UserNotifications
+import AlarmKit
 
-class RecurringAlarmManager {
-    func scheduleRecurringAlarm(
-        at time: Date,
-        label: String,
-        pattern: RecurrencePattern,
-        soundName: String
-    ) async {
-        let alarmID = UUID()
+// Fixed: fire at an exact Date (one-time)
+let fixed: Alarm.Schedule = .fixed(Date())
 
-        switch pattern {
-        case .daily:
-            // Schedule for 365 days
-            for day in 0..<365 {
-                var dateComponents = Calendar.current.dateComponents([.hour, .minute], from: time)
-                dateComponents.day = Calendar.current.component(.day, from: Date()) + day
-                dateComponents.month = Calendar.current.component(.month, from: Date())
-                dateComponents.year = Calendar.current.component(.year, from: Date())
+// Relative one-time: fire at 7:30 AM, no repeat
+let oneTime: Alarm.Schedule = .relative(.init(
+    time: .init(hour: 7, minute: 30),
+    repeats: .never
+))
 
-                let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
+// Recurring weekdays: fire at 6:00 AM Mon-Fri
+let weekday: Alarm.Schedule = .relative(.init(
+    time: .init(hour: 6, minute: 0),
+    repeats: .weekly([.monday, .tuesday, .wednesday, .thursday, .friday])
+))
+```
 
-                let content = UNMutableNotificationContent()
-                content.title = label
-                content.sound = UNNotificationSound(named: UNNotificationSoundName(rawValue: soundName))
-                content.badge = NSNumber(value: 1)
+**Example 4: Countdown duration for timers with snooze**
+```swift
+import AlarmKit
 
-                let request = UNNotificationRequest(
-                    identifier: "\(alarmID)-\(day)",
-                    content: content,
-                    trigger: trigger
-                )
+// 10-minute countdown before alert, 5-minute snooze countdown
+let countdown = Alarm.CountdownDuration(
+    preAlert: 600,   // 10 minutes
+    postAlert: 300   // 5 minutes snooze
+)
 
-                try? await UNUserNotificationCenter.current().add(request)
-            }
+let config = AlarmManager.AlarmConfiguration.timer(
+    duration: 300,  // 5 minute timer
+    attributes: attributes,
+    stopIntent: StopTimerIntent(timerID: id.uuidString),
+    sound: .default,
+    countdownDuration: countdown
+)
+```
 
-        case .weekdays:
-            let weekdays: [Int] = [2, 3, 4, 5, 6]  // Mon-Fri
-            for weekday in weekdays {
-                var dateComponents = Calendar.current.dateComponents([.hour, .minute], from: time)
-                dateComponents.weekday = weekday
+**Example 5: Alarm state machine observation**
+```swift
+import AlarmKit
 
-                let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
+let manager = AlarmManager.shared
 
-                let content = UNMutableNotificationContent()
-                content.title = label
-                content.sound = UNNotificationSound(named: UNNotificationSoundName(rawValue: soundName))
-
-                let request = UNNotificationRequest(
-                    identifier: "\(alarmID)-weekday-\(weekday)",
-                    content: content,
-                    trigger: trigger
-                )
-
-                try? await UNUserNotificationCenter.current().add(request)
-            }
-        }
-    }
-
-    func snoozeAlarm(alarmID: UUID, minutes: Int = 9) {
-        // Snooze = cancel current notification, reschedule for 9 minutes later
-        UNUserNotificationCenter.current().removePendingNotificationRequests(
-            withIdentifiers: [alarmID.uuidString]
-        )
-
-        let content = UNMutableNotificationContent()
-        content.title = "Alarm Snoozed"
-        content.body = "Alarm in \(minutes) minutes"
-
-        let trigger = UNTimeIntervalNotificationTrigger(
-            timeInterval: TimeInterval(minutes * 60),
-            repeats: false
-        )
-
-        let request = UNNotificationRequest(
-            identifier: "\(alarmID)-snooze",
-            content: content,
-            trigger: trigger
-        )
-
-        UNUserNotificationCenter.current().add(request) { error in
-            if let error = error {
-                print("Snooze failed: \(error)")
-            } else {
-                print("Alarm snoozed for \(minutes) minutes")
-            }
+// Observe state transitions
+for await updatedAlarms in manager.alarmUpdates {
+    for alarm in updatedAlarms {
+        switch alarm.state {
+        case .scheduled:  print("Waiting to fire")
+        case .countdown:  print("Counting down")
+        case .paused:     print("Paused by user")
+        case .alerting:   print("Alarm firing!")
+        @unknown default: break
         }
     }
 }
+```
 
-enum RecurrencePattern {
-    case daily
-    case weekdays
-    case custom([Int])  // Array of weekday indices
-}
+**Example 6: Snooze action with countdown behavior**
+```swift
+import AlarmKit
+
+let snoozeButton = AlarmButton(
+    text: "Snooze",
+    textColor: .white,
+    systemImageName: "bell.slash"
+)
+
+let alert = AlarmPresentation.Alert(
+    title: "Wake Up",
+    secondaryButton: snoozeButton,
+    secondaryButtonBehavior: .countdown  // Snooze restarts countdown
+)
 ```
 
 ---
@@ -365,19 +348,22 @@ func updateAlarm(_ alarmID: UUID, pattern: RecurrencePattern) {
 
 ## Review Checklist
 
-- [ ] iOS 18+ availability check (`#available(iOS 18, *)`)
-- [ ] User notification permission requested via `UNUserNotificationCenter.requestAuthorization()`
-- [ ] `AlarmAttributes` defined with `ContentState` struct
-- [ ] Alarm sound files (.caf, .m4a) added to Xcode project
-- [ ] Sound files verified in Build Phases > Copy Bundle Resources
-- [ ] `Activity<AlarmAttributes>.request()` called to show in Dynamic Island
-- [ ] UNNotificationRequest created with proper date components
-- [ ] Recurring alarms managed: no duplicate notifications
-- [ ] Snooze functionality cancels and reschedules notification
-- [ ] Delete alarm removes both notification and activity
-- [ ] Alarm label/time updated via activity state mutations
-- [ ] Haptic feedback considered (AudioServicesPlaySystemSound for vibration)
-- [ ] Alarm sound plays even when device is silent (use critical alert if needed)
+- [ ] `NSAlarmKitUsageDescription` added to Info.plist with descriptive text
+- [ ] iOS 26+ availability check (AlarmKit requires iOS 26+)
+- [ ] `AlarmManager.requestAuthorization()` called; `.denied` state handled
+- [ ] `AlarmPresentation` covers all relevant states (alert, countdown, paused)
+- [ ] Widget extension target added for countdown/paused Live Activity UI
+- [ ] `AlarmAttributes` metadata type conforms to `AlarmMetadata` protocol
+- [ ] Alarm ID stored for later pause/resume/stop/cancel operations
+- [ ] `alarmManager.alarmUpdates` async sequence observed for state tracking
+- [ ] `stopIntent` and `secondaryIntent` are valid `LiveActivityIntent` implementations
+- [ ] `Alarm.Schedule` uses `.fixed()` or `.relative()` with proper recurrence pattern
+- [ ] `Alarm.CountdownDuration` preAlert/postAlert set for timer snooze behavior
+- [ ] `AlarmButton` behavior set to `.countdown` for snooze, `.custom` for app launch
+- [ ] Tint color set on `AlarmAttributes` to differentiate from other apps
+- [ ] Error handling for `AlarmManager.AlarmError.maximumLimitReached`
+- [ ] `authorizationUpdates` observed if authorization can change during runtime
+- [ ] Tested on device (alarm sound/vibration differs in Simulator)
 
 ---
 

@@ -87,6 +87,155 @@ struct ProductCard: View {
 
 ---
 
+## @AccessibilityFocusState with Enum Multi-Target
+
+Manage focus for multiple elements using an enum:
+
+```swift
+enum A11yFocus: Hashable {
+    case nameField
+    case emailField
+    case submitButton
+}
+
+struct FormView: View {
+    @AccessibilityFocusState private var focus: A11yFocus?
+
+    var body: some View {
+        Form {
+            TextField("Name", text: $name)
+                .accessibilityFocused($focus, equals: .nameField)
+            TextField("Email", text: $email)
+                .accessibilityFocused($focus, equals: .emailField)
+            Button("Submit") { validate() }
+                .accessibilityFocused($focus, equals: .submitButton)
+        }
+    }
+
+    func validate() {
+        if name.isEmpty {
+            focus = .nameField  // Move VoiceOver focus to invalid field
+        }
+    }
+}
+```
+
+## Custom Modal Traits and Escape Action
+
+Custom overlay views need `.isModal` trait to trap VoiceOver focus and `.escape` action for dismissal:
+
+```swift
+CustomDialog()
+    .accessibilityAddTraits(.isModal)
+    .accessibilityAction(.escape) { dismiss() }
+```
+
+## UIAccessibility Notifications
+
+Announce changes and move focus imperatively in UIKit contexts:
+
+```swift
+// Announce a status change (e.g., "Item deleted", "Upload complete")
+UIAccessibility.post(notification: .announcement, argument: "Upload complete")
+
+// Partial screen update -- move focus to a specific element
+UIAccessibility.post(notification: .layoutChanged, argument: targetView)
+
+// Full screen transition -- move focus to the new screen
+UIAccessibility.post(notification: .screenChanged, argument: newScreenView)
+```
+
+## Assistive Access (iOS 18+)
+
+Support simplified interface for users with cognitive disabilities:
+
+```swift
+@Environment(\.accessibilityAssistiveAccessEnabled) var isAssistiveAccessEnabled
+
+var body: some View {
+    if isAssistiveAccessEnabled {
+        SimplifiedContentView()
+    } else {
+        FullContentView()
+    }
+}
+```
+
+Key guidelines:
+- Reduce visual complexity: fewer controls, larger tap targets, simpler navigation
+- Use clear, literal language for labels and instructions
+- Minimize the number of choices presented at once
+- Test with Assistive Access enabled in Settings > Accessibility > Assistive Access
+
+## UIAccessibility Notifications
+
+Announce changes and move focus imperatively in UIKit contexts:
+
+```swift
+// Announce a status change
+UIAccessibility.post(notification: .announcement, argument: "Upload complete")
+
+// Move focus to a specific element for partial screen update
+UIAccessibility.post(notification: .layoutChanged, argument: targetView)
+
+// Move focus for full screen transition
+UIAccessibility.post(notification: .screenChanged, argument: newScreenView)
+```
+
+## System Accessibility Preferences
+
+### Reduce Transparency Fallback
+
+Provide solid backgrounds when user reduces transparency:
+
+```swift
+@Environment(\.accessibilityReduceTransparency) var reduceTransparency
+
+var body: some View {
+    VStack {
+        content
+    }
+    .background(
+        reduceTransparency ? Color(.systemBackground) : Color(.systemBackground).opacity(0.85)
+    )
+}
+```
+
+### Assistive Access (iOS 18+)
+
+Support simplified interface for users with cognitive disabilities:
+
+```swift
+@Environment(\.accessibilityAssistiveAccessEnabled) var isAssistiveAccessEnabled
+
+var body: some View {
+    if isAssistiveAccessEnabled {
+        SimplifiedContentView()
+    } else {
+        FullContentView()
+    }
+}
+```
+
+## Custom Rotors
+
+Rotors allow VoiceOver users to navigate by content type. Add custom rotors for content-heavy screens:
+
+```swift
+var body: some View {
+    List(items) { item in
+        ItemRow(item: item)
+    }
+    .accessibilityCustomContent("Items", "\(items.count) total")
+    // Custom rotor example:
+    .accessibilityRotor("Favorites") {
+        ForEach(items.filter(\.isFavorite)) { item in
+            AccessibilityRotorEntry(item.name, id: item.id)
+        }
+    }
+}
+```
+
 ## Common Mistakes
 
 **Mistake 1: No accessibility labels on images**

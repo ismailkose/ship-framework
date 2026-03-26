@@ -190,6 +190,76 @@ struct MyApp: App {
 
 Universal links require an Apple App Site Association (AASA) file at `/.well-known/apple-app-site-association` and an Associated Domains entitlement (`applinks:example.com`).
 
+### iOS 26 Tab APIs
+
+**Tab roles for specialized behavior:**
+
+```swift
+// Search tab — replaces tab bar with search field when active
+Tab(role: .search) {
+  SearchView()
+}
+
+// Regular tab with data
+Tab("Feed", systemImage: "house", value: .home) {
+  FeedView()
+}
+```
+
+**Tab bar minimization (iPhone only):**
+
+```swift
+TabView(selection: $selectedTab) {
+  // tabs
+}
+.tabBarMinimizeBehavior(.onScrollDown)  // minimize when scrolling down
+```
+
+`TabBarMinimizeBehavior` values: `.automatic`, `.onScrollDown`, `.onScrollUp`, `.never`
+
+**Sidebar customization:**
+
+```swift
+TabView {
+  TabSection("Main") {
+    Tab("Home") { HomeView() }
+    Tab("Search") { SearchView() }
+  }
+  .tabPlacement(.sidebarOnly)
+}
+.tabViewSidebarHeader { SidebarHeaderView() }
+.tabViewSidebarFooter { SidebarFooterView() }
+.tabViewBottomAccessory { NowPlayingBar() }
+```
+
+**`TabSection`** groups related tabs under a sidebar header.
+
+### PresentationSizing Fine-Tuning (iOS 18+)
+
+```swift
+.sheet(item: $selectedItem) { item in
+  EditItemSheet(item: item)
+    .presentationSizing(.fitted(horizontal: .flexible, vertical: .flexible))
+}
+
+// or sticky (grow but don't shrink)
+.presentationSizing(.sticky(horizontal: .flexible, vertical: .flexible))
+```
+
+### Dismissal Confirmation (iOS 26+)
+
+```swift
+.sheet(item: $selectedItem) { item in
+  EditItemSheet(item: item)
+    .dismissalConfirmationDialog(
+      "Discard changes?",
+      shouldPresent: hasUnsavedChanges
+    ) {
+      Button("Discard", role: .destructive) { discardChanges() }
+    }
+}
+```
+
 **Common Mistakes — Navigation:**
 ```swift
 // WRONG: Using deprecated NavigationView
@@ -197,6 +267,16 @@ NavigationView { content }
 
 // CORRECT: NavigationStack or NavigationSplitView
 NavigationStack { content }
+```
+
+```swift
+// WRONG: Storing view instances in NavigationPath
+@State var path = NavigationPath()
+path.append(DetailView(item: item))  // WRONG: views aren't Hashable
+
+// CORRECT: Store lightweight routes
+enum Route: Hashable { case detail(Item) }
+path.append(Route.detail(item))
 ```
 
 ```swift
@@ -220,6 +300,80 @@ TabView {
 
 // CORRECT: .sheet(item:) — binding handles both state
 .sheet(item: $selectedItem) { item in EditView(item: item) }
+```
+
+```swift
+// WRONG: Nesting @Observable routers or storing multiple routers
+@Observable final class AppRouter {
+  var homeRouter = RouterPath()  // WRONG: nested @Observable
+}
+
+// CORRECT: One router owns navigation for all features
+@Observable final class AppRouter {
+  var path = NavigationPath()
+  var presentedSheet: SheetDestination?
+}
+// Inject once at app root, never nest
+```
+
+```swift
+// WRONG: Using deprecated .tabItem { }
+TabView {
+  Text("Home").tabItem { Label("Home", systemImage: "house") }
+}
+
+// CORRECT: Use Tab(value:) with selection
+@State var selectedTab: AppTab = .home
+TabView(selection: $selectedTab) {
+  Tab("Home", systemImage: "house", value: .home) { HomeView() }
+}
+```
+
+```swift
+// WRONG: Hard-coding sheet dimensions
+.sheet(item: $selectedItem) { item in
+  EditView(item: item)
+    .frame(height: 400)  // brittle across devices
+}
+
+// CORRECT: Use presentationSizing(.form) or .fitted
+.sheet(item: $selectedItem) { item in
+  EditView(item: item)
+    .presentationSizing(.form)
+}
+```
+
+```swift
+// WRONG: Scattered deep link handling across views
+struct HomeView {
+  .onOpenURL { url in router.handle(url) }
+}
+struct SettingsView {
+  .onOpenURL { url in router.handle(url) }
+}
+
+// CORRECT: Handle deep links once at app root
+@main struct MyApp: App {
+  @State var router = Router()
+  var body: some Scene {
+    WindowGroup {
+      ContentView()
+        .environment(router)
+        .onOpenURL { url in router.handle(url: url) }
+    }
+  }
+}
+```
+
+```swift
+// WRONG: Router not marked @MainActor
+@Observable class Router { var path = NavigationPath() }
+
+// CORRECT: Navigation always on MainActor
+@Observable @MainActor final class Router {
+  var path = NavigationPath()
+  func navigate(to route: AppRoute) { path.append(route) }
+}
 ```
 
 ---
@@ -708,6 +862,214 @@ KeyframeAnimator(initialValue: AnimationValues()) { values in
 }
 ```
 
+### Symbol Effects (All 10 Types)
+
+**Discrete effects — trigger with `value:`:**
+
+```swift
+// Bounce — scale pulse at discrete moment
+Image(systemName: "bell.fill")
+  .symbolEffect(.bounce, value: notificationCount)
+
+// Wiggle — directional shake
+Image(systemName: "arrow.left.arrow.right")
+  .symbolEffect(.wiggle.left, value: swapCount)
+```
+
+**Indefinite effects — toggle with `isActive:`:**
+
+```swift
+// Pulse — steady opacity pulse
+Image(systemName: "wifi")
+  .symbolEffect(.pulse.byLayer, isActive: isConnecting)
+
+// VariableColor — color cycling with options
+Image(systemName: "speaker.wave.3.fill")
+  .symbolEffect(
+    .variableColor.cumulative.nonReversing.dimInactiveLayers,
+    options: .repeating,
+    isActive: isPlaying
+  )
+
+// Scale — grow/shrink effect
+Image(systemName: "magnifyingglass")
+  .symbolEffect(.scale.up, isActive: isHighlighted)
+
+// Breathe — breathing animation
+Image(systemName: "heart.fill")
+  .symbolEffect(.breathe, isActive: isFavorite)
+
+// Rotate — spinning animation
+Image(systemName: "gear")
+  .symbolEffect(.rotate.clockwise, isActive: isProcessing)
+
+// Appear/Disappear — entry/exit effects
+Image(systemName: "checkmark.circle.fill")
+  .symbolEffect(.appear, isActive: showCheck)
+```
+
+**Content transitions:**
+
+```swift
+// Replace symbol with transition
+Image(systemName: isMuted ? "speaker.slash" : "speaker.wave.3")
+  .contentTransition(.symbolEffect(.replace.downUp))
+
+// Magic replace (morphs between symbols)
+Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+  .contentTransition(.symbolEffect(.replace.magic(fallback: .downUp)))
+```
+
+**Key options:**
+- `.byLayer` vs `.wholeSymbol` — render scope
+- `.repeating` vs `.nonRepeating` — repeat behavior
+- `.speed(2.0)` — speed multiplier
+- `.cumulative`, `.iterative` — variableColor chaining modes
+
+### @Animatable Macro and @AnimatableIgnored (iOS 18+)
+
+Auto-conform types to `VectorArithmetic` for smooth animations:
+
+```swift
+@Animatable
+struct AnimatedValues {
+  var scale: Double = 1.0
+  var offset: CGSize = .zero
+
+  @AnimatableIgnored
+  var id: String  // ignored during animation
+}
+```
+
+### withAnimation Completion Callbacks
+
+```swift
+// Detect when animation finishes
+withAnimation(.spring(duration: 0.3)) {
+  isExpanded.toggle()
+} completion: {
+  handleAnimationComplete()
+}
+```
+
+### ContentTransition Types
+
+```swift
+// Numeric text animation
+Text("\(count)")
+  .contentTransition(.numericText())
+
+// Symbol effect transition (already shown above)
+.contentTransition(.symbolEffect(.replace.downUp))
+```
+
+### Navigation Zoom Transition (iOS 18+)
+
+```swift
+// On source view
+Image("item")
+  .matchedTransitionSource(id: "item", in: itemNamespace)
+
+// On destination view
+DetailView()
+  .navigationTransition(.zoom(sourceID: "item", in: itemNamespace))
+```
+
+### PhaseAnimator with Custom Animation Curves
+
+```swift
+PhaseAnimator(phases) { phase in
+  Image(systemName: "heart")
+    .scaleEffect(phase.scale)
+} animation: { phase in
+  switch phase {
+  case .loading: .easeIn(duration: 0.15)
+  case .spinning: .linear(duration: 0.6)
+  case .complete: .spring(duration: 0.3, bounce: 0.4)
+  }
+}
+```
+
+**Common Mistakes — Animation:**
+
+```swift
+// WRONG: withAnimation doesn't return value
+let result = withAnimation { doSomething() }
+
+// CORRECT: Use completion handler (iOS 18+)
+withAnimation { doSomething() } completion: { print("done") }
+```
+
+```swift
+// WRONG: Symbol effects without reduce motion
+Image("icon").symbolEffect(.pulse, isActive: isLoading)
+
+// CORRECT: Respect accessibility
+Image("icon")
+  .symbolEffect(.pulse, isActive: isLoading)
+  .symbolEffectsRemoved(reduceMotion)
+```
+
+```swift
+// WRONG: Animating core layout properties
+withAnimation(.spring) {
+  isExpanded.toggle()
+  // if this changes the view tree, animation stutters
+}
+
+// CORRECT: Only animate visual properties
+@State var scale = 1.0
+withAnimation(.spring) {
+  scale = isExpanded ? 1.2 : 1.0
+}
+```
+
+```swift
+// WRONG: Using @Animatable without understanding vector arithmetic
+struct BadValues {
+  @Animatable var color: Color  // NOT VectorArithmetic
+}
+
+// CORRECT: Only use @Animatable for numeric/geometric types
+@Animatable
+struct GoodValues {
+  var scale: Double = 1.0
+  var offset: CGSize = .zero
+}
+```
+
+```swift
+// WRONG: PhaseAnimator for one-time animations
+@State var trigger = false
+PhaseAnimator([0, 1]) { phase in
+  Circle().scaleEffect(phase)
+}
+
+// CORRECT: Use keyframeAnimator for one-time, or add trigger
+PhaseAnimator([0, 1], trigger: trigger) { phase in
+  Circle().scaleEffect(phase)
+}
+.onTapGesture { trigger.toggle() }
+```
+
+```swift
+// WRONG: Hard-coding animation duration
+withAnimation(.spring(duration: 0.5)) { /* ... */ }
+
+// CORRECT: Use presets (or scale appropriately)
+withAnimation(.snappy) { /* ... */ }
+```
+
+```swift
+// WRONG: Nested contentTransition modifiers
+Text("Hi")
+  .contentTransition(.numericText())
+  .contentTransition(.symbolEffect(.bounce))  // second overwrites first
+
+// CORRECT: Only one contentTransition at a time
+Text("Hi").contentTransition(.numericText())
+```
+
 ### Reduce Motion
 
 ```swift
@@ -786,7 +1148,7 @@ Image("photo")
   )
 ```
 
-### RotateGesture
+### RotateGesture (iOS 17+)
 
 ```swift
 @State private var angle: Angle = .zero
@@ -796,7 +1158,205 @@ Image("dial")
   .gesture(
     RotateGesture()
       .onChanged { value in angle = value.rotation }
+      .onEnded { value in
+        withAnimation(.spring) { angle += value.rotation }
+      }
   )
+```
+
+### @GestureState Auto-Reset Behavior
+
+`@GestureState` automatically resets to its initial value when the gesture ends:
+
+```swift
+@GestureState private var dragOffset = CGSize.zero
+@State private var accumulatedOffset = CGSize.zero
+
+Image("card")
+  .offset(dragOffset)
+  .gesture(
+    DragGesture()
+      .updating($dragOffset) { value, state, _ in
+        state = value.translation
+      }
+      .onEnded { value in
+        accumulatedOffset.width += value.translation.width
+        accumulatedOffset.height += value.translation.height
+        // dragOffset auto-resets here
+      }
+  )
+```
+
+**Custom reset with `resetTransaction` (iOS 18+):**
+
+```swift
+@GestureState private var scale = 1.0
+
+Image("photo")
+  .scaleEffect(scale)
+  .gesture(
+    MagnifyGesture()
+      .updating($scale) { value, state, _ in
+        state = value.magnification
+      }
+      .onEnded { _ in
+        // spring animation applies to reset
+      }
+  )
+```
+
+### Gesture Composition Details
+
+**Simultaneous gestures — both respond:**
+
+```swift
+let combined = DragGesture()
+  .simultaneously(with: MagnifyGesture())
+  .onChanged { value in
+    // both active at same time
+  }
+```
+
+**Sequenced gestures — first then second:**
+
+```swift
+let sequence = LongPressGesture(minimumDuration: 0.5)
+  .sequenced(before: DragGesture())
+  .onChanged { value in
+    switch value {
+    case .first(true):  // long press recognized
+      print("Can now drag")
+    case .second(true, let drag):  // dragging
+      print("Dragging: \(drag?.translation ?? .zero)")
+    default:
+      break
+    }
+  }
+```
+
+**Exclusively — first match wins, cancels others:**
+
+```swift
+let exclusive = TapGesture()
+  .exclusively(before: LongPressGesture(minimumDuration: 0.5))
+  // Quick tap fires immediately, cancels long press
+  // If long press completes first, tap never fires
+```
+
+### GestureMask Control
+
+Control which gesture responders are active:
+
+```swift
+View()
+  .gesture(parentGesture, mask: .subviews)  // children only
+  .gesture(childGesture, mask: .gesture)    // parent only
+  .gesture(combinedGesture, mask: .all)     // both
+```
+
+### Conflicting Parent/Child Gestures
+
+Resolve conflicts with composition order:
+
+```swift
+// WRONG: Ambiguous gesture priority
+VStack {
+  Button("Tap me") { }
+    .gesture(DragGesture())  // conflicts with button's tap
+}
+.gesture(DragGesture())
+
+// CORRECT: Use simultaneousGesture on parent
+VStack {
+  Button("Tap me") { buttonAction() }
+}
+.simultaneousGesture(DragGesture())  // both can fire
+```
+
+**Common Mistakes — Gestures:**
+
+```swift
+// WRONG: Storing gesture in @State (gestures are value types)
+@State var myGesture = DragGesture()
+
+// CORRECT: Define as computed property or local variable
+var dragGesture: some Gesture {
+  DragGesture()
+    .updating($offset) { value, state, _ in
+      state = value.translation
+    }
+}
+```
+
+```swift
+// WRONG: Not resetting gesture state on dismissal
+@GestureState var offset = CGSize.zero
+// if parent dismisses view, gesture state may linger
+
+// CORRECT: @GestureState auto-resets, but verify with onEnded
+.gesture(DragGesture()
+  .updating($offset) { /* ... */ }
+  .onEnded { _ in
+    // guaranteed reset here
+  }
+)
+```
+
+```swift
+// WRONG: @GestureState variable loses state across gesture cycles
+@GestureState var count = 0
+.gesture(DragGesture()
+  .onEnded { _ in count += 1 }  // count won't persist!
+)
+
+// CORRECT: Use @State for persistent values
+@State var count = 0
+@GestureState var dragOffset = CGSize.zero
+```
+
+```swift
+// WRONG: Sequenced gesture without checking phase
+LongPressGesture()
+  .sequenced(before: DragGesture())
+  .onChanged { value in
+    let drag = value.second?.second  // force-unwrap crashes
+  }
+
+// CORRECT: Use pattern matching
+.onChanged { value in
+  switch value {
+  case .second(true, let drag?):
+    print("Safe: \(drag.translation)")
+  default:
+    break
+  }
+}
+```
+
+```swift
+// WRONG: High minimumDuration delays gesture recognition
+Text("Press me")
+  .onLongPressGesture(minimumDuration: 3.0) { /* ... */ }
+
+// CORRECT: Use 0.3-0.7 seconds (feels responsive)
+Text("Press me")
+  .onLongPressGesture(minimumDuration: 0.5) { /* ... */ }
+```
+
+```swift
+// WRONG: Not providing visual feedback during gesture
+.gesture(DragGesture()
+  .updating($offset) { value, state, _ in
+    state = value.translation
+  }
+)
+
+// CORRECT: Feedback at each phase
+.offset(offset)
+.opacity(offset == .zero ? 1.0 : 0.8)  // visual cue
+.gesture(DragGesture()
+  .updating($offset) { /* ... */ }
+)
 ```
 
 **Rules:**
@@ -805,6 +1365,8 @@ Image("dial")
 - Minimum 44pt touch target for gesture-interactive elements
 - Don't override system gestures (edge swipes, bottom bar)
 - Add haptic feedback at meaningful thresholds during continuous gestures
+- Use simultaneous/sequenced composition to prevent gesture conflicts
+- Test `@GestureState` reset behavior across different scenarios
 
 ---
 
@@ -871,6 +1433,139 @@ if items.isEmpty {
 
 // Search-specific
 ContentUnavailableView.search(text: searchText)
+```
+
+### LazyVStack and LazyHStack
+
+Defer view creation until items become visible:
+
+```swift
+ScrollView {
+  LazyVStack(spacing: 8) {
+    ForEach(largeArray) { item in
+      ItemRow(item: item)  // created on-demand
+    }
+  }
+}
+```
+
+**Warning:** Never nest `GeometryReader` inside lazy containers — it defeats lazy evaluation.
+
+```swift
+// WRONG: GeometryReader inside LazyVStack
+LazyVStack {
+  ForEach(items) { item in
+    GeometryReader { geo in
+      // Breaks lazy loading
+    }
+  }
+}
+
+// CORRECT: Use outer GeometryReader if needed
+GeometryReader { geo in
+  LazyVStack {
+    ForEach(items) { item in
+      ItemView(item: item, width: geo.size.width)
+    }
+  }
+}
+```
+
+### ScrollView Background & Custom Styling
+
+```swift
+// Hide default background
+ScrollView {
+  LazyVStack { content }
+    .scrollContentBackground(.hidden)
+}
+.background(LinearGradient(...))
+```
+
+### ScrollViewReader for Scroll-to-Top
+
+Combine with `.onChange(of:)` for scroll-to-top patterns:
+
+```swift
+@State private var scrollProxy: ScrollViewProxy?
+
+ScrollViewReader { proxy in
+  ScrollView {
+    LazyVStack {
+      ForEach(messages, id: \.id) { message in
+        MessageRow(message: message)
+      }
+      Color.clear.frame(height: 1).id("bottom")
+    }
+  }
+  .onAppear {
+    scrollProxy = proxy
+    proxy.scrollTo("bottom", anchor: .bottom)
+  }
+  .onChange(of: messages.count) {
+    scrollProxy?.scrollTo("bottom", anchor: .bottom)
+  }
+}
+```
+
+### .searchable with Scopes and Debouncing
+
+```swift
+@State private var searchText = ""
+@State private var scope: SearchScope = .all
+
+var body: some View {
+  NavigationStack {
+    List(results) { item in
+      ItemRow(item: item)
+    }
+    .searchable(
+      text: $searchText,
+      scope: $scope,
+      prompt: "Search items"
+    ) {
+      ForEach(SearchScope.allCases) { s in
+        Text(s.label).tag(s)
+      }
+    }
+    .task(id: searchText) {
+      guard !searchText.isEmpty else { return }
+      await performSearch(query: searchText)
+    }
+  }
+}
+```
+
+### safeAreaInset for Keyboard-Aware Pins
+
+```swift
+NavigationStack {
+  ScrollView {
+    content
+  }
+  .safeAreaInset(edge: .bottom) {
+    MessageInputBar()
+      .background(.ultraThinMaterial)
+  }
+}
+```
+
+The input bar stays above the keyboard automatically.
+
+### Custom Multi-Column HStack with horizontalSizeClass
+
+Adaptive layouts for compact/regular widths:
+
+```swift
+@Environment(\.horizontalSizeClass) var sizeClass
+
+var body: some View {
+  if sizeClass == .compact {
+    VStack { columnA; columnB; columnC }
+  } else {
+    HStack { columnA; columnB; columnC }
+  }
+}
 ```
 
 ### ScrollView Enhancements
@@ -1296,10 +1991,425 @@ NSLayoutConstraint.activate([
 hostingController.didMove(toParent: self)
 ```
 
+### UIViewRepresentable Lifecycle
+
+The representable calls methods in this order:
+
+1. **`makeCoordinator()`** — create the coordinator (once)
+2. **`makeUIView(context:)`** — create and configure the UIView
+3. **`updateUIView(_:context:)`** — sync SwiftUI state to UIView (called whenever bindings change)
+4. **`dismantleUIView(_:coordinator:)`** (optional) — cleanup before removal
+5. **`sizeThatFits(_:uiView:context:)`** (iOS 16+, optional) — custom sizing
+
+### Guard-Against-Redundancy Pattern
+
+Avoid update loops by checking before mutating:
+
+```swift
+func updateUIView(_ uiView: UITextView, context: Context) {
+  // Check before updating to avoid triggering delegate callbacks
+  if uiView.text != text {
+    uiView.text = text
+  }
+
+  if uiView.mapType != mapType {
+    uiView.mapType = mapType
+  }
+}
+```
+
+This prevents the UIView's delegate from triggering a state change that loops back.
+
+### .sizeThatFits() for Custom Sizing (iOS 16+)
+
+```swift
+struct CustomTextEditor: UIViewRepresentable {
+  @Binding var text: String
+
+  func makeUIView(context: Context) -> UITextView {
+    let textView = UITextView()
+    textView.delegate = context.coordinator
+    return textView
+  }
+
+  func updateUIView(_ uiView: UITextView, context: Context) {
+    if uiView.text != text {
+      uiView.text = text
+    }
+  }
+
+  @available(iOS 16.0, *)
+  func sizeThatFits(
+    _ proposal: ProposedViewSize,
+    uiView: UITextView,
+    context: Context
+  ) -> CGSize? {
+    let width = proposal.width ?? UIView.layoutFittingExpandedSize.width
+    let size = uiView.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude))
+    return CGSize(width: width, height: max(size.height, 44))
+  }
+}
+```
+
+### UIHostingConfiguration for Collection/Table Views (iOS 16+)
+
+Host SwiftUI content inside UITableViewCell or UICollectionViewCell:
+
+```swift
+var listConfiguration: UICollectionView.CellRegistration<UICollectionViewListCell, Item> {
+  UICollectionView.CellRegistration { cell, indexPath, item in
+    var config = cell.defaultContentConfiguration()
+    config.imageProperties.maximumWidth = 60
+
+    let swiftUIView = ItemDetailView(item: item)
+    cell.contentConfiguration = UIHostingConfiguration {
+      swiftUIView
+    }
+  }
+}
+```
+
+### UIHostingController.sizingOptions (iOS 16+)
+
+Control how UIHostingController sizes its view:
+
+```swift
+let hostingController = UIHostingController(rootView: SwiftUIView())
+hostingController.sizingOptions = [.intrinsicContentSize]
+// now respects SwiftUI view's ideal size
+```
+
+Options: `.intrinsicContentSize` (use ideal size), `.preferredContentSize` (use size class), default (fill container).
+
+**Common Mistakes — UIKit Interop:**
+
+```swift
+// WRONG: Storing UIKit delegates in @State
+@State var delegate: MapDelegate?
+
+func makeUIView(context: Context) -> MKMapView {
+  let map = MKMapView()
+  map.delegate = delegate  // WRONG: delegate released unexpectedly
+  return map
+}
+
+// CORRECT: Use makeCoordinator()
+func makeCoordinator() -> Coordinator { Coordinator(self) }
+
+func makeUIView(context: Context) -> MKMapView {
+  let map = MKMapView()
+  map.delegate = context.coordinator  // survives representable lifetime
+  return map
+}
+```
+
+```swift
+// WRONG: Updating UIView without checking state
+func updateUIView(_ uiView: UITextView, context: Context) {
+  uiView.text = text  // even if unchanged, triggers delegate
+}
+
+// CORRECT: Guard against redundancy
+func updateUIView(_ uiView: UITextView, context: Context) {
+  if uiView.text != text {
+    uiView.text = text
+  }
+}
+```
+
+```swift
+// WRONG: Dismissing with UIKit API
+func imagePickerController(...) {
+  presentingViewController?.dismiss(animated: true)
+}
+
+// CORRECT: Use SwiftUI @Environment(\.dismiss)
+class Coordinator: NSObject, UIImagePickerControllerDelegate {
+  @Environment(\.dismiss) private var dismiss
+
+  func imagePickerController(...) {
+    dismiss()  // SwiftUI handles it
+  }
+}
+```
+
+```swift
+// WRONG: No coordinator for state synchronization
+func makeUIView(context: Context) -> UIView {
+  let view = UIView()
+  // Can't communicate back to parent SwiftUI view
+  return view
+}
+
+// CORRECT: Use coordinator to bridge UIKit callbacks to bindings
+class Coordinator: NSObject, UITextViewDelegate {
+  var parent: TextViewRepresentable
+
+  func textViewDidChange(_ textView: UITextView) {
+    parent.text = textView.text
+  }
+}
+```
+
+```swift
+// WRONG: Hard-coding auto-layout constraints
+hostingController.view.frame = CGRect(x: 0, y: 0, width: 320, height: 480)
+
+// CORRECT: Use autolayout and constraints for adaptability
+hostingController.view.translatesAutoresizingMaskIntoConstraints = false
+NSLayoutConstraint.activate([
+  hostingController.view.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+  hostingController.view.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+  // ... etc
+])
+```
+
 **Rules:**
 - Use `makeCoordinator()` for delegates — never store UIKit delegates in SwiftUI `@State`
 - Update UIKit view in `updateUIView` based on binding changes — don't bypass the SwiftUI lifecycle
 - Use `@Environment(\.dismiss)` in representables, not `presentingViewController?.dismiss`
+- Always check before mutating UIView state to avoid feedback loops
+- Use `.sizeThatFits()` for proper intrinsic sizing in iOS 16+
+- Use `UIHostingConfiguration` to embed SwiftUI in collection/table cells
+- Set `sizingOptions = [.intrinsicContentSize]` on UIHostingController for proper sizing
+
+---
+
+## Section 8.5: Performance Profiling & Optimization
+
+### Instruments + SwiftUI Instrument
+
+Profile with the dedicated SwiftUI instrument (Instruments 26+):
+
+```bash
+# Record in Release mode with SwiftUI template
+# Xcode → Product → Profile
+```
+
+Open the SwiftUI instrument lane to see:
+- **Long View Body Updates** — views that take too long to evaluate
+- **Other Long Updates** — state changes, notifications, updates
+- **View body evaluation counts** — how many times each view's body runs
+
+### Self._printChanges() Debug API
+
+Print view update reasons during development:
+
+```swift
+var body: some View {
+  VStack {
+    // ...
+  }
+  ._printChanges()  // logs why this view updated
+}
+```
+
+Example output:
+```
+Body.View(source: "/App.swift:20", state changed, <timestamp>)
+```
+
+Use to catch unexpected updates or large state change cascades.
+
+### Lazy Loading Decision Tree
+
+Use this heuristic:
+
+- **< 50 items** → eager stacks (VStack, HStack, List)
+- **50-100 items** → consider Lazy* containers
+- **> 100 items** → always use Lazy* (LazyVStack, LazyHStack, LazyVGrid)
+
+### Observation Scope Pollution
+
+Problem: Large @Observable objects trigger all children to update when any field changes.
+
+Solution: Push reads into child views — decompose @Observable objects.
+
+```swift
+// WRONG: Single massive @Observable
+@Observable final class AppState {
+  var user: User
+  var posts: [Post]
+  var notifications: [Notification]
+  var settings: Settings
+}
+
+// Every property change updates entire tree
+
+// CORRECT: Decompose into scoped services
+@Observable final class UserService {
+  var user: User
+}
+
+@Observable final class PostService {
+  var posts: [Post]
+}
+
+// Each service used where needed; only affected children update
+```
+
+### Common Performance Mistakes
+
+```swift
+// WRONG: Heavy computation in view body
+var body: some View {
+  let expensiveSort = items.sorted { expensiveComparison($0, $1) }
+  return List(expensiveSort) { item in
+    ItemRow(item: item)
+  }
+}
+
+// CORRECT: Precompute in @State or service
+@State private var sortedItems: [Item] = []
+@State private var items: [Item] = []
+
+var body: some View {
+  List(sortedItems) { item in
+    ItemRow(item: item)
+  }
+  .onChange(of: items) { oldItems, newItems in
+    sortedItems = newItems.sorted { expensiveComparison($0, $1) }
+  }
+}
+```
+
+```swift
+// WRONG: Fast-changing environment values
+@Environment(\.geometry) var geometry  // 60 fps updates break layout optimization
+
+// CORRECT: Use @Binding or @State for changing values
+@State private var geometry: CGSize
+```
+
+```swift
+// WRONG: No memoization of expensive closures
+List(items) { item in
+  ItemRow(item: item)
+    .onTapGesture {
+      Task { await expensiveOperation(item) }  // recreated every frame
+    }
+}
+
+// CORRECT: Memoize tap handler or use @Bindable
+List(items) { item in
+  ItemRow(item: item)
+    .onTapGesture {
+      handleTap(item)
+    }
+}
+
+private func handleTap(_ item: Item) {
+  Task { await expensiveOperation(item) }
+}
+```
+
+---
+
+## Section 8.6: Architecture Patterns
+
+### @Observable Ownership Rules
+
+- **`@State` owns** — creates and mutates the instance
+- **`let` reads** — access without binding
+- **`@Bindable` writes** — mutate individual fields
+
+```swift
+@State private var userService = UserService()
+
+var body: some View {
+  @Bindable var user = userService  // can bind individual fields
+
+  VStack {
+    TextField("Name", text: $user.name)
+    // modifies userService.name
+  }
+  .environment(userService)  // child views read
+}
+```
+
+### View Composition: Extract Subviews
+
+Keep view bodies under 200 lines; extract computed properties:
+
+```swift
+// WRONG: Massive body
+var body: some View {
+  VStack {
+    // 300 lines of layout
+  }
+}
+
+// CORRECT: Extract subviews as computed properties
+var body: some View {
+  VStack {
+    headerView
+    contentView
+    footerView
+  }
+}
+
+private var headerView: some View {
+  Text("Title").font(.title)
+}
+
+private var contentView: some View {
+  List(items) { item in ItemRow(item: item) }
+}
+
+private var footerView: some View {
+  HStack { /* buttons */ }
+}
+```
+
+### @ViewBuilder for Conditional Logic
+
+Use `@ViewBuilder` functions instead of ternaries in bodies:
+
+```swift
+// WRONG: Ternary in body (forces two branches to be the same type)
+var body: some View {
+  isLoading ? AnyView(ProgressView()) : AnyView(ContentView())
+}
+
+// CORRECT: @ViewBuilder function
+var body: some View {
+  loadingState()
+}
+
+@ViewBuilder
+private func loadingState() -> some View {
+  if isLoading {
+    ProgressView()
+  } else {
+    ContentView()
+  }
+}
+```
+
+### Custom ViewModifier and Extensions
+
+Create reusable modifiers for repeated style patterns:
+
+```swift
+struct GlassCardModifier: ViewModifier {
+  func body(content: Content) -> some View {
+    content
+      .padding()
+      .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+      .shadow(radius: 8)
+  }
+}
+
+extension View {
+  func glassCard() -> some View {
+    modifier(GlassCardModifier())
+  }
+}
+
+// Usage
+VStack { /* content */ }
+  .glassCard()
+```
 
 ---
 

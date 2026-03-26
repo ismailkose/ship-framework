@@ -6,6 +6,85 @@ To update an existing project, run `bash update.sh` — it handles everything au
 
 ---
 
+## 2026.03.25 — iOS Reference Deep-Dive + 5 New Frameworks + Modern API Modernization
+
+Comprehensive reference update informed by [dpearson2699/swift-ios-skills](https://github.com/dpearson2699/swift-ios-skills). All 41 existing framework files updated, 5 new frameworks added, both core reference files substantially expanded.
+
+### Added — 5 New Framework References (`references/frameworks/`)
+- **apple-on-device-ai.md** — Foundation Models framework, on-device inference, tool calling, guided generation, streaming
+- **swift-charts.md** — Swift Charts: BarMark, LineMark, AreaMark, PointMark, SectorMark, axes, selection, scrolling
+- **tipkit.md** — TipKit: inline/popover tips, parameter and event rules, eligibility, TipGroup
+- **natural-language.md** — NLTagger, NLEmbedding, sentiment analysis, tokenization, NER, language detection
+- **webkit.md** — WKWebView in SwiftUI, JavaScript bridging, navigation policies, cookie management
+
+### Changed — SwiftUI Core Reference (`swiftui-core.md`, +1110 lines)
+- **Section 1 Navigation:** iOS 26 Tab APIs (`Tab(role: .search)`, `.tabBarMinimizeBehavior()`, `.tabViewBottomAccessory {}`, `TabSection`), `.presentationSizing` fine-tuning, `.dismissalConfirmationDialog()`, 7 additional common mistakes
+- **Section 4 Animation:** All 10 symbol effects with rendering modes, `@Animatable` macro, `withAnimation` completion callbacks, `ContentTransition`, Navigation Zoom Transition, PhaseAnimator per-phase curves, 7 common mistakes (was 0)
+- **Section 5 Gestures:** `MagnifyGesture`/`RotateGesture` (iOS 17+), `@GestureState` reset behavior, gesture composition patterns, `GestureMask` control, parent/child conflict resolution
+- **Section 6 Layout:** `LazyVStack`/`LazyHStack` guidance, `.scrollContentBackground(.hidden)`, `ScrollViewReader`, `.searchable` with scopes + debouncing, `.safeAreaInset(edge:)`
+- **Section 8 UIKit Interop:** Lifecycle table, guard-against-redundancy pattern, `.sizeThatFits()`, `UIHostingConfiguration`, `UIHostingController.sizingOptions`
+- **NEW Section 8.5 Performance:** Instruments profiling, view body evaluation analysis, `Self._printChanges()`, lazy loading decision guide, observation scope pollution
+- **NEW Section 8.6 Patterns:** `@Observable` ownership rules, view composition, `@ViewBuilder`, custom `ViewModifier`
+
+### Changed — Swift Essentials Reference (`swift-essentials.md`, +791 lines)
+- **Language:** if/switch expressions, modern collection APIs, `FormatStyle`, string interpolation extensions
+- **NEW Concurrency section:** Triage workflow, `AsyncSequence`/`AsyncStream`, `Mutex` vs `OSAllocatedUnfairLock` vs `Atomic` decision guide, GCD prohibition, 8 additional common mistakes
+- **Codable:** Lossy array decoding, single value containers, `decodeIfPresent` defaults, Codable with SwiftData, `keyDecodingStrategy` trade-offs
+- **Testing:** `confirmation()`, parameterized tests with `zip()`, custom test argument generators, `TestScoping` traits, `withKnownIssue()`, exit testing
+
+### Changed — Tier 1 Framework Updates (12 files, major API modernization)
+- **healthkit.md** — Async/await `HKSampleQueryDescriptor` replacing callbacks, `HKUnit` reference table, privacy-by-silence, 6+ new mistakes
+- **storekit.md** — `StoreView`/`ProductView`, `AppStore.sync()`, `.currentEntitlementTask(for:)`, purchase options, subscription renewal states, 5+ new mistakes
+- **coreml.md** — `MLTensor` (iOS 18+), `MLState`, `CoreMLRequest`, `MLComputePlan`, async model loading, batch predictions, actor-based caching
+- **cloudkit.md** — `CKSyncEngine` (iOS 17+), `CKError` handling table, three-way merge, iCloud Drive sync, `NSUbiquitousKeyValueStore`
+- **swiftdata.md** — `#Unique`, model inheritance (iOS 26+), `@Attribute` options, `modelContext.transaction {}`, bulk delete, `@ModelActor`
+- **mapkit.md** — `CLServiceSession` (iOS 18+), `CLLocationUpdate.liveUpdates()`, `PlaceDescriptor` (iOS 26+), `MKGeocodingRequest`, search debouncing
+- **live-activities.md** — Push-to-start (iOS 17.2+), scheduled activities (iOS 26+), `ActivityStyle`, channel-based push, APNs payload format
+- **app-intents.md** — `IndexedEntity` (iOS 26+), `SnippetIntent`, `IntentValueQuery`, `ControlConfigurationIntent`, deprecated macro warnings
+- **networking.md** — `RequestMiddleware` protocol, `withRetry()`, `APIClient` architecture, `AsyncStream` pagination, `NWPathMonitor`
+- **speech.md** — `SpeechAnalyzer` (iOS 26+), `SpeechTranscriber`, comparison table vs `SFSpeechRecognizer`
+- **alarmkit.md** — `AlarmManager` API, `Alarm.Schedule` types, `CountdownDuration`, state machine, `AlarmButton`
+- **vision-framework.md** — Modern iOS 18+ struct-based requests, `RecognizeDocumentsRequest`, person instance masks, hand/animal pose detection
+
+### Changed — Tier 2 Framework Updates (13 files, moderate improvements)
+- **widgetkit.md** — `AppIntentTimelineProvider`, `WidgetPushHandler`, `WidgetAccentedRenderingMode`, CarPlay widgets
+- **push-notifications.md** — Async/await delegates, `@Observable` DeepLinkRouter, provisional/critical alerts
+- **background-processing.md** — `BGContinuedProcessingTask` (iOS 26+), resource requirements, Swift 6 concurrency
+- **accessibility.md** — `@AccessibilityFocusState`, `.isModal` trait, custom rotors, Assistive Access (iOS 18+)
+- **localization.md** — `LocalizedStringResource`, grammar agreement inflection, `@ScaledMetric`, pseudolocalization
+- **security.md** — `SecAccessControl` flags, `.biometryCurrentSet` vs `.biometryAny`, Secure Enclave persistence
+- **debugging.md** — `mxSignpost()`, `OSSignposter` actor, `xctrace` CLI, Thread Sanitizer patterns
+- **metrickit.md** — `MXCallStackTree` symbolication, `MXSignpostIntervalData`, app exit metrics, `pastPayloads`
+- **core-bluetooth.md** — RSSI filtering, peripheral reference management, background BLE, state restoration
+- **realitykit.md** — `RealityView` SwiftUI-first, spatial gesture targeting, `SceneEvents.Update`, visionOS callout
+- **shareplay.md** — `GroupSessionMessenger` delivery modes, `GroupSessionJournal`, late-joiner handling
+- **energykit.md** — `ElectricityGuidance.Query`, `EnergyVenue`, `ElectricalMeasurement`, `ElectricityInsightQuery`
+- **callkit.md** — Async/await VoIP push, E.164 formatting, outgoing call flow, `@unchecked Sendable`
+
+### Changed — Tier 3 Framework Updates (14 files, minor additions)
+- **contacts.md** — `.limited` authorization, composite key descriptors, change observer
+- **eventkit.md** — Write-only access, `EKStructuredLocation`, async reminders
+- **musickit.md** — Subscription observation, player type contrast, offer modifier
+- **weatherkit.md** — `WeatherAvailability`, selective queries, SF Symbol names, caching actor
+- **photos-camera.md** — `Transferable`, composite filters, downsampling, concurrent loading
+- **core-motion.md** — `CMBatchedSensorManager`, polling vs callback, confidence checking
+- **core-nfc.md** — Tag status checking, type switch pattern, error filtering
+- **authentication.md** — `.transferred` state, revocation observer, SwiftUI OAuth, JWT validation
+- **app-store-review.md** — Phased release table, expedited review, video specs, ATT timing
+- **passkit.md** — Button type table, `PaymentConfig` enum, shipping update delegate
+- **homekit.md** — `DeviceCriteria`, Matter handler signatures, characteristic metadata
+- **device-integrity.md** — Actor-based `AppAttestManager`, retry backoff, `DCError` handling
+- **pencilkit.md** — PaperKit comparison, stroke interpolation, programmatic construction
+- **permissionkit.md** — `AskCenter`, all 9 communication actions, `PermissionButton`
+
+### Stats
+- Framework reference count: 41 → 46
+- `swiftui-core.md`: ~1,371 → 2,481 lines (+81%)
+- `swift-essentials.md`: ~680 → 1,471 lines (+116%)
+- Source: [dpearson2699/swift-ios-skills](https://github.com/dpearson2699/swift-ios-skills) (57 skills, iOS 26+ / Swift 6.2)
+
+---
+
 ## 2026.03.23 — Production Chat UI Reference + Quality Loop + Prompt Sharpening + No-Hack APIs
 
 ### Added — Rule 19: Apple API First (`team-rules.md`)

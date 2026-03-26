@@ -105,15 +105,203 @@ func userNotificationCenter(
 }
 ```
 
+## Modernized Delegate Methods
+
+iOS 16+ allows async/await in notification delegates instead of completion handlers:
+
+```swift
+@MainActor
+final class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate {
+    static let shared = NotificationDelegate()
+
+    // Modern async/await foreground presentation
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification
+    ) async -> UNNotificationPresentationOptions {
+        // Return which presentation elements to show
+        return [.banner, .sound, .badge]
+    }
+
+    // Modern async/await tap handling
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse
+    ) async {
+        let userInfo = response.notification.request.content.userInfo
+        let actionIdentifier = response.actionIdentifier
+        // Handle tap or action
+    }
+}
+```
+
+## Deep-Linking with @Observable Router
+
+Use a shared `@Observable` router to handle notification deep links:
+
+```swift
+@Observable @MainActor
+final class DeepLinkRouter {
+    var pendingDestination: AppDestination?
+}
+
+// In NotificationDelegate:
+func userNotificationCenter(
+    _ center: UNUserNotificationCenter,
+    didReceive response: UNNotificationResponse
+) async {
+    guard let id = response.notification.request.content.userInfo["messageId"] as? String else { return }
+    DeepLinkRouter.shared.pendingDestination = .chat(id: id)
+}
+
+// In SwiftUI view:
+.onChange(of: router.pendingDestination) { _, destination in
+    if let destination {
+        path.append(destination)
+        router.pendingDestination = nil
+    }
+}
+```
+
+## Provisional and Critical Alerts
+
+### Provisional Notifications
+
+Request provisional authorization to deliver silently to Notification Center without interrupting the user:
+
+```swift
+try await center.requestAuthorization(
+    options: [.alert, .sound, .badge, .provisional]
+)
+```
+
+The user can then choose to promote them to full notifications.
+
+### Critical Alerts
+
+Critical alerts bypass Do Not Disturb and require special entitlement (request from Apple Developer account). Use only for health, safety, or security:
+
+```swift
+try await center.requestAuthorization(
+    options: [.alert, .sound, .badge, .criticalAlert]
+)
+```
+
+## Silent Push with UIBackgroundFetchResult
+
+For background fetches triggered by silent push (`content-available: 1`), use async/await with `UIBackgroundFetchResult`:
+
+```swift
+func application(
+    _ application: UIApplication,
+    didReceiveRemoteNotification userInfo: [AnyHashable: Any]
+) async -> UIBackgroundFetchResult {
+    guard let updateType = userInfo["updateType"] as? String else {
+        return .noData
+    }
+    do {
+        try await DataSyncService.shared.sync(trigger: updateType)
+        return .newData
+    } catch {
+        return .failed
+    }
+}
+```
+
 ## Common Mistakes
 
-| ❌ Incorrect | ✅ Correct |
-|------------|-----------|
-| Requesting notifications without checking `requestAuthorization()` result | Always check granted boolean; only register for remote notifications if approved |
-| Calling `registerForRemoteNotifications()` on background thread | Dispatch to main thread: `DispatchQueue.main.async { ... }` |
-| Not implementing `willPresent()` delegate; missing foreground notifications | Implement both `willPresent()` and `didReceive()` in UNUserNotificationCenterDelegate |
-| Provisional auth without clear explanation | Use `.provisional` carefully; only for non-critical notifications |
-| Ignoring `interruptionLevel`; all notifications equally disruptive | Use `.timeSensitive` only for urgent alerts (calls, alarms); `.passive` for background info |
+1. **Register for remote notifications before requesting authorization.**
+   Call `requestAuthorization` first, then `registerForRemoteNotifications()`.
+
+2. **Convert device token with `String(data:encoding:)`.**
+   Use hex: `deviceToken.map { String(format: "%02x", $0) }.joined()`.
+
+3. **Assume notifications always arrive.**
+   APNs is best-effort. Design features that degrade gracefully; use background refresh as fallback.
+
+4. **Put sensitive data directly in the notification payload.**
+   Use `mutable-content: 1` with a Notification Service Extension to modify content before display.
+
+5. **Forget foreground handling.**
+   Without `willPresent`, notifications are silently suppressed. Implement and return `.banner`, `.sound`, `.badge`.
+
+6. **Set delegate too late or use SwiftUI without AppDelegate adaptor.**
+   Set delegate in `App.init`; use `UIApplicationDelegateAdaptor` for APNs token callbacks.
+
+7. **Send device token only once.**
+   Device tokens change. Re-send on every callback, not just the first time.
+
+8. **Ignore async/await modernization.**
+   Delegate methods are now `async` and return directly instead of using completion handlers.
+
+9. **Forget to handle provisional and critical alert options.**
+   Always check and respect the authorization status; provisional may require user upgrades.
+
+10. **Use deprecated completion handler patterns.**
+    Use async/await instead of closure-based `willPresent` and `didReceive` callbacks.
+
+## Deep-Linking from Notifications with @Observable Router
+
+Route notification taps to the correct screen using a shared `@Observable` router:
+
+```swift
+@Observable @MainActor
+final class DeepLinkRouter {
+    var pendingDestination: AppDestination?
+}
+
+// In NotificationDelegate:
+func userNotificationCenter(
+    _ center: UNUserNotificationCenter,
+    didReceive response: UNNotificationResponse
+) async {
+    guard let id = response.notification.request.content.userInfo["messageId"] as? String else { return }
+    DeepLinkRouter.shared.pendingDestination = .chat(id: id)
+}
+
+// In SwiftUI view:
+.onChange(of: router.pendingDestination) { _, destination in
+    if let destination {
+        path.append(destination)
+        router.pendingDestination = nil
+    }
+}
+```
+
+## Provisional & Critical Alerts
+
+**Provisional Notifications:** Deliver silently to Notification Center without interrupting the user; user can later promote to full notifications:
+
+```swift
+try await center.requestAuthorization(options: [.alert, .sound, .badge, .provisional])
+```
+
+**Critical Alerts:** Bypass Do Not Disturb and require special Apple entitlement. Use only for health/safety/security:
+
+```swift
+try await center.requestAuthorization(options: [.alert, .sound, .badge, .criticalAlert])
+```
+
+## Silent Push with UIBackgroundFetchResult
+
+For background fetches triggered by silent push (`content-available: 1`), use async/await with `UIBackgroundFetchResult`:
+
+```swift
+func application(
+    _ application: UIApplication,
+    didReceiveRemoteNotification userInfo: [AnyHashable: Any]
+) async -> UIBackgroundFetchResult {
+    guard let updateType = userInfo["updateType"] as? String else {
+        return .noData
+    }
+    do {
+        try await DataSyncService.shared.sync(trigger: updateType)
+        return .newData
+    } catch {
+        return .failed
+    }
+}
+```
 
 ## Review Checklist
 

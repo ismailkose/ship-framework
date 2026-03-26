@@ -23,8 +23,139 @@
 | `CLLocationManager` | Location access & updates | Requests permission, provides coordinates |
 | `CLAuthorizationStatus` | Permission state | `.notDetermined`, `.denied`, `.authorizedWhenInUse`, `.authorizedAlways` |
 | `CLGeocoder` | Reverse geocoding | Coordinates → address; address → coordinates |
+| `CLLocationUpdate.liveUpdates()` | Streaming location updates | Modern async/await replacement for delegates |
+| `CLServiceSession` (iOS 18+) | Manages authorization lifetime | Declare scope for location services |
+| `MKGeocodingRequest` / `MKReverseGeocodingRequest` (iOS 26+) | MapKit-native geocoding | Returns `MKMapItem` with richer data |
+| `PlaceDescriptor` (iOS 26+) | Create place references | From coordinates or addresses |
+| `MapCameraPosition` variants | Camera control | `.automatic`, `.region`, `.camera`, `.item`, `.userLocation`, `.rect` |
+| `.mapInteractionModes()` | Control map gestures | Pan, zoom, rotate, pitch |
 
 ## Code Examples
+
+### CLLocationUpdate.liveUpdates() (iOS 17+)
+
+```swift
+// Modern streaming location with async/await
+@Observable
+final class LocationTracker {
+    var currentLocation: CLLocation?
+
+    func startTracking() {
+        Task {
+            for try await update in CLLocationUpdate.liveUpdates() {
+                guard let location = update.location,
+                      location.horizontalAccuracy < 50 else { continue }
+                self.currentLocation = location
+            }
+        }
+    }
+}
+```
+
+### CLServiceSession (iOS 18+)
+
+```swift
+// Declare authorization scope for the activity lifetime
+let session = CLServiceSession(
+    authorization: .whenInUse,
+    fullAccuracyPurposeKey: "NearbySearchPurpose"
+)
+// Hold session; release when done
+```
+
+### MapCameraPosition Variants
+
+```swift
+// Center on region
+@State private var position: MapCameraPosition = .region(
+    MKCoordinateRegion(
+        center: CLLocationCoordinate2D(latitude: 37.334, longitude: -122.009),
+        span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+    )
+)
+
+// Follow user location
+@State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
+
+// 3D camera angle
+@State private var position: MapCameraPosition = .camera(
+    MapCamera(centerCoordinate: applePark, distance: 1000, heading: 90, pitch: 60)
+)
+
+// Frame specific items
+position = .item(MKMapItem.forCurrentLocation())
+position = .rect(MKMapRect(...))
+```
+
+### Map Interaction Modes
+
+```swift
+.mapInteractionModes(.all)           // Default: pan, zoom, rotate, pitch
+.mapInteractionModes(.pan)           // Pan only
+.mapInteractionModes([.pan, .zoom])  // Pan and zoom
+.mapInteractionModes([])             // Static map (no interaction)
+```
+
+### Search Debouncing with `.task(id:)`
+
+```swift
+@State private var searchText = ""
+@State private var results: [MKMapItem] = []
+
+var body: some View {
+    TextField("Search", text: $searchText)
+        .task(id: searchText) {
+            guard !searchText.isEmpty else { results = []; return }
+            try? await Task.sleep(for: .milliseconds(300))  // Debounce 300ms
+            results = try? await performSearch(searchText)
+        }
+}
+```
+
+### MKGeocodingRequest / MKReverseGeocodingRequest (iOS 26+)
+
+```swift
+@available(iOS 26, *)
+func reverseGeocode(location: CLLocation) async throws -> MKMapItem? {
+    guard let request = MKReverseGeocodingRequest(location: location) else { return nil }
+    return try await request.mapItems.first
+}
+
+@available(iOS 26, *)
+func forwardGeocode(address: String) async throws -> [MKMapItem] {
+    guard let request = MKGeocodingRequest(addressString: address) else { return [] }
+    return try await request.mapItems
+}
+```
+
+### PlaceDescriptor (iOS 26+)
+
+```swift
+@available(iOS 26, *)
+func lookupPlace(name: String, coordinate: CLLocationCoordinate2D) async throws -> MKMapItem {
+    let descriptor = PlaceDescriptor(
+        representations: [.coordinate(coordinate)],
+        commonName: name
+    )
+    let request = MKMapItemRequest(placeDescriptor: descriptor)
+    return try await request.mapItem
+}
+```
+
+### Cycling Directions (iOS 26+)
+
+```swift
+@available(iOS 26, *)
+func getCyclingDirections(to destination: MKMapItem) async throws -> MKRoute? {
+    let request = MKDirections.Request()
+    request.source = MKMapItem.forCurrentLocation()
+    request.destination = destination
+    request.transportType = .cycling
+    return try await MKDirections(request: request).calculate().routes.first
+}
+```
+
+## Code Examples (Legacy)
 
 ```swift
 // 1. Basic map with marker and gesture response
@@ -164,6 +295,13 @@ func reverseGeocode(coordinate: CLLocationCoordinate2D) async {
 - [ ] Map zoom levels reasonable for use case (not too zoomed/out)
 - [ ] User notified if location permission denied
 - [ ] Sensitive location data not logged or stored insecurely
+- [ ] `CLLocationUpdate.liveUpdates()` used instead of CLLocationManagerDelegate (iOS 17+)
+- [ ] `CLServiceSession` declared explicitly for authorization scope (iOS 18+)
+- [ ] Search queries debounced with `.task(id:)` (at least 300ms)
+- [ ] `MKGeocodingRequest` / `MKReverseGeocodingRequest` used for MapKit-native geocoding (iOS 26+)
+- [ ] `PlaceDescriptor` used for place references (iOS 26+)
+- [ ] `.mapInteractionModes()` restricts gestures appropriately
+- [ ] Cycling directions support (iOS 26+) when applicable
 
 ---
 _Source: Apple Developer Documentation · Condensed for Ship Framework agent reference_

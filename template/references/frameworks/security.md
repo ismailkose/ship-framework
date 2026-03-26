@@ -100,6 +100,58 @@ func verifySignature(_ data: Data, signature: Data, publicKey: P256.Signing.Publ
 }
 ```
 
+### Secure Enclave SecAccessControl Flags
+
+Use `SecAccessControlCreateWithFlags()` to define access requirements for Secure
+Enclave keys. The distinction between biometric flags determines behavior when
+biometric enrollment changes:
+
+- `.biometryCurrentSet` — Requires the current set of enrolled biometrics; the
+  item becomes inaccessible if Face ID or Touch ID enrollment changes. Most
+  secure for authentication keys. **Recommended.**
+- `.biometryAny` — Requires biometry but survives enrollment changes. Use only
+  if your security model permits access by any enrolled biometric on the device.
+
+For maximum security, always pair with `kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly`,
+the highest accessibility tier. This ensures the item is permanently deleted if
+the user removes the device passcode.
+
+```swift
+// High-security authentication key — invalidated if biometric enrollment changes
+let authControl = SecAccessControlCreateWithFlags(
+    nil,
+    kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly,
+    [.privateKeyUsage, .biometryCurrentSet],
+    nil
+)!
+
+// Less strict — accept any enrolled biometric
+let lenientControl = SecAccessControlCreateWithFlags(
+    nil,
+    kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly,
+    [.privateKeyUsage, .biometryAny],
+    nil
+)!
+```
+
+### Persisting Secure Enclave Keys
+
+Secure Enclave private keys serialize via `dataRepresentation` for Keychain storage.
+This enables key recovery across app restarts:
+
+```swift
+// Serialize and store
+let keyData = privateKey.dataRepresentation
+try saveToKeychain(account: "se-auth-key", data: keyData, service: "keys")
+
+// Retrieve and restore
+let stored = try readFromKeychain(account: "se-auth-key", service: "keys")
+let restored = try SecureEnclave.P256.Signing.PrivateKey(dataRepresentation: stored)
+```
+
+**Important:** The `dataRepresentation` is device-and-passcode-bound. Changing
+the passcode requires re-wrapping stored keys.
+
 ---
 
 ## Common Mistakes

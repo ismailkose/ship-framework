@@ -137,6 +137,87 @@ func controlPlayback() async throws {
 }
 ```
 
+### Example 4b: Check current subscription and observe updates
+```swift
+func checkSubscription() async throws -> Bool {
+    let subscription = try await MusicSubscription.current
+    return subscription.canPlayCatalogContent
+}
+
+// Observe subscription changes
+func observeSubscription() async {
+    for await subscription in MusicSubscription.subscriptionUpdates {
+        if subscription.canPlayCatalogContent {
+            // Enable full playback UI
+        } else {
+            // Show subscription offer
+        }
+    }
+}
+```
+
+### Example 4c: Show subscription offer sheet
+```swift
+struct MusicOfferView: View {
+    @State private var showOffer = false
+
+    var body: some View {
+        Button("Subscribe to Apple Music") {
+            showOffer = true
+        }
+        .musicSubscriptionOffer(isPresented: $showOffer)
+    }
+}
+```
+
+### Example 4d: SystemMusicPlayer vs ApplicationMusicPlayer
+```swift
+// CORRECT: App-scoped playback (use ApplicationMusicPlayer)
+let player = ApplicationMusicPlayer.shared
+
+// WRONG: Controls system Music app (avoid for app-specific playback)
+let systemPlayer = SystemMusicPlayer.shared
+```
+
+### MusicSubscription.current and subscriptionUpdates
+
+Check current subscription status and observe subscription changes:
+
+```swift
+func checkSubscription() async throws -> Bool {
+    let subscription = try await MusicSubscription.current
+    return subscription.canPlayCatalogContent
+}
+
+// Observe subscription changes
+func observeSubscription() async {
+    for await subscription in MusicSubscription.subscriptionUpdates {
+        if subscription.canPlayCatalogContent {
+            // Enable full playback UI
+        } else {
+            // Show subscription offer
+        }
+    }
+}
+```
+
+### musicSubscriptionOffer Modifier
+
+Present the Apple Music subscription offer sheet when the user is not subscribed:
+
+```swift
+struct MusicOfferView: View {
+    @State private var showOffer = false
+
+    var body: some View {
+        Button("Subscribe to Apple Music") {
+            showOffer = true
+        }
+        .musicSubscriptionOffer(isPresented: $showOffer)
+    }
+}
+```
+
 ### Example 5: Check subscription status
 ```swift
 import MusicKit

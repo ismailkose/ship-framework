@@ -31,13 +31,14 @@
 
 ## Code Examples
 
-### Example 1: Scan and connect to BLE peripheral
+### Example 1: Scan and connect to BLE peripheral with RSSI filtering
 ```swift
 import CoreBluetooth
 
 class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     var centralManager: CBCentralManager!
     var connectedPeripheral: CBPeripheral?
+    private let rssiThreshold: Int = -70  // Ignore weaker signals
 
     override init() {
         super.init()
@@ -53,6 +54,28 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         let serviceUUIDs = [CBUUID(string: "180A")] // Device Info Service (example)
         centralManager.scanForPeripherals(withServices: serviceUUIDs, options: nil)
         print("Scanning...")
+    }
+
+    func centralManager(
+        _ central: CBCentralManager,
+        didDiscover peripheral: CBPeripheral,
+        advertisementData: [String: Any],
+        rssi RSSI: NSNumber
+    ) {
+        // Filter by RSSI to avoid weak/distant signals
+        guard RSSI.intValue > rssiThreshold else {
+            return  // Ignore weak signals
+        }
+
+        print("Discovered: \(peripheral.name ?? "Unknown") at \(RSSI) dBm")
+
+        // IMPORTANT: Retain the peripheral — Core Bluetooth does not keep a reference
+        if connectedPeripheral == nil {
+            connectedPeripheral = peripheral
+            connectedPeripheral?.delegate = self
+            centralManager.connect(peripheral, options: nil)
+            centralManager.stopScan()
+        }
     }
 
     // MARK: - CBCentralManagerDelegate
@@ -117,6 +140,7 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
         characteristics.forEach { characteristic in
             print("  Characteristic: \(characteristic.uuid)")
 
+            // Always check properties before attempting operations
             if characteristic.properties.contains(.read) {
                 peripheral.readValue(for: characteristic)
             }
@@ -124,6 +148,23 @@ class BLEManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
             if characteristic.properties.contains(.notify) {
                 peripheral.setNotifyValue(true, for: characteristic)
             }
+
+            // Check write capability before writing
+            if characteristic.properties.contains(.write) ||
+               characteristic.properties.contains(.writeWithoutResponse) {
+                print("    Characteristic supports write")
+            }
+        }
+    }
+
+    func writeValue(_ data: Data, to characteristic: CBCharacteristic, on peripheral: CBPeripheral) {
+        // Always check before writing
+        if characteristic.properties.contains(.writeWithoutResponse) {
+            peripheral.writeValue(data, for: characteristic, type: .withoutResponse)
+        } else if characteristic.properties.contains(.write) {
+            peripheral.writeValue(data, for: characteristic, type: .withResponse)
+        } else {
+            print("Characteristic does not support write")
         }
     }
 
@@ -236,12 +277,34 @@ class BLEManager {
         if let peripherals = dict[CBCentralManagerRestoredStatePeripheralsKey] as? [CBPeripheral] {
             peripherals.forEach { peripheral in
                 print("Restoring connection to \(peripheral.name ?? "device")")
+                peripheral.delegate = self  // Re-assign delegate
                 central.connect(peripheral, options: nil)
             }
         }
     }
 }
 ```
+
+### State Restoration Details
+
+When the system relaunches your app for a BLE event (background central or
+peripheral mode), the `willRestoreState` delegate callback fires **immediately**,
+before `centralManagerDidUpdateState` or `peripheralManagerDidUpdateState`.
+
+**For central manager state restoration:**
+- Restore prior peripheral references from
+  `CBCentralManagerRestoredStatePeripheralsKey`
+- Restore scan services from `CBCentralManagerRestoredStateScanServicesKey` if
+  scanning was active
+- Re-assign delegates and retain peripherals in `willRestoreState`
+
+**For peripheral manager state restoration:**
+- Restore services from `CBPeripheralManagerRestoredStateServicesKey`
+- Restore advertising state from `CBPeripheralManagerRestoredStateAdvertisementDataKey`
+- Resume advertising or service setup after state restoration
+
+The system only restores state if the app was backgrounded (not force-quit) and
+the appropriate background mode is enabled in Info.plist.
 
 ---
 
@@ -260,6 +323,28 @@ if centralManager.state == .poweredOn {
     print("Bluetooth not available")
 }
 ```
+
+### ❌ Losing the peripheral reference
+```swift
+// Bad: Peripheral is deallocated immediately after discovery
+func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, ...) {
+    central.connect(peripheral, options: nil)  // peripheral is not retained
+}
+```
+✅ **Fix:** Hold a strong reference to the peripheral
+```swift
+class BLEManager {
+    var discoveredPeripheral: CBPeripheral?  // Strong reference
+
+    func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, ...) {
+        discoveredPeripheral = peripheral  // Retain the peripheral
+        peripheral.delegate = self
+        central.connect(peripheral, options: nil)
+    }
+}
+```
+Core Bluetooth does not retain discovered peripherals. Without a strong reference,
+the peripheral is deallocated and the connection fails silently.
 
 ### ❌ Forgetting to set delegate before discovery
 ```swift

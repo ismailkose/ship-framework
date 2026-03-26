@@ -74,19 +74,78 @@ if CMPedometer.isStepCountingAvailable {
 }
 ```
 
-**Example 3: Activity classification with CMMotionActivityManager**
+**Example 3: Activity classification with CMMotionActivityManager and confidence**
 ```swift
 import CoreMotion
 
 let activityManager = CMMotionActivityManager()
 
-activityManager.queryActivityStarting(from: Date().addingTimeInterval(-3600), to: Date()) { activities, error in
-    activities?.forEach { activity in
-        if activity.walking { print("User was walking") }
-        if activity.running { print("User was running") }
-        if activity.cycling { print("User was cycling") }
-        if activity.stationary { print("User was stationary") }
+activityManager.startActivityUpdates(to: .main) { activity in
+    guard let activity else { return }
+
+    // Check confidence level before acting on activity
+    if activity.walking && activity.confidence == .high {
+        print("Walking with high confidence")
+    } else if activity.running && activity.confidence != .low {
+        print("Running")
+    } else if activity.automotive && activity.confidence == .high {
+        print("In vehicle with high confidence")
     }
+}
+```
+
+**Example 3b: Polling vs callback pattern**
+```swift
+// Polling pattern (for games - no handler, just poll each frame)
+motionManager.startAccelerometerUpdates()
+// In your game loop:
+if let data = motionManager.accelerometerData {
+    let tilt = data.acceleration.x
+    // Use tilt data
+}
+
+// Callback pattern (for UI updates)
+motionManager.startAccelerometerUpdates(to: .main) { data, error in
+    guard let acceleration = data?.acceleration else { return }
+    print("x: \(acceleration.x), y: \(acceleration.y)")
+}
+```
+
+**Example 3c: Check attitude reference frame availability**
+```swift
+let available = CMMotionManager.availableAttitudeReferenceFrames()
+if available.contains(.xTrueNorthZVertical) {
+    // Safe to use true north
+    motionManager.startDeviceMotionUpdates(using: .xTrueNorthZVertical, to: .main) { _, _ in }
+}
+```
+
+**Example 3c: Activity Confidence Checking**
+```swift
+let activityManager = CMMotionActivityManager()
+
+activityManager.startActivityUpdates(to: .main) { activity in
+    guard let activity else { return }
+
+    // Check confidence level before acting on activity
+    if activity.walking && activity.confidence == .high {
+        print("Walking with high confidence")
+    } else if activity.running && activity.confidence != .low {
+        print("Running")
+    } else if activity.automotive && activity.confidence == .high {
+        print("In vehicle with high confidence")
+    }
+}
+```
+
+**Example 3d: CMBatchedSensorManager (iOS 17+)**
+```swift
+// For higher frequency or batch sampling on iOS 17+
+let batchedManager = CMBatchedSensorManager()
+if batchedManager.accelerometerAvailable {
+    batchedManager.startAccelerometerUpdates(to: .main, withHandler: { data in
+        // Handle batched samples
+    })
 }
 ```
 

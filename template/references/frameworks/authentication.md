@@ -102,6 +102,18 @@ func signInWithGoogle() {
     session.start()
 }
 
+// 3b. SwiftUI: Web-based OAuth with environment key
+@MainActor
+func signInWithProviderSwiftUI() async throws {
+    @Environment(\.webAuthenticationSession) var webAuthSession
+
+    let url = URL(string: "https://provider.com/oauth/authorize?client_id=YOUR_ID")!
+    let callbackURL = try await webAuthSession.authenticate(
+        using: url, callback: .customScheme("myapp")
+    )
+    // Extract authorization code from callbackURL and exchange on backend
+}
+
 // 4. Keychain: Store access token securely
 func storeTokenInKeychain(_ token: String) {
     let query: [String: Any] = [
@@ -124,6 +136,8 @@ func storeTokenInKeychain(_ token: String) {
 | Ignoring `identity token` verification | Verify JWT signature on backend; don't trust client alone |
 | Not setting `presentationContextProvider` on ASAuthorizationController | Must set delegate & context provider; controller won't display |
 | Storing identity token in memory indefinitely | Refresh tokens periodically; revoke on logout |
+| Not handling `.transferred` credential state | Detect team transfer and migrate user identifier in client |
+| Using client-side JWT validation only | Validate signature on backend against Apple's public keys at `https://appleid.apple.com/auth/keys`; verify `iss`, `aud`, `exp` |
 
 ## Review Checklist
 

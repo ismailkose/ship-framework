@@ -219,9 +219,17 @@ let paymentRequest = PKPaymentRequest()
 paymentRequest.supportedNetworks = [.visa, .masterCard]
 // No merchantCapabilities set
 ```
-✅ **Fix:** Set appropriate capabilities
+✅ **Fix:** Set appropriate capabilities and use centralized configuration
 ```swift
-paymentRequest.supportedNetworks = [.visa, .masterCard, .amex]
+enum PaymentConfig {
+    static let merchantIdentifier = "merchant.com.example.app"
+    static let countryCode = "US"
+    static let currencyCode = "USD"
+    static let supportedNetworks: [PKPaymentNetwork] = [.visa, .masterCard, .amex]
+}
+
+paymentRequest.merchantIdentifier = PaymentConfig.merchantIdentifier
+paymentRequest.supportedNetworks = PaymentConfig.supportedNetworks
 paymentRequest.merchantCapabilities = [.capability3DS, .supportsEMV]
 ```
 
@@ -250,10 +258,21 @@ func paymentAuthorizationViewController(...) {
 let paymentRequest = PKPaymentRequest()
 // No requiredBillingContactFields
 ```
-✅ **Fix:** Request necessary contact fields
+✅ **Fix:** Request necessary contact fields and handle shipping updates
 ```swift
 paymentRequest.requiredBillingContactFields = [.postalAddress, .name]
 paymentRequest.requiredShippingContactFields = [.postalAddress, .email, .phone]
+
+// In delegate: handle shipping method selection
+func paymentAuthorizationViewController(
+    _ controller: PKPaymentAuthorizationViewController,
+    didSelectShippingMethod shippingMethod: PKShippingMethod,
+    handler completion: @escaping (PKPaymentRequestShippingMethodUpdate) -> Void
+) {
+    let updatedItems = recalculateItems(with: shippingMethod)
+    let update = PKPaymentRequestShippingMethodUpdate(paymentSummaryItems: updatedItems)
+    completion(update)
+}
 ```
 
 ### ❌ Not handling pass library errors

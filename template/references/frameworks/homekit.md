@@ -266,10 +266,25 @@ characteristic.writeValue(true) { error in
     print("Changed")
 }
 
-// ✅ CORRECT: Check permission metadata
-if characteristic.metadata?.writableWhenNotificationEnabled == false {
-    print("Characteristic is read-only")
+// ✅ CORRECT: Check permission metadata first
+if let metadata = characteristic.metadata {
+    let maxValue = metadata.maximumValue?.intValue ?? 100
+    let safeValue = min(brightness, maxValue)
+    characteristic.writeValue(safeValue) { _ in }
 }
+```
+
+**Mistake 6: Confusing Matter device criteria patterns**
+```swift
+// ❌ WRONG: Incorrect device filtering syntax
+let criteria = MatterAddDeviceRequest.DeviceCriteria(vendorID: 0x1234)
+
+// ✅ CORRECT: Use proper patterns
+let criteria = MatterAddDeviceRequest.DeviceCriteria.vendorID(0x1234)
+let combined = MatterAddDeviceRequest.DeviceCriteria.all([
+    .vendorID(0x1234),
+    .not(.productID(0x0001))
+])
 ```
 
 ---

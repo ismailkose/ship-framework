@@ -28,6 +28,12 @@
 | `CXSetHeldCallAction` | Hold/resume call |
 | `CXTransaction` | Groups multiple call actions |
 | `CXProviderDelegate` | Responds to call events and actions |
+| `CXCallUpdate` | Describes call metadata (caller name, video, handle) |
+| `CXHandle` | Call endpoint (phone number, email, generic) |
+| `CXCallDirectoryProvider` | Extension for caller ID and call blocking |
+| `CXCallDirectoryPhoneNumber` | E.164 formatted phone number (Int64) |
+| `PKPushRegistry` | Registers for and receives VoIP push notifications |
+| `PKPushRegistryDelegate` | Handles VoIP push token updates and push receipt |
 
 ---
 
@@ -37,6 +43,61 @@
 ```swift
 import CallKit
 
+/// CXProvider dispatches all delegate calls to the queue passed to `setDelegate(_:queue:)`.
+/// The `let` properties are initialized once and never mutated, making this type
+/// safe to share across concurrency domains despite @unchecked Sendable.
+final class CallManager: NSObject, @unchecked Sendable {
+    static let shared = CallManager()
+
+    let provider: CXProvider
+    let callController = CXCallController()
+
+    private override init() {
+        let config = CXProviderConfiguration()
+        config.localizedName = "My VoIP App"
+        config.supportsVideo = true
+        config.maximumCallsPerCallGroup = 1
+        config.maximumCallGroups = 2
+        config.supportedHandleTypes = [.phoneNumber, .emailAddress]
+        config.includesCallsInRecents = true
+
+        provider = CXProvider(configuration: config)
+        super.init()
+        provider.setDelegate(self, queue: nil)
+    }
+}
+```
+
+**Example 1b: Report incoming call with async/await**
+```swift
+func reportIncomingCall(
+    uuid: UUID,
+    handle: String,
+    hasVideo: Bool
+) async throws {
+    let update = CXCallUpdate()
+    update.remoteHandle = CXHandle(type: .phoneNumber, value: handle)
+    update.hasVideo = hasVideo
+    update.localizedCallerName = "Jane Doe"
+
+    try await withCheckedThrowingContinuation {
+        (continuation: CheckedContinuation<Void, Error>) in
+        provider.reportNewIncomingCall(
+            with: uuid,
+            update: update
+        ) { error in
+            if let error {
+                continuation.resume(throwing: error)
+            } else {
+                continuation.resume()
+            }
+        }
+    }
+}
+```
+
+**Legacy Example 1c: UIKit-based call reporting**
+```swift
 class VoIPCallManager: NSObject, CXProviderDelegate {
     let provider: CXProvider
     let callController = CXCallController()
@@ -108,10 +169,46 @@ struct Call {
 }
 ```
 
-**Example 2: Initiate outgoing call**
+**Example 2: Outgoing call with state reporting**
 ```swift
 import CallKit
 
+func startOutgoingCall(handle: String, hasVideo: Bool) {
+    let uuid = UUID()
+    let handle = CXHandle(type: .phoneNumber, value: handle)
+    let startAction = CXStartCallAction(call: uuid, handle: handle)
+    startAction.isVideo = hasVideo
+
+    let transaction = CXTransaction(action: startAction)
+    callController.request(transaction) { error in
+        if let error {
+            print("Failed to start call: \(error)")
+        }
+    }
+}
+
+extension CallManager: CXProviderDelegate {
+    func provider(_ provider: CXProvider, perform action: CXStartCallAction) {
+        configureAudioSession()
+        // Begin connecting to server
+        provider.reportOutgoingCall(
+            with: action.callUUID,
+            startedConnectingAt: Date()
+        )
+
+        connectToServer(callUUID: action.callUUID) {
+            provider.reportOutgoingCall(
+                with: action.callUUID,
+                connectedAt: Date()
+            )
+        }
+        action.fulfill()
+    }
+}
+```
+
+**Legacy Example 2b: Callback-based outgoing call**
+```swift
 func startOutgoingCall(to phoneNumber: String) {
     let uuid = UUID()
     let handle = CXHandle(type: .phoneNumber, value: phoneNumber)
@@ -138,7 +235,50 @@ func provider(_ provider: CXProvider, perform action: CXStartCallAction) {
 }
 ```
 
-**Example 3: Monitor active calls and handle push notifications**
+**Example 3: Call Directory with E.164 formatting**
+```swift
+import CallKit
+
+final class CallDirectoryHandler: CXCallDirectoryProvider {
+    override func beginRequest(
+        with context: CXCallDirectoryExtensionContext
+    ) {
+        if context.isIncremental {
+            addOrRemoveIncrementalEntries(to: context)
+        } else {
+            addAllEntries(to: context)
+        }
+        context.completeRequest()
+    }
+
+    private func addAllEntries(
+        to context: CXCallDirectoryExtensionContext
+    ) {
+        // Phone numbers must be in ascending order (E.164 format as Int64)
+        let blockedNumbers: [CXCallDirectoryPhoneNumber] = [
+            18005551234, 18005555678
+        ]
+        for number in blockedNumbers {
+            context.addBlockingEntry(
+                withNextSequentialPhoneNumber: number
+            )
+        }
+
+        let identifiedNumbers: [(CXCallDirectoryPhoneNumber, String)] = [
+            (18005551111, "Local Pizza"),
+            (18005552222, "Dentist Office")
+        ]
+        for (number, label) in identifiedNumbers {
+            context.addIdentificationEntry(
+                withNextSequentialPhoneNumber: number,
+                label: label
+            )
+        }
+    }
+}
+```
+
+**Example 4: Monitor active calls and handle VoIP push notifications**
 ```swift
 import CallKit
 import PushKit
@@ -174,7 +314,7 @@ extension CallMonitor: PKPushRegistryDelegate {
         didUpdate pushCredentials: PKPushCredentials,
         for type: PKPushType
     ) {
-        let token = pushCredentials.token.map { String(format: "%02.2hhx", $0) }.joined()
+        let token = pushCredentials.token.map { String(format: "%02x", $0) }.joined()
         print("VoIP push token: \(token)")
         // Send token to server
     }
@@ -205,7 +345,35 @@ let provider = CXProvider(configuration: config)
 provider.setDelegate(self, queue: .main)
 ```
 
-**Mistake 2: Reporting incoming call without handling delegate action**
+**Mistake 2: VoIP push not reported before completion handler returns**
+```swift
+// ❌ WRONG: No call reported on VoIP push receipt
+func pushRegistry(
+    _ registry: PKPushRegistry,
+    didReceiveIncomingPushWith payload: PKPushPayload,
+    for type: PKPushType,
+    completion: @escaping () -> Void
+) {
+    // Just process data, no call reported
+    processPayload(payload)
+    completion()
+}
+
+// ✅ CORRECT: Always report a call before completion
+func pushRegistry(
+    _ registry: PKPushRegistry,
+    didReceiveIncomingPushWith payload: PKPushPayload,
+    for type: PKPushType,
+    completion: @escaping () -> Void
+) {
+    let uuid = UUID()
+    provider.reportNewIncomingCall(
+        with: uuid, update: makeUpdate(from: payload)
+    ) { _ in completion() }
+}
+```
+
+**Mistake 2b: Reporting incoming call without handling delegate action**
 ```swift
 // ❌ WRONG: Report call but provider(_ perform:) not implemented
 reportIncomingCall(uuid: uuid, from: phoneNumber)
@@ -213,7 +381,8 @@ reportIncomingCall(uuid: uuid, from: phoneNumber)
 
 // ✅ CORRECT: Implement CXProviderDelegate method
 func provider(_ provider: CXProvider, perform action: CXAnswerCallAction) {
-    startAudioSession()
+    configureAudioSession()
+    connectToCallServer(callUUID: action.callUUID)
     action.fulfill()  // Must call to complete
 }
 ```
@@ -265,19 +434,26 @@ class VoIPManager {
 
 ## Review Checklist
 
+- [ ] `CXProvider` marked with `@unchecked Sendable` since it dispatches to dedicated queue
 - [ ] `CXProvider` initialized with `CXProviderConfiguration`
-- [ ] Provider delegate set via `setDelegate(_:queue:)` on main queue
+- [ ] Provider delegate set via `setDelegate(_:queue:)` (usually nil for main queue dispatch)
 - [ ] `CXProviderConfiguration.localizedName` set to app name
 - [ ] `CXProviderConfiguration.supportsVideo` set correctly for app capability
-- [ ] `maximumCallsPerCallGroup` set (typically 1 for VoIP apps)
-- [ ] Incoming call reported via `reportNewIncomingCall(with:update:)`
+- [ ] `maximumCallsPerCallGroup` and `maximumCallGroups` set appropriately
+- [ ] Incoming call reported via `reportNewIncomingCall(with:update:)` with async/await or completion
+- [ ] `reportIncomingCall()` uses `withCheckedThrowingContinuation` for async/await pattern
 - [ ] All `CXProviderDelegate` methods implemented (answer, end, mute, hold, reset)
 - [ ] Every delegate action calls either `fulfill()` or `fail()`
+- [ ] Outgoing call state reported via `reportOutgoingCall(with:startedConnectingAt:)` then `connectedAt:`
 - [ ] CallKit entitlement added in Xcode capabilities
-- [ ] VoIP push notifications registered via `PKPushRegistry` and `PKPushRegistryDelegate`
-- [ ] VoIP push token sent to server for remote push delivery
+- [ ] VoIP background mode enabled in Signing & Capabilities
+- [ ] VoIP push notifications registered via `PKPushRegistry` at every app launch
+- [ ] VoIP push token sent to server on every `didUpdate pushCredentials` callback
+- [ ] VoIP push always results in `reportNewIncomingCall` before completion handler returns
 - [ ] Outgoing calls initiated via `CXStartCallAction` in `CXCallController`
-- [ ] AVAudioSession configured for VoIP (category: `.voiceChat`, options: `.duckOthers`)
+- [ ] AVAudioSession configured for VoIP (category: `.playAndRecord`, mode: `.voiceChat`)
+- [ ] Call Directory phone numbers in ascending E.164 order (Int64 format)
+- [ ] Call Directory loader handles both incremental and full refresh contexts
 
 ---
 

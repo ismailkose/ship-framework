@@ -239,15 +239,99 @@ struct SharedDataProvider: TimelineProvider {
 }
 ```
 
+## iOS 26 Additions
+
+### AppIntentTimelineProvider with async/await
+
+Modern configurable widgets use `AppIntentTimelineProvider` with full async/await support, unlike the deprecated `IntentTimelineProvider`:
+
+```swift
+struct CategoryProvider: AppIntentTimelineProvider {
+    typealias Entry = CategoryEntry
+    typealias Intent = SelectCategoryIntent
+
+    func placeholder(in context: Context) -> CategoryEntry {
+        CategoryEntry(date: .now, categoryName: "Sample", items: [])
+    }
+
+    func snapshot(for config: SelectCategoryIntent, in context: Context) async -> CategoryEntry {
+        let items = await DataStore.shared.items(for: config.category)
+        return CategoryEntry(date: .now, categoryName: config.category.name, items: items)
+    }
+
+    func timeline(for config: SelectCategoryIntent, in context: Context) async -> Timeline<CategoryEntry> {
+        let items = await DataStore.shared.items(for: config.category)
+        let entry = CategoryEntry(date: .now, categoryName: config.category.name, items: items)
+        return Timeline(entries: [entry], policy: .atEnd)
+    }
+}
+```
+
+### Liquid Glass Support
+
+Adapt widgets to Liquid Glass visual style with `WidgetAccentedRenderingMode`:
+
+| Mode | Use Case |
+|------|----------|
+| `.accented` | Emphasized content for Liquid Glass |
+| `.accentedDesaturated` | Accented with reduced saturation |
+| `.desaturated` | Fully desaturated appearance |
+| `.fullColor` | Standard full-color rendering |
+
+### WidgetPushHandler
+
+Enable push-based timeline reloads without polling:
+
+```swift
+struct MyWidgetPushHandler: WidgetPushHandler {
+    func pushTokenDidChange(_ pushInfo: WidgetPushInfo, widgets: [WidgetInfo]) {
+        let tokenString = pushInfo.token.map { String(format: "%02x", $0) }.joined()
+        // Send tokenString to your server for push updates
+    }
+}
+```
+
+### CarPlay Widgets (iOS 26+)
+
+`.systemSmall` widgets render in CarPlay. Ensure layouts are glanceable and driver-safe—minimize text, use clear icons, avoid rapid animations.
+
 ## Common Mistakes
 
-| ❌ Incorrect | ✅ Correct |
-|------------|-----------|
-| Slow `getTimeline()` blocking widget refresh | Use `.atEnd` policy; preload next entries; avoid blocking I/O |
-| Fetching live network data in timeline | Use snapshot for quick preview; timeline for cached/static data only |
-| Not specifying `supportedFamilies`; crashes on unsupported size | Always declare supported families: `.systemSmall`, `.systemMedium`, `.systemLarge` |
-| Hardcoding colors; ignoring dark mode | Use `.containerBackground()` with environment colors; respect `.colorScheme` |
-| Not sharing data with main app (UserDefaults vs. App Groups) | Use `UserDefaults(suiteName: "group.com.bundle")` for shared data |
+1. **Using IntentTimelineProvider instead of AppIntentTimelineProvider.**
+   `IntentTimelineProvider` is deprecated. Always use `AppIntentTimelineProvider` with async/await.
+
+2. **Exceeding the refresh budget.**
+   Widgets have a daily refresh limit. Do not call `WidgetCenter.shared.reloadTimelines(ofKind:)` on every minor data change. Batch updates and use appropriate `TimelineReloadPolicy` values.
+
+3. **Forgetting App Groups for shared data.**
+   The widget extension runs in a separate process. Use `UserDefaults(suiteName:)` or a shared App Group container for data the widget reads.
+
+4. **Performing network calls in placeholder().**
+   `placeholder(in:)` must return synchronously with sample data. Use `getTimeline` or `timeline(for:in:)` for async work.
+
+5. **Missing NSSupportsLiveActivities Info.plist key.**
+   Live Activities will not start without `NSSupportsLiveActivities = YES` in the host app's Info.plist.
+
+6. **Using the deprecated contentState API.**
+   Use `ActivityContent` for all `Activity.request`, `update`, and `end` calls. The `contentState`-based methods are deprecated.
+
+7. **Not handling the stale state.**
+   Check `context.isStale` in Live Activity views and show a fallback (e.g., "Updating...") when content is outdated.
+
+8. **Putting heavy logic in the widget view.**
+   Widget views are rendered in a size-limited process. Pre-compute data in the timeline provider and pass display-ready values through the entry.
+
+9. **Ignoring accessory rendering modes.**
+   Lock Screen widgets render in `.vibrant` or `.accented` mode, not `.fullColor`. Test with `@Environment(\.widgetRenderingMode)` and avoid relying on color alone.
+
+10. **Not testing on device.**
+    Dynamic Island and StandBy behavior differ significantly from Simulator. Always verify on physical hardware.
+
+11. **Ignoring WidgetAccentedRenderingMode for Liquid Glass.**
+    iOS 26 Liquid Glass requires explicit rendering mode adaptation. Test in Simulator with Liquid Glass theme.
+
+12. **Forgetting WidgetPushHandler registration.**
+    If using push-based updates, register the push handler in `WidgetBundle` and handle token changes.
 
 ## Review Checklist
 

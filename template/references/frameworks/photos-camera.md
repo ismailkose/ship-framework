@@ -103,6 +103,81 @@ class ViewController: UIViewController, PHPickerViewControllerDelegate {
 }
 ```
 
+### Example 2b: Multi-selection with TaskGroup for concurrent loading
+```swift
+Task {
+    await withTaskGroup(of: Image?.self) { group in
+        for item in selectedPhotos {
+            group.addTask {
+                if let data = try? await item.loadTransferable(type: Data.self),
+                   let uiImage = UIImage(data: data) {
+                    return Image(uiImage: uiImage)
+                }
+                return nil
+            }
+        }
+
+        for await image in group {
+            if let image = image {
+                selectedImages.append(image)
+            }
+        }
+    }
+}
+```
+
+### Example 2c: Composite media type filters (.any, .all, .not)
+```swift
+// Images and videos combined
+PhotosPicker(selection: $items, matching: .any(of: [.images, .videos]))
+
+// Images excluding screenshots
+PhotosPicker(selection: $items, matching: .all(of: [.images, .not(.screenshots)]))
+
+// Using .not() for exclusion
+PhotosPicker(selection: $items, matching: .not(.livePhotos))
+```
+
+### Example 2d: Transferable Protocol for Custom Media Types
+```swift
+struct CustomImageTransferable: Transferable {
+    let image: UIImage
+    let metadata: String
+
+    static var transferRepresentation: some TransferRepresentation {
+        DataRepresentation(importedContentType: .image) { data in
+            guard let uiImage = UIImage(data: data) else {
+                throw TransferError.importFailed
+            }
+            return CustomImageTransferable(image: uiImage, metadata: "")
+        }
+    }
+}
+```
+
+### Example 2e: TaskGroup for Concurrent Image Loading
+```swift
+Task {
+    await withTaskGroup(of: Image?.self) { group in
+        for item in selectedPhotos {
+            group.addTask {
+                if let data = try? await item.loadTransferable(type: Data.self),
+                   let uiImage = UIImage(data: data) {
+                    return Image(uiImage: uiImage)
+                }
+                return nil
+            }
+        }
+
+        for await image in group {
+            if let image = image {
+                selectedImages.append(image)
+            }
+        }
+    }
+}
+```
+
 ### Example 3: Save image to photo library
 ```swift
 import Photos
@@ -128,11 +203,42 @@ func saveImageToLibrary(_ image: UIImage) {
 }
 ```
 
-### Example 4: Camera capture with AVCaptureSession
+### Example 3b: CGImageSource downsampling for large photos
+```swift
+import ImageIO
+import UIKit
+
+func downsample(data: Data, to pointSize: CGSize, scale: CGFloat = UITraitCollection.current.displayScale) -> UIImage? {
+    let maxDimensionInPixels = max(pointSize.width, pointSize.height) * scale
+
+    let options: [CFString: Any] = [
+        kCGImageSourceCreateThumbnailFromImageAlways: true,
+        kCGImageSourceShouldCacheImmediately: true,
+        kCGImageSourceCreateThumbnailWithTransform: true,
+        kCGImageSourceThumbnailMaxPixelSize: maxDimensionInPixels
+    ]
+
+    guard let source = CGImageSourceCreateWithData(data as CFData, nil),
+          let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
+        return nil
+    }
+
+    return UIImage(cgImage: cgImage)
+}
+```
+
+### Example 4: Camera capture with @Observable manager and AVCaptureSession
 ```swift
 import AVFoundation
 import UIKit
 
+@Observable
+final class CameraManager {
+    let captureSession = AVCaptureSession()
+    private let videoOutput = AVCaptureVideoDataOutput()
+}
+
+// Or in UIKit context:
 class CameraViewController: UIViewController {
     let captureSession = AVCaptureSession()
     let videoOutput = AVCaptureVideoDataOutput()

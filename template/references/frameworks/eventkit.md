@@ -70,6 +70,45 @@ func fetchCalendar(named name: String) -> EKCalendar? {
 }
 ```
 
+### Example 1b: Write-only access to events (iOS 17+)
+```swift
+func requestWriteOnlyAccess() async throws -> Bool {
+    let granted = try await eventStore.requestWriteOnlyAccessToEvents()
+    return granted
+}
+```
+
+### Example 1c: Add structured location with geo-location
+```swift
+let location = EKStructuredLocation(title: "Apple Park")
+location.geoLocation = CLLocation(latitude: 37.3349, longitude: -122.0090)
+event.structuredLocation = location
+```
+
+### Example 1d: Fetch reminders with async continuation
+```swift
+func fetchIncompleteReminders() async -> [EKReminder] {
+    let predicate = eventStore.predicateForIncompleteReminders(
+        withDueDateStarting: nil,
+        ending: nil,
+        calendars: nil
+    )
+
+    return await withCheckedContinuation { continuation in
+        eventStore.fetchReminders(matching: predicate) { reminders in
+            continuation.resume(returning: reminders ?? [])
+        }
+    }
+}
+```
+
+### Example 1e: Handling timezone for events
+```swift
+event.timeZone = TimeZone(identifier: "America/New_York")
+event.startDate = startDate
+event.endDate = endDate
+```
+
 ### Example 2: Fetch events in date range
 ```swift
 import EventKit

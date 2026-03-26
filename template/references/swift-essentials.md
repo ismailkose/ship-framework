@@ -197,6 +197,124 @@ do {
 - ✅ Create specific error enums for each failure mode
 - ✅ Include associated values for error context
 
+### If/Switch Expressions
+
+Swift 5.9+ allows `if` and `switch` to be used as expressions returning values.
+
+**Correct pattern:**
+```swift
+// Assign from if expression
+let icon = if isComplete { "checkmark.circle.fill" } else { "circle" }
+
+// Assign from switch expression (must be exhaustive)
+let label = switch status {
+case .draft: "Draft"
+case .published: "Published"
+case .archived: "Archived"
+}
+
+// Return directly
+func buttonColor(for priority: Priority) -> Color {
+    switch priority {
+    case .high: .red
+    case .medium: .orange
+    case .low: .green
+    }
+}
+```
+
+**Rules:**
+- ✅ Every branch must produce the same type
+- ✅ Each branch is a single expression (no statements)
+- ✅ Wrap in parentheses when used as function argument
+- ❌ Don't use multi-statement branches
+
+### Modern Collection APIs
+
+Use these APIs instead of manual loops:
+
+**Correct pattern:**
+```swift
+let numbers = [1, 2, 3, 4, 5, 6, 7, 8]
+
+// count(where:) - more efficient than .filter { }.count
+let evenCount = numbers.count(where: { $0.isMultiple(of: 2) })
+
+// contains(where:) - short-circuits on first match
+let hasNegative = numbers.contains(where: { $0 < 0 })
+
+// String.replacing() - returns new string (Swift 5.7+)
+let cleaned = text.replacing(/\s+/, with: " ")
+let snakeCase = name.replacing("_", with: " ")
+
+// Dictionary(grouping:by:) - group items by key
+let byCategory = items.grouping(by: \.category)
+let byPriority = Dictionary(grouping: tasks, by: \.priority)
+
+// first(where:), last(where:) - find first/last matching condition
+let firstEven = numbers.first(where: { $0.isMultiple(of: 2) })
+
+// compactMap - filter and transform in one step
+let ids = strings.compactMap { Int($0) }
+```
+
+**Common Mistakes:**
+- ❌ Using `.filter { }.count` instead of `count(where:)`
+- ❌ Using `.contains()` for complex conditions instead of `contains(where:)`
+- ✅ Use `count(where:)` for counting with predicate
+- ✅ Use `contains(where:)` when you only need a boolean
+- ✅ Use `.replacing()` for string modifications
+
+### FormatStyle (Replacing DateFormatter/NumberFormatter)
+
+Use `.formatted()` for type-safe, localized formatting:
+
+**Correct pattern:**
+```swift
+// Dates - no more DateFormatter boilerplate
+let now = Date.now
+now.formatted()                                    // "3/15/2024, 2:30 PM"
+now.formatted(date: .abbreviated, time: .shortened) // "Mar 15, 2024, 2:30 PM"
+now.formatted(.dateTime.year().month().day())      // "Mar 15, 2024"
+
+// Numbers - automatic localization
+let price = 42.5
+price.formatted(.currency(code: "USD"))           // "$42.50"
+(1_000_000).formatted(.number.notation(.compactName)) // "1M"
+
+// Durations
+let duration = Duration.seconds(3661)
+duration.formatted(.time(pattern: .hourMinuteSecond)) // "1:01:01"
+```
+
+**Common Mistakes:**
+- ❌ Creating `DateFormatter` instances repeatedly (expensive)
+- ❌ Forgetting to set locale on formatter
+- ✅ Use `.formatted()` method directly on values
+- ✅ Leverage automatic localization
+
+### String Interpolation Extensions
+
+Extend `DefaultStringInterpolation` for domain-specific formatting:
+
+**Correct pattern:**
+```swift
+extension DefaultStringInterpolation {
+    mutating func appendInterpolation(_ value: Int, as style: IntFormat) {
+        switch style {
+        case .hex: appendLiteral(String(value, radix: 16))
+        case .binary: appendLiteral(String(value, radix: 2))
+        case .currency: appendLiteral("$\(value)")
+        }
+    }
+}
+
+enum IntFormat { case hex, binary, currency }
+
+let num = 255
+print("Hex: \(num, as: .hex)") // "Hex: ff"
+```
+
 ### Key Protocols
 
 These protocols unlock capabilities in Swift's ecosystem:
@@ -239,10 +357,237 @@ struct Config: Codable {
 - [ ] Property wrappers have `wrappedValue` and `projectedValue`
 - [ ] Opaque types (`some`) used for returns, `any` for parameters
 - [ ] Protocols conform to Hashable/Identifiable/Sendable where appropriate
+- [ ] If/switch expressions used for conditional assignment
+- [ ] Collection APIs (`count(where:)`, `contains(where:)`, `.replacing()`) used instead of manual loops
+- [ ] `.formatted()` used instead of DateFormatter/NumberFormatter
+- [ ] Dictionary(grouping:by:) used for grouping operations
 
 ---
 
-## Section 2: Codable
+## Section 2: Concurrency (Swift 6.2)
+
+Swift 6.2 brings comprehensive tools for safe concurrent code. Master the triage workflow and synchronization primitives.
+
+### Triage Workflow for Concurrency Errors
+
+When facing a compiler diagnostic, follow this sequence:
+
+**Step 1: Capture context**
+- Copy the exact error message and symbol
+- Identify isolation context: `@MainActor`, actor, or `nonisolated`?
+- Is the code UI-bound or background work?
+- Is approachable concurrency mode enabled?
+
+**Step 2: Apply the smallest safe fix**
+| Situation | Fix |
+|---|---|
+| UI-bound type/method | Add `@MainActor` annotation |
+| Protocol conformance on MainActor type | Use isolated conformance: `extension Foo: @MainActor Proto` |
+| Mutable shared state | Move into an actor or protect with lock |
+| Background work needed | Use `@concurrent async` function |
+| Sendable error | Use immutable value types, add `Sendable` only when proven safe |
+
+**Step 3: Verify**
+- Rebuild and confirm error is resolved
+- Check for new warnings introduced
+- Ensure no unjustified `@unchecked Sendable`
+
+**Example workflow:**
+```swift
+// WRONG - shared mutable state on multiple actors
+class DataCache {
+    var items: [Item] = []  // error: property not isolated
+}
+
+// FIX 1 - isolate to MainActor
+@MainActor
+class DataCache {
+    var items: [Item] = []
+}
+
+// FIX 2 - use an actor instead
+actor DataCache {
+    private var items: [Item] = []
+    func getItems() -> [Item] { items }
+}
+```
+
+### AsyncSequence and AsyncStream
+
+Bridge callback/delegate patterns to async/await:
+
+**Correct pattern:**
+```swift
+// Convert delegate callbacks to AsyncStream
+let locationStream = AsyncStream<Location> { continuation in
+    let delegate = LocationDelegate { location in
+        continuation.yield(location)
+    }
+    continuation.onTermination = { _ in delegate.stop() }
+    delegate.start()
+}
+
+// Consume the stream
+for await location in locationStream {
+    updateMapView(with: location)
+}
+
+// Single-value callbacks with checked continuation
+func fetchUserAsync(id: String) async throws -> User {
+    return try await withCheckedThrowingContinuation { continuation in
+        fetchUser(id: id) { result in
+            continuation.resume(with: result)  // Resume exactly once
+        }
+    }
+}
+```
+
+**Rules:**
+- ✅ Resume continuation exactly once (crash if more than once)
+- ✅ Use `onTermination` to clean up resources
+- ✅ Use `withCheckedContinuation` for single-value callbacks
+- ❌ Never resume after `onTermination` fires
+
+### Synchronization Primitives: Mutex vs OSAllocatedUnfairLock vs Atomic
+
+When actors are not the right fit (synchronous access, perf-critical paths, C/ObjC bridging):
+
+**Decision guide with code examples:**
+
+```swift
+// MUTEX<VALUE> (iOS 18+) - Preferred for new code
+import Synchronization
+
+// Stores protected value inside lock
+@MainActor
+class Cache {
+    private let cache = Mutex<[String: String]>([:])
+
+    func getValue(_ key: String) -> String? {
+        cache.withLock { $0[key] }
+    }
+
+    func setValue(_ value: String, for key: String) {
+        cache.withLock { $0[key] = value }
+    }
+}
+
+// OSALLOCATEDUNFAIRLOCK (iOS 16+) - Use for older targets
+import os
+
+class ReferenceCache {
+    private let lock = os.unfair_lock()
+    private var _items: [String] = []
+
+    var items: [String] {
+        get {
+            lock.lock()
+            defer { lock.unlock() }
+            return _items
+        }
+        set {
+            lock.lock()
+            defer { lock.unlock() }
+            _items = newValue
+        }
+    }
+}
+
+// ATOMIC<VALUE> (iOS 18+) - Lock-free for simple counters/flags
+import Synchronization
+
+class OperationTracker {
+    private let completedCount = Atomic<Int>(0)
+
+    func increment() {
+        completedCount.wrappingIncrementThenLoad(ordering: .sequentiallyConsistent)
+    }
+
+    func getCount() -> Int {
+        completedCount.load(ordering: .sequentiallyConsistent)
+    }
+}
+
+// AVOID - Never use locks inside actors (double synchronization)
+actor BadCache {
+    private let lock = os.unfair_lock()  // ❌ WRONG
+    private var items: [String] = []
+}
+```
+
+**When to use each:**
+- **Mutex**: Default choice for iOS 18+, stores value inside lock, clean API
+- **OSAllocatedUnfairLock**: Supporting iOS 16-17, lower overhead
+- **Atomic**: Lock-free atomics for simple integers/flags, requires memory ordering knowledge
+- **Actors**: When entire type manages state, inheritance needed, or no synchronous access required
+
+### Explicit GCD Prohibition
+
+**CRITICAL:** Never use Grand Central Dispatch APIs. GCD has no data-race safety guarantees.
+
+**Prohibited APIs:**
+```swift
+// ❌ NEVER use these
+DispatchQueue.main.async { }
+DispatchQueue.global().sync { }
+DispatchGroup()
+DispatchSemaphore()
+DispatchWorkItem()
+```
+
+**Replacements:**
+```swift
+// WRONG - using GCD
+DispatchQueue.main.async { updateUI() }
+
+// RIGHT - use Task on MainActor
+Task { @MainActor in updateUI() }
+
+// WRONG - using semaphore
+let sem = DispatchSemaphore(value: 0)
+background { sem.signal() }
+sem.wait()
+
+// RIGHT - use async/await
+let result = await backgroundWork()
+
+// WRONG - using DispatchGroup
+let group = DispatchGroup()
+group.enter()
+api.fetch { group.leave() }
+group.wait()
+
+// RIGHT - use TaskGroup
+try await withThrowingTaskGroup(of: Data.self) { group in
+    for url in urls {
+        group.addTask { try await api.fetch(url) }
+    }
+}
+```
+
+### Common Concurrency Mistakes (8 Additional)
+
+Beyond blocking, unnecessary `@MainActor`, and semaphores:
+
+1. **Using GCD APIs (DispatchQueue, DispatchGroup, DispatchSemaphore).** These have no data-race safety. Use Task, TaskGroup, and async/await instead.
+
+2. **Blocking the main actor with sync computation.** Even non-UI work on `@MainActor` blocks UI. Move heavy computation to `@concurrent` functions.
+
+3. **Forgetting to cancel stored Task references.** Store `Task` handles and cancel in `deinit` or use `.task` view modifier in SwiftUI.
+
+4. **Task.detached without good reason.** Detached tasks lose priority inheritance, task-local values, and cancellation propagation. Use only when explicitly breaking isolation.
+
+5. **Retain cycles in long-lived tasks.** Capture `[weak self]` in tasks that live longer than their closure (e.g., stored properties).
+
+6. **Mixing actor and non-actor state in one type.** Don't have both `@MainActor` properties and `nonisolated` properties in the same class—isolate the entire type.
+
+7. **Assuming actor reentrancy.** State can change across `await` points. Never read, then await, then use (state may have changed). Mutate synchronously.
+
+8. **Using `@preconcurrency` without a removal plan.** Document why the import is needed and when it can be removed.
+
+---
+
+## Section 2b: Codable
 
 Codable is Swift's standard for serialization. Master it to avoid runtime crashes and data corruption.
 
@@ -412,12 +757,234 @@ struct APIResponse: Codable {
 - ✅ Use `decodeIfPresent` for optional fields
 - ✅ Always nest containers for complex JSON structures
 
+### Lossy Array Decoding
+
+By default, one invalid array element fails the entire decode. Use a wrapper to skip invalid elements:
+
+**Correct pattern:**
+```swift
+// Wrapper that skips invalid elements
+struct LossyArray<Element: Decodable>: Decodable {
+    let elements: [Element]
+
+    init(from decoder: Decoder) throws {
+        var container = try decoder.unkeyedContainer()
+        var elements: [Element] = []
+
+        while !container.isAtEnd {
+            if let element = try? container.decode(Element.self) {
+                elements.append(element)
+            } else {
+                // Advance past bad element
+                _ = try? container.decode(AnyCodableValue.self)
+            }
+        }
+        self.elements = elements
+    }
+}
+
+private struct AnyCodableValue: Decodable {}
+
+// Usage: API sends array with invalid items mixed in
+struct APIResponse: Decodable {
+    let items: [Item]  // If one item is corrupt, entire decode fails
+    let tags: LossyArray<String>  // Invalid tags are skipped
+}
+
+let response = try decoder.decode(APIResponse.self, from: data)
+let validTags = response.tags.elements
+```
+
+**Common Mistakes:**
+- ❌ Failing entire array when one element is invalid
+- ✅ Use `LossyArray` wrapper for arrays that may contain invalid items
+- ✅ Only apply to data sources you don't fully control
+
+### Single Value Containers
+
+Wrap primitives for type safety using `singleValueContainer()`:
+
+**Correct pattern:**
+```swift
+// Create a strongly-typed wrapper
+struct UserID: Codable, Hashable {
+    let rawValue: String
+
+    init(_ rawValue: String) { self.rawValue = rawValue }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        rawValue = try container.decode(String.self)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(rawValue)
+    }
+}
+
+// Usage
+let json = #"{ "id": "usr_abc123", "name": "Alice" }"#
+let data = json.data(using: .utf8)!
+let user = try JSONDecoder().decode(User.self, from: data)
+// user.id is UserID, type-safe and encoded directly as "usr_abc123"
+```
+
+**Common Mistakes:**
+- ❌ Using `String` directly instead of wrapper types for IDs
+- ✅ Use single value containers for wrapper types
+- ✅ Provides type safety without extra JSON structure
+
+### Default Values with decodeIfPresent
+
+Use `decodeIfPresent` with nil-coalescing to provide defaults:
+
+**Correct pattern:**
+```swift
+struct Settings: Decodable {
+    let theme: String
+    let fontSize: Int
+    let notificationsEnabled: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case theme, fontSize = "font_size"
+        case notificationsEnabled = "notifications_enabled"
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        // Use default if key is missing
+        theme = try container.decodeIfPresent(String.self, forKey: .theme) ?? "system"
+        fontSize = try container.decodeIfPresent(Int.self, forKey: .fontSize) ?? 16
+        notificationsEnabled = try container.decodeIfPresent(
+            Bool.self, forKey: .notificationsEnabled) ?? true
+    }
+}
+
+// JSON: { "theme": "dark" }
+// fontSize and notificationsEnabled use defaults
+```
+
+**Common Mistakes:**
+- ❌ Using `decode(_:forKey:)` for optional fields (crashes if missing)
+- ✅ Always use `decodeIfPresent` with nil-coalescing for defaults
+- ✅ Document default values in type comments
+
+### Codable with SwiftData (iOS 18+)
+
+In iOS 18+, SwiftData natively supports `Codable` structs as composite attributes without explicit transformation:
+
+**Correct pattern:**
+```swift
+// Codable value type
+struct Address: Codable {
+    var street: String
+    var city: String
+    var zipCode: String
+    var country: String = "USA"  // Optional default
+}
+
+// SwiftData model uses Codable struct directly
+@Model final class Contact {
+    var name: String
+    var address: Address?  // Automatically stored as composite attribute
+    var alternateAddresses: [Address] = []  // Even arrays of Codable types work
+
+    init(name: String, address: Address? = nil) {
+        self.name = name
+        self.address = address
+    }
+}
+
+// No extra annotation needed in iOS 18+
+// In iOS 17 and earlier, use @Attribute(.transformable)
+```
+
+**Benefits:**
+- ✅ No boilerplate `@Attribute(.transformable)` in iOS 18+
+- ✅ Arrays of Codable types are supported
+- ✅ Optional Codable properties work seamlessly
+- ❌ Pre-iOS 18, must use `@Attribute(.transformable)` annotation
+
+### keyDecodingStrategy Trade-off: convertFromSnakeCase vs Manual CodingKeys
+
+When APIs use snake_case, decide between automatic conversion and explicit control:
+
+**Automatic conversion (simple APIs):**
+```swift
+struct User: Decodable {
+    let id: Int
+    let firstName: String
+    let lastName: String
+    let createdAt: Date
+    // No CodingKeys needed
+}
+
+let decoder = JSONDecoder()
+decoder.keyDecodingStrategy = .convertFromSnakeCase  // snake_case → camelCase
+decoder.dateDecodingStrategy = .iso8601
+// JSON: { "id": 1, "first_name": "Alice", "last_name": "Smith", "created_at": "2024-03-15T..." }
+```
+
+**Manual CodingKeys (complex APIs, overrides, validation):**
+```swift
+struct User: Decodable {
+    let id: Int
+    let firstName: String
+    let email: String  // Email has special validation
+    let timestamp: Date
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case firstName = "first_name"
+        case email
+        case timestamp = "created_at"  // API key differs from snake_case
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(Int.self, forKey: .id)
+        firstName = try container.decode(String.self, forKey: .firstName)
+
+        // Custom validation on email
+        let rawEmail = try container.decode(String.self, forKey: .email)
+        guard rawEmail.contains("@") else {
+            throw DecodingError.dataCorruptedError(forKey: .email, in: container,
+                debugDescription: "Invalid email format")
+        }
+        email = rawEmail
+
+        timestamp = try container.decode(Date.self, forKey: .timestamp)
+    }
+}
+```
+
+**Trade-off decision:**
+| Scenario | Use |
+|---|---|
+| All fields are snake_case, no validation | `keyDecodingStrategy = .convertFromSnakeCase` |
+| Mixed naming or special fields | Manual `CodingKeys` |
+| Need custom validation or transformation | Manual `init(from:)` with `CodingKeys` |
+| API is inconsistent (e.g., some camelCase) | Manual `CodingKeys` for clarity |
+
+**Common Mistakes:**
+- ❌ Over-using `keyDecodingStrategy` when few fields differ
+- ❌ Using strategy but forgetting to apply it to decoder
+- ✅ Use strategy for consistent APIs, manual keys for complex ones
+- ✅ Document which strategy is in use
+
 ### Review Checklist
 - [ ] All CodingKeys entries match JSON response
 - [ ] Date strategy configured (ISO8601 or custom)
 - [ ] All required fields use `decode`, optional fields use `decodeIfPresent`
 - [ ] Custom init/encode mirrors each other
 - [ ] Error messages in DecodingError include field name
+- [ ] Lossy arrays use `LossyArray<T>` wrapper for unreliable data
+- [ ] Single value containers used for wrapper types (UserID, etc.)
+- [ ] `decodeIfPresent` with nil-coalescing used for defaults
+- [ ] Codable structs used as composite attributes in SwiftData (iOS 18+)
+- [ ] `keyDecodingStrategy = .convertFromSnakeCase` used vs manual CodingKeys trade-off decided
 
 ---
 
@@ -509,9 +1076,9 @@ struct ValidationTests {
 - ✅ Use suite names to describe test category
 - ✅ Reset shared state in init for each test
 
-### Parameterized Tests
+### Parameterized Tests with Cartesian Products
 
-Run the same test with multiple input values.
+Run the same test with multiple input values. Two argument collections create a cartesian product (every combination):
 
 **Correct pattern:**
 ```swift
@@ -527,7 +1094,7 @@ func validateEmails(email: String, expected: Bool) {
 }
 
 // With custom types
-struct TestCase {
+struct TestCase: Sendable {
     let input: String
     let expected: Int
 }
@@ -540,13 +1107,28 @@ func parseNumbers(testCase: TestCase) {
     let result = Int(testCase.input)
     #expect(result == testCase.expected)
 }
+
+// Cartesian product: every combination
+@Test("Snapshot rendering", arguments: ["light", "dark"], ["iPhone", "iPad"])
+func renderSnapshot(colorScheme: String, device: String) {
+    // Runs 4 combinations: light+iPhone, light+iPad, dark+iPhone, dark+iPad
+    let config = SnapshotConfig(scheme: colorScheme, device: device)
+    #expect(config.isValid)
+}
+
+// 1:1 pairing with zip (avoid cartesian product)
+@Test("HTTP status codes", arguments: zip([200, 201, 204], ["OK", "Created", "No Content"]))
+func httpStatus(code: Int, description: String) {
+    // Runs 3 cases: (200, "OK"), (201, "Created"), (204, "No Content")
+    #expect(HTTPStatus(code).description == description)
+}
 ```
 
 **Common Mistakes:**
 - ❌ Creating parameterized tests with only 1-2 cases (use simple tests instead)
-- ❌ Not using descriptive test names with data context
-- ✅ Use for validation/edge cases with 5+ test cases
-- ✅ Name tests to include the parameter description
+- ❌ Two argument collections create cartesian product (4 tests, not 2)
+- ✅ Use `zip()` for 1:1 pairing when you don't want all combinations
+- ✅ Use cartesian product when testing all combinations matters
 
 ### Traits
 
@@ -624,6 +1206,211 @@ func withAsyncSequence() async throws {
 - ✅ Always use `await` for async calls
 - ✅ Use `async let` for concurrent operations
 
+### Confirmation Pattern (Replacing XCTestExpectation)
+
+Use `confirmation()` to verify callbacks/delegates are called the expected number of times:
+
+**Correct pattern:**
+```swift
+@Test("Notification fires on login")
+func notificationPosted() async throws {
+    try await confirmation("UserDidLogin notification", expectedCount: 1) { confirm in
+        let center = NotificationCenter.default
+        let observer = center.addObserver(
+            forName: .userDidLogin, object: nil, queue: .main
+        ) { _ in
+            confirm()  // Called when notification is posted
+        }
+
+        await loginService.login(user: "test", password: "pass")
+        center.removeObserver(observer)
+    }
+}
+
+@Test("Batch processor calls delegate for each item")
+func batchProcessing() async throws {
+    try await confirmation("Items processed", expectedCount: 3) { confirm in
+        let processor = BatchProcessor()
+        processor.onItemComplete = { _ in confirm() }
+
+        await processor.process(items: [item1, item2, item3])
+    }
+}
+
+// Default expectedCount is 1
+@Test("Single callback")
+func singleCallback() async throws {
+    try await confirmation("Callback fired") { confirm in
+        someAsyncAPI { _ in confirm() }
+    }
+}
+```
+
+**Common Mistakes:**
+- ❌ Using `Task.sleep()` to wait for callbacks
+- ❌ Not specifying `expectedCount` when expecting multiple calls
+- ✅ Use `confirmation()` with expected count instead of sleep
+- ✅ Confirmation fails if count doesn't match (test fails safely)
+
+### Custom Test Argument Generators
+
+Create parameterized test arguments with `CustomTestArgumentProviding`:
+
+**Correct pattern:**
+```swift
+struct APIEndpoint: Sendable {
+    let path: String
+    let method: String
+    let expectedStatus: Int
+
+    // Static test cases property
+    static let testCases: [APIEndpoint] = [
+        .init(path: "/users", method: "GET", expectedStatus: 200),
+        .init(path: "/users", method: "POST", expectedStatus: 201),
+        .init(path: "/missing", method: "GET", expectedStatus: 404),
+    ]
+}
+
+@Test("API returns expected status", arguments: APIEndpoint.testCases)
+func apiStatus(endpoint: APIEndpoint) async throws {
+    let response = try await client.request(endpoint.method, to: endpoint.path)
+    #expect(response.statusCode == endpoint.expectedStatus)
+}
+
+// With custom ArgumentProvider conformance
+struct ValidationScenario: CustomTestArgumentProviding, Sendable {
+    let input: String
+    let shouldPass: Bool
+
+    static var testArguments: [ValidationScenario] {
+        [
+            .init(input: "valid@example.com", shouldPass: true),
+            .init(input: "invalid.email", shouldPass: false),
+            .init(input: "", shouldPass: false),
+        ]
+    }
+}
+
+@Test("Email validation", arguments: ValidationScenario.testArguments)
+func validateEmail(scenario: ValidationScenario) {
+    let result = isValidEmail(scenario.input)
+    #expect(result == scenario.shouldPass)
+}
+```
+
+**Common Mistakes:**
+- ❌ Hard-coding test cases inline instead of creating reusable data
+- ✅ Use static properties on custom types for test data
+- ✅ Make argument types Sendable for concurrency
+
+### Custom Traits with TestScoping
+
+Create reusable traits for common test setup/teardown patterns:
+
+**Correct pattern:**
+```swift
+struct DatabaseTrait: TestTrait, SuiteTrait, TestScoping {
+    func provideScope(
+        for test: Test,
+        testCase: Test.Case?,
+        performing function: @Sendable () async throws -> Void
+    ) async throws {
+        let db = try await TestDatabase.setUp()
+        defer { Task { await db.tearDown() } }
+        try await function()
+    }
+}
+
+// Register extension for easy use
+extension Trait where Self == DatabaseTrait {
+    static var database: Self { .init() }
+}
+
+// Usage: tests get fresh database automatically
+@Test(.database)
+func insertUser() async throws { ... }
+
+@Suite(.database)
+struct DatabaseTests {
+    @Test func create() async throws { ... }
+    @Test func delete() async throws { ... }
+}
+```
+
+**Benefits:**
+- ✅ Consolidate setup/teardown logic in one place
+- ✅ Reuse across multiple tests
+- ✅ Async setup and cleanup
+- ❌ Don't repeat setup code in each test
+
+### withKnownIssue for Expected Failures
+
+Mark expected failures (including intermittent ones) so they don't cause test failure:
+
+**Correct pattern:**
+```swift
+@Test
+func networkTimeout() async throws {
+    withKnownIssue("Server occasionally drops connections") {
+        #expect(service.isReachable)
+    }
+}
+
+// Intermittent / flaky failures
+@Test
+func flakyAsyncOperation() async throws {
+    withKnownIssue(isIntermittent: true) {
+        let result = try await flakeyAPI.fetch()
+        #expect(!result.isEmpty)
+    }
+}
+
+// Conditional known issue
+@Test
+func propaneTest() async {
+    withKnownIssue {
+        #expect(truck.grill.isHeating)
+    } when: {
+        !hasPropane
+    }
+}
+```
+
+**Important:**
+- ✅ Mark expected failures so test suite still passes
+- ✅ Record distinct issue when known issue is actually fixed
+- ❌ Don't use to hide real bugs; fix them
+
+### Exit Testing
+
+Test code paths that call `exit()`, `fatalError()`, or `preconditionFailure()`:
+
+**Correct pattern:**
+```swift
+@Test func invalidInputCausesExit() async {
+    await #expect(processExitsWith: .failure) {
+        processInvalidInput()  // calls fatalError() internally
+    }
+}
+
+@Test func successfulExit() async {
+    await #expect(processExitsWith: .success) {
+        runSuccessfulProcess()  // calls exit(0)
+    }
+}
+
+@Test func preconditionFailure() async {
+    await #expect(processExitsWith: .failure) {
+        validatePrecondition()  // calls preconditionFailure()
+    }
+}
+```
+
+**Common Mistakes:**
+- ❌ Not testing fatal error paths
+- ✅ Use `processExitsWith` to verify exit codes
+- ✅ Test both success (exit 0) and failure paths
+
 ### Migration from XCTest
 
 Swift Testing is backward compatible but has different patterns.
@@ -660,10 +1447,15 @@ Use `import Testing` (not `XCTest`) in new tests. Gradually migrate old tests to
 - [ ] All tests marked with `@Test` macro
 - [ ] Async tests marked with `async` keyword
 - [ ] Using `#expect` and `#require`, not XCTest assertions
-- [ ] Parameterized tests have 5+ cases
-- [ ] Known failing tests marked with `.bug()`
+- [ ] Parameterized tests have 5+ cases, or use cartesian products intentionally
+- [ ] Known failing tests marked with `.bug()` or wrapped in `withKnownIssue()`
 - [ ] No test interdependencies (each test is independent)
 - [ ] Test names describe what's being tested and expected outcome
+- [ ] `confirmation()` used instead of `Task.sleep()` for callback verification
+- [ ] Custom traits with `TestScoping` used for setup/teardown consolidation
+- [ ] Cartesian products intended (or `zip()` used for 1:1 pairing)
+- [ ] Exit paths tested with `processExitsWith` for fatal errors
+- [ ] Intermittent failures wrapped in `withKnownIssue(isIntermittent: true)`
 
 ---
 

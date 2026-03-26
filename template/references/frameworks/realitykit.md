@@ -15,7 +15,8 @@
 
 | Type | Purpose |
 |------|---------|
-| `RealityView` | SwiftUI container for RealityKit content; manages ARSession |
+| `RealityView` | SwiftUI container for RealityKit content; SwiftUI-first pattern on iOS/visionOS |
+| `RealityViewCameraContent` | iOS 18+ content that renders through device camera for AR |
 | `Entity` | Base class for all 3D objects in RealityKit scene |
 | `ModelEntity` | Entity that renders a 3D mesh with material |
 | `AnchorEntity` | Entity anchored to world, face, image, body, or plane |
@@ -25,6 +26,9 @@
 | `Transform` | Position, rotation, scale of entity |
 | `Gesture` | Protocol for AR gestures (drag, rotate, scale) |
 | `SceneUnderstanding` | Detects planes, frames, meshes from ARSession |
+| `SpatialTapGesture` | Gesture for tapping entities; use `.targetedToAnyEntity()` |
+| `DragGesture` | Gesture for dragging entities; use `.targetedToAnyEntity()` |
+| `SceneEvents.Update` | Per-frame update subscription for continuous processing |
 
 **Key Enums:**
 - `AnchorEntity.AnchorType` — world, plane, image, body, face
@@ -34,7 +38,27 @@
 
 ## Code Examples
 
-**Example 1: Basic AR scene with RealityView (SwiftUI)**
+**Example 1: RealityView SwiftUI-first pattern (iOS 18+)**
+```swift
+import SwiftUI
+import RealityKit
+
+struct ARExperienceView: View {
+    var body: some View {
+        RealityView { content in
+            // content is RealityViewCameraContent on iOS
+            let sphere = ModelEntity(
+                mesh: .generateSphere(radius: 0.05),
+                materials: [SimpleMaterial(color: .blue, isMetallic: true)]
+            )
+            sphere.position = [0, 0, -0.5]  // 50cm in front of camera
+            content.add(sphere)
+        }
+    }
+}
+```
+
+**Example 1b: Legacy UIKit-based ARView (pre-iOS 18 pattern)**
 ```swift
 import SwiftUI
 import RealityKit
@@ -104,7 +128,35 @@ let sphere = createSphere()
 arView.scene.addAnchor(AnchorEntity(world: [0, 0, -0.5]))
 ```
 
-**Example 3: Tap gesture to place objects**
+**Example 3: Tap gesture to place objects (RealityView)**
+```swift
+import RealityKit
+
+struct TapToPlaceView: View {
+    var body: some View {
+        RealityView { content in
+            let box = ModelEntity(
+                mesh: .generateBox(size: 0.1),
+                materials: [SimpleMaterial(color: .red, isMetallic: false)]
+            )
+            box.position = [0, 0, -0.5]
+            box.name = "tapTarget"
+            content.add(box)
+        }
+        .gesture(
+            SpatialTapGesture()
+                .targetedToAnyEntity()
+                .onEnded { value in
+                    let tappedEntity = value.entity
+                    print("Tapped: \(tappedEntity.name)")
+                    highlightEntity(tappedEntity)
+                }
+        )
+    }
+}
+```
+
+**Example 3b: Legacy UIKit tap-to-place**
 ```swift
 import RealityKit
 
@@ -200,12 +252,52 @@ let anchor = AnchorEntity(world: result.worldTransform)
 arView.scene.addAnchor(anchor)
 ```
 
+**Mistake 6: Not using entity names for lookup in RealityView update closure**
+```swift
+// ❌ WRONG: Cannot find entity by reference in update closure
+RealityView { content in
+    let sphere = ModelEntity(mesh: .generateSphere(radius: 0.05))
+    content.add(sphere)
+} update: { content in
+    // sphere is out of scope; no way to find it
+    sphere.position.y = 0.1
+}
+
+// ✅ CORRECT: Set name for lookup
+RealityView { content in
+    let sphere = ModelEntity(mesh: .generateSphere(radius: 0.05))
+    sphere.name = "mySphere"
+    content.add(sphere)
+} update: { content in
+    if let sphere = content.entities.first(where: { $0.name == "mySphere" }) as? ModelEntity {
+        sphere.position.y = 0.1
+    }
+}
+```
+
+**Mistake 7: Ignoring iOS vs. visionOS ARKit differences**
+```swift
+// ❌ WRONG: Using visionOS-only ARKit APIs on iOS
+let arKitSession = ARKitSession()  // Not available on iOS
+let worldTrackingProvider = WorldTrackingProvider()  // visionOS only
+
+// ✅ CORRECT: Use RealityViewCameraContent on iOS
+RealityView { content in
+    // content is RealityViewCameraContent on iOS
+    // ARKit tracking handled automatically
+    let entity = ModelEntity(mesh: .generateBox(size: 0.1))
+    content.add(entity)
+}
+
+// For visionOS, use ARKitSession separately; iOS uses RealityView's built-in tracking
+```
+
 ---
 
 ## Review Checklist
 
 - [ ] `ARWorldTrackingConfiguration.isSupported` checked before creating configuration
-- [ ] ARSession configuration set before calling `session.run(config)`
+- [ ] ARSession configuration set before calling `session.run(config)` (or implicit in RealityView)
 - [ ] `planeDetection` enabled if planes needed (horizontal, vertical, or both)
 - [ ] Scene semantics enabled if required (person segmentation, motion capture, etc.)
 - [ ] Camera usage description in Info.plist for camera permission
@@ -216,6 +308,12 @@ arView.scene.addAnchor(anchor)
 - [ ] Session resumed in `sceneDidBecomeActive()`
 - [ ] No direct mutation of entity children during scene updates (use anchors)
 - [ ] Texture/material loading handles errors (missing files, formats)
+- [ ] RealityView uses SwiftUI-first pattern with `make` and `update` closures
+- [ ] `SpatialTapGesture.targetedToAnyEntity()` used for tap interactions
+- [ ] `DragGesture.targetedToAnyEntity()` used for drag interactions
+- [ ] `SceneEvents.Update` subscription used for per-frame logic (not SwiftUI timers)
+- [ ] Entity names set for lookup in update closure
+- [ ] iOS vs visionOS differences acknowledged (RealityViewCameraContent on iOS)
 
 ---
 

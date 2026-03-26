@@ -124,6 +124,176 @@ extension View {
 
 ---
 
+## LocalizedStringResource for App Intents and Widgets
+
+Use `LocalizedStringResource` when passing localized strings to frameworks that resolve them later (App Intents, widgets, notifications, system frameworks):
+
+```swift
+// App Intents require LocalizedStringResource
+struct OrderCoffeeIntent: AppIntent {
+    static var title: LocalizedStringResource = "Order Coffee"
+    static var description: LocalizedStringResource = "Place a coffee order"
+}
+
+// Widgets
+struct MyWidget: Widget {
+    var body: some WidgetConfiguration {
+        StaticConfiguration(
+            kind: "timer",
+            provider: Provider()
+        ) { entry in
+            TimerView(entry: entry)
+        }
+        .configurationDisplayName(LocalizedStringResource("Timer"))
+        .description(LocalizedStringResource("Start a quick timer"))
+    }
+}
+
+// Pass around without resolving yet -- resolved at display time with user's current locale
+func showAlert(title: LocalizedStringResource, message: LocalizedStringResource) {
+    let resolvedTitle = String(localized: title)
+    let resolvedMessage = String(localized: message)
+    // Display alert with resolved strings
+}
+```
+
+## Grammar Agreement Inflection (iOS 17+)
+
+Use `^[...]` syntax for automatic grammatical agreement across languages:
+
+```swift
+// Automatically adjusts for gender/number in supported languages
+Text("^[\(count) \("photo")](inflect: true) added")
+// English: "1 photo added" / "3 photos added"
+// Spanish: "1 foto agregada" / "3 fotos agregadas"
+```
+
+## Device-Specific String Variations
+
+String Catalogs support device-specific text (iPhone vs iPad vs Mac):
+
+```swift
+// In String Catalog editor, enable "Vary by Device" for a key
+// iPhone: "Tap to continue"
+// iPad:   "Tap or click to continue"
+// Mac:    "Click to continue"
+```
+
+## @ScaledMetric for Spacing
+
+Scale spacing and sizing with Dynamic Type:
+
+```swift
+struct ProductCard: View {
+    @ScaledMetric var padding = 16
+    @ScaledMetric var titleSize = 18
+
+    var body: some View {
+        VStack(spacing: padding) {
+            Text("Product Name")
+                .font(.system(size: titleSize, weight: .bold))
+            Text("Description")
+                .font(.body)
+        }
+        .padding(padding)
+    }
+}
+```
+
+## FormatStyle.list with Grammar
+
+Format lists with proper grammar for different locales:
+
+```swift
+let items = ["Apples", "Oranges", "Bananas"]
+
+// Conjunction lists
+Text(items.formatted(.list(type: .and)))
+// English: "Apples, Oranges, and Bananas"
+// French:  "Apples, Oranges et Bananas"
+
+// Disjunction lists
+Text(items.formatted(.list(type: .or)))
+// English: "Apples, Oranges, or Bananas"
+```
+
+## @ScaledMetric for Spacing
+
+Scale spacing and sizing with Dynamic Type:
+
+```swift
+struct ProductCard: View {
+    @ScaledMetric var padding = 16
+    @ScaledMetric var titleSize = 18
+
+    var body: some View {
+        VStack(spacing: padding) {
+            Text("Product Name")
+                .font(.system(size: titleSize, weight: .bold))
+            Text("Description")
+                .font(.body)
+        }
+        .padding(padding)
+    }
+}
+```
+
+## Device-Specific String Variations
+
+String Catalogs support device-specific text (iPhone vs iPad vs Mac):
+
+```swift
+// In String Catalog editor, enable "Vary by Device" for a key
+// iPhone: "Tap to continue"
+// iPad:   "Tap or click to continue"
+// Mac:    "Click to continue"
+```
+
+## Grammar Agreement Inflection (iOS 17+)
+
+Use `^[...]` syntax for automatic grammatical agreement across languages:
+
+```swift
+// Automatically adjusts for gender/number in supported languages
+Text("^[\(count) \("photo")](inflect: true) added")
+// English: "1 photo added" / "3 photos added"
+// Spanish: "1 foto agregada" / "3 fotos agregadas"
+```
+
+## Pseudolocalization Testing
+
+Test localization without actual translations using Xcode schemes:
+
+```swift
+// Set scheme environment variable:
+// AppleLanguages: (ja)      // Test with Japanese
+// AppleLocale: ja_JP        // Full locale
+
+// For accented/double-length testing:
+// Use Xcode's pseudolanguage options to detect:
+// - Truncation bugs
+// - Layout overflow (German is ~30% longer)
+// - RTL issues
+// - Untranslated strings
+```
+
+## Pseudolocalization Testing
+
+Test localization without actual translations using Xcode schemes:
+
+```swift
+// Set scheme environment variable:
+// AppleLanguages: (ja)      // Test with Japanese
+// AppleLocale: ja_JP        // Full locale
+
+// For accented/double-length testing:
+// Use Xcode's pseudolanguage options to detect:
+// - Truncation bugs
+// - Layout overflow (German is ~30% longer)
+// - RTL issues
+// - Untranslated strings
+```
+
 ## Common Mistakes
 
 **Mistake 1: Hardcoded strings without localization**

@@ -24,12 +24,28 @@
 | `PKToolPickerObserver` | Monitor tool picker visibility and selections |
 | `PKContentVersion` | Enum for drawing format compatibility (v1, v2) |
 | `PKStroke` | Individual stroke data (iOS 17.4+) |
+| `PKStrokePath` | Path points with pressure, azimuth, altitude |
+| `PKStrokePoint` | Single point with location, force, size |
 
 **Key Properties:**
 - `PKCanvasView.drawing` — Current drawing (get/set)
 - `PKCanvasView.isOpaque` — Canvas transparency
 - `PKCanvasView.delegate` — Responds to drawing changes
 - `PKToolPicker.selectedTool` — Currently active tool
+- `PKStrokePath.interpolatedPoints(by:)` — Sample points at distance intervals
+
+**PencilKit vs. PaperKit:**
+
+| Capability | PencilKit | PaperKit |
+|---|---|---|
+| Freeform drawing | ✓ | ✓ |
+| Shapes & lines | | ✓ |
+| Text boxes | | ✓ |
+| Images & stickers | | ✓ |
+| Markup toolbar | | ✓ |
+| Data model | `PKDrawing` | `PaperMarkup` |
+
+PaperKit (iOS 26+) extends PencilKit with shapes, text, and rich markup. Use PencilKit for simple drawing apps; use PaperKit for full document annotation.
 
 ---
 
@@ -136,6 +152,32 @@ func generateThumbnail(from drawing: PKDrawing) -> UIImage? {
 }
 ```
 
+**Example 4: Stroke interpolation and programmatic construction**
+```swift
+// Inspect strokes with interpolation
+for stroke in drawing.strokes {
+    let path = stroke.path
+    // Sample points at 10-point intervals
+    for point in path.interpolatedPoints(by: .distance(10)) {
+        print("Location: \(point.location), Force: \(point.force)")
+    }
+}
+
+// Create a stroke programmatically
+let points = [
+    PKStrokePoint(location: CGPoint(x: 0, y: 0), timeOffset: 0,
+                  size: CGSize(width: 5, height: 5), opacity: 1,
+                  force: 0.5, azimuth: 0, altitude: .pi / 2),
+    PKStrokePoint(location: CGPoint(x: 100, y: 100), timeOffset: 0.1,
+                  size: CGSize(width: 5, height: 5), opacity: 1,
+                  force: 0.5, azimuth: 0, altitude: .pi / 2)
+]
+let path = PKStrokePath(controlPoints: points, creationDate: Date())
+let stroke = PKStroke(ink: PKInk(.pen, color: .black), path: path,
+                      transform: .identity, mask: nil)
+let drawing = PKDrawing(strokes: [stroke])
+```
+
 ---
 
 ## Common Mistakes
@@ -195,6 +237,25 @@ guard !drawing.bounds.isEmpty else {
     return UIImage()  // Return blank image
 }
 let scale = min(100 / drawing.bounds.width, 100 / drawing.bounds.height)
+```
+
+**Mistake 4b: Ignoring maximumSupportedContentVersion for backward compatibility**
+```swift
+// ❌ WRONG: Saves watercolor ink (iOS 17+), crashes on iOS 16
+canvasView.tool = PKInkingTool(.watercolor, color: .blue)
+
+// ✅ CORRECT: Limit content version if supporting older OS
+canvasView.maximumSupportedContentVersion = .version2  // iOS 16 compatible
+// Now only pen, pencil, marker, monoline, fountainPen available
+```
+
+**Mistake 4c: Comparing PKDrawing by data representation**
+```swift
+// ❌ WRONG: Same visual drawing produces different bytes
+if drawing1.dataRepresentation() == drawing2.dataRepresentation() { }
+
+// ✅ CORRECT: Use Equatable operator
+if drawing1 == drawing2 { }
 ```
 
 **Mistake 5: Ignoring tool picker observer lifecycle**

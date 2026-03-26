@@ -79,7 +79,95 @@ class NFCReaderViewController: UIViewController, NFCNDEFReaderSessionDelegate {
 }
 ```
 
-**Example 2: Write NDEF message to tag (NFCTagReaderSession)**
+**Example 1b: Tag connection with queryNDEFStatus**
+```swift
+session.connect(to: tag) { error in
+    if let error {
+        session.invalidate(errorMessage: "Connection failed: \(error)")
+        return
+    }
+
+    tag.queryNDEFStatus { status, capacity, error in
+        guard error == nil else {
+            session.invalidate(errorMessage: "Query failed.")
+            return
+        }
+
+        switch status {
+        case .notSupported:
+            session.invalidate(errorMessage: "Tag is not NDEF compliant.")
+        case .readOnly:
+            tag.readNDEF { message, error in
+                if let message {
+                    self.processMessage(message)
+                }
+                session.invalidate()
+            }
+        case .readWrite:
+            // Can read or write
+            tag.readNDEF { message, error in
+                if let message {
+                    self.processMessage(message)
+                }
+                session.invalidate()
+            }
+        @unknown default:
+            session.invalidate()
+        }
+    }
+}
+```
+
+**Example 2: Tag type switch pattern with NFCTagReaderSession**
+```swift
+func readerSession(
+    _ session: NFCTagReaderSession,
+    didDetect tags: [NFCTag]
+) {
+    guard let tag = tags.first else { return }
+
+    session.connect(to: tag) { error in
+        guard error == nil else {
+            session.invalidate(errorMessage: "Connection failed.")
+            return
+        }
+
+        switch tag {
+        case .iso7816(let iso7816Tag):
+            self.readISO7816(tag: iso7816Tag, session: session)
+        case .miFare(let miFareTag):
+            self.readMiFare(tag: miFareTag, session: session)
+        case .iso15693(let iso15693Tag):
+            self.readISO15693(tag: iso15693Tag, session: session)
+        case .feliCa(let feliCaTag):
+            self.readFeliCa(tag: feliCaTag, session: session)
+        @unknown default:
+            session.invalidate(errorMessage: "Unsupported tag type.")
+        }
+    }
+}
+```
+
+**Example 3: Session invalidation error filtering**
+```swift
+func readerSession(
+    _ session: NFCNDEFReaderSession,
+    didInvalidateWithError error: Error
+) {
+    let nfcError = error as? NFCReaderError
+    switch nfcError?.code {
+    case .readerSessionInvalidationErrorUserCanceled,
+         .readerSessionInvalidationErrorFirstNDEFTagRead,
+         .readerSessionInvalidationErrorSessionTimeout:
+        break  // Normal termination or timeout
+    default:
+        showAlert("NFC Error: \(error.localizedDescription)")
+    }
+    self.session = nil
+}
+```
+
+**Example 4: Write NDEF message to tag (NFCTagReaderSession)**
 ```swift
 import CoreNFC
 

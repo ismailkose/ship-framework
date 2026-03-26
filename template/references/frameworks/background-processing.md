@@ -174,6 +174,88 @@ class BackgroundDownloadManager: NSObject, URLSessionDownloadDelegate {
 
 ---
 
+## BGContinuedProcessingTask (iOS 26+)
+
+A task initiated in the foreground that continues running in the background with system support for resource management and Live Activity progress display.
+
+```swift
+func startExport() {
+    let request = BGContinuedProcessingTaskRequest(
+        identifier: "com.example.app.export",
+        title: "Exporting Photos",
+        subtitle: "Processing 247 items"
+    )
+    // .queue: begin ASAP if unable to run immediately
+    // .fail: fail submission if unable to run immediately
+    request.strategy = .queue
+
+    do {
+        try BGTaskScheduler.shared.submit(request)
+    } catch {
+        print("Could not submit: \(error)")
+    }
+}
+
+func performExport(task: BGContinuedProcessingTask) async {
+    let items = await PhotoLibrary.shared.itemsToExport()
+    let progress = task.progress
+    progress.totalUnitCount = Int64(items.count)
+
+    for (index, item) in items.enumerated() {
+        if Task.isCancelled { break }
+
+        await PhotoExporter.shared.export(item)
+        progress.completedUnitCount = Int64(index + 1)
+
+        task.updateTitle(
+            "Exporting Photos",
+            subtitle: "\(index + 1) of \(items.count) complete"
+        )
+    }
+
+    task.setTaskCompleted(success: !Task.isCancelled)
+}
+```
+
+### BGTaskScheduler.supportedResources
+
+Check resource availability before requesting them:
+
+```swift
+let supported = BGTaskScheduler.shared.supportedResources
+if supported.contains(.gpu) {
+    request.requiredResources = .gpu
+}
+if supported.contains(.neural) {
+    request.requiredResources.insert(.neural)
+}
+```
+
+## Swift 6 Concurrency Patterns
+
+Use modern structured concurrency for background tasks:
+
+```swift
+func handleAppRefresh(task: BGAppRefreshTask) {
+    scheduleAppRefresh()
+
+    let work = Task {
+        do {
+            let data = try await APIClient.shared.fetchLatestFeed()
+            await FeedStore.shared.update(with: data)
+            task.setTaskCompleted(success: true)
+        } catch {
+            task.setTaskCompleted(success: false)
+        }
+    }
+
+    task.expirationHandler = {
+        work.cancel()
+        task.setTaskCompleted(success: false)
+    }
+}
+```
+
 ## Common Mistakes
 
 **Mistake 1: Not registering task handlers in app startup**
