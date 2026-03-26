@@ -1605,7 +1605,7 @@ ScrollView(.horizontal) {
 > No custom implementations when a system equivalent exists. Eye rejects any code that
 > custom-builds something Apple already provides natively.
 >
-> The items below are the 9 most common violations. Every one has a clean SwiftUI API
+> The items below are the 10 most common violations. Every one has a clean SwiftUI API
 > that replaces 50-200 lines of hacky workaround code. If you find yourself writing
 > UIKit bridge code, wrapping `UIViewRepresentable`, or importing `UIKit` for any of
 > these — stop and use the SwiftUI modifier instead.
@@ -1849,6 +1849,35 @@ MeshGradient(
 ```
 
 Animate by changing point positions or colors with `withAnimation`.
+
+### Background + Keyboard Corners — ignoresSafeArea (iOS 26+)
+
+```swift
+// WRONG — background doesn't extend behind keyboard
+// White square artifact visible behind keyboard's rounded corners (Liquid Glass)
+VStack {
+  List { /* content */ }
+  TextField("Search...", text: $query)
+}
+.background(Color(.systemGroupedBackground))  // BUG: white corners behind keyboard
+
+// CORRECT — ignoresSafeArea() extends background behind keyboard area
+VStack {
+  List { /* content */ }
+  TextField("Search...", text: $query)
+}
+.background(Color(.systemGroupedBackground).ignoresSafeArea())
+```
+
+**Why this happens:** In iOS 26, the keyboard has rounded corners (Liquid Glass). If your
+view's background doesn't extend into the safe area behind the keyboard, the default white
+background bleeds through at those corners, creating a visible square artifact.
+
+**Key details:**
+- Only visible on real devices by default — toggle CMD+K in simulator to reproduce
+- Add `.keyboard` scope if you only want to ignore the keyboard safe area:
+  `.ignoresSafeArea(.keyboard)`
+- Applies to any view with a custom background behind a keyboard — not just `List`
 
 ---
 
