@@ -351,6 +351,56 @@ struct Config: Codable {
 }
 ```
 
+### Modern Swift Idioms
+
+**Prefer Swift-native APIs over Foundation equivalents:**
+- `"hello".replacing("l", with: "r")` — not `replacingOccurrences(of:with:)`
+- `URL.documentsDirectory` — not `FileManager.default.urls(for:in:)`
+- `URL.documentsDirectory.appending(path: "file.txt")` — not `appendingPathComponent()`
+- `Date.now` — not `Date()`
+- `Date(myString, strategy: .iso8601)` — not manual `DateFormatter` for ISO 8601
+
+**Number and text formatting:**
+- Never use `String(format: "%.2f", value)`. Use `Text(value, format: .number.precision(.fractionLength(2)))` or `FormatStyle` APIs.
+- Prefer `.formatted()` for display: `date.formatted(.dateTime.day().month().year())`
+- For date formatting with year: use `"y"` not `"yyyy"` — `"y"` is correct in all localizations.
+- Use `PersonNameComponents` with modern formatting for people's names — not `"\(firstName) \(lastName)"`.
+
+**Collection idioms:**
+- `count(where:)` over `filter().count` — avoids intermediate allocation.
+- When a type is repeatedly sorted by the same property, make it `Comparable` instead.
+- `localizedStandardContains()` for user-input text filtering — not `contains()` or `localizedCaseInsensitiveContains()`.
+
+**Type idioms:**
+- Prefer `Double` over `CGFloat` except in optionals or `inout` parameters — Swift bridges them freely.
+- Prefer static member lookup: `.circle` over `Circle()`, `.borderedProminent` over `BorderedProminentButtonStyle()`.
+- `import SwiftUI` already provides access to UIKit/AppKit types — no separate `import UIKit` needed for `UIImage` etc.
+
+**Control flow:**
+- Use `if let value {` shorthand — not `if let value = value {`.
+- `if` and `switch` can be used as expressions — omit `return` for single-expression functions.
+- Flag silently swallowed errors: `print(error.localizedDescription)` should be an alert, not just a print.
+
+```swift
+// WRONG
+var tileColor: Color {
+  if isCorrect {
+    return .green
+  } else {
+    return .red
+  }
+}
+
+// CORRECT — if/switch as expression
+var tileColor: Color {
+  if isCorrect { .green } else { .red }
+}
+```
+
+**Asset references:**
+- Use generated asset symbols: `Image(.avatar)` over `Image("avatar")` — type-safe, catches missing assets at compile time.
+- Use `#Preview { }` — never the legacy `PreviewProvider` protocol.
+
 ### Review Checklist
 - [ ] All enum cases handled in switch statements
 - [ ] Error types are specific, not generic `Error`
@@ -584,6 +634,202 @@ Beyond blocking, unnecessary `@MainActor`, and semaphores:
 7. **Assuming actor reentrancy.** State can change across `await` points. Never read, then await, then use (state may have changed). Mutate synchronously.
 
 8. **Using `@preconcurrency` without a removal plan.** Document why the import is needed and when it can be removed.
+
+### Actor Reentrancy — The #1 LLM Bug
+
+After every `await` inside an actor, ALL state assumptions are invalidated. Other calls may have executed during the suspension. This is the most common concurrency bug that AI generates.
+
+```swift
+// WRONG — check-then-act across await (stale state)
+actor ImageCache {
+  var cache: [URL: Image] = [:]
+
+  func image(for url: URL) async -> Image {
+    if let cached = cache[url] { return cached }
+    let downloaded = await download(url)  // ⚠️ another caller may have set cache[url] during this await
+    cache[url] = downloaded  // may overwrite a newer version
+    return downloaded
+  }
+}
+
+// CORRECT — capture result locally, then assign
+actor ImageCache {
+  var cache: [URL: Image] = [:]
+  private var inFlight: [URL: Task<Image, Error>] = [:]
+
+  func image(for url: URL) async throws -> Image {
+    if let cached = cache[url] { return cached }
+    if let existing = inFlight[url] { return try await existing.value }
+
+    let task = Task { try await download(url) }
+    inFlight[url] = task
+    let result = try await task.value
+    cache[url] = result
+    inFlight[url] = nil
+    return result
+  }
+}
+```
+
+**Key rule:** Never force-unwrap after `await` in actors — if another caller set a value to `nil` during suspension, you crash.
+
+### Bug Patterns: 10 Common Concurrency Failures
+
+1. **Check-then-act across await** — State assumed valid after suspension. Fix: capture result locally first.
+2. **Continuation resumed 0 times** — Causes permanent hang. Audit every code path in `withCheckedContinuation` to ensure exactly one resume.
+3. **Continuation resumed 2+ times** — Runtime crash. Guard with Bool flag or use actor to serialize.
+4. **Unstructured tasks in loops** — `for item in items { Task { } }` has no cancellation propagation, no error collection. Use `withTaskGroup` instead.
+5. **Swallowed errors in Task** — Errors silently lost inside `Task { }`. Handle errors inside the closure or use `Task<Void, Error>`.
+6. **Blocking MainActor with CPU work** — Freezes UI. Use `@concurrent` or move to task group.
+7. **Unbounded AsyncStream buffer** — Memory grows without limit. Always specify `.bufferingNewest(n)` or `.bufferingOldest(n)`.
+8. **Ignoring CancellationError** — Retries on normal lifecycle events. Filter `CancellationError` before retry logic.
+9. **@unchecked Sendable hiding races** — Silences compiler but data race still exists at runtime. Restructure with value types or actors.
+10. **Force unwrap after await in actor** — Can crash if another caller set value to nil during suspension.
+
+### Structured Concurrency Patterns
+
+**async let vs Task Groups:**
+- `async let` — fixed number of different-type operations
+- `withTaskGroup` — dynamic number of same-type operations
+- `withDiscardingTaskGroup` — fire-and-forget child tasks (Swift 5.9+)
+
+```swift
+// async let — fixed, different types
+async let profile = fetchProfile(id)
+async let posts = fetchPosts(for: id)
+let (p, ps) = try await (profile, posts)
+
+// Task group — dynamic, same type
+let images = try await withThrowingTaskGroup(of: UIImage.self) { group in
+  for url in urls {
+    group.addTask { try await downloadImage(url) }
+  }
+  return try await group.reduce(into: []) { $0.append($1) }
+}
+```
+
+**Limiting concurrency in task groups:**
+```swift
+await withTaskGroup(of: Void.self) { group in
+  var iterator = urls.makeIterator()
+  // Start initial batch
+  for _ in 0..<maxConcurrent {
+    guard let url = iterator.next() else { break }
+    group.addTask { await process(url) }
+  }
+  // As each finishes, start next
+  for await _ in group {
+    if let url = iterator.next() {
+      group.addTask { await process(url) }
+    }
+  }
+}
+```
+
+### AsyncStream Patterns
+
+```swift
+// Modern factory (preferred)
+let (stream, continuation) = AsyncStream.makeStream(of: Event.self)
+
+// Always specify buffer policy for high-throughput streams
+let (stream, continuation) = AsyncStream.makeStream(
+  of: Event.self,
+  bufferingPolicy: .bufferingNewest(100)
+)
+
+// Cleanup on consumer stop
+continuation.onTermination = { _ in
+  sensor.stopMonitoring()
+}
+
+// Finish exactly once
+continuation.finish()
+```
+
+### Request ID Gating — Preventing Stale Response Overwrites
+
+Task cancellation stops in-flight work, but **doesn't prevent out-of-order responses**. When a user triggers rapid sequential requests (typing in search, pull-to-refresh while loading), a slower first response can overwrite a newer second response. This is distinct from cancellation — both patterns are needed.
+
+```swift
+// WRONG — stale overwrite: slow Response 1 arrives after fast Response 2
+func search(_ query: String) async {
+  let results = try? await api.search(query)
+  self.results = results  // overwrites newer results!
+}
+
+// CORRECT — request ID gating + cancellation
+@Observable @MainActor
+final class SearchViewModel {
+  var results: [Item] = []
+  private var currentRequestID = UUID()
+  private var searchTask: Task<Void, Never>?
+
+  func search(_ query: String) {
+    searchTask?.cancel()  // cancel previous work
+    let requestID = UUID()
+    currentRequestID = requestID  // stamp this request
+
+    searchTask = Task {
+      try? await Task.sleep(for: .milliseconds(300))  // debounce
+      guard !Task.isCancelled else { return }
+      let fetched = try? await api.search(query)
+      guard currentRequestID == requestID else { return }  // stale guard
+      results = fetched ?? []
+    }
+  }
+}
+```
+
+**Key distinction:** `Task.cancel()` stops work that hasn't finished. Request ID gating rejects results that arrive after a newer request was issued. Use both.
+
+### Cancellation-First Checklist
+
+Every async entry point in your code should have explicit cancellation handling:
+- `.task {}` — handled automatically by SwiftUI (cancels on disappear)
+- Stored `Task` property — cancel in `deinit`, or before starting new work
+- `TaskGroup` children — cancelled when parent is cancelled
+- `AsyncStream` — set `onTermination` handler for cleanup
+- `withCheckedContinuation` — must resume exactly once, even on cancellation
+
+### Cancellation Patterns
+
+- **Structured tasks:** parent cancels all children automatically.
+- **Unstructured tasks:** you must cancel explicitly — store the `Task` handle.
+- **SwiftUI `.task()`:** auto-cancels when view disappears.
+- Use `Task.checkCancellation()` (throws) in loops, or `Task.isCancelled` (returns Bool).
+- `withTaskCancellationHandler` bridges Swift cancellation to APIs with their own cancel mechanism.
+- **Never catch and ignore `CancellationError`** — it's a normal lifecycle signal.
+
+### Bridging Legacy Code
+
+| Legacy Pattern | Modern Replacement |
+|---|---|
+| Completion handler | `withCheckedThrowingContinuation` (resume exactly once!) |
+| Delegate callbacks | `AsyncStream` with `onTermination` cleanup |
+| `DispatchQueue.main.async` | `@MainActor` |
+| `DispatchQueue.global().async` | `@concurrent` or task group |
+| Serial `DispatchQueue` | `actor` |
+| Combine publisher | `AsyncSequence` |
+
+### Concurrency Diagnostics Quick Reference
+
+| Compiler Error | Fix (in priority order) |
+|---|---|
+| "cannot be sent to non-isolated context" | 1. Make type `Sendable` (value type or immutable) 2. Use actor isolation 3. Last resort: `@unchecked Sendable` with internal locking |
+| "actor-isolated property cannot be referenced from non-isolated context" | 1. Mark caller `@MainActor` 2. Use `await` 3. Mark property `nonisolated` if safe |
+| "capture of mutable var in Sendable closure" | 1. Copy to `let` before capture 2. Use actor |
+| "call to MainActor-isolated function in non-isolated context" | 1. Mark caller `@MainActor` 2. Use `await` |
+
+### Swift 6.3 Updates
+
+Swift 6.3 (Xcode 26.4, March 2026) adds:
+- **`@c` attribute** — expose Swift functions/enums to C code (embedded/systems programming).
+- **`@specialize`** — provide pre-specialized implementations of generic APIs for common types.
+- **`@inline(always)`** — guarantee function inlining for direct calls.
+- **Android SDK** — first stable Swift SDK for Android development.
+
+These are primarily library-author and cross-platform features. No changes to concurrency model or actor isolation rules from Swift 6.2.
 
 ---
 
@@ -1443,6 +1689,161 @@ Use `import Testing` (not `XCTest`) in new tests. Gradually migrate old tests to
 - ✅ Create new tests with `@Test` macro
 - ✅ Migrate critical test files first, non-critical later
 
+### Testing Gotchas — Common Agent Mistakes
+
+**.serialized only works on parameterized tests:**
+```swift
+// WRONG — .serialized on a suite does NOT serialize regular tests
+@Suite(.serialized)
+struct MyTests {
+  @Test func testA() { }  // Still runs in parallel with testB!
+  @Test func testB() { }
+}
+
+// CORRECT — .serialized on parameterized test
+@Suite(.serialized)
+struct MyTests {
+  @Test(arguments: [1, 2, 3])
+  func testValues(value: Int) { }  // These run serially
+}
+```
+
+**confirmation() must complete before returning:**
+```swift
+// WRONG — fire-and-forget, confirmation may not trigger
+await confirmation { confirm in
+  service.onComplete = { confirm() }
+  service.start()
+  // returns immediately, service hasn't finished
+}
+
+// CORRECT — await the work inside the closure
+await confirmation { confirm in
+  service.onComplete = { confirm() }
+  await service.startAndWait()  // wait for completion
+}
+```
+
+**Time limits use .minutes(), not .seconds():**
+```swift
+@Test(.timeLimit(.minutes(1)))  // ✓
+@Test(.timeLimit(.seconds(30)))  // ✗ Does not compile
+```
+
+**Don't negate Booleans with ! in #expect:**
+```swift
+// WRONG — defeats macro expansion, poor diagnostics
+#expect(!array.isEmpty)
+
+// CORRECT — clear diagnostics on failure
+#expect(array.isEmpty == false)
+```
+
+**Tests without expectations pass silently** — if no `#expect`/`#require` is hit, the test passes. Ensure every test has at least one assertion.
+
+**No float tolerance built-in** — use Swift Numerics: `#expect(value.isApproximatelyEqual(to: expected, absoluteTolerance: 0.001))`
+
+### Testing Best Practices
+
+**Parallel-safe by default:**
+- Assume all tests run in parallel. Each must be independent.
+- Fix shared state before reaching for `.serialized`.
+- Use `init()` for per-test setup (structs preferred over classes for test suites).
+
+**#expect vs #require:**
+- `#expect` — assertion, test continues on failure.
+- `#require` — precondition, test stops on failure. Use for setup steps.
+
+```swift
+@Test func userCanUpdateProfile() throws {
+  let user = try #require(await fetchUser(id: 1))  // stops if nil
+  user.name = "New Name"
+  try await user.save()
+  #expect(user.name == "New Name")  // continues on failure
+}
+```
+
+**Traits over naming conventions:**
+- Use `@available` on individual `@Test` functions, not runtime `#available` inside tests.
+- Use `.enabled(if:)`, `.disabled()`, `.timeLimit()`, `.bug(id:)` traits for metadata.
+- Define custom tags: `extension Tag { @Tag static var networking: Self }` for cross-suite filtering.
+
+**XCTest carve-outs** (keep XCTest for these):
+- UI automation (`XCUIApplication`)
+- Performance metrics (`XCTMetric`)
+- Objective-C-only test code
+
+**Never use Task.sleep() as a test wait mechanism** — await the actual operation instead.
+
+**Test @Observable view models directly** — no need for protocols or mocks. Test the class, not the view.
+
+**Deterministic async testing — no sleeps, no flakiness:**
+
+Use `CheckedContinuation` to control when async work completes in tests:
+
+```swift
+// Test a ViewModel without real network calls or sleeps
+@Test func loadItemsShowsResults() async {
+  var continuation: CheckedContinuation<[Item], Error>!
+  let mockService = MockService { resolve in
+    continuation = resolve  // capture so test controls timing
+  }
+  let vm = ItemViewModel(service: mockService)
+
+  await vm.load()  // starts the async work
+  continuation.resume(returning: [Item.sample])  // test decides when it completes
+  #expect(vm.items.count == 1)
+}
+```
+
+For TCA: use `TestClock` to advance simulated time instead of real delays:
+```swift
+let clock = TestClock()
+let store = TestStore(initialState: .init()) { Feature() } withDependencies: {
+  $0.continuousClock = clock
+}
+await store.send(.startTimer)
+await clock.advance(by: .seconds(1))
+await store.receive(.timerTicked)
+```
+
+**Architecture-specific test targets:**
+
+| Pattern | What to Test | What NOT to Test |
+|---|---|---|
+| **MV** | Services, model transforms, business logic | Views directly |
+| **MVVM** | ViewModel methods, state transitions | View bindings |
+| **TCA** | Reducer (actions → state), Effects | Store internals |
+| **MVP** | Presenter logic, view method calls | UIKit view layout |
+| **MVI** | Pure reducer, effect execution | View rendering |
+| **Clean** | UseCases, Repository implementations, Mappers | Framework layer |
+
+### Range-based Confirmations (Swift 6.2+)
+
+```swift
+// Expect exactly 3 calls
+await confirmation(expectedCount: 3) { confirm in
+  for item in items { process(item) { confirm() } }
+}
+
+// Expect 5-10 calls
+await confirmation(expectedCount: 5...10) { confirm in
+  /* ... */
+}
+```
+
+### Exit Testing
+
+Test `fatalError` and precondition failures:
+
+```swift
+@Test func invalidInputCrashes() async {
+  await #expect(processExitsWith: .failure) {
+    _ = UnsafeBuffer(count: -1)  // should trigger fatalError
+  }
+}
+```
+
 ### Review Checklist
 - [ ] All tests marked with `@Test` macro
 - [ ] Async tests marked with `async` keyword
@@ -1456,6 +1857,12 @@ Use `import Testing` (not `XCTest`) in new tests. Gradually migrate old tests to
 - [ ] Cartesian products intended (or `zip()` used for 1:1 pairing)
 - [ ] Exit paths tested with `processExitsWith` for fatal errors
 - [ ] Intermittent failures wrapped in `withKnownIssue(isIntermittent: true)`
+
+### Swift 6.3 Testing Updates
+
+- **Warning issues:** `Issue.record` now accepts a severity parameter — warnings don't fail the test.
+- **Test cancellation:** `try Test.cancel()` cancels a test and its task hierarchy mid-execution. Useful for skipping individual arguments of parameterized tests.
+- **Image attachments:** `Attachment.record()` can attach images during tests via cross-import overlays with UIKit (iOS) and AppKit (macOS). Swift 6.2+ feature, fully stable in 6.3.
 
 ---
 

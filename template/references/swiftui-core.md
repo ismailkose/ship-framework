@@ -165,6 +165,14 @@ enum SheetDestination: Identifiable {
 }
 ```
 
+**Sheet presentation shortcuts:**
+- When `sheet(item:)` presents a view that takes the item as its only init parameter, use the shorthand: `.sheet(item: $selectedItem, content: EditItemSheet.init)` instead of a closure.
+- Alert with a single dismiss-only OK button can omit the actions closure entirely: `.alert("Title", isPresented: $showAlert) { }`
+
+**Navigation rules:**
+- `navigationDestination(for:)` must be registered exactly once per data type in the navigation hierarchy. Duplicates cause undefined behavior — flag them.
+- Never mix `navigationDestination(for:)` and the old `NavigationLink(destination:)` pattern in the same `NavigationStack`. This causes significant navigation bugs.
+
 ### Deep Links
 
 ```swift
@@ -234,6 +242,8 @@ TabView {
 
 **`TabSection`** groups related tabs under a sidebar header.
 
+**Tab selection binding:** When using `TabView(selection:)`, bind to an enum property, not an integer or string. Example: `Tab("Home", systemImage: "house", value: .home)`.
+
 ### PresentationSizing Fine-Tuning (iOS 18+)
 
 ```swift
@@ -259,6 +269,8 @@ TabView {
     }
 }
 ```
+
+**confirmationDialog placement:** Always attach `.confirmationDialog()` to the specific UI element that triggers it. On iOS 26, Liquid Glass animations morph from the source element — attaching to the wrong view breaks the transition animation.
 
 **Common Mistakes — Navigation:**
 ```swift
@@ -375,6 +387,14 @@ struct SettingsView {
   func navigate(to route: AppRoute) { path.append(route) }
 }
 ```
+
+### Toolbar Enhancements (iOS 26+)
+
+- `toolbar(id:)` — creates a user-customizable toolbar with drag-to-reorder.
+- `searchToolbarBehavior(.minimize)` — search appears as a button that expands on tap.
+- `matchedTransitionSource(id:in:)` — smooth zoom transitions from toolbar items to destination views.
+- `.largeSubtitle` placement — subtitle under large navigation title.
+- `sharedBackgroundVisibility(.hidden)` — hides the shared glass background behind toolbar items.
 
 ---
 
@@ -1435,6 +1455,32 @@ if items.isEmpty {
 ContentUnavailableView.search(text: searchText)
 ```
 
+**Shortcut:** `ContentUnavailableView.search` auto-includes the search term — no need for `.search(text: searchText)`.
+
+### Design Rules
+
+**Tap targets:** Apple's minimum is 44×44pt. Use `.contentShape(.rect)` or `.frame(minWidth: 44, minHeight: 44)` to expand small elements.
+
+**Typography:**
+- Use `bold()` instead of `fontWeight(.bold)` — `bold()` lets the system choose the correct weight for context.
+- Avoid `.caption2` (extremely small). Use `.caption` carefully.
+- Limit to 4-5 font sizes across the app. Differentiate with weight, not size sprawl.
+
+**Semantic styling:**
+- Prefer system hierarchical styles (`.secondary`, `.tertiary`) over manual `opacity()` — they adapt to context automatically.
+- Use semantic colors (`Color.primary`, `.secondary`, `.accentColor`) over hardcoded colors. Limit opacity values to 2-3 at most.
+- `RoundedRectangle` default corner style is `.continuous` — no need to specify it.
+
+**Component preferences:**
+- Use `Label("Settings", systemImage: "gear")` over `HStack { Image(); Text() }` for icon+text — it's semantic and adapts to context (sidebar, list, etc.).
+- Wrap `Slider`, `Stepper`, and other controls in `LabeledContent` inside `Form` for correct layout.
+- Prefer `TextField(axis: .vertical)` over `TextEditor` — it supports placeholder text. Use `lineLimit(5...)` for minimum height.
+- Use `Button("Add", systemImage: "plus", action: addUser)` when action can be passed directly — cleaner than trailing closure.
+
+**Spacing discipline:**
+- Prefer a consistent spacing grid: 4 / 8 / 12 / 16 / 20 / 24 / 32 / 40 / 48. No arbitrary values.
+- Create a shared design constants enum for fonts, sizes, colors, spacing, padding, rounding, and animation timings.
+
 ### LazyVStack and LazyHStack
 
 Defer view creation until items become visible:
@@ -1605,7 +1651,7 @@ ScrollView(.horizontal) {
 > No custom implementations when a system equivalent exists. Eye rejects any code that
 > custom-builds something Apple already provides natively.
 >
-> The items below are the 10 most common violations. Every one has a clean SwiftUI API
+> The items below are the 18 most common violations. Every one has a clean SwiftUI API
 > that replaces 50-200 lines of hacky workaround code. If you find yourself writing
 > UIKit bridge code, wrapping `UIViewRepresentable`, or importing `UIKit` for any of
 > these — stop and use the SwiftUI modifier instead.
@@ -1879,6 +1925,161 @@ background bleeds through at those corners, creating a visible square artifact.
   `.ignoresSafeArea(.keyboard)`
 - Applies to any view with a custom background behind a keyboard — not just `List`
 
+### overlay() — Use Trailing Closure Form
+
+```swift
+// WRONG — deprecated overlay form
+Text("Hello")
+  .overlay(Circle().fill(.red), alignment: .topTrailing)
+
+// CORRECT — modern trailing closure form (iOS 15+)
+Text("Hello")
+  .overlay(alignment: .topTrailing) {
+    Circle().fill(.red)
+  }
+```
+
+### Toolbar Placement — topBarLeading / topBarTrailing
+
+```swift
+// WRONG — deprecated placement names
+.toolbar {
+  ToolbarItem(placement: .navigationBarLeading) { BackButton() }
+  ToolbarItem(placement: .navigationBarTrailing) { SaveButton() }
+}
+
+// CORRECT — modern placement names
+.toolbar {
+  ToolbarItem(placement: .topBarLeading) { BackButton() }
+  ToolbarItem(placement: .topBarTrailing) { SaveButton() }
+}
+```
+
+### scrollIndicators — Hide Scroll Bars
+
+```swift
+// WRONG — old initializer parameter
+ScrollView(showsIndicators: false) { content }
+
+// CORRECT — modern modifier (iOS 16+)
+ScrollView { content }
+  .scrollIndicators(.hidden)
+```
+
+### @Entry Macro — Custom Environment Keys (iOS 17+)
+
+```swift
+// WRONG — verbose legacy pattern
+struct ThemeKey: EnvironmentKey {
+  static let defaultValue = Theme.standard
+}
+extension EnvironmentValues {
+  var theme: Theme {
+    get { self[ThemeKey.self] }
+    set { self[ThemeKey.self] = newValue }
+  }
+}
+
+// CORRECT — @Entry macro replaces all boilerplate
+extension EnvironmentValues {
+  @Entry var theme = Theme.standard
+}
+// Works for EnvironmentValues, FocusValues, Transaction, ContainerValues
+```
+
+### Fill + Stroke — No Overlay Needed (iOS 17+)
+
+```swift
+// WRONG — old overlay pattern for fill+stroke
+Circle()
+  .fill(.blue)
+  .overlay(Circle().stroke(.white, lineWidth: 2))
+
+// CORRECT — chain directly (iOS 17+)
+Circle()
+  .fill(.blue)
+  .stroke(.white, lineWidth: 2)
+```
+
+**Rendering views to images:** Prefer `ImageRenderer` over `UIGraphicsImageRenderer` for rendering SwiftUI views to images.
+
+### Text Interpolation — No + Concatenation
+
+```swift
+// WRONG — deprecated Text concatenation
+Text("Hello ").foregroundStyle(.red)
++
+Text("World").foregroundStyle(.blue)
+
+// CORRECT — text interpolation
+let red = Text("Hello ").foregroundStyle(.red)
+let blue = Text("World").foregroundStyle(.blue)
+Text("\(red)\(blue)")
+```
+
+### Grammar Agreement — Auto-Pluralization
+
+```swift
+// WRONG — manual pluralization
+Text(count == 1 ? "1 item" : "\(count) items")
+
+// CORRECT — automatic grammar agreement (en, fr, de, pt, es, it)
+Text("^[\(count) item](inflect: true)")
+```
+
+### ForEach over enumerated() — No Array Conversion
+
+```swift
+// WRONG — unnecessary Array allocation
+ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
+  Text("\(index): \(item.name)")
+}
+
+// CORRECT — use enumerated directly
+ForEach(items.enumerated(), id: \.element.id) { index, item in
+  Text("\(index): \(item.name)")
+}
+```
+
+---
+
+## Section 6.7: Accessibility Quick Reference
+
+### Dynamic Type
+
+- Never force specific font sizes. Prefer Dynamic Type: `.font(.body)`, `.font(.headline)`.
+- For custom font sizes: use `@ScaledMetric` (iOS 14+) or `.font(.body.scaled(by:))` (iOS 26+).
+- Avoid `.caption2` (extremely small). Use `.caption` carefully.
+
+### VoiceOver
+
+- **Buttons with image labels must always include text**, even if invisible: `Button("Add User", systemImage: "plus", action: addUser)`. Flag icon-only buttons as VoiceOver-invisible.
+- **Menu must include text label** like Button: `Menu("Options", systemImage: "ellipsis.circle") { }` — not just an image.
+- `onTapGesture()` should only be used when you need tap location or tap count. All other tappable elements should be `Button`.
+- If `onTapGesture()` must be used, add `.accessibilityAddTraits(.isButton)` for VoiceOver.
+- Use `accessibilityInputLabels()` for buttons with complex/changing labels (e.g. live stock price button — add input label "Apple" for Voice Control).
+
+### Color & Motion
+
+- Respect `accessibilityDifferentiateWithoutColor` — when color differentiates items, also add icons, patterns, or strokes.
+- Respect `accessibilityReduceMotion` — replace large animations with crossfade/opacity.
+- Use `bold()` over `fontWeight(.bold)` — `bold()` lets the system pick the correct weight for context.
+
+### Tap Targets
+
+- Apple's minimum acceptable tap area is **44×44pt**. Enforce strictly for all interactive elements.
+- Use `.contentShape(.rect)` to expand small visual elements to meet the 44pt minimum.
+
+### Design for All Input Methods
+
+- Support Voice Control: ensure all interactive elements have discoverable labels.
+- Support Full Keyboard Access: test `Tab` navigation order, ensure focus rings are visible.
+- Support Switch Control: all actions reachable without gestures.
+
+---
+
+**Previews:** Always use `#Preview { }` — never the legacy `PreviewProvider` protocol.
+
 ---
 
 ## Section 7: Architecture Patterns
@@ -1944,6 +2145,100 @@ for await _ in Observations { model.count } {
   print("Count changed to \(model.count)")
 }
 ```
+
+### Data Flow Rules
+
+**@State ownership:**
+- `@State` should always be `private` — only the view that creates it should own it.
+- `@State` can cache expensive non-observable objects (e.g. `CIContext`) — SwiftUI persists it without change tracking.
+
+**@AppStorage traps:**
+- Never use `@AppStorage` inside an `@Observable` class, even with `@ObservationIgnored` — it will NOT trigger view updates when the stored value changes.
+- `@AppStorage` must never store sensitive data (passwords, tokens, API keys). Use Keychain instead.
+
+**Bindings:**
+- Never use `Binding(get:set:)` in view body code — use `@State`/`@Binding` with `.onChange()` instead.
+- For numeric `TextField`: `TextField("Score", value: $score, format: .number)` + `.keyboardType(.numberPad)`.
+
+**onChange:**
+- Never use the 1-parameter `onChange()` variant — it's deprecated. Use the 0-parameter or 2-parameter variant.
+
+**ObservableObject:**
+- If `ObservableObject` is absolutely required (e.g. Combine debouncer), you must add `import Combine` explicitly — SwiftUI no longer provides it.
+
+**SwiftData + CloudKit constraints:**
+- Never use `@Attribute(.unique)` or `#Unique` with CloudKit sync.
+- All model properties must have default values or be optional.
+- All relationships must be optional.
+
+**MV-first default:**
+- When `@State` + `.task` + `@Environment` suffices, don't introduce a view model. Only extract to `@Observable` class when logic grows complex enough to need independent testing.
+
+**When to justify a view model (exceptions to MV-first):**
+- User explicitly requests MVVM pattern
+- Codebase has established MVVM convention (stay consistent)
+- Long-lived reference model shared across multiple views
+- Bridging non-SwiftUI API that requires reference semantics
+- Shared presentation state (e.g., multi-step form wizard)
+
+If none of these apply, MV-first wins. Split UI before inventing abstraction layers.
+
+### Architecture Routing
+
+Before writing any architecture code, **detect** what the project already uses. Never assume.
+
+**Detection — read the codebase first:**
+
+| Signal in Code | Pattern |
+|---|---|
+| `@State` + `.task` + `@Environment` + services, no ViewModel classes | **MV** (Model-View) |
+| `@Observable class *ViewModel` or `ObservableObject` + `@Published` | **MVVM** |
+| `Store<State, Action>`, `Reducer`, `@Dependency` | **TCA** (Composable Architecture) |
+| `protocol *Router`, `Coordinator` class, `path` management | **Coordinator** |
+| `Intent`/`Action` enum → `reduce()` → `Effect` | **MVI** (Unidirectional) |
+| `protocol *Interactor`, `*Presenter`, `*Router` per module | **VIPER** |
+| `protocol *UseCase`, `*Repository`, strict layer folders | **Clean Architecture** |
+| Combine `Publisher` chains, `sink`, `switchToLatest` | **Reactive** |
+
+**After detection — isolation rules (never mix):**
+
+| If Pattern Is... | NEVER Do This |
+|---|---|
+| **MV** | Create ViewModel classes. If you need shared state, use `@Environment` services. |
+| **MVVM** | Use `@Dependency` macro (that's TCA). Use `@Environment` for DI, not `@Dependency`. |
+| **TCA** | Create ViewModel classes or use `@Environment` for DI. TCA uses `@Dependency` and `Store`. |
+| **Coordinator** | Push/present from inside views. Views call coordinator methods or set state. |
+| **MVI** | Put side effects in the reducer. Reducer is pure. Effects run separately. |
+| **VIPER** | Let views call services directly. Views talk only to Presenter. |
+| **Clean** | Import inner layers from outer layers. Dependencies point inward only. |
+| **Reactive** | Break publisher chains with random `Task {}` blocks. Stay in the reactive pipeline. |
+
+**Intentional simplification is OK:** A simpler pattern can exist inside a more complex architecture (e.g., a plain MV settings screen inside a TCA app). But never the reverse — don't introduce TCA into one screen of an MV app.
+
+**Architecture decision tree (new projects or architecture reviews):**
+
+```
+START → Is it a simple app (≤5 screens, minimal shared state)?
+  YES → MV pattern (State + Environment + services)
+  NO ↓
+Does the project need composable features at scale with deterministic testing?
+  YES → TCA
+  NO ↓
+Is navigation complex (deep links, auth gates, multi-step flows)?
+  YES → Coordinator pattern (pair with MVVM or MV for screens)
+  NO ↓
+Is it stream-heavy (live search, real-time feeds, reactive chains)?
+  YES → Reactive (Combine / AsyncSequence)
+  NO ↓
+Do multiple views share complex presentation state?
+  YES → MVVM
+  NO → MV pattern (default)
+```
+
+**For architecture reviews:** Run the same decision tree against the current project. If the current pattern doesn't match the project's actual complexity, flag it:
+- **Over-engineered:** Full TCA for a 3-screen app with no shared state → recommend MV
+- **Under-engineered:** Bare MV with 15+ screens sharing complex state → recommend MVVM or Coordinator
+- **Good fit:** Pattern matches complexity → enforce its isolation rules
 
 ---
 
@@ -2277,6 +2572,39 @@ Solution: Push reads into child views — decompose @Observable objects.
 // Each service used where needed; only affected children update
 ```
 
+### Performance Triage Order
+
+When a view has multiple performance issues, fix them in this priority order:
+
+1. **Invalidation storms** — Broad `@Observable` reads triggering cascading updates across the view tree. Fix: narrow observation scope, decompose into smaller observable objects.
+2. **Identity churn** — Unstable `ForEach` identity (`id: \.self` on mutable collections, inline filtering, root-level `if/else` swapping entire view trees). Fix: stable identifiers, ternary for toggling.
+3. **Main-thread work** — Heavy compute, sorting, filtering, or formatter creation in `body`. Fix: precompute in `@State`, move to `.task()`, use `@concurrent`.
+4. **Image cost** — Decoding/resizing full-resolution images on main thread. Fix: `preparingThumbnail(of:)`, `AsyncImage`, downsample before display.
+5. **Layout thrash** — Deep nesting, `GeometryReader` abuse, preference key chains. Fix: simplify hierarchy, use `ViewThatFits`, `Layout` protocol.
+
+### Formatter Anti-Pattern
+
+DateFormatter and NumberFormatter are expensive to create. Never instantiate in `body` — they re-create every render cycle.
+
+```swift
+// WRONG — new formatter on every body evaluation
+var body: some View {
+  let formatter = DateFormatter()
+  formatter.dateStyle = .medium
+  Text(formatter.string(from: date))
+}
+
+// CORRECT — static cached singleton
+private static let dateFormatter: DateFormatter = {
+  let f = DateFormatter()
+  f.dateStyle = .medium
+  return f
+}()
+
+// BEST — use FormatStyle (no formatter needed)
+Text(date, format: .dateTime.month().day().year())
+```
+
 ### Common Performance Mistakes
 
 ```swift
@@ -2332,6 +2660,80 @@ private func handleTap(_ item: Item) {
 }
 ```
 
+### Ternary vs if/else for Modifier Toggling
+
+When toggling modifier values (not switching between different view types), prefer ternary expressions. `if/else` creates `_ConditionalContent` which destroys structural identity and recreates underlying platform views.
+
+```swift
+// WRONG — if/else creates _ConditionalContent, destroys structural identity
+var body: some View {
+  if isHighlighted {
+    Text(title).foregroundStyle(.yellow).bold()
+  } else {
+    Text(title).foregroundStyle(.primary)
+  }
+}
+
+// CORRECT — ternary preserves structural identity, just updates properties
+Text(title)
+  .foregroundStyle(isHighlighted ? .yellow : .primary)
+  .bold(isHighlighted)
+```
+
+### View Initializers Must Be Minimal
+
+Never do non-trivial work in a view's `init`. View structs are created frequently — heavy init work (network calls, file I/O, complex computation) runs every time. Move work to `.task()`.
+
+```swift
+// WRONG — heavy work in init
+struct ProfileView: View {
+  let profile: Profile
+  init(userID: String) {
+    self.profile = Database.shared.fetchProfile(userID)  // blocking I/O in init!
+  }
+}
+
+// CORRECT — defer to task
+struct ProfileView: View {
+  let userID: String
+  @State private var profile: Profile?
+  var body: some View {
+    Group { /* display profile */ }
+      .task { profile = try? await fetchProfile(userID) }
+  }
+}
+```
+
+### ScrollView Performance: scrollContentBackground
+
+For ScrollViews with opaque, static, solid backgrounds, use `.scrollContentBackground(.visible)` to improve scroll-edge rendering efficiency.
+
+### @ViewBuilder Closure Storage Anti-Pattern
+
+Store built view results, not escaping closures:
+
+```swift
+// WRONG — stores escaping closure, re-invoked each body eval
+struct CardView<Content: View>: View {
+  let content: () -> Content
+  var body: some View {
+    VStack { content() }.padding().background(.ultraThinMaterial)
+  }
+}
+
+// CORRECT — store the built view value
+struct CardView<Content: View>: View {
+  @ViewBuilder let content: Content
+  var body: some View {
+    VStack { content }.padding().background(.ultraThinMaterial)
+  }
+}
+```
+
+### Avoid Inline Transforms in List/ForEach
+
+Expensive transforms (`.filter`, `.sorted`, `.map`) in `List`/`ForEach` initializers re-run on every body evaluation. Derive data outside body or cache with `@State` (but add invalidation logic to avoid stale UI).
+
 ---
 
 ## Section 8.6: Architecture Patterns
@@ -2358,20 +2760,13 @@ var body: some View {
 
 ### View Composition: Extract Subviews
 
-Keep view bodies under 200 lines; extract computed properties:
+Keep view bodies under 200 lines. **Strongly prefer extracting into separate `View` structs** over computed properties or `@ViewBuilder` methods. Separate structs get their own identity in SwiftUI's diffing system, reducing unnecessary re-evaluations.
 
 ```swift
-// WRONG: Massive body
+// WRONG: Computed properties — no separate identity, re-evaluated with parent
 var body: some View {
   VStack {
-    // 300 lines of layout
-  }
-}
-
-// CORRECT: Extract subviews as computed properties
-var body: some View {
-  VStack {
-    headerView
+    headerView    // computed property — re-evaluated every time parent updates
     contentView
     footerView
   }
@@ -2381,14 +2776,38 @@ private var headerView: some View {
   Text("Title").font(.title)
 }
 
-private var contentView: some View {
-  List(items) { item in ItemRow(item: item) }
+// CORRECT: Separate View structs — own identity, own diffing scope
+var body: some View {
+  VStack {
+    HeaderView(title: "Title")
+    ContentView(items: items)
+    FooterView(onSave: save)
+  }
 }
 
-private var footerView: some View {
-  HStack { /* buttons */ }
+// Each in its own Swift file
+struct HeaderView: View {
+  let title: String
+  var body: some View {
+    Text(title).font(.title)
+  }
 }
 ```
+
+**View file ordering convention:**
+1. Environment properties
+2. `private`/`public let` and `@Binding` parameters
+3. `@State` private properties
+4. Computed properties
+5. `init` (if custom)
+6. `body`
+7. Private helper methods
+
+**Rules:**
+- Each type (struct, class, enum) should be in its own Swift file. Flag files with multiple type definitions.
+- Button actions should be extracted into separate methods — don't mix layout and logic in `body`.
+- Business logic should not live inline in `.task()`, `.onAppear()`, or closures in `body`.
+- When `@State` suffices (with `.task` for async and `@Environment` for dependencies), don't introduce a view model. Only extract to `@Observable` view model when logic grows complex enough to need testing.
 
 ### @ViewBuilder for Conditional Logic
 
@@ -2486,6 +2905,16 @@ VStack { /* content */ }
 - [ ] No layout reflow during animation
 - [ ] `withAnimation` used explicitly (not implicit `.animation`)
 
+### Accessibility
+- [ ] No forced font sizes — Dynamic Type used (`.body`, `.headline`, etc.)
+- [ ] Buttons with images include text labels (VoiceOver)
+- [ ] Menu includes text label, not just image
+- [ ] No `onTapGesture` where `Button` works — only for tap location/count
+- [ ] 44×44pt minimum tap targets enforced
+- [ ] Color differences supplemented with icons/patterns (`differentiateWithoutColor`)
+- [ ] `accessibilityReduceMotion` respected — animations replaced with opacity
+- [ ] `@ScaledMetric` used for custom sizes
+
 ### Architecture
 - [ ] `@Observable` used (not `ObservableObject` / `@Published`)
 - [ ] `@State` owns `@Observable` instances (not `@StateObject`)
@@ -2504,6 +2933,14 @@ VStack { /* content */ }
 - [ ] No stacked `LinearGradient` hacks — use `MeshGradient` (iOS 18+)
 - [ ] SF Symbol animations use `.symbolEffect()`, not manual rotation/opacity
 - [ ] `.safeAreaBar()` used instead of `.safeAreaInset()` when edge effects needed (iOS 26+)
+- [ ] No deprecated `overlay(_:alignment:)` — use trailing closure `.overlay { }`
+- [ ] No `.navigationBarLeading/.Trailing` — use `.topBarLeading/.topBarTrailing`
+- [ ] No `showsIndicators: false` — use `.scrollIndicators(.hidden)`
+- [ ] `@Entry` macro used for custom environment keys (not manual `EnvironmentKey`)
+- [ ] No overlay for fill+stroke — chain `.fill().stroke()` directly (iOS 17+)
+- [ ] No `Text` concatenation with `+` — use text interpolation
+- [ ] Grammar agreement uses `inflect: true` for pluralization
+- [ ] `sheet(item:)` preferred over `sheet(isPresented:)` for data-driven sheets
 
 ---
 

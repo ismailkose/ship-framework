@@ -301,6 +301,14 @@ BarPlot(data, x: .value("X", \.x), y: .value("Y", \.y))
 - [ ] Legend visible and positioned, or intentionally hidden
 - [ ] Ensure chart data model types are Sendable; update chart data on @MainActor
 
+## 3D Charts (iOS 26+)
+
+- **`Chart3D`** container for 3D visualizations.
+- **`SurfacePlot`** for surface functions: `SurfacePlot(x: "X", y: "Y", z: "Z") { x, y in sin(x) * cos(y) }`
+- **`Chart3DPose`** for camera positioning (azimuth, inclination).
+- Camera projection: `.perspective`, `.orthographic`, `.automatic`.
+- Surface coloring: height-based gradients or normal-based lighting.
+
 ---
 
 _Source: swift-ios-skills · Adapted for Ship Framework agent reference_

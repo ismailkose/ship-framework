@@ -1,6 +1,6 @@
  # Ship Framework
 
-**v2026.03.25** · **An AI product team for one-person teams.**
+**v2026.03.26** · **An AI product team for one-person teams.**
 
 You're one person. You handle product, design, business, and decisions. You need engineering — that's what Claude Code is for. But raw Claude Code is like having a brilliant engineer with no product sense, no design eye, and no business context. It builds what you say, not what you need.
 
@@ -18,7 +18,7 @@ bash ship-framework/setup.sh
 Zero prompts. The script copies all files and installs Playwright — no questions asked:
 
 ```
-Ship Framework v2026.03.25 — Setup
+Ship Framework v2026.03.26 — Setup
 
 ✓ Created CLAUDE.md (your product rules — never overwritten)
 ✓ Created .claude/team-rules.md (agent definitions — auto-synced on update)
@@ -136,7 +136,7 @@ The team enforces engineering discipline automatically — no extra commands nee
 - **Screenshot Evidence Required (Rule 17)** — Eye defaults to "NEEDS WORK" on UI changes unless there's actual screenshot proof. No "looks correct based on the code."
 - **Mid-Build Status (Rule 18)** — During multi-task builds, progress update after each completed task. You never have to ask "where are we?"
 - **Apple API First (Rule 19)** — No custom builds when a system API exists. Before building any custom component, agents check Apple documentation first. If Apple provides it natively, use it. Eye rejects PRs that custom-build something Apple already provides.
-- **No-Hack API Enforcement** — Section 6.5 of swiftui-core.md catches 9 patterns agents commonly get wrong (progressive blur, haptics, keyboard dismiss, sheet detents, focus state, toolbar visibility, containerRelativeFrame, symbolEffect, MeshGradient). Each shows the WRONG approach so agents recognize it and the CORRECT one-liner.
+- **No-Hack API Enforcement** — Section 6.5 of swiftui-core.md catches 18 patterns agents commonly get wrong (progressive blur, haptics, keyboard dismiss, sheet detents, focus state, toolbar visibility, containerRelativeFrame, symbolEffect, MeshGradient, overlay form, toolbar placement, scrollIndicators, @Entry macro, fill+stroke, Text concatenation, grammar agreement, ForEach enumerated, keyboard corners). Each shows the WRONG approach so agents recognize it and the CORRECT one-liner.
 
 ---
 
@@ -347,11 +347,11 @@ For iOS projects, the framework includes deep references that agents read automa
 
 **Apple HIG** (`references/hig-ios.md`) — Human Interface Guidelines foundations: typography (Dynamic Type, SF Pro, SF Mono), color (semantic system colors, accessibility contrast), layout (safe areas, readability widths), touch targets (44pt minimum), materials and Liquid Glass, accessibility, inclusion, branding, UX writing, and design review checklists.
 
-**SwiftUI Core** (`references/swiftui-core.md`) — Implementation reference covering navigation (NavigationStack, router pattern, deep links, iOS 26 Tab APIs), Swift 6.2 concurrency (default MainActor isolation, @concurrent, structured concurrency), Liquid Glass API (.glassEffect, morphing, scroll edge effects with progressive blur), animation (spring, PhaseAnimator, KeyframeAnimator, all 10 symbol effects), gestures (MagnifyGesture, RotateGesture, composition patterns), layout (ViewThatFits, Grid, LazyVStack, .searchable with scopes), **No-Hack API Reference** (Section 6.5 — 10 patterns agents get wrong: progressive blur, haptics, containerRelativeFrame, symbolEffect, keyboard dismiss, sheet detents, FocusState, toolbar visibility, MeshGradient), performance profiling (Instruments, `Self._printChanges()`, observation scope), architecture patterns (@Observable ownership, ViewModifier, @ViewBuilder), and UIKit interop (lifecycle, UIHostingConfiguration, sizeThatFits).
+**SwiftUI Core** (`references/swiftui-core.md`) — Implementation reference covering navigation (NavigationStack, router pattern, deep links, iOS 26 Tab APIs, toolbar enhancements, sheet/alert shorthand), Swift 6.2 concurrency (default MainActor isolation, @concurrent, structured concurrency), Liquid Glass API (.glassEffect, morphing, scroll edge effects with progressive blur), animation (spring, PhaseAnimator, KeyframeAnimator, all 10 symbol effects), gestures (MagnifyGesture, RotateGesture, composition patterns), layout (ViewThatFits, Grid, LazyVStack, .searchable with scopes), **Design Rules** (44pt tap targets, typography hierarchy, spacing grid, semantic colors, Label/LabeledContent patterns), **No-Hack API Reference** (Section 6.5 — 18 patterns agents get wrong: progressive blur, haptics, containerRelativeFrame, symbolEffect, keyboard dismiss, sheet detents, FocusState, toolbar visibility, MeshGradient, overlay trailing closure, topBarLeading/topBarTrailing, scrollIndicators, @Entry macro, fill+stroke chaining, Text interpolation, grammar agreement, ForEach enumerated), **Accessibility Quick Reference** (Dynamic Type, VoiceOver labels, color & motion, input methods), **Data Flow Rules** (@State private, @AppStorage traps, Binding rules, onChange variants), performance profiling (Instruments, `Self._printChanges()`, observation scope, ternary vs if/else, view initializer rules), architecture patterns (view composition with separate View structs, @Observable ownership, ViewModifier, @ViewBuilder, MV-first), and UIKit interop (lifecycle, UIHostingConfiguration, sizeThatFits).
 
-**Swift Essentials** (`references/swift-essentials.md`) — Swift 6.2 language features (if/switch expressions, FormatStyle, modern collection APIs), concurrency (AsyncSequence, AsyncStream, Mutex vs Atomic decision guide, GCD prohibition), Codable patterns (lossy arrays, single value containers, SwiftData integration), and Swift Testing (@Test, #expect, @Suite, confirmation, parameterized tests, exit testing).
+**Swift Essentials** (`references/swift-essentials.md`) — Swift 6.2 language features (if/switch expressions, FormatStyle, modern collection APIs), **Modern Swift Idioms** (15 rules: replacing(), URL.documentsDirectory, static member lookup, localizedStandardContains, count(where:), Date.now, PersonNameComponents, Comparable for sorts, and more), concurrency (AsyncSequence, AsyncStream, Mutex vs Atomic decision guide, GCD prohibition, **actor reentrancy with deduplication pattern**, **10 bug patterns**, structured concurrency with async let vs task groups, cancellation patterns, bridging legacy code), Codable patterns (lossy arrays, single value containers, SwiftData integration), and Swift Testing (@Test, #expect, @Suite, confirmation, parameterized tests, exit testing, **testing gotchas**: .serialized only parameterized, confirmation must complete, .minutes not .seconds, parallel-safe defaults, **Swift 6.3 updates**: Issue.record severity, Test.cancel(), image attachments).
 
-**46 Conditional Framework References** (`references/frameworks/`) — HealthKit, StoreKit, CloudKit, CoreML, Vision, CoreBluetooth, ARKit, Apple On-Device AI, Swift Charts, TipKit, Natural Language, WebKit, and 34 more. Each file has a triage workflow, core API, code examples, common mistakes, and a review checklist. iOS framework references informed by [swift-ios-skills](https://github.com/dpearson2699/swift-ios-skills). All copied by default; use `SHIP_FRAMEWORKS` env var for selective install or add later with `bash update.sh ~/MyApp --add-framework healthkit,storekit`.
+**47 Conditional Framework References** (`references/frameworks/`) — HealthKit, StoreKit, CloudKit, CoreML, Vision, CoreBluetooth, ARKit, Apple On-Device AI, Swift Charts, TipKit, Natural Language, WebKit, **iOS Security** (Keychain add-or-update, LAContext boolean gate vulnerability, Secure Enclave, CryptoKit, anti-patterns), and 34 more. Each file has a triage workflow, core API, code examples, common mistakes, and a review checklist. iOS framework references informed by [swift-ios-skills](https://github.com/dpearson2699/swift-ios-skills). All copied by default; use `SHIP_FRAMEWORKS` env var for selective install or add later with `bash update.sh ~/MyApp --add-framework healthkit,storekit`.
 
 ---
 
@@ -397,6 +397,13 @@ All 15 slash commands read both files. This way you can customize your product c
 
 - Inspired by [gstack](https://github.com/garrytan/gstack) by Garry Tan
 - iOS framework references informed by [swift-ios-skills](https://github.com/dpearson2699/swift-ios-skills) by dpearson2699 — 57 agent skills for iOS 26+ / Swift 6.2 that shaped our modern API patterns, common mistakes sections, and framework coverage
+- SwiftUI, SwiftData, Concurrency, and Testing quality improvements informed by [twostraws](https://github.com/twostraws) agent skills (SwiftUI Pro, SwiftData Pro, Swift Concurrency Pro, Swift Testing Pro)
+- iOS 26 / Xcode 26 updates informed by [xcode-26-system-prompts](https://github.com/artemnovichkov/xcode-26-system-prompts) by artemnovichkov
+- Security reference informed by [swift-security-skill](https://github.com/ivan-magda/swift-security-skill) by ivan-magda
+- Design rules informed by [swiftui-design-principles](https://github.com/arjitj2/swiftui-design-principles) by arjitj2
+- View composition, performance audit, and concurrency patterns informed by [Skills](https://github.com/Dimillian/Skills) by Thomas Ricouard (Dimillian)
+- Accessibility patterns informed by [iOS-Accessibility-Agent-Skill](https://github.com/dadederk/iOS-Accessibility-Agent-Skill) by dadederk
+- Architecture routing and cancellation-first patterns informed by [swift-architecture-skill](https://github.com/efremidze/swift-architecture-skill) by efremidze
 - Built by [Ismael Kose](https://github.com/ismailkose) from the experience of shipping production apps as a one-person team
 
 ---

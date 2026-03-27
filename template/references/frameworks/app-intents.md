@@ -331,5 +331,15 @@ struct MyIntent: AppIntent { }
 - [ ] `@AssistantIntent(schema:)` still in use where appropriate (iOS 18+)
 - [ ] All intent types are `Sendable`; runs in correct isolation context
 
+## iOS 26+ AppIntents Updates
+
+- **IntentModes** — `[.background, .foreground(.dynamic)]` for flexible execution context.
+- **`continueInForeground(alwaysConfirm:)`** — request app launch mid-intent execution.
+- **`requestChoice(between:dialog:)`** — get user input during intent.
+- **`@ComputedProperty`** macro — live access to data source in intent parameters.
+- **`@DeferredProperty`** macro — lazy load expensive properties.
+- **`IndexedEntity`** + `searchableAttributes` — Spotlight indexing for app entities.
+- **Swift Package support** — AppIntents can now be defined in Swift packages.
+
 ---
 _Source: Apple Developer Documentation · Condensed for Ship Framework agent reference_

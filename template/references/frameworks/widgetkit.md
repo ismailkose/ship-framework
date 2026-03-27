@@ -348,5 +348,17 @@ struct MyWidgetPushHandler: WidgetPushHandler {
 - [ ] Shared data uses App Groups `UserDefaults`
 - [ ] Widget refresh time not < 15 minutes (system limit)
 
+## visionOS Widgets
+
+- Mounting styles: `.elevated` (floating on surface), `.recessed` (embedded in wall/surface).
+- Textures: `.glass` (default), `.paper`.
+- `@Environment(\.levelOfDetail)` — `.default` vs `.simplified` based on user proximity.
+- Widget families include `.systemExtraLarge` and `.systemExtraLargePortrait`.
+
+## Widget Performance
+
+- **Memory budget:** Widgets have a strict `EXC_RESOURCE` hard limit. Use `Canvas` for dense visuals (dot grids etc.), not hundreds of nested views.
+- **Timeline refresh:** Match data granularity — midnight for day-level data, 15-minute periodic for time-of-day, never minute-level for static data.
+
 ---
 _Source: Apple Developer Documentation · Condensed for Ship Framework agent reference_

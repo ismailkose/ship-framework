@@ -269,6 +269,28 @@ for try await snapshot in stream {
 - [ ] Physical device testing performed (not simulator)
 - [ ] No untrusted content in instructions parameter
 
+## Guided Generation (iOS 26+)
+
+Use `@Generable` macro for structured outputs from on-device LLM:
+
+```swift
+@Generable
+struct CatProfile {
+  var name: String
+  @Guide(description: "Age 0-20", .range(0...20))
+  var age: Int
+}
+
+let session = LanguageModelSession()
+let response = try await session.respond(to: prompt, generating: CatProfile.self)
+print(response.content.name)  // Typed Swift value, not string
+```
+
+- **Snapshot streaming** for progressive token rendering (not delta-based).
+- **Tool calling** — models can invoke custom Swift functions you define.
+- **Context window limit: 4,096 tokens** (instructions + prompt + output combined).
+- Always check `SystemLanguageModel.default.availability` before using.
+
 ---
 
 _Source: swift-ios-skills · Adapted for Ship Framework agent reference_

@@ -6,6 +6,67 @@ To update an existing project, run `bash update.sh` — it handles everything au
 
 ---
 
+## 2026.03.26 — Community Skill Audit + Security Reference + Quality Improvements
+
+Cross-referenced 10+ community agent skills and Apple's Xcode 26 system prompts to identify gaps, fix quality issues, and add missing coverage. New iOS Security reference file. No-Hack API expanded from 10 to 18 patterns.
+
+### Sources Analyzed
+- [twostraws/SwiftUI-Agent-Skill](https://github.com/twostraws/SwiftUI-Agent-Skill) — SwiftUI Pro (9 reference files)
+- [twostraws/SwiftData-Agent-Skill](https://github.com/twostraws/SwiftData-Agent-Skill) — Predicate safety, actor boundaries, relationship traps
+- [twostraws/Swift-Concurrency-Agent-Skill](https://github.com/twostraws/Swift-Concurrency-Agent-Skill) — Actor reentrancy (#1 LLM bug), 10 bug patterns
+- [twostraws/Swift-Testing-Agent-Skill](https://github.com/twostraws/Swift-Testing-Agent-Skill) — .serialized gotchas, confirmation() traps
+- [artemnovichkov/xcode-26-system-prompts](https://github.com/artemnovichkov/xcode-26-system-prompts) — Apple's Xcode 26 AI instructions
+- [ivan-magda/swift-security-skill](https://github.com/ivan-magda/swift-security-skill) — Keychain, biometrics, CryptoKit
+- [arjitj2/swiftui-design-principles](https://github.com/arjitj2/swiftui-design-principles) — Spacing grid, typography hierarchy, semantic colors
+- [Dimillian/Skills](https://github.com/Dimillian/Skills) — View composition fix, performance audit, concurrency patterns
+- [dadederk/iOS-Accessibility-Agent-Skill](https://github.com/dadederk/iOS-Accessibility-Agent-Skill) — VoiceOver, Switch Control, Voice Control
+- [AvdLee/Swift-Testing-Agent-Skill](https://github.com/AvdLee/Swift-Testing-Agent-Skill) — Testing best practices (partial)
+
+### Added — New Framework Reference
+- **ios-security.md** — Keychain add-or-update pattern, OSStatus error table, accessibility tiers, LAContext boolean gate vulnerability (Frida-bypassable), correct Secure Enclave pattern, access control flags, 7 anti-patterns, CryptoKit essentials (symmetric + public key + post-quantum iOS 26+), Secure Enclave constraints, keychain lifecycle, testing patterns
+
+### Changed — SwiftUI Core Reference (`swiftui-core.md`)
+- **Section 1 Navigation:** Sheet presentation shortcuts, alert single-OK shorthand, navigationDestination once-per-type rule, confirmationDialog Liquid Glass placement, toolbar enhancements (toolbar(id:), searchToolbarBehavior, matchedTransitionSource, .largeSubtitle, sharedBackgroundVisibility), Tab selection binding (enum not integer)
+- **Section 6 Layout:** ContentUnavailableView.search shorthand, **NEW Design Rules subsection** (44pt tap targets, typography with bold(), .caption2 avoidance, semantic styling, Label over HStack, LabeledContent for Form, TextField(axis:), spacing grid 4/8/12/16/20/24/32/40/48, design constants enum)
+- **Section 6.5 No-Hack API:** Expanded from 10 to 18 patterns — added overlay() trailing closure, topBarLeading/topBarTrailing, scrollIndicators(.hidden), @Entry macro, fill+stroke chaining, Text interpolation, grammar agreement, ForEach enumerated
+- **NEW Section 6.7 Accessibility Quick Reference:** Dynamic Type rules, VoiceOver (button labels, Menu labels, onTapGesture rules, accessibilityInputLabels), Color & Motion (differentiateWithoutColor, reduceMotion), Tap Targets (44pt), Input Methods (Voice Control, Keyboard, Switch Control)
+- **Section 7 Architecture:** Data Flow Rules (@State private, @AppStorage in @Observable trap, Binding rules, numeric TextField, onChange variant rules, import Combine requirement, SwiftData+CloudKit constraints, MV-first default)
+- **Section 8.5 Performance:** Ternary vs if/else for modifier toggling, view initializers must be minimal, scrollContentBackground(.visible), @ViewBuilder closure storage anti-pattern, avoid inline transforms
+- **Section 8.6 View Composition QUALITY FIX:** Replaced computed property guidance with separate View struct preference (contradicted community best practices), added view file ordering convention, MV-first rules
+- **Section 9 Checklists:** Added Accessibility checklist, added 8 new No-Hack API checklist items
+
+### Changed — Swift Essentials Reference (`swift-essentials.md`)
+- **NEW Section 1 Modern Swift Idioms:** 15 rules — replacing(), URL.documentsDirectory, FormatStyle, static member lookup, localizedStandardContains, Double over CGFloat, count(where:), Date.now, PersonNameComponents, Comparable for sorts, "y" not "yyyy", Date strategy, flag swallowed errors, if/switch expressions, import SwiftUI includes UIKit
+- **Section 2 Concurrency:** Actor reentrancy with deduplication pattern, 10 bug patterns list, structured concurrency (async let vs task groups with limiting), AsyncStream patterns (makeStream, buffer policy), cancellation patterns, bridging legacy code table, diagnostics quick reference table, Swift 6.3 updates
+- **Section 3 Testing:** Testing gotchas (.serialized only parameterized, confirmation must complete, .minutes not .seconds, don't negate with !, tests without expectations pass, no float tolerance), best practices (parallel-safe default, #expect vs #require, traits over naming, XCTest carve-outs), range-based confirmations, exit testing, Swift 6.3 testing updates (Issue.record severity, Test.cancel(), image attachments)
+
+### Changed — Framework Reference Updates
+- **swiftdata.md** — Major expansion: Predicate safety (safe ops vs runtime crash ops like isEmpty), Core Rules (autosaving, actor boundaries, @Relationship one-side, inverse relationships, "description" reserved, property observers ignored, @Transient defaults, migration schemas, delete rules, @Query view-only, fetchCount limitations, #Unique one-per-model, enum associated values), Indexing (iOS 18+), Class Inheritance (iOS 26+), SwiftData+CloudKit constraints
+- **storekit.md** — iOS 26+ updates (appTransactionID, originalPlatform, currentEntitlements, expirationReason, SubscriptionOfferView, visibleRelationship)
+- **app-intents.md** — iOS 26+ updates (IntentModes, continueInForeground, requestChoice, @ComputedProperty, @DeferredProperty, IndexedEntity, Swift Package support)
+- **swift-charts.md** — 3D Charts (Chart3D, SurfacePlot, Chart3DPose, projections, surface coloring)
+- **accessibility.md** — Assistive Access (iOS 26+), Advanced Accessibility Patterns (Switch Control, Voice Control, Full Keyboard Access, announcement timing, Smart Invert)
+- **apple-on-device-ai.md** — Guided Generation (@Generable macro, snapshot streaming, tool calling, 4096 token limit)
+- **widgetkit.md** — visionOS Widgets, Widget Performance (memory budget, timeline refresh strategy)
+
+### Changed — Architecture Routing (v2, from efremidze/swift-architecture-skill)
+- **Section 7:** Architecture detection table (8 patterns with codebase signals), isolation rules (8 "never mix" constraints), intentional simplification rule (simpler patterns OK inside complex architectures, never reverse), architecture decision tree for new projects and reviews, over/under-engineered detection, "when to justify a view model" conditions
+- **Section 8.5:** Performance triage ordering (invalidation → identity churn → main-thread → image → layout), formatter anti-pattern (static cached singletons, FormatStyle preferred)
+
+### Changed — Async Patterns (from efremidze/swift-architecture-skill)
+- **swift-essentials.md Section 2:** Request ID gating pattern (UUID-based stale response prevention), distinction from Task cancellation (both needed), cancellation-first checklist for every async entry point
+- **swift-essentials.md Section 3:** Deterministic async testing with CheckedContinuation (no sleeps), TCA TestClock pattern, architecture-specific test target table (what to test per pattern)
+
+### Stats
+- Framework reference count: 46 → 47
+- No-Hack API patterns: 10 → 18
+- Community sources analyzed: 12+ repos
+- Quality fix: View composition guidance corrected (separate View structs > computed properties)
+- New: Architecture routing with pattern detection + isolation rules
+- New: Request ID gating pattern for stale response prevention
+
+---
+
 ## 2026.03.25 — iOS Reference Deep-Dive + 5 New Frameworks + Modern API Modernization
 
 Comprehensive reference update informed by [dpearson2699/swift-ios-skills](https://github.com/dpearson2699/swift-ios-skills). All 41 existing framework files updated, 5 new frameworks added, both core reference files substantially expanded.

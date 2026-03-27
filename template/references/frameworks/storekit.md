@@ -326,5 +326,14 @@ DO:
 - [ ] Receipts refreshed if missing (manual `AppStore.sync()` call)
 - [ ] Error handling for network, verification, and purchase failures
 
+## iOS 26+ StoreKit Updates
+
+- **`appTransactionID`** — globally unique per account (replaces reliance on receipt data).
+- **`originalPlatform`** — identifies where subscription was first purchased (iOS, macOS, tvOS, visionOS).
+- **`Transaction.currentEntitlements(for:)`** — returns async sequence of entitlements (replaces `currentEntitlement`).
+- **`RenewalInfo.expirationReason`** — tracks why subscriptions expire (price increase, billing error, etc.).
+- **`SubscriptionOfferView`** — native SwiftUI view for merchandising subscription offers.
+- **`visibleRelationship`** parameter: `.upgrade`, `.downgrade`, `.crossgrade`, `.current`, `.all` — controls which plans are shown.
+
 ---
 _Source: Apple Developer Documentation · Condensed for Ship Framework agent reference_

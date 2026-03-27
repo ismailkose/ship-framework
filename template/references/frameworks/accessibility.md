@@ -340,6 +340,21 @@ var body: some View {
 - [ ] Accessibility Inspector shows no missing labels?
 - [ ] No custom colors used that are inaccessible at 3x zoom?
 
+## Assistive Access (iOS 26+)
+
+- `AssistiveAccess { }` scene — declares a simplified interface for Assistive Access mode.
+- `@Environment(\.accessibilityAssistiveAccessEnabled)` — detect if Assistive Access is active.
+- `.assistiveAccessNavigationIcon(systemImage:)` — provides visual navigation aids.
+- Info.plist: `UISupportsAssistiveAccess` (Bool), `UISupportsFullScreenInAssistiveAccess` (Bool).
+
+## Advanced Accessibility Patterns
+
+- **Switch Control:** Ensure all actions are reachable without gestures. Test full navigation with switch.
+- **Voice Control:** All interactive elements need discoverable labels. Test with "Show Names" overlay.
+- **Full Keyboard Access:** Test Tab navigation order. Ensure focus rings are visible on all interactive elements.
+- **Announcement timing:** `UIAccessibility.post(notification:argument:)` can race with other announcements. Add ~100ms delay when posting multiple sequential announcements.
+- **Smart Invert:** Test with `accessibilityIgnoresInvertColors` on images/media that shouldn't be inverted.
+
 ---
 
 _Source: Apple Developer Documentation · Accessibility, Dynamic Type, VoiceOver · Condensed for Ship Framework agent reference_
