@@ -2,33 +2,31 @@ Upgrade Ship Framework to the latest version. Run this from inside Claude Code �
 
 ## Steps
 
-1. **Find the Ship Framework repo** — Look for the `ship-framework` or `designer-ship-framework` directory. Check common locations:
-   - `../ship-framework/`
-   - `~/ship-framework/`
-   - `~/designer-ship-framework/`
-   - Check if there's a path in the CLAUDE.md footer (look for the GitHub URL)
-   - If not found, ask: "Where is your ship-framework directory?"
-
-2. **Run update.sh** — This is the single source of truth for all sync logic. Run:
+1. **Run the project-local update script** — Look for `ship-update.sh` in the project root:
    ```
-   bash <framework-dir>/update.sh <project-dir>
+   bash ship-update.sh
    ```
-   Where `<project-dir>` is the current working directory (`.` or the absolute path).
+   It shallow-clones the latest from GitHub into a temp directory, syncs everything, and cleans up automatically.
 
-   `update.sh` handles everything:
-   - Pulls latest from git
-   - Compares versions and shows changelog
-   - Syncs the entire `template/` directory (commands, references, frameworks, any new files/directories)
-   - Protects user-customized files (CLAUDE.md content, TASKS.md, design-system.md)
-   - Updates CHEATSHEET.md
-   - Creates new template files (DECISIONS.md, CONTEXT.md) if missing
-   - Stamps the version in CLAUDE.md footer
+2. **If `ship-update.sh` is missing** — The project was set up before self-contained updates existed. Create it:
+   ```
+   curl -fsSL https://raw.githubusercontent.com/ismailkose/ship-framework/main/template/ship-update.sh -o ship-update.sh && chmod +x ship-update.sh && bash ship-update.sh
+   ```
 
-3. **Report** — Show the output from update.sh. If it succeeded, confirm the version change.
+3. **Report** — Show the output from the update script. If it succeeded, confirm the version change.
+
+## What the update script handles
+- Shallow-clones latest from GitHub (no persistent clone needed)
+- Compares versions and shows changelog
+- Syncs the entire `template/` directory (commands, references, frameworks, any new files/directories)
+- Protects user-customized files (CLAUDE.md content, TASKS.md, design-system.md)
+- Updates CHEATSHEET.md
+- Creates new template files (DECISIONS.md, CONTEXT.md) if missing
+- Stamps the version in CLAUDE.md footer
+- Updates itself (ship-update.sh self-update)
 
 ## Rules
-- ALWAYS use update.sh — never duplicate its logic here
-- If update.sh doesn't exist (very old framework version), tell the user to `git pull` the framework repo first
+- ALWAYS use ship-update.sh — never duplicate its logic here
 - NEVER overwrite CLAUDE.md content, TASKS.md, or design-system.md manually
 
 User's request: $ARGUMENTS

@@ -45,10 +45,12 @@ TARGET_DIR="$(cd "$TARGET_DIR" 2>/dev/null && pwd)" || {
 
 if [ -f "$TARGET_DIR/CLAUDE.md" ]; then
   if grep -q "## /team" "$TARGET_DIR/CLAUDE.md" 2>/dev/null; then
-    # Previous Ship Framework install — delegate to update.sh (single source of truth)
-    echo -e "${DIM}Found existing Ship Framework install. Delegating to update.sh...${RESET}"
+    # Previous Ship Framework install — copy fresh update script and run it
+    echo -e "${DIM}Found existing Ship Framework install. Running update...${RESET}"
     echo ""
-    bash "$SCRIPT_DIR/update.sh" "$TARGET_DIR"
+    cp "$TEMPLATE_DIR/ship-update.sh" "$TARGET_DIR/ship-update.sh"
+    chmod +x "$TARGET_DIR/ship-update.sh"
+    bash "$TARGET_DIR/ship-update.sh"
     exit $?
   else
     # Their own CLAUDE.md — append mode
@@ -131,7 +133,8 @@ fi
 
 mkdir -p "$TARGET_DIR/.claude/commands"
 cp "$TEMPLATE_DIR/.claude/commands/"*.md "$TARGET_DIR/.claude/commands/"
-echo -e "${GREEN}✓${RESET} Created .claude/commands/ (15 slash commands)"
+COMMAND_COUNT=$(ls "$TEMPLATE_DIR/.claude/commands/"*.md 2>/dev/null | wc -l | xargs)
+echo -e "${GREEN}✓${RESET} Created .claude/commands/ ($COMMAND_COUNT slash commands)"
 
 # ─── Copy team rules ──────────────────────────────────────────────────────────
 
@@ -240,6 +243,14 @@ if [ -f "$TEMPLATE_DIR/CONTEXT.md" ]; then
   echo -e "${GREEN}✓${RESET} Created CONTEXT.md"
 fi
 
+# ─── Copy self-contained update script ────────────────────────────────────────
+
+if [ -f "$TEMPLATE_DIR/ship-update.sh" ]; then
+  cp "$TEMPLATE_DIR/ship-update.sh" "$TARGET_DIR/ship-update.sh"
+  chmod +x "$TARGET_DIR/ship-update.sh"
+  echo -e "${GREEN}✓${RESET} Created ship-update.sh (self-contained updater — no clone needed)"
+fi
+
 # ─── Install Playwright ──────────────────────────────────────────────────────
 
 echo ""
@@ -270,8 +281,9 @@ echo "  • TASKS.md              — Persistent task board"
 echo "  • DECISIONS.md          — Decision log"
 echo "  • CONTEXT.md            — Institutional memory"
 echo "  • CHEATSHEET.md         — Quick reference card"
-echo "  • .claude/commands/     — 15 slash commands"
+echo "  • .claude/commands/     — Slash commands"
 echo "  • references/           — Animation + component architecture guides"
+echo "  • ship-update.sh       — Self-contained updater (no clone needed)"
 echo ""
 echo -e "${BOLD}Next step:${RESET} Open Claude Code in your project directory and type:"
 echo ""

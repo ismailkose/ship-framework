@@ -2,7 +2,7 @@
 
 All notable changes to Ship Framework are documented here. Versions use date-based format (`YYYY.MM.DD`).
 
-To update an existing project, run `bash update.sh` — it handles everything automatically.
+To update an existing project, run `bash ship-update.sh` from your project root, or type `/ship-update` in Claude Code.
 
 ---
 
