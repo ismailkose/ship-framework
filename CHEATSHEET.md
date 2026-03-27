@@ -6,21 +6,17 @@
 
 | Command | When to use |
 |---------|-------------|
-| `/team [task]` | Default for everything. Routes to the right agents. |
+| `/team [task]` | Default for everything. Routes to the right commands. |
 | `/team continue` | Start of day. Picks up from TASKS.md. |
-| `/health` | Full strategic review — product fit, tech, UX, business, visual. |
 | `/team Take over` | Existing codebase. Assess → audit → strategy → roadmap. |
-| `/status` | Quick progress check. |
-| `/visionary [idea]` | Validate an idea before building. 10 items: bar test, workaround, JTBD, magic moment, kill list, 2-week bet, North Star metric, who pays, PMF signal, growth mechanism. |
-| `/architect [brief]` | Plan how to build something. |
-| `/build` | Code one feature. |
-| `/browse` | Visual QA — 6 phases: setup, screen map, mobile, interaction walkthrough, bug checklist, report. |
+| `/plan [idea]` | Product + technical planning. Vi (product brief, JTBD, PMF, growth) + Arc (RICE build order, dual-approach plan) + Adversarial (stress test). Flags: `vi-only`, `arc-only`, `with-monetization`. |
+| `/build` | Code one feature at a time. Scope enforcement before every edit, atomic commits. |
+| `/review` | Quality review. Crit (HEART) + Pol (anti-slop check) + Eye (screen walkthrough) + Adversarial (challenge). Confidence scoring 0-100. Flags: `crit-only`, `pol-only`, `eye-only`. |
 | `/qa` | Test + fix — 8 phases: scope, run tests, explore like a user, document issues, write tests, health score, fix loop, report. |
-| `/critic` | HEART review of what was built. |
-| `/polish` | Refine design details. |
-| `/ship` | Deploy — 9 phases: branch resolution, pre-flight, tests, quality gate, readiness + growth checks, deploy, post-deploy verify, report, measurement plan. |
+| `/ship` | Deploy — plan completion audit, test failure triage, coverage gate, pre-landing safety net, deploy, verify, measurement plan, TASKS.md auto-completion. |
+| `/fix [error]` | Debug systematically — scope lock, investigate, pattern analysis, hypothesize with 3-strike tracking, sanitized external search, debug report. |
 | `/money` | Pricing strategy — 9 steps: WTP, model, free line, price, free-tier, self-serve ceiling, implementation, iteration, disagreements. |
-| `/fix [error]` | Debug systematically — 4 phases: investigate, find pattern, hypothesize, fix + verify. 3-strikes rule. |
+| `/browse` | Visual QA — alias for `/review eye-only` with screenshot mode. |
 | `/retro` | Weekly retro — 10 steps: data, metrics, streak, time patterns, hotspots, task health, decision + measurement review, narrative, trends, update CONTEXT.md. |
 | `/ship-update` | Update Ship Framework to latest version — pulls, compares, updates commands + references. |
 
@@ -34,7 +30,7 @@ Two levels — product and feature:
 "When I [situation], I want to [motivation], so I can [expected outcome]."
 ```
 
-Vi writes the product-level JTBD. Arc writes one per feature in the build order.
+Vi writes the product-level JTBD in /plan. Arc writes one per feature in the build order.
 No JTBD = don't build it.
 
 ---
@@ -107,7 +103,7 @@ Arc defines, Crit checks. Limit competing patterns per screen, not element count
 
 Deep-dives (loaded only when needed): `animation-css.md` (universal, includes View Transitions API), `animation-framer-motion.md` (React, includes advanced AnimatePresence), `animation-performance.md` (universal).
 
-6 agents check: Arc (spec + restraint) → Dev (build + adapt) → Pol (feel) → Eye (visual) → Test (accessibility) → Crit (balance)
+Checked across pipeline: Arc specs the budget in /plan → Dev builds in /build → Pol + Eye + Crit audit in /review → Test checks accessibility in /qa
 
 ---
 
@@ -123,7 +119,7 @@ Never rebuild accessibility (focus trapping, keyboard nav, ARIA) — use a primi
 
 **Extend:** Add `references/design-system.md` with your tokens and component rules. See `references/README.md` for the template.
 
-6 agents check: Arc (spec architecture) → Dev (build from primitives) → Pol (feel + keyboard) → Eye (visual consistency) → Test (keyboard + screen reader) → Crit (adoption + accessibility)
+Checked across pipeline: Arc specs architecture in /plan → Dev builds from primitives in /build → Pol + Eye + Crit audit in /review → Test checks keyboard + screen reader in /qa
 
 **shadcn/ui Practical Guide (Section 3, React web stacks):**
 
@@ -158,7 +154,7 @@ Review checklist (Section 3.9): theming consistency, no hardcoded hex, `cn()` us
 
 **Platform-Aware Design:** Control Hierarchy (primary visible, secondary discoverable), Thumb Zone (CTAs in bottom third), Respect System Preferences (dark mode, reduced motion, text size), Use Device Capabilities (camera, location, biometrics over manual input), Onboarding (value before sign-in), Smart Data Entry (pickers over text, inline validation), Feedback Hierarchy (match weight to significance), Loading & Launching (skeleton screens, restore state), Modality (only when clear benefit), Settings (smart defaults, in-context options), Charts (simple, accessible, consistent), UX Writing (voice + tone, action-oriented labels, clear errors, empty states), Accessibility (4.5:1 contrast, 44pt targets, keyboard nav, reduced motion), Inclusion (plain language, gender-neutral, people-first, no jargon), Branding (defers to content, accent color, standard patterns first).
 
-5 agents use: Arc (screen planning + Section 5) → Dev (build patterns + Section 5) → Vi (magic moment + onboarding + writing) → Pol (layout craft + writing + branding) → Crit (HEART psychology + accessibility + inclusion)
+Used across pipeline: Arc + Vi read during /plan (screen planning, magic moment, onboarding) → Dev reads during /build (patterns, Section 5) → Pol + Crit read during /review (layout, HEART, accessibility, inclusion)
 
 ---
 
@@ -354,7 +350,7 @@ Biz expanded from 5 to 9 steps:
 
 ## Rules
 
-1. No code before Vi + Arc are done
+1. No code before /plan is done
 2. One feature at a time (unless /team dispatches 3+ independent tasks in parallel)
 3. Commit before starting the next thing
 4. Takes more than a day → break it down
@@ -369,3 +365,12 @@ Biz expanded from 5 to 9 steps:
 13. Team agents own their domains — external skills don't override
 14. Log every significant decision to DECISIONS.md — one-way/two-way door
 15. No unplanned work without override — scope guard enforces the plan
+16. 3-attempt retry limit — after 3 failures, escalate
+17. Screenshot evidence required — Eye defaults to NEEDS WORK without proof
+18. Mid-build status — progress update after each completed task
+19. Apple API first — no custom builds when a system API exists
+20. Completeness is cheap — finish the last 10%, DONE or BLOCKED
+21. Search before building — codebase → references → vendor docs
+22. Atomic commits — one concern per commit
+23. One decision per question — no compound questions
+24. Anti-sycophancy — no validation without substance, banned AI vocabulary

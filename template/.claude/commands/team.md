@@ -22,7 +22,7 @@ Before doing ANYTHING:
 
    Ask all missing items in ONE message if multiple are missing (don't ask one at a time). Example: "Before we start, I need three things: (1) What's your product called? (2) What does it do and who is it for? (3) What tech stack?" Wait for the answer, fill in CLAUDE.md and TASKS.md, then proceed.
 
-2. **Check if the project has source files** (look for src/, app/, lib/, pages/, or common project files beyond CLAUDE.md and TASKS.md). If the project directory is mostly empty — this is a fresh start. Route to Vi first. If there's existing code — check what's actually installed vs what CLAUDE.md says the stack should be. Look at `package.json` for dependencies, check for `components.json` (shadcn), check for animation libraries. If the stack in CLAUDE.md includes tools that aren't installed (e.g., CLAUDE.md says "shadcn/ui (Base UI)" but there's no `components.json`), flag this: "You have existing code but some stack items from CLAUDE.md aren't set up yet — [list missing items]. Want me to install those first, or assess what's here?" Wait for the answer before routing.
+2. **Check if the project has source files** (look for src/, app/, lib/, pages/, or common project files beyond CLAUDE.md and TASKS.md). If the project directory is mostly empty — this is a fresh start. Route to /plan first. If there's existing code — check what's actually installed vs what CLAUDE.md says the stack should be. Look at `package.json` for dependencies, check for `components.json` (shadcn), check for animation libraries. If the stack in CLAUDE.md includes tools that aren't installed (e.g., CLAUDE.md says "shadcn/ui (Base UI)" but there's no `components.json`), flag this: "You have existing code but some stack items from CLAUDE.md aren't set up yet — [list missing items]. Want me to install those first, or assess what's here?" Wait for the answer before routing.
 
 3. **Skill Conflict Check** — Check if external skills or plugins are installed that overlap with team agents. Look for installed skills matching these patterns:
    - Product thinking: brainstorming, feature-spec, user-research
@@ -91,8 +91,8 @@ These references exist in the project's `references/` directory. Agents must act
 
 1. **Read TASKS.md** — know where we are.
 2. **Receive the task** — understand what the founder wants.
-3. **Decide which agents are needed** — not every task needs all 11. A bug fix only needs Bug. A new feature needs Vi → Arc → Dev. A launch needs Cap.
-4. **Run each agent in sequence**, producing their output inline:
+3. **Decide which commands are needed** — not every task needs all of them. A bug fix only needs /fix. A new feature needs /plan → /build. A launch needs /ship.
+4. **Run each command in sequence**, producing their output inline:
    - Label each section clearly: "**[Vi — Product Strategist]**", "**[Arc — Technical Lead]**", etc.
    - Each agent MUST reference what the previous agent said
    - Each agent MUST flag disagreements with previous agents
@@ -181,17 +181,17 @@ After each subagent completes:
 Based on what the founder asks, pick the right flow:
 
 - **"Continue" / "Keep going" / "What's next"** → Read TASKS.md → pick up next task → route to right agents
-- **"New idea" / "I want to build..."** → Vi (sharpen idea → brief with JTBD) → Arc (with RICE, must read references/) → if UI project, ensure component layer setup is item #0 in build order → summarize, ask if ready for Dev
-- **"Build this" / "Let's make..."** → Arc (sharpen request → quick plan with RICE, must read references/) → Dev (verify component layer installed, then build) → summarize what to test
-- **"Review this" / "How does it look?"** → Crit (HEART review) → Pol → prioritized punch list
-- **"Check the UI" / "Does it look right?"** → Eye (visual QA) → screenshots + design comparison
-- **"Test this" / "Is it working?"** → Test (QA) → run tests, write missing tests, report
-- **"Ship it" / "Let's go live"** → Test (QA) → Cap (checklist) → resolve blockers → deploy steps
-- **"Fix this" / [error message]** → Bug → fix → teach
-- **"Add payments" / "How do we monetize?"** → Biz → implementation plan
-- **"Full cycle"** → Vi → Arc → Dev → Crit → Pol → Eye → Test → Cap (the whole pipeline)
-- **"Take over this project"** → Arc (assess codebase) → Crit (HEART audit) → Vi (product-level JTBD + magic moment) → Biz (who pays, how) → present roadmap options
-- **"Health check" / "What's the state of things?"** → Vi (is the product solving a real job?) → Arc (tech debt, risks) → Crit (UX gaps) → Biz (monetization readiness) → Eye (visual QA) → prioritized roadmap
+- **"New idea" / "I want to build..."** → /plan (Vi + Arc + Adversarial argue → battle-tested plan) → summarize, ask if ready for /build
+- **"Build this" / "Let's make..."** → /plan arc-only (quick technical plan) → /build (verify component layer, then build) → summarize what to test
+- **"Review this" / "How does it look?"** → /review (Crit + Pol + Eye + Adversarial → quality verdict)
+- **"Check the UI" / "Does it look right?"** → /review eye-only (visual QA → screenshots + design comparison)
+- **"Test this" / "Is it working?"** → /qa → run tests, write missing tests, report
+- **"Ship it" / "Let's go live"** → /qa → /ship (checklist) → resolve blockers → deploy steps
+- **"Fix this" / [error message]** → /fix → fix → teach
+- **"Add payments" / "How do we monetize?"** → /money → implementation plan
+- **"Full cycle"** → /plan → /build → /review → /qa → /ship (the whole pipeline)
+- **"Take over this project"** → /plan arc-only (assess codebase) → /review (HEART + design audit) → /plan vi-only (product-level JTBD + magic moment) → /money (who pays, how) → present roadmap options
+- **"Health check" / "What's the state of things?"** → /plan vi-only → /review → /qa health-score → prioritized roadmap
 - **"Prioritize" / "What should we build next?"** → RICE-score all candidates → present ranked list
 - **"Retro" / "How did this week go?"** → Retro → git stats, velocity, wins, drags, next focus
 - **"Add these tasks: [list]"** → Add to TASKS.md in priority order → confirm

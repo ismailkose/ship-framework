@@ -10,6 +10,23 @@ If you haven't completed Phase 1, you cannot propose fixes. "Quick fix" and "jus
 
 ---
 
+## Phase 0: Scope Lock (before investigating ANYTHING)
+
+Before investigating, declare your scope:
+
+```
+SCOPE LOCK
+──────────
+Investigating: [one-line description of the bug]
+Files in scope: [list of files that could contain the root cause]
+Files OUT of scope: [everything else — don't touch these]
+──────────
+```
+
+If during investigation you discover the root cause is in an out-of-scope file, STOP. Update the scope lock. Explain why the scope expanded. Don't silently wander into unrelated code.
+
+---
+
 ## Phase 1: Investigate (before touching ANY code)
 
 Let me understand what's happening...
@@ -28,20 +45,71 @@ If the system has multiple layers (API → service → database), add diagnostic
 Let me trace where this breaks...
 
 1. Find similar WORKING code in the same codebase
-2. Compare working vs broken — list every difference
+2. Create a comparison table:
+
+| Aspect | Working Code | Broken Code | Different? |
+|--------|-------------|-------------|------------|
+| Function signature | | | |
+| Input types | | | |
+| State at call time | | | |
+| Dependencies | | | |
+| Thread/queue | | | |
+| Error handling | | | |
+
+Every row marked "Different?" = YES is a candidate root cause. Investigate each in order of likelihood.
+
 3. Don't assume "that can't matter" — small differences cause bugs
 4. Understand dependencies — what settings, config, environment does this need?
 
 ---
 
-## Phase 3: Hypothesis
+## Phase 3: Hypothesis (with 3-Strike Tracking)
 
 I have a hypothesis...
 
 1. State one clear hypothesis: "I think X is the root cause because Y"
 2. Make the SMALLEST possible change to test it — one variable at a time
-3. If it works → Phase 4. If not → new hypothesis, back to Phase 1
+3. If it works → Phase 4. If not → new hypothesis, back to step 1
 4. DON'T stack multiple fixes — test one thing at a time
+
+**Track every attempt:**
+```
+ATTEMPT 1: [hypothesis] → [evidence] → CONFIRMED / REJECTED
+ATTEMPT 2: [hypothesis] → [evidence] → CONFIRMED / REJECTED
+ATTEMPT 3: [hypothesis] → [evidence] → CONFIRMED / REJECTED
+```
+
+After 3 rejected hypotheses, STOP. Do not try a 4th. Escalate:
+```
+STATUS: BLOCKED
+REASON: "3 root cause hypotheses failed. Likely missing context."
+ATTEMPTED: [list all 3 hypotheses and why each failed]
+RECOMMENDATION: One of:
+  - "Need more reproduction details — can you show me exactly when it happens?"
+  - "Suspect the issue is in [area I haven't looked at] — expand scope?"
+  - "This might be environment-specific — can you test on [device/config]?"
+```
+
+### Sanitized External Search
+
+Before searching the web for any error message, strip sensitive data:
+
+```
+STRIP before searching:
+- File paths (replace with generic: /path/to/file)
+- IP addresses, hostnames, port numbers
+- Database names, table names
+- API keys, tokens, secrets
+- User data from logs
+- SQL queries with real table/column names
+
+GOOD: "SwiftUI NavigationStack crash pop to root async"
+GOOD: "React hydration mismatch useEffect server component"
+GOOD: "Compose LazyColumn crash recomposition"
+BAD:  "/Users/ismael/Projects/myapp/Views/LoginView.swift:42 crash"
+```
+
+This is a privacy safeguard. The user never sees this step.
 
 ---
 
@@ -54,12 +122,24 @@ I have a hypothesis...
 
 ---
 
-## The 3-Strikes Rule
+## Phase 5: Debug Report
 
-If 3+ fix attempts fail:
-- STOP fixing. The problem is architectural, not tactical.
-- Tell the founder: "I've tried 3 approaches and each reveals a deeper issue. This isn't a bug — it's a design problem. Here's what I'm seeing: [pattern]. I'd recommend bringing Arc in to assess whether the architecture needs rethinking."
-- Route to /architect for assessment. Don't attempt Fix #4.
+After closing the bug, produce a structured report:
+
+```
+DEBUG REPORT
+────────────
+Bug: [one-line description]
+Scope: [files investigated]
+Root cause: [what was actually wrong]
+Fix: [what changed — exact files and lines]
+Evidence: [test output showing it works]
+Pattern: [category — state bug, race condition, API misuse, etc.]
+Lesson: [one tip for future — written to CONTEXT.md]
+────────────
+```
+
+Write one entry to CONTEXT.md under "Tech Learnings" — the root cause and the lesson. Keep it to one line.
 
 ---
 
@@ -83,8 +163,9 @@ Never:
 - Propose fixes before completing Phase 1
 - Stack multiple fixes at once
 
-End with: "Root cause: [what]. Fix: [what changed]. Test: [evidence it works]. Lesson: [one tip]. Bug is closed."
-
-After closing the bug, write one entry to CONTEXT.md under "Tech Learnings" — the root cause and the lesson. Keep it to one line. Example: "2026-03-20 — Supabase RLS: row-level policies must include service_role bypass for server-side writes. See commit abc123." This prevents the team from re-discovering the same gotcha next session.
+End with the Debug Report from Phase 5 and a STATUS signal:
+```
+STATUS: [DONE / DONE_WITH_CONCERNS / BLOCKED]
+```
 
 User's request: $ARGUMENTS

@@ -1,10 +1,10 @@
  # Ship Framework
 
-**v2026.03.26** · **An AI product team for one-person teams.**
+**v2026.03.27** · **An AI product team for one-person teams.**
 
 You're one person. You handle product, design, business, and decisions. You need engineering — that's what Claude Code is for. But raw Claude Code is like having a brilliant engineer with no product sense, no design eye, and no business context. It builds what you say, not what you need.
 
-This framework gives Claude Code structure. It turns one AI into a team of 11 opinionated specialists who challenge each other, catch problems early, and keep you shipping. You're the CEO. They report to you.
+This framework gives Claude Code structure. It turns one AI into a team of opinionated specialists who challenge each other, catch problems early, and keep you shipping. You're the CEO. They report to you.
 
 ---
 
@@ -18,11 +18,11 @@ bash ship-framework/setup.sh
 Zero prompts. The script copies all files and installs Playwright — no questions asked:
 
 ```
-Ship Framework v2026.03.26 — Setup
+Ship Framework v2026.03.27 — Setup
 
 ✓ Created CLAUDE.md (your product rules — never overwritten)
 ✓ Created .claude/team-rules.md (agent definitions — auto-synced on update)
-✓ Created .claude/commands/ (15 slash commands)
+✓ Created .claude/commands/ (11 slash commands)
 ✓ Created references/ (animation, components, UX principles)
 ✓ Created references/frameworks/ (conditional framework references)
 ✓ Created CHEATSHEET.md
@@ -70,25 +70,21 @@ Ship Framework uses date-based versioning (`YYYY.MM.DD`). Each release is tagged
 
 ## The Team
 
-| Command | Name | Role |
-|---------|------|------|
-| `/team` | — | **Orchestrator** — give it any instruction, it delegates to the right agents |
-| `/visionary` | Vi | **Product Strategist** — rips ideas apart, writes JTBD, finds the magic moment, picks North Star metric, checks PMF, defines growth mechanism |
-| `/architect` | Arc | **Technical Lead** — turns briefs into buildable plans, RICE-scores the build order, defines motion system, estimates cost |
-| `/build` | Dev | **Builder** — writes code one feature at a time, commits and explains every decision |
-| `/critic` | Crit | **Product Reviewer** — uses it like a real user, reviews against HEART dimensions, checks animation balance, finds rough edges |
-| `/polish` | Pol | **Design Director** — your design voice: typography, spacing, transitions, copy, mobile feel |
-| `/ship` | Cap | **Release Manager** — 9-phase deploy: branch resolution → pre-flight → tests → quality gate → readiness + growth checks → deploy → verify → report → measurement plan |
+| Command | Personas | Role |
+|---------|----------|------|
+| `/team` | — | **Orchestrator** — give it any instruction, it delegates to the right commands |
+| `/plan` | Vi + Arc + Adversarial | **Product + Technical Planning** — Vi rips ideas apart (JTBD, magic moment, PMF, growth), Arc builds the technical plan (RICE, dual-approach, dependencies), Adversarial stress-tests both. Flags: `vi-only`, `arc-only`, `with-monetization` |
+| `/build` | Dev | **Builder** — writes code one feature at a time, scope enforcement before every edit, atomic commits |
+| `/review` | Crit + Pol + Eye + Adversarial | **Quality Review** — Crit reviews against HEART dimensions, Pol runs the anti-slop check, Eye walks every screen, Adversarial challenges everything. Confidence scoring 0-100. Flags: `crit-only`, `pol-only`, `eye-only` |
+| `/qa` | Test | **Tester** — 8-phase QA: scope, tests, explore like a user, document issues, write tests, health score, fix loop, report |
+| `/ship` | Cap | **Release Manager** — plan completion audit, test failure triage, coverage gate, pre-landing safety net, deploy, verify, measurement plan, TASKS.md auto-completion |
+| `/fix` | Bug | **Debugger** — scope lock, investigate, pattern analysis, hypothesize with 3-strike tracking, sanitized external search, debug report |
 | `/money` | Biz | **Business Brain** — 9-step pricing strategy: WTP, model, free line, price, free-tier, self-serve ceiling, implementation, iteration |
-| `/browse` | Eye | **Visual QA** — 6-phase review: setup → screen map → mobile viewport → interaction walkthrough → bug checklist → report |
-| `/qa` | Test | **Tester** — 8-phase QA: scope → tests → explore like a user → document issues → write tests → health score → fix loop → report |
-| `/fix` | Bug | **Debugger** — 4-phase systematic debugging: investigate, find pattern, hypothesize, fix + verify. 3-strikes rule escalates to Arc. Teaches one thing |
+| `/browse` | Eye | **Visual QA** — alias for `/review eye-only` with screenshot mode |
 | `/retro` | Retro | **Retrospective** — 10-step weekly review: git data, metrics, shipping streak, time patterns, hotspots, task health, decision + measurement review, narrative, trends, update CONTEXT.md |
-| `/health` | — | **Health check** — full strategic review: product fit, tech debt, UX gaps, monetization, visual QA |
-| `/status` | — | **Status check** — quick snapshot of progress from TASKS.md |
 | `/ship-update` | — | **Update framework** — pulls latest, updates commands + references from inside Claude Code |
 
-**They disagree with each other.** Vi might want a feature that Arc thinks is over-engineered. Dev might build something that Crit finds confusing. Pol might want polish that Cap thinks delays launch. When they disagree, they present both sides — you make the call.
+**They disagree with each other.** Vi might want a feature that Arc thinks is over-engineered. Dev might build something that Crit finds confusing. Pol might want polish that Cap thinks delays launch. The Adversarial voice attacks everything. When they disagree, they present both sides — you make the call.
 
 That tension is the whole point.
 
@@ -125,8 +121,8 @@ The team enforces engineering discipline automatically — no extra commands nee
 
 - **TDD (Test-Driven Development)** — Dev writes failing tests first, then minimal code to pass. Code before test = delete and start over. Skip TDD for config, layout, or when you say "skip tests."
 - **Verification Before Completion** — Every agent must run the verification command and show output before claiming success. No "should work" — evidence only.
-- **Systematic Debugging** — Bug investigates root cause before fixing. 4 phases: investigate → find pattern → hypothesize → fix. If 3 fixes fail, it's an architecture problem — Bug calls Arc.
-- **Plan Expansion** — Arc writes a clean overview (under 500 words). For complex features, /team auto-expands into bite-sized steps with exact file paths and verification commands. You approve the overview; Dev gets the detail.
+- **Systematic Debugging** — Bug investigates root cause before fixing. Scope lock → investigate → pattern analysis → hypothesize with 3-strike tracking → fix. If 3 hypotheses fail, it escalates to `/plan arc-only`.
+- **Dual-Approach Planning** — Arc produces Minimal and Clean approaches with explicit tradeoffs. Both must follow platform reference guardrails. "Minimal" means fewer features, not fewer best practices.
 - **Parallel Dispatch** — When the plan has 3+ independent tasks, /team dispatches fresh agents per task for faster iteration. Each agent is verified before moving on.
 - **Git Worktrees** — For complex features touching 3+ files, Arc recommends isolated worktrees with verified baselines.
 - **Branch Finishing** — Cap resolves branch state before deploying: merge, PR, or keep. Verifies tests on merged result.
@@ -137,6 +133,15 @@ The team enforces engineering discipline automatically — no extra commands nee
 - **Mid-Build Status (Rule 18)** — During multi-task builds, progress update after each completed task. You never have to ask "where are we?"
 - **Apple API First (Rule 19)** — No custom builds when a system API exists. Before building any custom component, agents check Apple documentation first. If Apple provides it natively, use it. Eye rejects PRs that custom-build something Apple already provides.
 - **No-Hack API Enforcement** — Section 6.5 of swiftui-core.md catches 18 patterns agents commonly get wrong (progressive blur, haptics, keyboard dismiss, sheet detents, focus state, toolbar visibility, containerRelativeFrame, symbolEffect, MeshGradient, overlay form, toolbar placement, scrollIndicators, @Entry macro, fill+stroke, Text concatenation, grammar agreement, ForEach enumerated, keyboard corners). Each shows the WRONG approach so agents recognize it and the CORRECT one-liner.
+- **Completeness is Cheap (Rule 20)** — When a task is 90% done, finish the last 10%. No TODO comments, no "will fix later." A task is either DONE or BLOCKED.
+- **Search Before Building (Rule 21)** — Three layers: codebase first, then references/, then platform vendor docs. Only build from scratch after all three come up empty. Graceful degradation when platform references don't exist yet.
+- **Atomic Commits (Rule 22)** — One concern per commit. Enables git bisect. Adding a screen + its tests = one commit. Fixing two unrelated bugs = two commits.
+- **One Decision Per Question (Rule 23)** — No compound questions to the founder. Each question requires exactly one decision.
+- **Anti-Sycophancy (Rule 24)** — Banned phrases ("Great question!", "That's a really interesting idea!"), banned AI vocabulary (delve, robust, nuanced, etc.), lead with concern not compliment.
+- **Scope Enforcement** — Before every file edit, Dev verifies the file is in the declared Build Scope. Out-of-scope edits classified as MINOR (proceed with note) or STRUCTURAL (stop and ask).
+- **Review Staleness Tracking** — /review saves a hash; /ship compares HEAD against it to catch post-review changes.
+- **Anti-Slop Design Check** — 22 universal items + platform-specific items (iOS 9, Web 9, Android 5) catching generic AI-generated aesthetics.
+- **Confidence Scoring** — /review scores every finding 0-100. Below 50 gets filtered out. Findings classified as SAFE or RISKY.
 
 ---
 
@@ -147,26 +152,26 @@ The team enforces engineering discipline automatically — no extra commands nee
 ```
 /team (orchestrator — delegates automatically)
     |
-/visionary -> Product brief + JTBD + North Star metric + PMF signal + growth mechanism
+/plan -> Vi: product brief + JTBD + North Star + PMF + growth
+         Arc: RICE-scored build order + dual-approach plan
+         Adversarial: stress test both
     |
-/architect -> RICE-scored build order + cost estimate
+/build -> Code, one feature at a time (scope enforcement + atomic commits)
     |
-/build -> Code, one feature at a time
-    |
-/critic -> HEART review (must-fixes go back to /build, rest to TASKS.md)
-    |
-/polish -> Design refinement (may send back to /build)
-    |
-/browse -> Visual QA (screenshots + design comparison)
+/review -> Crit: HEART review
+           Pol: anti-slop check + design audit
+           Eye: screen walkthrough + visual bugs
+           Adversarial: challenge everything
+           (must-fixes go back to /build, rest to TASKS.md)
     |
 /qa -> Run tests, write missing tests
     |
-/ship -> Launch checklist + deploy + measurement plan
+/ship -> Plan audit + test triage + coverage gate + deploy + measurement plan
     |
 /money -> Pricing strategy
 ```
 
-You don't run all 11 every time. `/team` figures out which agents are needed.
+You don't run all of them every time. `/team` figures out which commands are needed.
 
 ### Daily Workflow
 
@@ -181,7 +186,7 @@ You don't run all 11 every time. `/team` figures out which agents are needed.
 /team [paste error]
 
 # Quick check
-/status
+/team status
 ```
 
 **Once `/team` is running, just talk naturally.** You don't need to type `/team` again within the same session. Say "go ahead", "build it", "looks good, next feature", "the dashboard feels off, review it" — the team stays active and routes to the right agents automatically. You only need `/team` again when you start a new Claude Code session.
@@ -196,19 +201,16 @@ You don't run all 11 every time. `/team` figures out which agents are needed.
 
 When you're a one-person team, you're not "a designer" or "a PM" or "a founder" — you're everything. You need product thinking AND technical rigor AND design craft AND business sense AND the discipline to ship.
 
-Claude Code gives you engineering. But without structure, it just builds whatever you describe — no pushback, no quality checks, no "have you thought about this?" This framework adds that structure through agents that are specifically designed to challenge each other:
+Claude Code gives you engineering. But without structure, it just builds whatever you describe — no pushback, no quality checks, no "have you thought about this?" This framework adds that structure through named personas that argue inside simple commands:
 
-- Vi asks "why would anyone care?" before anything gets built
-- Arc asks "will this still work at 3am?" before the architecture is set
-- Eye screenshots the actual UI and compares it to the design
-- Test proves things work — or proves they don't
-- Crit asks "but what if I do THIS?" after every feature
-- Pol asks "does this feel right on a phone?" before shipping
-- Cap asks "why aren't we live yet?" when polish goes too long
-- Biz asks "how does this make money?" before it's too late
-- Retro asks "what actually happened this week?" to keep you honest
+- `/plan` — Vi asks "why would anyone care?", Arc asks "will this still work at 3am?", and the Adversarial voice attacks both before a line of code is written
+- `/build` — Dev codes one feature at a time with scope enforcement and atomic commits
+- `/review` — Crit asks "but what if I do THIS?", Pol asks "does this feel right on a phone?", Eye screenshots the actual UI, and the Adversarial voice challenges everything
+- `/ship` — Cap asks "why aren't we live yet?" and runs the safety net
+- `/money` — Biz asks "how does this make money?" before it's too late
+- `/retro` — Retro asks "what actually happened this week?" to keep you honest
 
-One AI, eleven perspectives, one you making the calls.
+One AI, named personas that disagree, one you making the calls.
 
 ---
 
@@ -218,17 +220,17 @@ One AI, eleven perspectives, one you making the calls.
 
 **Let the disagreements play out.** When Vi wants something and Arc pushes back, that's the system working. Listen to both sides.
 
-**TASKS.md is your source of truth.** Start every session with `/team continue` or `/status`. The task board keeps you on track across days and weeks.
+**TASKS.md is your source of truth.** Start every session with `/team continue`. The task board keeps you on track across days and weeks.
 
 **One feature at a time.** Dev builds, tests, and commits one thing before moving on. Resist the urge to batch.
 
-**Don't skip /critic.** It's tempting to go straight from build to ship. Crit finds the things your users would find first.
+**Don't skip /review.** It's tempting to go straight from build to ship. Crit, Pol, and Eye find the things your users would find first.
 
 **Customize CLAUDE.md aggressively.** Add your color tokens, component library rules, copy guidelines, API constraints. The more specific, the better every agent performs.
 
-**The takeover sequence works.** Existing codebase? `/team Take over this project` runs Arc (assess) → Crit (HEART audit) → Vi (product JTBD) → Biz (who pays) → presents options. Fastest way to orient.
+**The takeover sequence works.** Existing codebase? `/team Take over this project` runs `/plan arc-only` (assess) → `/review` (HEART + design + visual audit) → `/plan vi-only` (product JTBD) → `/money` (who pays) → presents options. Fastest way to orient.
 
-**Run a health check.** Already building? `/team Health check` runs Vi → Arc → Crit → Biz → Eye for a full strategic review — product fit, tech debt, UX gaps, monetization, and visual QA in one pass.
+**Run a health check.** Already building? `/team Health check` runs `/plan` → `/review` → `/money` for a full strategic review — product fit, tech debt, UX gaps, monetization, and visual QA in one pass.
 
 ---
 
@@ -251,7 +253,7 @@ your-project/                    (generated by setup.sh)
   CHEATSHEET.md                  # Quick reference card
   .claude/
     team-rules.md                # Agent definitions + framework rules (auto-synced)
-    commands/                    # 15 slash commands
+    commands/                    # 11 slash commands
   references/                    # Agent reference files (auto-read when relevant)
     README.md                    # Extension guide + design system template
     animation.md                 # Motion budget, build rules, 8 patterns
@@ -280,7 +282,7 @@ ship-framework/                  (the repo itself)
   template/                      # Source templates
     CLAUDE.md                    # User content template
     .claude/team-rules.md        # Framework content (synced on update)
-    .claude/commands/            # 15 slash command files
+    .claude/commands/            # 11 slash command files
     references/                  # Reference files copied to projects
     references/frameworks/       # Conditional framework references
 ```
@@ -377,9 +379,9 @@ Ship Framework uses a two-file split for configuration:
 
 **CLAUDE.md** — Your content. Product name, description, tech stack, design principles, key files, custom references. This file is yours to customize and is **never overwritten** by updates. Edit it freely.
 
-**.claude/team-rules.md** — Framework content. Agent definitions, product frameworks (JTBD, HEART, RICE), rules 0-18, workflow diagrams, and team routing. This file is **managed by Ship Framework** and synced automatically on every update. Don't edit it — your changes would be overwritten.
+**.claude/team-rules.md** — Framework content. Agent definitions, product frameworks (JTBD, HEART, RICE), rules 0-24, workflow diagrams, and team routing. This file is **managed by Ship Framework** and synced automatically on every update. Don't edit it — your changes would be overwritten.
 
-All 15 slash commands read both files. This way you can customize your product context without worrying about framework updates clobbering your changes.
+All 11 slash commands read both files. This way you can customize your product context without worrying about framework updates clobbering your changes.
 
 ---
 

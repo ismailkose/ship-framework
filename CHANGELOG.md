@@ -6,6 +6,54 @@ To update an existing project, run `bash update.sh` — it handles everything au
 
 ---
 
+## 2026.03.27 — Adversarial Autoplan: Named Personas Inside Simple Commands
+
+The team collapsed from 15 commands to 11. Five standalone agents (Vi, Arc, Crit, Pol, Eye) now live inside two power commands: `/plan` and `/review`. Each persona keeps its name, voice, and explicit disagreements, but you invoke one command instead of five. Every command now ends with a STATUS signal. New rules 20-24 enforce completeness, atomic commits, anti-sycophancy, and search-before-building.
+
+### Architecture Change
+- **`/plan`** = Vi (product strategist) + Arc (technical lead) + Adversarial (stress test). Produces product brief, dual-approach technical plan, and adversarial attack in one pass
+- **`/review`** = Crit (product reviewer) + Pol (design director) + Eye (visual QA) + Adversarial (challenge). Produces HEART review, anti-slop check, screen walkthrough, confidence scoring, and adversarial challenge in one pass
+- **`/browse`** rewritten as thin alias for `/review eye-only`
+- Old standalone commands deleted: `/visionary`, `/architect`, `/critic`, `/polish`, `/health`, `/status`
+
+### Added — New Command Files
+- **plan.md** — Full /plan command with Vi + Arc + Adversarial voices, flag handling (vi-only, arc-only, with-monetization), dual-approach planning with guardrail, Safe/Bold design proposals, STATUS signal
+- **review.md** — Full /review command with Crit + Pol + Eye + Adversarial voices, flag handling (crit-only, pol-only, eye-only), anti-slop check (22 universal + platform-specific items), confidence scoring (0-100), Close-Your-Eyes test, review freshness hash, STATUS signal
+
+### Changed — Existing Commands
+- **build.md** — Added Build Scope declaration, Scope Enforcement (mandatory check before every file edit, MINOR vs STRUCTURAL classification), atomic commits (Rule 22), review staleness note, STATUS signal
+- **fix.md** — Added Phase 0 Scope Lock, Pattern Analysis Table, 3-Strike Tracking with attempt format and BLOCKED escalation, Sanitized External Search (strip sensitive data before web searching), Debug Report format, STATUS signal
+- **ship.md** — Added Plan Completion Audit, Test Failure Triage (IN-BRANCH vs PRE-EXISTING), Coverage Gate (platform-aware: iOS xcodebuild, Web Jest, Android jacoco), Pre-Landing Safety Net (LAST_REVIEW_HASH comparison), TASKS.md Auto-Completion, Documentation Sync check, STATUS signal
+- **qa.md** — Updated Vi reference to point to /plan
+- **money.md** — Updated Vi reference to point to /plan
+- **browse.md** — Rewritten as thin alias for `/review eye-only`
+- **team.md** — Task routing rewritten for /plan and /review, agent count updated
+
+### Changed — Team Rules (`team-rules.md`)
+- "How the Team Thinks" rewritten: 6 questions collapsed to 5+1 using /plan and /review
+- Removed 5 old agent definitions (/visionary, /architect, /critic, /polish, /browse)
+- Added 2 new definitions (/plan and /review) with persona descriptions
+- Workflow diagram updated: `/plan -> /build -> /review -> /qa -> /ship`
+- Rule 1 updated: "Never start coding before /plan" (was "/visionary and /architect")
+- **Rule 20: Completeness is cheap** — finish the last 10%, no TODO comments, DONE or BLOCKED
+- **Rule 21: Search before building** — three layers (codebase, references, vendor docs) with graceful degradation for missing platform references
+- **Rule 22: Atomic commits** — one concern per commit, enables git bisect
+- **Rule 23: One decision per question** — no compound questions to the founder
+- **Rule 24: Anti-sycophancy** — banned phrases, banned AI vocabulary (delve, robust, nuanced, etc.), lead with concern not compliment
+
+### Deleted
+- `visionary.md`, `architect.md`, `critic.md`, `polish.md`, `health.md`, `status.md`
+
+### Design Philosophy
+- **Anti-slop typography flag** — catches lazy defaults (everything `.body` at `.regular` weight) not intentional platform-native choices
+- **Platform detection** — Arc auto-detects platform from project files (*.swift, package.json, build.gradle)
+- **Platform-conditional checklists** — universal items apply everywhere, platform-specific items conditionally
+- **Confidence scoring** — 0-100 on review findings, below 50 filtered out
+- **3-strike escalation** — stop after 3 failed debug hypotheses
+- **Review staleness tracking** — hash comparison between /review and /ship
+
+---
+
 ## 2026.03.26 — Community Skill Audit + Security Reference + Quality Improvements
 
 Cross-referenced 10+ community agent skills and Apple's Xcode 26 system prompts to identify gaps, fix quality issues, and add missing coverage. New iOS Security reference file. No-Hack API expanded from 10 to 18 patterns.

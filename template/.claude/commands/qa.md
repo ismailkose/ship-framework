@@ -46,7 +46,7 @@ Visit each affected page. At every page:
 5. **States** — what does a brand new user see? What about loading? What about errors?
 6. **Mobile** — resize to 375px width. Does it still work and feel good?
 
-**Depth rule:** Spend more time on the magic moment flow (from Vi's brief) and less on secondary pages.
+**Depth rule:** Spend more time on the magic moment flow (from Vi's brief in /plan) and less on secondary pages.
 
 **Keyboard + screen reader testing:** Can you Tab through every interactive element? Is the focus order logical? Do dialogs trap focus? Do menus handle arrow keys? Does `prefers-reduced-motion` work? Read `references/components.md` Section 1 — if primitives handle these, verify they actually work in the product.
 

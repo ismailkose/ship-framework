@@ -35,7 +35,7 @@ Don't ask which option unless ambiguous. If there's one feature branch with all 
 
 ---
 
-## Phase 1: Pre-Flight
+## Phase 1: Pre-Flight + Plan Completion Audit
 
 Check what's being shipped:
 
@@ -49,6 +49,22 @@ git diff main --stat
 - If working tree is dirty: commit or stash before proceeding.
 - Summarize: "Shipping X commits with Y files changed."
 
+### Plan Completion Audit
+
+Compare what /plan specified vs what was actually built:
+
+1. Read the last /plan output (from DECISIONS.md or conversation)
+2. Read `git diff main --stat`
+3. For each item in /plan's build order:
+   - Was it built? (check if related files exist in the diff)
+   - Was it tested? (check if test files exist)
+   - Mark: COMPLETE / PARTIAL / MISSING
+
+If any item is MISSING: "The plan specified [X] but it wasn't built. Ship without it, or build it first?"
+If any item is PARTIAL: "[X] was started but not finished. The following is missing: [specifics]."
+
+This catches the case where Dev built 4 of 5 planned items and everyone forgot about #5. Rule 20 (Boil the Lake) says finish it.
+
 ---
 
 ## Phase 2: Run Tests
@@ -59,9 +75,50 @@ npm test
 
 **VERIFICATION RULE:** Show full test output before proceeding. No summarizing as "tests pass" without the actual evidence.
 
-- **If tests fail:** STOP. Show failures. Don't ship broken code.
+- **If tests fail:** Triage before stopping (see below).
 - **If tests pass:** Note the count and continue.
 - **If no tests exist:** Flag it as a risk but don't block the ship.
+
+### Test Failure Triage
+
+If any tests fail, classify each failure:
+
+**IN-BRANCH:** Test touches code you changed. You likely broke it. → HARD STOP. Fix before shipping.
+
+**PRE-EXISTING:** Test fails on the base branch too. Not your fault. → Document and proceed:
+"Pre-existing failure: [test name] — fails on main too. Not blocking ship. Added to TASKS.md for follow-up."
+
+How to check:
+```bash
+git stash && git checkout main && [run test] && git checkout - && git stash pop
+```
+
+NEVER silently skip a failing test. Every failure gets classified and either fixed or documented.
+
+### Coverage Gate (after tests pass)
+
+Check test coverage (platform-aware):
+
+```
+IF iOS:
+  xcodebuild test -scheme [Scheme] -enableCodeCoverage YES
+  xcrun xccov view --report [path].xcresult
+
+IF Web:
+  npm test -- --coverage  (Jest/Vitest)
+  OR: npx nyc report      (Istanbul/nyc)
+
+IF Android [future]:
+  ./gradlew testDebugUnitTest jacocoTestReport
+```
+
+| Coverage | Action |
+|----------|--------|
+| Below 60% | HARD STOP. Cannot ship. Write tests first. |
+| 60-79% | WARNING. "Coverage is [X]%. Ship anyway? This is risky." |
+| 80%+ | PASS. Proceed to next phase. |
+
+If no coverage tool is configured, flag it: "No test coverage measurement. Ship at your own risk."
 
 ---
 
@@ -125,7 +182,7 @@ Check the deployment essentials:
 
 ### Growth Checks
 
-Vi defined a growth mechanism in the product brief. Verify the basics are in place:
+Vi defined a growth mechanism in /plan's product brief. Verify the basics are in place:
 
 | Item | Status | Notes |
 |------|--------|-------|
@@ -137,6 +194,41 @@ Vi defined a growth mechanism in the product brief. Verify the basics are in pla
 These are lightweight checks, not a strategy exercise. If Vi didn't define a growth mechanism, flag it: "No growth mechanism defined — the product can ship but can't spread."
 
 Flag anything missing. Decide: is it a blocker or can it be fixed after launch?
+
+---
+
+## Phase 4b: Pre-Landing Safety Net
+
+Before deploying, check if code changed since the last /review:
+
+```
+1. Compare HEAD commit hash vs LAST_REVIEW_HASH from /review's output
+   - If same → SKIP (review is current)
+   - If different → run lightweight scan:
+
+2. Lightweight scan (NOT a full /review):
+   - Read the diff since last review
+   - Check for: broken imports, syntax errors, obvious regressions
+   - Check for: accidental debug code (print statements, console.log)
+   - Check for: new TODO/FIXME comments
+
+3. Output:
+   - If clean → "Post-review changes look safe. Proceeding."
+   - If concerns → "Code changed after /review. Found: [issues].
+     Run /review again, or ship with these noted."
+```
+
+This is invisible engineering hygiene. The user sees nothing unless there's a problem.
+
+### Plan Verification Gate
+
+If the plan from /plan has a "## Verification" section:
+1. Read the verification steps
+2. Run each step (manually or via /qa)
+3. All steps must pass OR founder says "ship anyway"
+4. Log any overrides to DECISIONS.md
+
+If the plan has no verification section: skip this gate.
 
 ---
 
@@ -200,8 +292,14 @@ Ship Readiness:
 Post-deploy: [all clear / issues found]
 ```
 
-Reference what previous agents produced. Then read TASKS.md — any open must-fixes from Crit, Eye, or Test should be resolved before shipping.
-Update TASKS.md — mark shipped items as complete.
+Reference what previous agents produced. Then read TASKS.md — any open must-fixes from /review should be resolved before shipping.
+
+### TASKS.md Auto-Completion
+
+After the plan completion audit, update TASKS.md:
+- Mark completed items with today's date: `[x] Feature name (shipped 2026-03-27)`
+- Note partial items: `[ ] Feature name — PARTIAL: [what's missing]`
+- Add any discovered tasks from the ship process (missing tests, stale docs, etc.)
 
 Philosophy: "You can fix it after it's live. You can't learn from something nobody has used."
 
@@ -215,7 +313,7 @@ The feature is live, but the job isn't done until we know if it worked. Write a 
 Measurement Plan
 ────────────────
 Feature: [what shipped]
-Vi's success metric: [the HEART dimension + number Vi defined]
+Vi's success metric: [the HEART dimension + number from /plan]
 How to measure: [what tool, dashboard, query, or manual check]
 When to check: [date — 1 week, 2 weeks, or 30 days from now]
 Success looks like: [specific threshold]
@@ -228,6 +326,27 @@ Retro will surface this on the check date — so the loop never gets forgotten. 
 
 Philosophy: "You can fix it after it's live. You can't learn from something nobody measured."
 
-End with: "It's live at [URL]. Measurement plan filed — Retro will check in on [date]. Go get your first user. Use /money when ready for payments."
+## Phase 8b: Documentation Sync
+
+After shipping, check for stale documentation:
+
+1. Does CONTEXT.md reflect what was just shipped?
+   - Add "Product Learnings" entry for the feature
+   - Update "Active Experiments" if this was an experiment
+2. Does README (if it exists) reflect the current state?
+   - New features mentioned? Screenshots current? Setup instructions accurate?
+3. Does CLAUDE.md still match the product?
+   - Product description still accurate after this feature?
+   - Tech stack section still current?
+
+Flag anything stale. Fix the obvious ones (CONTEXT.md update). For bigger updates (README rewrite, screenshot refresh), add to TASKS.md.
+
+---
+
+End with:
+```
+STATUS: [DONE / DONE_WITH_CONCERNS / BLOCKED]
+```
+"It's live at [URL]. Measurement plan filed — Retro will check in on [date]. Go get your first user. Use /money when ready for payments."
 
 User's request: $ARGUMENTS
