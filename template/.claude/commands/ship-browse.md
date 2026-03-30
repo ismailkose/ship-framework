@@ -6,6 +6,17 @@ This is an alias for the Eye (Visual QA) lens inside /ship-review. It runs only 
 
 Use this when you just want to see what the user sees.
 
+## Browser Tool Check
+
+Before taking screenshots, check if a browser automation tool is available:
+
+1. Check if Playwright is installed: `npx playwright --version`
+2. If NOT installed:
+   - Tell the founder: "Playwright isn't installed — I need it to take screenshots. Want me to set it up? (`npm init playwright@latest`)"
+   - Wait for confirmation before installing
+   - After install, run `npx playwright install chromium` (only Chromium needed for screenshots)
+3. If installed, proceed with screenshots
+
 ---
 
 ## Content Trust Boundary
