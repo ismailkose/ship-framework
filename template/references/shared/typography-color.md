@@ -3,7 +3,7 @@
 > Type and color are the foundation of visual communication. These aren't decorative choices — they're functional systems that affect readability, hierarchy, consistency, and accessibility. This reference teaches the "why" behind type scales, color tokens, and audit strategies so you build systems that scale and don't decay.
 >
 > **Agent routing:**
-> Eve → Sections 1-2 (define type scale and color palette during planning). Type scale affects layout rhythm; color palette sets mood and accessibility baseline.
+> Pol → Sections 1-3 (define type scale and color palette during planning, audit token compliance). Type scale affects layout rhythm; color palette sets mood and accessibility baseline.
 > Arc → Section 1 (type scale impacts layout grid, line length, and spacing decisions). Small type forces narrow columns; large type needs broader layouts.
 > Dev → Sections 1-3 (implement as design tokens, never hardcode raw values). Tokens enable theme switching, consistency, and maintainability.
 > Pol → Section 3 (audit token compliance, contrast ratios, color-not-only principle). Accessibility audit. Spot hard-coded colors. Verify contrast.

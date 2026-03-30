@@ -3,8 +3,7 @@
 > **Agent routing:**
 > - **Arc** → Section 1 (plan layout strategy, breakpoints, content priority)
 > - **Dev** → Sections 1–2 (build mobile-first, spacing tokens, viewport handling)
-> - **Eve** → Section 1 (layout affects visual hierarchy and product feel)
-> - **Pol** → Section 2 (audit spacing consistency, responsive behavior)
+> - **Pol** → Sections 1–2 (layout affects visual hierarchy and product feel, audit spacing consistency, responsive behavior)
 > - **Test** → Section 3 (verify at all breakpoints, orientation, overflow)
 
 ---

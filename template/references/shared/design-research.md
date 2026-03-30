@@ -4,7 +4,7 @@
 >
 > **Agent routing:**
 > - **Vi** → Sections 1–2 (product vision shapes design direction)
-> - **Eve** → Sections 1–3 (Eve drives the design system creation)
+> - **Pol** → Sections 1–3 (Pol drives the design system creation)
 > - **Arc** → Section 3 (design system affects architecture decisions)
 > - **Dev** → Section 3 (design tokens guide implementation)
 > - **Pol** → Section 2 (design decisions should be justified, not arbitrary)

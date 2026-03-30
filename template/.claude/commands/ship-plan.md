@@ -41,6 +41,10 @@ Before producing any plan, check three layers (Rule 21):
 - `references/shared/ux-principles.md` (principles apply to all platforms)
 - `references/shared/components.md` (three-layer model applies to all platforms)
 - `references/shared/animation.md` (animation concepts apply to all platforms)
+- `references/shared/typography-color.md` (type scale and color palette decisions during planning)
+- `references/shared/navigation.md` Section 1 (navigation architecture choices)
+- `references/shared/layout-responsive.md` Section 1 (mobile-first prioritization, breakpoints)
+- `references/shared/design-research.md` (if no DESIGN.md exists — competitive research, design direction, design system creation)
 
 Then, based on the Stack field in CLAUDE.md, load platform-specific references:
 
@@ -50,7 +54,9 @@ Then, based on the Stack field in CLAUDE.md, load platform-specific references:
 - `references/ios/frameworks/` (all files in this directory)
 
 **If Stack is web:**
-- `references/web/` (all files in this directory, when content exists)
+- `references/web/react-patterns.md` (Server vs Client architecture, composition)
+- `references/web/web-accessibility.md` (semantic HTML foundation, ARIA patterns)
+- `references/web/web-performance.md` (Core Web Vitals targets for planning)
 
 **If Stack is android:**
 - `references/android/` (all files in this directory, when content exists)

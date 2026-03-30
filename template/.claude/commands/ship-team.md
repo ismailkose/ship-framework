@@ -91,6 +91,14 @@ When the task involves building UI, you MUST ensure:
 4. **Dev reads `references/shared/components.md`** and verifies the component layer is installed (check for `components.json`) before building any UI. If missing, install it first.
 5. **Dev reads `references/shared/ux-principles.md` Sections 2-3, 5** when building UI interactions — hit areas, response time, spacing, visual hierarchy. Section 5 has device capabilities, smart data entry, loading, accessibility rules.
 6. **Dev reads `references/shared/animation.md` Sections 3-4** when building UI with transitions.
+7. **Pol reads `references/shared/typography-color.md`** when planning — define type scale and color palette. Dev reads Sections 1-3 when implementing design tokens.
+8. **Dev reads `references/shared/forms-feedback.md` Section 1** when building any form — labels, validation, progressive disclosure. **Pol reads Section 2** for feedback pattern audit (empty states, toasts, confirmation vs undo).
+9. **Arc reads `references/shared/navigation.md` Section 1** when planning navigation architecture. **Dev reads Section 2** when implementing back behavior, deep linking, URL state.
+10. **Dev reads `references/shared/layout-responsive.md`** when building layouts — mobile-first, breakpoints, spacing scale. Supplements ux-principles.md Sections 2-3 with deeper implementation detail.
+11. **Dev reads `references/shared/touch-interaction.md` Section 1** when building interactive elements — tap targets, gestures, press feedback. Supplements ux-principles.md Section 2 (Fitts's Law) with deeper touch patterns.
+12. **Dev reads `references/shared/dark-mode.md`** when implementing theming — semantic tokens, desaturation, platform-specific patterns.
+13. **Pol reads `references/shared/design-quality.md`** during review — first impression assessment, AI slop detection, cross-page consistency, visual coherence. **Eye reads Sections 2-4** for visual quality audit.
+14. **Pol reads `references/shared/design-research.md`** during planning when no design system exists yet — competitive research, design direction, DESIGN.md creation.
 
 ### iOS Stack Only
 
@@ -110,7 +118,9 @@ When the task involves building UI, you MUST ensure:
 17. **Arc reads `references/shared/components.md` Section 3.1** (component catalog) when planning which shadcn components a feature needs — check what exists before speccing custom components.
 18. **Eye reads `references/shared/components.md` Section 3.9** (review checklist) when reviewing React web projects — theming consistency, component quality, form validation, accessibility.
 
-*(When references/web/ has content, load web-specific references here)*
+19. **Dev reads `references/web/react-patterns.md`** when building React components — Server vs Client architecture, data fetching, composition, hydration safety.
+20. **Dev reads `references/web/web-accessibility.md`** when building any web UI — semantic HTML, ARIA, focus management, screen reader patterns.
+21. **Arc reads `references/web/web-performance.md`** when planning — Core Web Vitals targets. **Dev reads** when optimizing images, fonts, bundles.
 
 ### Android Stack Only
 
@@ -124,11 +134,11 @@ When the task involves building UI, you MUST ensure:
 
 ### Reference Scope Summary
 
-- **Shared (items 1-6):** Load for all stacks.
-- **iOS (items 7-15):** Load when the stack includes SwiftUI, iOS, or mobile.
-- **Web (items 16-18):** Load when the stack includes React + shadcn/ui.
+- **Shared (items 1-14):** Load for all stacks. Core design intelligence.
+- **iOS (items 15-23):** Load when the stack includes SwiftUI, iOS, or mobile.
+- **Web (items 19-21 + 24-26):** Load when the stack includes React, Next.js, or web.
 - **Android (placeholder):** Load when the stack includes Android.
-- **Chat (items 19-21):** Load when the project includes a chat or conversational AI interface, regardless of stack.
+- **Chat (items 27-29):** Load when the project includes a chat or conversational AI interface, regardless of stack.
 
 These references exist in the project's `references/` directory. Agents must actually read them, not skip them to save time. The references contain setup commands, architectural decisions, and patterns that prevent rebuilding solved problems from scratch.
 

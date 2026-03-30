@@ -78,6 +78,8 @@ Reviews against HEART dimensions (pick the 2-3 most relevant):
 - **Speed** — anything slow? Loading states missing?
 - **Animation balance** — if the product has animations, read `references/shared/animation.md` Section 1 (always load: Motion Budget + Motion Hierarchy). Is motion earning its place or just decorating? Are repeated interactions (used 50x/day) still animated when they shouldn't be?
 - **UX principles** — read `references/shared/ux-principles.md` (always load) for the psychology behind HEART dimensions. Fitts's Law (task success), Hick's Law (adoption), Doherty (happiness), Peak-End (retention)
+- **Forms** — if the feature has forms, read `references/shared/forms-feedback.md` Section 3 for QA test cases. Check validation timing, error placement, empty states.
+- **Touch targets** — read `references/shared/touch-interaction.md` Section 2 for touch QA patterns. Verify ≥44px/48dp, spacing between targets, press feedback.
 - **Metric check** — does this feature move the HEART metric from /ship-plan?
 
 Output: Prioritized list — Must fix / Should fix / Nice to have.
@@ -86,7 +88,7 @@ Output: Prioritized list — Must fix / Should fix / Nice to have.
 
 ## ━━━ Pol (Design Director) ━━━
 
-Before auditing, read the aesthetic direction from DECISIONS.md (set during /ship-plan). Every design judgment references this.
+Before auditing, read the aesthetic direction from DECISIONS.md (set during /ship-plan). Every design judgment references this. Read `references/shared/design-quality.md` for deep reasoning on first impression assessment (Section 1), AI slop detection patterns (Section 2), cross-page consistency audit (Section 3), and visual coherence (Section 4). Read `references/shared/typography-color.md` Section 3 for style audit patterns.
 
 ### Step 1: Anti-Slop Check (FIRST, before everything else)
 
@@ -180,7 +182,7 @@ Output: Design punch list with specific instructions Dev can implement.
 
 ## ━━━ Eye (Visual QA) ━━━
 
-Has access to Crit's and Pol's findings and actively cross-references them.
+Has access to Crit's and Pol's findings and actively cross-references them. Read `references/shared/design-quality.md` Sections 2-4 for visual quality assessment patterns. For web stacks, also read `references/web/web-accessibility.md` for semantic HTML and focus audit patterns.
 
 ### Phase 0: Design System Discovery
 

@@ -61,14 +61,26 @@ This preserves both the scaffolded project AND all Ship Framework files.
 **Reference Loading (Stack-Aware):**
 Always load shared references: `references/shared/ux-principles.md`, `references/shared/components.md`, `references/shared/animation.md`. Then load platform-specific references matching the declared Stack in CLAUDE.md:
 - **iOS** → `references/ios/swiftui-core.md`, `references/ios/hig-ios.md`, `references/ios/swift-essentials.md`, `references/ios/frameworks/[relevant].md`
-- **Web** → `references/web/` (when content exists)
+- **Web** → `references/web/react-patterns.md`, `references/web/web-accessibility.md`, `references/web/web-performance.md`
 - **Android** → `references/android/` (when content exists)
 
-When building UI interactions, read `references/shared/ux-principles.md` Sections 2-3 — the code examples show correct vs incorrect patterns for hit areas, response time, input handling, spacing, and visual hierarchy.
+When building UI interactions, read `references/shared/ux-principles.md` Sections 2-3 — the code examples show correct vs incorrect patterns for hit areas, response time, input handling, spacing, and visual hierarchy. For deeper touch patterns (gestures, haptics, press feedback), read `references/shared/touch-interaction.md`.
+
+When building layouts, read `references/shared/layout-responsive.md` — mobile-first philosophy, breakpoint reasoning, spacing scale. This supplements ux-principles.md with deeper implementation detail.
+
+When building forms, read `references/shared/forms-feedback.md` Section 1 — labels, validation timing, progressive disclosure, multi-step patterns. Section 2 has feedback patterns (empty states, toasts, confirmation vs undo).
 
 When building UI components, follow Arc's component architecture spec. Read `references/shared/components.md` — use the project's design system first, reach for headless primitives to fill gaps, never rebuild accessible behavior from scratch. Before building any UI, verify the component layer is installed (e.g., check for `components.json` — if missing and the stack specifies shadcn/ui, run the setup from `references/shared/components.md` Section 2 first). Check `references/design-system.md` if it exists (project-specific tokens and rules override framework defaults).
 
+When implementing typography or color tokens, read `references/shared/typography-color.md` — type scale reasoning, font pairing, semantic color tokens. Never hardcode raw values.
+
+When implementing dark mode or theming, read `references/shared/dark-mode.md` — semantic tokens, desaturation strategy, platform-specific implementation patterns.
+
+When building navigation, read `references/shared/navigation.md` Section 2 — back behavior, deep linking, adaptive nav, URL state, modals vs navigation.
+
 When building UI with animations or transitions, follow Arc's motion spec and read `references/shared/animation.md` Section 3 for build rules and Section 4 for pattern foundations. Learn from the patterns — don't copy them blindly. Adapt techniques to your stack and what Arc specced. For deep-dive API references when you need them: `references/shared/animation-css.md`, `references/shared/animation-framer-motion.md` (if stack uses it), `references/shared/animation-performance.md`.
+
+**Web stack:** Also read `references/web/react-patterns.md` for Server vs Client components, composition, and hydration safety. Read `references/web/web-accessibility.md` for semantic HTML and ARIA patterns.
 
 ## Decision Classification
 

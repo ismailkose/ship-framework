@@ -10,6 +10,14 @@
 > Vi → Section 4 + 5 (define magic moment + onboarding + writing voice). Peak-End and Goal Gradient shape the core experience.
 > Crit → Sections 1-5 (review everything). These principles are the "why" behind HEART dimensions. Section 5 adds accessibility and inclusion checks.
 > Pol → Sections 3 + 4 + 5 (audit design craft + writing + branding). Proximity, similarity, visual hierarchy, UX writing, and branding rules.
+>
+> **Deep-dive references:** This file covers the principles (the "why"). For deeper implementation patterns, see:
+> - `touch-interaction.md` — extends Section 2 (Fitts's Law) with gesture patterns, haptics, press feedback, safe areas
+> - `layout-responsive.md` — extends Section 3 (spacing/hierarchy) with breakpoint reasoning, mobile-first philosophy, grid systems
+> - `forms-feedback.md` — extends Section 5 (data entry) with validation patterns, progressive disclosure, empty states
+> - `typography-color.md` — extends Section 3 (visual hierarchy) with type scale reasoning, color token systems
+>
+> This file is the foundation. The deep-dives supplement it — they don't replace it. Always read this file first.
 
 ---
 

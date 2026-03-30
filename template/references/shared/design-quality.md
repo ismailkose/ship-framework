@@ -3,9 +3,8 @@
 > The difference between amateur and professional design isn't following rules — it's seeing what's off before you can name it. This reference teaches that eye.
 >
 > Agent routing:
-> - Eve → Sections 1-4 (design quality is Eve's primary domain)
+> - Pol → Sections 1-4 (design quality is Pol's primary domain — first impression, consistency, coherence, craft)
 > - Vi → Section 1 (first impression shapes product vision)
-> - Pol → Sections 2-4 (audit consistency, coherence, and craft)
 > - Eye → Sections 2-4 (visual quality assessment)
 > - Crit → Section 2 (AI slop hurts user trust and adoption)
 

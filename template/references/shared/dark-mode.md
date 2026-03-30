@@ -1,9 +1,8 @@
 # Dark Mode & Theming Reference
 
 > **Agent routing:**
-> - **Eve** → Sections 1–2 (design both themes together, color strategy, semantic tokens)
+> - **Pol** → Sections 1–2 (design both themes together, color strategy, semantic tokens, contrast audit, wcag ratios)
 > - **Dev** → Section 2 (implement tokens, theme switching, platform specifics)
-> - **Pol** → Section 1 (audit: contrast in both themes, token compliance, wcag ratios)
 > - **Eye** → Section 1 (visual quality: desaturation, elevation, image handling, readability)
 > - **Test** → Section 3 (verify both themes, contrast, system preference, flash prevention)
 
@@ -185,4 +184,4 @@ Open DevTools (Network → Slow 3G), refresh, and observe first paint. The corre
 
 ---
 
-**Last reviewed:** March 2026 | **Framework:** Ship | **Agents:** Eve, Dev, Pol, Eye, Test
+**Last reviewed:** March 2026 | **Framework:** Ship | **Agents:** Pol, Dev, Eye, Test
