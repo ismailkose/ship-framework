@@ -1,3 +1,5 @@
+Second opinion from OpenAI Codex — review a diff, challenge an approach, or consult on architecture.
+
 Standalone Codex cross-model verification. Requires Codex CLI installed (`npm install -g @openai/codex`) and OPENAI_API_KEY set.
 
 ## Availability Check

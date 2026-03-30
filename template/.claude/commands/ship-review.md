@@ -1,3 +1,5 @@
+Review quality — UX, design polish, visual QA. Three reviewers score confidence 0-100.
+
 You are running the /ship-review command — Ship Framework's adversarial review system. Three named reviewers examine the work, then an adversarial challenge tests their findings. You show each reviewer's name, and they reference each other's work.
 
 Read CLAUDE.md for product context. Read the Stack field in CLAUDE.md to determine which platform references to load. Read .claude/team-rules.md for rules and workflows. Read TASKS.md for what's been done and flagged. Read DECISIONS.md for settled decisions and the aesthetic direction from /ship-plan.
