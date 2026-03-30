@@ -1,70 +1,49 @@
-# [Your Product Name] — Team Framework
+# [Your Product Name]
 
-> This file turns Claude Code into a team of opinionated specialists.
 > You are the founder. The team reports to you. You make final calls.
-
----
 
 ## The Product
 
 <!-- Describe your product in 2-3 sentences. What does it do? Who is it for? -->
 
-## Who I Am
+## The Founder
 
-I'm a one-person team building this product. I handle product vision, design,
-business, and decisions — Claude Code handles engineering. The agents below are
-my team. They each have a specialty, but I need ALL of them because I wear every
-hat.
+<!-- This tells the team how to work with YOU. Every persona reads this
+     and adapts how they communicate, present decisions, and explain work.
+     Delete the examples and fill in your own. Keep it short — a few words each. -->
 
-When I get stuck on something technical, don't just give me the answer — explain
-the *why* in one sentence so I learn over time.
+Background: Product designer, design engineer, product manager — or someone who wants to thrive in these areas
+Technical comfort: Can read code, review diffs, and tweak. Not architecting from scratch. For unfamiliar technologies, assume I need the concept explained before the implementation.
+Decision style: One strong recommendation with clear reasoning. I need to understand how it impacts the product overall — not just the technical side. I'll push back if it doesn't click.
+Communication: Short and direct. Show, don't explain. Use visuals, screen maps, and concrete examples over abstract explanations. If I'm not getting it, the explanation is too abstract — try a real scenario.
+Taste: Craft-obsessed. I study best-in-class apps and frameworks. If it feels off, it's not shipping — but I know when to skip something and come back later.
+Context need: I need to understand the "why" before I commit. Don't just recommend — show me what problem it solves and what happens if we skip it.
+Focus awareness: I can get deep into details that are already shippable. When this happens, show me the bigger picture — what's missing, what users will actually hit — and let me decide when to move on.
 
-**How I think:**
-- Show me screens and user flows before database schemas
-- Frame technical decisions as tradeoffs: time, cost, quality, flexibility
-- When something has a business impact (API costs, hosting, pricing), say so
-- I care about how things look AND how they perform AND whether they make money
-- I want to ship fast, but not sloppy
+## Stack
 
----
-
-## Tech Stack
-
-<!-- List your stack. Arc uses this to plan, Dev uses this to code.
-     You can list without versions — Arc will use the latest stable.
-
-     Recommended stacks (pick one or write your own):
-     • Web App:          Next.js, React, TypeScript, Tailwind CSS, shadcn/ui (Base UI), Supabase, Vercel
-     • Mobile App:       React Native (Expo), TypeScript, Supabase, EAS Build
-     • iOS App:          SwiftUI, Swift, CloudKit, Xcode
-     • Full-Stack Python: FastAPI, Python, PostgreSQL, HTMX, Tailwind CSS, Uvicorn
-     • Static Site:      Astro, Tailwind CSS, Markdown, Vercel
--->
-
--
--
--
+<!-- Your stack. Determines which platform context loads.
+     Examples:
+       Stack: web (Next.js, Tailwind, Vercel)
+       Stack: ios (SwiftUI, CloudKit)
+       Stack: android (Jetpack Compose, Material 3, Kotlin)
+       Stack: cross-platform (React Native)
+     If blank, Ship asks on your first /ship-plan or /ship-build. -->
 
 ## Design Principles
 
 - Mobile-first, responsive
-- Animations are subtle, 150-250ms, ease-out timing
 - 44px minimum tap targets
 - Typography hierarchy clear and consistent (2 fonts max)
 - Consistent spacing system — no magic numbers
 - Ship ugly but working over pretty but broken
 
-<!-- Add your product's specific design vibe below:
-     e.g., "Warm and soft", "Clean and minimal", "Bold and energetic"
-
-     Have a design system with tokens, components, or patterns?
-     Add them to references/design-system.md — agents will use your
-     rules automatically. See references/README.md for the template. -->
+<!-- Add your product's specific design vibe below.
+     Have a design system? Add it to references/design-system.md. -->
 
 ## Key Files
 
-<!-- List the most important files so the team can orient quickly.
-     Update this as your project grows. -->
+<!-- List the most important files so the team can orient quickly. -->
 
 ## Running Locally
 
@@ -81,30 +60,49 @@ Copy `.env.example` to `.env.local` and fill in your keys.
 
 ---
 
-## Custom References
+## Ship Framework
 
-<!-- The references/ directory contains guides agents read automatically.
-     Framework references (animation, components) are always available.
-     Add your own to extend the team's knowledge.
+**Rules, personas, and workflows:** `.claude/team-rules.md`
+That file is managed by Ship Framework — don't edit it. This file is yours.
 
-     Your references override where they have opinions. Where they're silent,
-     agents fall back to framework defaults. For example: your design system
-     defines Button and Card but not Dialog — agents use yours for Button/Card
-     and reach for a headless primitive for Dialog, styled to match your tokens.
+**Commands:**
 
-     Format:
-     - references/your-file.md — Which agents read it and when
+| Command | What it does |
+|---|---|
+| `/ship-plan` | Vi + Arc + Adversarial argue → battle-tested plan |
+| `/ship-build` | Dev builds one feature at a time |
+| `/ship-review` | Crit + Pol + Eye + Adversarial → quality verdict |
+| `/ship-qa` | Test runs and writes tests, health score |
+| `/ship-launch` | Cap's release checklist → deploy |
+| `/ship-fix` | Bug debugs systematically |
+| `/ship-money` | Biz figures out monetization |
+| `/ship-browse` | Visual QA (Eye only, screenshot mode) |
+| `/ship-team` | Orchestrator — delegates to the right agents |
+| `/ship-retro` | Weekly retrospective with data |
+| `/ship-codex` | Cross-model verification via Codex (optional) |
+| `/ship-careful` | Destructive command warnings (rm -rf, DROP TABLE, etc.) |
+| `/ship-freeze` | Lock edits to a specific directory |
+| `/ship-guard` | Both: destructive warnings + directory lock |
+| `/ship-unfreeze` | Remove directory edit lock |
+| `/ship-update` | Update Ship Framework to latest |
 
+**Skills:** `.claude/skills/ship/` (framework defaults) and `.claude/skills/your-skills/` (yours).
+Ship skills load automatically per command. Your skills activate based on wiring below.
+
+<!-- Your skill wiring (plain English):
      Example:
-     - references/design-system.md — Arc reads when planning UI. Dev reads
-       when building components. Pol reads when auditing design.
-     - references/api-patterns.md — Arc reads when planning data layer.
-       Dev reads when building API calls.
+       tailwind-patterns: load during /ship-build and /ship-review when working on frontend files
+       content-writing: load during /ship-plan when writing copy
+     Ship reads these and activates your skills alongside its defaults. -->
 
+**Custom References:**
+
+<!-- The references/ directory has guides agents read automatically.
+     Your references override framework defaults where they conflict.
+     Format:
+       - references/your-file.md — Which agents read it and when
      See references/README.md for the design system template. -->
 
----
+**Precedence:** team-rules.md > your skills > framework defaults
 
-> **Team rules, agent definitions, and product frameworks** are in `.claude/team-rules.md`.
-> That file is managed by Ship Framework and updated automatically — don't edit it.
-> This file (CLAUDE.md) is yours to customize. It's never overwritten by updates.
+> Ship Framework v__VERSION__ — [github.com/ismailkose/ship-framework](https://github.com/ismailkose/ship-framework)

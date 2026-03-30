@@ -25,6 +25,13 @@ git log main..HEAD --oneline
 
 4. **After merge:** Verify tests pass on the merged result. If tests fail, STOP — don't ship broken merges.
 
+## Blast Radius Check
+
+Before force-pushing, deleting branches, or any destructive git operation:
+- Always confirm with the founder first
+- Show what will be affected: "This will force-push to main, overwriting [N] commits on remote. Approve?"
+- If deleting branches: list them and confirm
+
 5. **Cleanup:** Remove merged branches and worktrees.
    ```bash
    git branch -d feature-branch
@@ -51,11 +58,11 @@ git diff main --stat
 
 ### Plan Completion Audit
 
-Compare what /plan specified vs what was actually built:
+Compare what /ship-plan specified vs what was actually built:
 
-1. Read the last /plan output (from DECISIONS.md or conversation)
+1. Read the last /ship-plan output (from DECISIONS.md or conversation)
 2. Read `git diff main --stat`
-3. For each item in /plan's build order:
+3. For each item in /ship-plan's build order:
    - Was it built? (check if related files exist in the diff)
    - Was it tested? (check if test files exist)
    - Mark: COMPLETE / PARTIAL / MISSING
@@ -134,7 +141,7 @@ If Playwright is available, use real screenshots. If not, review code.
 
 **Screenshot mode:**
 ```bash
-npx playwright screenshot http://localhost:3000 screenshots/ship-mobile.png --viewport-size="375,812"
+npx playwright screenshot http://localhost:3000 screenshots/ship-launch-mobile.png --viewport-size="375,812"
 ```
 
 **Code mode:**
@@ -182,7 +189,7 @@ Check the deployment essentials:
 
 ### Growth Checks
 
-Vi defined a growth mechanism in /plan's product brief. Verify the basics are in place:
+Vi defined a growth mechanism in /ship-plan's product brief. Verify the basics are in place:
 
 | Item | Status | Notes |
 |------|--------|-------|
@@ -199,14 +206,14 @@ Flag anything missing. Decide: is it a blocker or can it be fixed after launch?
 
 ## Phase 4b: Pre-Landing Safety Net
 
-Before deploying, check if code changed since the last /review:
+Before deploying, check if code changed since the last /ship-review:
 
 ```
-1. Compare HEAD commit hash vs LAST_REVIEW_HASH from /review's output
+1. Compare HEAD commit hash vs LAST_REVIEW_HASH from /ship-review's output
    - If same → SKIP (review is current)
    - If different → run lightweight scan:
 
-2. Lightweight scan (NOT a full /review):
+2. Lightweight scan (NOT a full /ship-review):
    - Read the diff since last review
    - Check for: broken imports, syntax errors, obvious regressions
    - Check for: accidental debug code (print statements, console.log)
@@ -214,17 +221,17 @@ Before deploying, check if code changed since the last /review:
 
 3. Output:
    - If clean → "Post-review changes look safe. Proceeding."
-   - If concerns → "Code changed after /review. Found: [issues].
-     Run /review again, or ship with these noted."
+   - If concerns → "Code changed after /ship-review. Found: [issues].
+     Run /ship-review again, or ship with these noted."
 ```
 
 This is invisible engineering hygiene. The user sees nothing unless there's a problem.
 
 ### Plan Verification Gate
 
-If the plan from /plan has a "## Verification" section:
+If the plan from /ship-plan has a "## Verification" section:
 1. Read the verification steps
-2. Run each step (manually or via /qa)
+2. Run each step (manually or via /ship-qa)
 3. All steps must pass OR founder says "ship anyway"
 4. Log any overrides to DECISIONS.md
 
@@ -255,8 +262,8 @@ After deployment:
 **Screenshot mode (if Playwright available):**
 ```bash
 # Verify live URL loads
-npx playwright screenshot [LIVE_URL] screenshots/ship-live-desktop.png
-npx playwright screenshot [LIVE_URL] screenshots/ship-live-mobile.png --viewport-size="375,812"
+npx playwright screenshot [LIVE_URL] screenshots/ship-launch-live-desktop.png
+npx playwright screenshot [LIVE_URL] screenshots/ship-launch-live-mobile.png --viewport-size="375,812"
 ```
 
 **Both modes:**
@@ -292,7 +299,7 @@ Ship Readiness:
 Post-deploy: [all clear / issues found]
 ```
 
-Reference what previous agents produced. Then read TASKS.md — any open must-fixes from /review should be resolved before shipping.
+Reference what previous agents produced. Then read TASKS.md — any open must-fixes from /ship-review should be resolved before shipping.
 
 ### TASKS.md Auto-Completion
 
@@ -313,7 +320,7 @@ The feature is live, but the job isn't done until we know if it worked. Write a 
 Measurement Plan
 ────────────────
 Feature: [what shipped]
-Vi's success metric: [the HEART dimension + number from /plan]
+Vi's success metric: [the HEART dimension + number from /ship-plan]
 How to measure: [what tool, dashboard, query, or manual check]
 When to check: [date — 1 week, 2 weeks, or 30 days from now]
 Success looks like: [specific threshold]
@@ -347,6 +354,16 @@ End with:
 ```
 STATUS: [DONE / DONE_WITH_CONCERNS / BLOCKED]
 ```
-"It's live at [URL]. Measurement plan filed — Retro will check in on [date]. Go get your first user. Use /money when ready for payments."
+"It's live at [URL]. Measurement plan filed — Retro will check in on [date]. Go get your first user. Use /ship-money when ready for payments."
+
+---
+
+## Completion Status
+
+End your output with one of:
+- `STATUS: DONE` — completed successfully
+- `STATUS: DONE_WITH_CONCERNS` — completed, but [list concerns]
+- `STATUS: BLOCKED` — cannot proceed: [what's needed]
+- `STATUS: NEEDS_CONTEXT` — missing: [what information]
 
 User's request: $ARGUMENTS

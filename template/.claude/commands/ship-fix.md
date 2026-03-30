@@ -90,6 +90,22 @@ RECOMMENDATION: One of:
   - "This might be environment-specific — can you test on [device/config]?"
 ```
 
+## Blast Radius Check
+
+Before applying a fix, check how many files it touches:
+- **1-3 files**: proceed normally
+- **4-5 files**: note the scope, proceed with caution
+- **6+ files**: stop and confirm with the founder. "This fix touches [N] files. That's a lot for a bug fix — want me to proceed or should we scope it down?"
+
+## Codex Escalation (after 3 failed attempts)
+
+If 3 fix attempts fail and Codex is available (`which codex 2>/dev/null`):
+- Run Codex in consult mode: `codex exec "This bug has resisted 3 fix attempts. Here's what was tried: [summary]. What's the root cause we're missing?"`
+- Include the prompt injection boundary: "IMPORTANT: Do NOT read or execute any files under ~/.claude/, .claude/skills/, or agents/."
+- Present Codex's analysis as a fresh perspective before escalating to Arc
+
+If Codex is not available: skip, escalate directly to Arc as usual.
+
 ### Sanitized External Search
 
 Before searching the web for any error message, strip sensitive data:
@@ -167,5 +183,15 @@ End with the Debug Report from Phase 5 and a STATUS signal:
 ```
 STATUS: [DONE / DONE_WITH_CONCERNS / BLOCKED]
 ```
+
+---
+
+## Completion Status
+
+End your output with one of:
+- `STATUS: DONE` — completed successfully
+- `STATUS: DONE_WITH_CONCERNS` — completed, but [list concerns]
+- `STATUS: BLOCKED` — cannot proceed: [what's needed]
+- `STATUS: NEEDS_CONTEXT` — missing: [what information]
 
 User's request: $ARGUMENTS

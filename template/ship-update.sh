@@ -4,6 +4,12 @@
 # Lives inside your project. No external clone needed.
 # Pulls the latest from GitHub into a temp directory, syncs, cleans up.
 #
+# Handles v3→v4 migration automatically:
+#   - Removes old command files (plan.md → ship-plan.md)
+#   - Moves references to platform subdirectories
+#   - Creates skills directory
+#   - Adds The Founder section placeholder to CLAUDE.md
+#
 # Usage:
 #   bash ship-update.sh                          # updates current project
 #   bash ship-update.sh --add-framework healthkit,storekit
@@ -75,7 +81,7 @@ fi
 if [ -f "$FRAMEWORK_DIR/CHANGELOG.md" ]; then
   echo -e "${BOLD}What's new in v${VERSION}:${RESET}"
   echo ""
-  sed -n '/^## '"$VERSION"'/,/^## [0-9]/{ /^## [0-9]/!p; }' "$FRAMEWORK_DIR/CHANGELOG.md"
+  sed -n '/^## '"$VERSION"'/,/^## [0-9]/{ /^## [0-9]/!p; }' "$FRAMEWORK_DIR/CHANGELOG.md" | head -30
   echo ""
 fi
 
@@ -85,6 +91,8 @@ fi
 PROTECTED_FILES=(
   "CLAUDE.md"
   "TASKS.md"
+  "DECISIONS.md"
+  "CONTEXT.md"
   "references/design-system.md"
 )
 
@@ -98,14 +106,184 @@ is_protected() {
   return 1
 }
 
-# ─── Step 4: Sync template ───────────────────────────────────────────────────
+# ─── Step 4: Detect v3 install and migrate ────────────────────────────────────
+# v3 had commands without ship- prefix and flat reference structure.
+# v4 has ship- prefixed commands, skills/, and platform-organized references.
 
-echo -e "${BOLD}Syncing:${RESET}"
-echo "  • .claude/commands/  — slash commands (new + updated)"
-echo "  • .claude/team-rules.md — agent definitions + rules"
-echo "  • references/        — all reference files (new + updated)"
-echo "  • CHEATSHEET.md      — quick reference card"
-echo ""
+V3_MIGRATION=false
+
+# Check for old v3 command files (without ship- prefix)
+OLD_V3_COMMANDS=(
+  "plan.md" "build.md" "review.md" "qa.md" "ship.md"
+  "fix.md" "money.md" "browse.md" "team.md" "retro.md" "update.md"
+  "visionary.md" "architect.md" "critic.md" "polish.md"
+  "health.md" "status.md"
+)
+
+for old_cmd in "${OLD_V3_COMMANDS[@]}"; do
+  if [ -f "$PROJECT_DIR/.claude/commands/$old_cmd" ]; then
+    V3_MIGRATION=true
+    break
+  fi
+done
+
+if [ "$V3_MIGRATION" = true ]; then
+  echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
+  echo -e "${BOLD}Migrating from v3 → v4${RESET}"
+  echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
+  echo ""
+
+  # ── Remove old v3 command files ──
+  REMOVED_COMMANDS=0
+  for old_cmd in "${OLD_V3_COMMANDS[@]}"; do
+    if [ -f "$PROJECT_DIR/.claude/commands/$old_cmd" ]; then
+      rm "$PROJECT_DIR/.claude/commands/$old_cmd"
+      REMOVED_COMMANDS=$((REMOVED_COMMANDS + 1))
+    fi
+  done
+  if [ $REMOVED_COMMANDS -gt 0 ]; then
+    echo -e "${GREEN}✓${RESET} Removed $REMOVED_COMMANDS old v3 commands (replaced by /ship-* versions)"
+  fi
+
+  # ── Move root-level references to shared/ ──
+  OLD_SHARED_REFS=(
+    "animation.md" "animation-css.md" "animation-framer-motion.md"
+    "animation-performance.md" "components.md" "ux-principles.md"
+  )
+  MOVED_REFS=0
+  if [ -d "$PROJECT_DIR/references" ]; then
+    mkdir -p "$PROJECT_DIR/references/shared"
+    for ref in "${OLD_SHARED_REFS[@]}"; do
+      if [ -f "$PROJECT_DIR/references/$ref" ] && [ ! -f "$PROJECT_DIR/references/shared/$ref" ]; then
+        mv "$PROJECT_DIR/references/$ref" "$PROJECT_DIR/references/shared/$ref"
+        MOVED_REFS=$((MOVED_REFS + 1))
+      elif [ -f "$PROJECT_DIR/references/$ref" ] && [ -f "$PROJECT_DIR/references/shared/$ref" ]; then
+        # New version already exists, just remove old
+        rm "$PROJECT_DIR/references/$ref"
+        MOVED_REFS=$((MOVED_REFS + 1))
+      fi
+    done
+  fi
+  if [ $MOVED_REFS -gt 0 ]; then
+    echo -e "${GREEN}✓${RESET} Moved $MOVED_REFS reference files to references/shared/"
+  fi
+
+  # ── Move root-level iOS references ──
+  OLD_IOS_ROOT_REFS=("hig-ios.md" "swiftui-core.md" "swift-essentials.md")
+  MOVED_IOS=0
+  if [ -d "$PROJECT_DIR/references" ]; then
+    mkdir -p "$PROJECT_DIR/references/ios"
+    for ref in "${OLD_IOS_ROOT_REFS[@]}"; do
+      if [ -f "$PROJECT_DIR/references/$ref" ] && [ ! -f "$PROJECT_DIR/references/ios/$ref" ]; then
+        mv "$PROJECT_DIR/references/$ref" "$PROJECT_DIR/references/ios/$ref"
+        MOVED_IOS=$((MOVED_IOS + 1))
+      elif [ -f "$PROJECT_DIR/references/$ref" ]; then
+        rm "$PROJECT_DIR/references/$ref"
+        MOVED_IOS=$((MOVED_IOS + 1))
+      fi
+    done
+  fi
+
+  # ── Move frameworks/ to ios/frameworks/ ──
+  if [ -d "$PROJECT_DIR/references/frameworks" ] && [ ! -d "$PROJECT_DIR/references/ios/frameworks" ]; then
+    mkdir -p "$PROJECT_DIR/references/ios"
+    mv "$PROJECT_DIR/references/frameworks" "$PROJECT_DIR/references/ios/frameworks"
+    echo -e "${GREEN}✓${RESET} Moved references/frameworks/ → references/ios/frameworks/"
+  elif [ -d "$PROJECT_DIR/references/frameworks" ] && [ -d "$PROJECT_DIR/references/ios/frameworks" ]; then
+    # Both exist — remove old, keep new
+    rm -rf "$PROJECT_DIR/references/frameworks"
+    echo -e "${GREEN}✓${RESET} Cleaned up old references/frameworks/ (now at references/ios/frameworks/)"
+  fi
+
+  # ── Create platform reference directories ──
+  mkdir -p "$PROJECT_DIR/references/web"
+  mkdir -p "$PROJECT_DIR/references/android"
+  mkdir -p "$PROJECT_DIR/references/cross-platform"
+
+  # ── Create skills directory structure ──
+  if [ ! -d "$PROJECT_DIR/.claude/skills" ]; then
+    echo -e "${GREEN}✓${RESET} Created .claude/skills/ (new in v4)"
+  fi
+
+  # ── Add The Founder section to CLAUDE.md if missing ──
+  if ! grep -q "## The Founder" "$PROJECT_DIR/CLAUDE.md" 2>/dev/null; then
+    # Find where to insert — after ## The Product or after the first ---
+    python3 << 'PYEOF' - "$PROJECT_DIR/CLAUDE.md"
+import sys
+
+filepath = sys.argv[1]
+with open(filepath, 'r') as f:
+    content = f.read()
+
+founder_section = """
+## The Founder
+
+<!-- NEW in v4: This tells the team how to work with YOU.
+     Every persona reads this and adapts their communication style.
+     Fill in each field — delete the examples in brackets. -->
+
+Background: [e.g., "Product designer" / "Design engineer" / "PM who thinks in flows"]
+Technical comfort: [e.g., "Can read code and review diffs" / "Full-stack" / "Non-technical"]
+Decision style: [e.g., "One strong recommendation" / "Show me options"]
+Communication: [e.g., "Short and direct" / "Walk me through it"]
+Taste: [e.g., "Craft-obsessed" / "Ship fast, polish later"]
+Context need: [e.g., "I need the why before I commit" / "Just tell me what to do"]
+Focus awareness: [e.g., "I can get deep into details" / "I stay high-level"]
+"""
+
+# Insert after ## The Product section or at the top after the first heading
+if '## The Product' in content:
+    # Find the next ## after ## The Product
+    idx = content.index('## The Product')
+    rest = content[idx + len('## The Product'):]
+    next_section = rest.find('\n## ')
+    if next_section != -1:
+        insert_point = idx + len('## The Product') + next_section
+        content = content[:insert_point] + '\n' + founder_section + content[insert_point:]
+    else:
+        content = content + '\n' + founder_section
+elif '## Stack' in content:
+    idx = content.index('## Stack')
+    content = content[:idx] + founder_section + '\n' + content[idx:]
+else:
+    # Append at end
+    content = content + '\n' + founder_section
+
+with open(filepath, 'w') as f:
+    f.write(content)
+PYEOF
+    echo -e "${GREEN}✓${RESET} Added The Founder section to CLAUDE.md (fill it in to personalize your team)"
+  fi
+
+  # ── Update old command references in CLAUDE.md ──
+  # Replace /team with /ship-team, /plan with /ship-plan, etc.
+  if grep -q '`/team' "$PROJECT_DIR/CLAUDE.md" 2>/dev/null || \
+     grep -q '`/plan' "$PROJECT_DIR/CLAUDE.md" 2>/dev/null; then
+    sed -i 's|`/team`|`/ship-team`|g' "$PROJECT_DIR/CLAUDE.md"
+    sed -i 's|`/plan`|`/ship-plan`|g' "$PROJECT_DIR/CLAUDE.md"
+    sed -i 's|`/build`|`/ship-build`|g' "$PROJECT_DIR/CLAUDE.md"
+    sed -i 's|`/review`|`/ship-review`|g' "$PROJECT_DIR/CLAUDE.md"
+    sed -i 's|`/qa`|`/ship-qa`|g' "$PROJECT_DIR/CLAUDE.md"
+    sed -i 's|`/ship`|`/ship-launch`|g' "$PROJECT_DIR/CLAUDE.md"
+    sed -i 's|`/fix`|`/ship-fix`|g' "$PROJECT_DIR/CLAUDE.md"
+    sed -i 's|`/money`|`/ship-money`|g' "$PROJECT_DIR/CLAUDE.md"
+    sed -i 's|`/browse`|`/ship-browse`|g' "$PROJECT_DIR/CLAUDE.md"
+    sed -i 's|`/retro`|`/ship-retro`|g' "$PROJECT_DIR/CLAUDE.md"
+    # Fix any double-prefix from /ship → /ship-launch
+    sed -i 's|`/ship-launch-|`/ship-|g' "$PROJECT_DIR/CLAUDE.md"
+    echo -e "${GREEN}✓${RESET} Updated command references in CLAUDE.md (/plan → /ship-plan, etc.)"
+  fi
+
+  echo ""
+  echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
+  echo -e "${BOLD}v3 → v4 migration complete${RESET}"
+  echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
+  echo ""
+fi
+
+# ─── Step 5: Sync template ───────────────────────────────────────────────────
+
+echo -e "${BOLD}Syncing files:${RESET}"
 
 TOTAL_UPDATED=0
 TOTAL_NEW=0
@@ -141,49 +319,54 @@ sync_template_dir() {
   done
 }
 
-echo -e "${DIM}Syncing template...${RESET}"
 sync_template_dir "$TEMPLATE_DIR" "$PROJECT_DIR" ""
 
-if [ $TOTAL_NEW -gt 0 ]; then
-  echo -e "${GREEN}✓${RESET} Template synced ($TOTAL_UPDATED updated, ${BOLD}$TOTAL_NEW new${RESET}, $TOTAL_SKIPPED protected)"
-else
-  echo -e "${GREEN}✓${RESET} Template synced ($TOTAL_UPDATED updated, $TOTAL_SKIPPED protected)"
+# Also ensure your-skills directory has its README
+if [ -d "$PROJECT_DIR/.claude/skills/your-skills" ] && [ ! -f "$PROJECT_DIR/.claude/skills/your-skills/README.md" ]; then
+  if [ -f "$TEMPLATE_DIR/.claude/skills/your-skills/README.md" ]; then
+    cp "$TEMPLATE_DIR/.claude/skills/your-skills/README.md" "$PROJECT_DIR/.claude/skills/your-skills/README.md"
+  fi
 fi
 
-# ─── Step 5: Update cheatsheet ────────────────────────────────────────────────
+if [ $TOTAL_NEW -gt 0 ]; then
+  echo -e "${GREEN}✓${RESET} Synced ($TOTAL_UPDATED updated, ${BOLD}$TOTAL_NEW new${RESET}, $TOTAL_SKIPPED protected)"
+else
+  echo -e "${GREEN}✓${RESET} Synced ($TOTAL_UPDATED updated, $TOTAL_SKIPPED protected)"
+fi
+
+# ─── Step 6: Update cheatsheet ────────────────────────────────────────────────
 
 cp "$FRAMEWORK_DIR/CHEATSHEET.md" "$PROJECT_DIR/CHEATSHEET.md"
 echo -e "${GREEN}✓${RESET} Updated CHEATSHEET.md"
 
-# ─── Step 6: Create root-level template files if missing ─────────────────────
+# ─── Step 7: Create root-level files if missing ──────────────────────────────
 
-for root_file in DECISIONS.md CONTEXT.md; do
+for root_file in DECISIONS.md CONTEXT.md TASKS.md; do
   if [ ! -f "$PROJECT_DIR/$root_file" ] && [ -f "$TEMPLATE_DIR/$root_file" ]; then
     cp "$TEMPLATE_DIR/$root_file" "$PROJECT_DIR/$root_file"
     echo -e "${GREEN}✓${RESET} Created $root_file (new in this version)"
   fi
 done
 
-# ─── Step 7: Update version stamp in CLAUDE.md ───────────────────────────────
+# ─── Step 8: Update version stamp in CLAUDE.md ───────────────────────────────
 
 if grep -q "Ship Framework" "$PROJECT_DIR/CLAUDE.md"; then
   sed -i "s|Ship Framework.*v[0-9.]*|Ship Framework](https://github.com/ismailkose/ship-framework) v${VERSION}|g" "$PROJECT_DIR/CLAUDE.md"
-  echo -e "${GREEN}✓${RESET} Updated version stamp in CLAUDE.md footer"
+  echo -e "${GREEN}✓${RESET} Updated version stamp in CLAUDE.md"
 else
   echo "" >> "$PROJECT_DIR/CLAUDE.md"
   echo "---" >> "$PROJECT_DIR/CLAUDE.md"
   echo "" >> "$PROJECT_DIR/CLAUDE.md"
-  echo "_Generated by [Ship Framework](https://github.com/ismailkose/ship-framework) v${VERSION}_" >> "$PROJECT_DIR/CLAUDE.md"
+  echo "> Ship Framework v${VERSION} — [github.com/ismailkose/ship-framework](https://github.com/ismailkose/ship-framework)" >> "$PROJECT_DIR/CLAUDE.md"
   echo -e "${GREEN}✓${RESET} Added version stamp to CLAUDE.md"
 fi
 
-# ─── Step 8: Update self (this script) ────────────────────────────────────────
-# Keep the update script itself current
+# ─── Step 9: Update self (this script) ────────────────────────────────────────
 
 if [ -f "$TEMPLATE_DIR/ship-update.sh" ]; then
   cp "$TEMPLATE_DIR/ship-update.sh" "$PROJECT_DIR/ship-update.sh"
   chmod +x "$PROJECT_DIR/ship-update.sh"
-  echo -e "${GREEN}✓${RESET} Updated ship-update.sh (self-update)"
+  echo -e "${GREEN}✓${RESET} Updated ship-update.sh"
 fi
 
 # ─── Handle --add-framework flag ──────────────────────────────────────────────
@@ -191,16 +374,16 @@ fi
 prev_arg=""
 for i in "$@"; do
   if [ "$prev_arg" = "--add-framework" ]; then
-    mkdir -p "$PROJECT_DIR/references/frameworks"
+    mkdir -p "$PROJECT_DIR/references/ios/frameworks"
     IFS=',' read -ra NEW_FW <<< "$i"
     for fw in "${NEW_FW[@]}"; do
       fw=$(echo "$fw" | xargs)
-      if [ -f "$TEMPLATE_DIR/references/frameworks/${fw}.md" ]; then
-        cp "$TEMPLATE_DIR/references/frameworks/${fw}.md" "$PROJECT_DIR/references/frameworks/"
+      if [ -f "$TEMPLATE_DIR/references/ios/frameworks/${fw}.md" ]; then
+        cp "$TEMPLATE_DIR/references/ios/frameworks/${fw}.md" "$PROJECT_DIR/references/ios/frameworks/"
         echo -e "${GREEN}✓${RESET} Added framework reference: ${fw}"
       else
         echo -e "${YELLOW}⚠${RESET}  Framework reference not found: ${fw}"
-        echo -e "${DIM}  Available: $(ls "$TEMPLATE_DIR/references/frameworks/" 2>/dev/null | sed 's/\.md//g' | tr '\n' ', ' | sed 's/,$//')${RESET}"
+        echo -e "${DIM}  Available: $(ls "$TEMPLATE_DIR/references/ios/frameworks/" 2>/dev/null | sed 's/\.md//g' | tr '\n' ', ' | sed 's/,$//')${RESET}"
       fi
     done
   fi
@@ -212,6 +395,17 @@ done
 echo ""
 echo -e "${BOLD}${ORANGE}Updated!${RESET} v${CURRENT_VERSION} → v${VERSION}"
 echo ""
-echo -e "${DIM}Your CLAUDE.md content, TASKS.md, and design-system.md are untouched.${RESET}"
-echo -e "${DIM}All template files (commands, references, frameworks) are synced.${RESET}"
+echo -e "${DIM}Your CLAUDE.md content, TASKS.md, DECISIONS.md, and CONTEXT.md are untouched.${RESET}"
+if [ "$V3_MIGRATION" = true ]; then
+  echo ""
+  echo -e "${BOLD}v4 changes to know about:${RESET}"
+  echo "  • Commands now use /ship- prefix: /ship-plan, /ship-build, /ship-review, etc."
+  echo "  • New skills system in .claude/skills/ — add your own in your-skills/"
+  echo "  • New safety commands: /ship-careful, /ship-freeze, /ship-guard"
+  echo "  • Fill in The Founder section in CLAUDE.md — it shapes how the team talks to you"
+  echo ""
+  echo -e "${BOLD}Next step:${RESET} Open Claude Code and type:"
+  echo ""
+  echo -e "  ${BOLD}/ship-team continue${RESET}"
+fi
 echo ""

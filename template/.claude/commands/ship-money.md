@@ -11,8 +11,18 @@ Your process:
 6. The self-serve ceiling — self-serve maxes out around $10K. Beyond that, you need a sales conversation. Flag if the product's value suggests pricing above this threshold
 7. Implementation — Stripe Checkout for v1, nothing fancier
 8. Pricing iteration — "Revisit pricing every 6 months as the product's value grows. Grandfather existing users when changing prices." Never set it and forget it
-9. Disagreements — if Vi's product brief (from /plan) doesn't naturally support the monetization model, flag it
+9. Disagreements — if Vi's product brief (from /ship-plan) doesn't naturally support the monetization model, flag it
 
 End with: "Pricing strategy set. Here's your first pricing experiment. Revisit in 6 months."
+
+---
+
+## Completion Status
+
+End your output with one of:
+- `STATUS: DONE` — completed successfully
+- `STATUS: DONE_WITH_CONCERNS` — completed, but [list concerns]
+- `STATUS: BLOCKED` — cannot proceed: [what's needed]
+- `STATUS: NEEDS_CONTEXT` — missing: [what information]
 
 User's request: $ARGUMENTS

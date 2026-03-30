@@ -6,6 +6,143 @@ To update an existing project, run `bash ship-update.sh` from your project root,
 
 ---
 
+## 2026.03.30 — Design Enrichment: Skills Route, References Teach
+
+Major design intelligence overhaul. Skills slimmed from heavy inline rules to thin routing tables (~60-80 lines each). Deep knowledge moved into 18 reference files (7,500+ lines total) that teach Claude how to think about design domains. Filled gaps identified by analyzing gstack design skills, ui-ux-pro-max-skill, and Vercel agent-skills.
+
+### Architecture — Skills as Routers
+- **UX skill** slimmed from 350+ lines to 88 lines. Routes to 9 reference files.
+- **Web skill** built from placeholder to 94 lines. Routes to 3 web references + shared references.
+- **Motion skill** slimmed from 180 lines to 79 lines. Quick timing table kept inline. Routes to 4 animation references.
+- **Components skill** slimmed from 150 lines to 71 lines. Three-layer model kept inline. Routes to 2 references.
+- All skills now have per-command routing sections (Plan, Build, Review, QA) and priority enforcement gates.
+- Cross-references ("See Also") added to all 4 design skills to prevent duplication.
+
+### Added — New Shared References
+- **`typography-color.md`** (695 lines) — Type scale reasoning, font pairing, semantic color tokens, dark mode color strategy, style selection
+- **`forms-feedback.md`** (265 lines) — Form architecture, validation patterns, empty states, toasts, progressive disclosure
+- **`navigation.md`** (175 lines) — Nav architecture, back behavior, deep linking, adaptive patterns, URL state
+- **`layout-responsive.md`** (165 lines) — Mobile-first philosophy, breakpoint reasoning, spacing scale, z-index
+- **`touch-interaction.md`** (254 lines) — Tap target design (44pt/48dp reasoning), gestures, press feedback, haptics
+- **`dark-mode.md`** (188 lines) — Desaturation, elevation via luminance, semantic tokens, platform implementations
+- **`design-quality.md`** (644 lines) — First impression assessment, AI slop detection (10 patterns), cross-page consistency, visual coherence
+- **`design-research.md`** (287 lines) — Competitive research, design direction decisions, design system creation (DESIGN.md workflow)
+
+### Added — New Web References
+- **`react-patterns.md`** (359 lines) — Server vs Client components, data fetching, composition, hydration safety
+- **`web-accessibility.md`** (381 lines) — Semantic HTML, ARIA, focus management, screen reader patterns
+- **`web-performance.md`** (169 lines) — Core Web Vitals, image/font optimization, anti-patterns
+
+### Added — Reference README
+- **`references/shared/README.md`** — Full listing of all reference files, "How Skills and References Work Together" section, design system template shortcut
+
+### Fixed — Overlap Quality
+- Accessibility rules deduplicated between UX and web skills (web adds web-specific only, defers to UX for core)
+- Form rules deduplicated similarly
+- Reduced motion priority aligned to MANDATORY everywhere (was MEDIUM in UX skill)
+- Component patterns deduplicated between web and components skills
+
+### Changed — Documentation
+- README.md: File structure expanded to show all 18 reference files. New "Skills Route, References Teach" section.
+- CHEATSHEET.md: Skills section replaced with "Skills + References" section including priority gates table.
+
+### Sources
+- [ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) — 161 color palettes, 57 font pairings, 99 UX guidelines, style selection
+- [Vercel agent-skills](https://github.com/vercel-labs/agent-skills) — React best practices, web design guidelines, composition patterns
+- [Web Interface Guidelines](https://github.com/vercel-labs/web-interface-guidelines) — Accessibility, forms, animation, typography, performance
+- [gstack design skills](https://github.com/garrytan/gstack) — Gap analysis for AI slop detection, first impression, coherence, competitive research
+
+---
+
+## 2026.03.29 — v4: Skills, Safety, and Founder-Aware Teams
+
+Complete architectural overhaul. Ship Framework v4 introduces a skills system, safety hooks, stack-aware context routing, and a Founder section that makes every persona adapt to how YOU work. 16 commands (up from 11), 10 framework skills, and a coaching system that turns AI personas into world-class teammates who speak up when it matters.
+
+### Architecture — Phase 1: Command Namespacing
+- All commands renamed with `/ship-` prefix: `/plan` → `/ship-plan`, `/build` → `/ship-build`, etc.
+- `/ship` (old release command) → `/ship-launch` to avoid `/ship-ship`
+- CLAUDE.md becomes thin orchestrator (~95 lines). All rules moved to `.claude/team-rules.md`
+
+### Architecture — Phase 2: Stack-Aware Context Routing
+- CLAUDE.md declares `Stack: web | ios | android | cross-platform`
+- References restructured: `shared/` (always loaded), `ios/`, `web/`, `android/` (per stack)
+- Commands detect declared stack and only load relevant platform references
+- If no stack declared, Ship asks on first `/ship-plan` or `/ship-build`
+
+### Architecture — Phase 3: Skills System
+- New `.claude/skills/` directory with framework skills and user skills
+- **Framework skills** (`ship/`): ux, components, motion, ios, web, android, careful, freeze, guard, unfreeze
+- **User skills** (`your-skills/`): add your own skills with YAML frontmatter SKILL.md files
+- Skills are active (knowledge + instructions + when to apply). References remain passive data.
+- Commands explicitly declare which skills they load
+
+### Architecture — Phase 4: Completion Status Protocol
+- Every command ends with `STATUS: DONE | DONE_WITH_CONCERNS | BLOCKED | NEEDS_CONTEXT`
+- Added to all 16 command files
+
+### Architecture — Phase 5: Decision Classification
+- Every decision categorized: **mechanical** (auto-decide), **taste** (surface at gate), **user-challenge** (always ask)
+- Integrated into `/ship-plan`, `/ship-build`, `/ship-review`
+
+### Architecture — Phase 6: User Sovereignty
+- "No amount of model confidence overrides a direct founder instruction"
+- Protocol for single persona disagreement, multi-persona disagreement, and cross-model disagreement
+- The founder always decides — the team informs
+
+### Architecture — Phase 7: Cross-Model Verification (Codex)
+- New `/ship-codex` command with three modes: review, challenge, consult
+- Prompt injection boundary mandatory for every Codex invocation
+- Graceful degradation when Codex not installed
+- Optional integration in `/ship-plan` (challenge) and `/ship-review` (review)
+
+### Architecture — Phase 8: Safety Hooks
+- **`/ship-careful`** — PreToolUse hook on Bash. Warns before destructive commands (rm -rf, DROP TABLE, git push --force, git reset --hard, kubectl delete, docker prune, etc.). Safe exceptions for node_modules, .next, dist.
+- **`/ship-freeze`** — PreToolUse hook on Edit and Write. Reads `.claude/.freeze-path` state file. Blocks edits outside frozen directory.
+- **`/ship-guard`** — Combined: both careful + freeze hooks active.
+- **`/ship-unfreeze`** — Removes freeze restriction.
+- All hooks use shell scripts with JSON stdin/stdout per Claude Code hook protocol.
+- 28 automated tests in `test/test-safety.sh` (all passing).
+
+### Architecture — Phase 10: Anti-Slop Vocabulary
+- Rule 24 expanded with full banned vocabulary list
+- Anti-sycophancy enforcement across all personas
+
+### Architecture — Phase 11: Test Cases
+- Full test matrix in `test/TEST-MATRIX.md` covering all phases
+- 28/28 automated safety hook tests passing
+
+### Added — The Founder Section
+- New `## The Founder` section in CLAUDE.md template
+- 7 fields: Background, Technical comfort, Decision style, Communication, Taste, Context need, Focus awareness
+- Every persona reads and adapts to founder's profile on command load
+- "Adapting to The Founder" rules added to team-rules.md
+
+### Added — Coaching the Founder
+- New section in team-rules.md: personas are world-class talent, not just executors
+- **Detail trap pattern**: when founder goes deep on shippable details while core flows are incomplete, personas surface it respectfully
+- **Per-persona agentic strengths**: each persona's human expertise + what they can do that humans can't (scan codebases, run edge case matrices, measure pixels, read git history, do live research)
+- Handles founders who are learning — designers, PMs, aspiring founders who need coaching not just execution
+
+### Added — Talent Framing
+- Team intro rewritten: personas are the best in their field, top-tier talent a solo founder could never hire
+- Combined deep expertise with agentic capabilities
+
+### Added — Post-v4 from gstack v0.13.7-v0.13.9
+- **Skill discoverability**: `(ship)` tag added to all 10 skill descriptions for command palette search
+- **Content Trust Boundary**: `--- BEGIN/END UNTRUSTED EXTERNAL CONTENT ---` markers in `/ship-browse`
+- **Proactive Skill Routing**: auto-detect new user skills in `your-skills/`, offer CLAUDE.md wiring, ask once per skill
+
+### Changed
+- CLAUDE.md Design Principles: removed hardcoded animation timing ("150-250ms, ease-out") — motion skill handles this with more nuance
+- All reference paths updated to platform subdirectories (`references/ux-principles.md` → `references/shared/ux-principles.md`)
+- Rule 19 renamed to "Platform API first" (was iOS-specific)
+- Rule 21 now stack-aware with graceful degradation
+
+### Phase 9 (Build System) — Skipped
+- Deferred until commands grow past 25+. Current duplication manageable at 16 commands.
+
+---
+
 ## 2026.03.27 — Adversarial Autoplan: Named Personas Inside Simple Commands
 
 The team collapsed from 15 commands to 11. Five standalone agents (Vi, Arc, Crit, Pol, Eye) now live inside two power commands: `/plan` and `/review`. Each persona keeps its name, voice, and explicit disagreements, but you invoke one command instead of five. Every command now ends with a STATUS signal. New rules 20-24 enforce completeness, atomic commits, anti-sycophancy, and search-before-building.

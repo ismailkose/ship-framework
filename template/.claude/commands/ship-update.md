@@ -29,4 +29,14 @@ Upgrade Ship Framework to the latest version. Run this from inside Claude Code �
 - ALWAYS use ship-update.sh — never duplicate its logic here
 - NEVER overwrite CLAUDE.md content, TASKS.md, or design-system.md manually
 
+---
+
+## Completion Status
+
+End your output with one of:
+- `STATUS: DONE` — completed successfully
+- `STATUS: DONE_WITH_CONCERNS` — completed, but [list concerns]
+- `STATUS: BLOCKED` — cannot proceed: [what's needed]
+- `STATUS: NEEDS_CONTEXT` — missing: [what information]
+
 User's request: $ARGUMENTS
