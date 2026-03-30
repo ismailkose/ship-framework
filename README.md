@@ -52,37 +52,37 @@ Ship has 16 commands. You don't need to learn them all — `/ship-team` handles 
 ### 🔄 The Core Loop — every feature goes through this
 
 | Command | Who | What happens |
-|---------|-----|-------------|
-| `/ship-plan` | Vi + Arc | Vi writes the product brief (why build this, for whom, what's the magic moment). Arc builds the technical plan (how to build it, in what order, with what tradeoffs). They argue. You get a battle-tested plan. |
-| `/ship-build` | Dev | Builds one feature at a time. Scope enforcement — won't drift into unplanned work. Atomic commits. |
-| `/ship-review` | Crit + Pol + Eye | Crit reviews against UX quality. Pol catches generic AI-looking design. Eye walks every screen. They score confidence 0-100. |
-| `/ship-qa` | Test | Runs all tests, writes missing ones, covers edge cases, gives you a health score. |
-| `/ship-launch` | Cap | Checks everything is ready, runs the deploy, sets up measurement so you know if it worked. |
+|:---|:---|:---|
+| **ship-plan** | Vi + Arc | Product brief + technical plan. They argue, you get a battle-tested plan. |
+| **ship-build** | Dev | Builds one feature at a time. Scope enforcement, atomic commits. |
+| **ship-review** | Crit + Pol + Eye | UX quality, design polish, visual QA. Confidence score 0-100. |
+| **ship-qa** | Test | Runs tests, writes missing ones, edge cases. Health score. |
+| **ship-launch** | Cap | Readiness check, deploy, measurement plan. |
 
-### 🔧 When You Need It — reach for these in specific situations
+### 🔧 When You Need It
 
-| Command | When to use |
-|---------|-------------|
-| `/ship-fix` | Something broke. Paste the error. Bug investigates systematically — no random guessing. |
-| `/ship-money` | You need a pricing strategy. Biz starts with willingness-to-pay, not guessing. |
-| `/ship-browse` | Quick visual QA. Takes screenshots and checks them against your design system. |
-| `/ship-retro` | End of week. Retro reads your git history and tells you what actually happened — not what you think happened. |
+| Command | Who | What happens |
+|:---|:---|:---|
+| **ship-fix** | Bug | Paste the error. Systematic investigation, no guessing. |
+| **ship-money** | Biz | Pricing strategy starting from willingness-to-pay. |
+| **ship-browse** | Eye | Screenshots checked against your design system. |
+| **ship-retro** | Retro | Reads git history. What actually happened, not what you think. |
 
 ### 🛡️ Safety Net — set once, runs in the background
 
-| Command | What it protects |
-|---------|-----------------|
-| `/ship-careful` | Warns before destructive commands — `rm -rf`, `DROP TABLE`, `git push --force`. Activate once, it watches every terminal command. |
-| `/ship-freeze` | Locks edits to one directory. Working on the frontend? Freeze it so nothing else gets accidentally touched. |
-| `/ship-guard` | Both at once — destructive warnings + directory lock. |
-| `/ship-unfreeze` | Removes the directory lock when you're done. |
+| Command | What it does |
+|:---|:---|
+| **ship-careful** | Warns before destructive commands (rm -rf, DROP TABLE, force push). |
+| **ship-freeze** | Locks edits to one directory. Nothing else gets touched. |
+| **ship-guard** | Both at once. |
+| **ship-unfreeze** | Removes the lock. |
 
-### ⚡ Optional Power Tools
+### ⚡ Optional
 
 | Command | What it does |
-|---------|-------------|
-| `/ship-codex` | Second opinion from a different AI model (OpenAI Codex). Three modes: review a diff, challenge an approach, or consult on architecture. Requires separate Codex install. |
-| `/ship-update` | Updates Ship Framework to latest version. |
+|:---|:---|
+| **ship-codex** | Second opinion from OpenAI Codex. Review, challenge, or consult. |
+| **ship-update** | Updates Ship Framework to latest version. |
 
 ---
 
