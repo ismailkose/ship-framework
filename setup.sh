@@ -118,12 +118,23 @@ mkdir -p "$TARGET_DIR/.claude"
 cp "$TEMPLATE_DIR/.claude/team-rules.md" "$TARGET_DIR/.claude/team-rules.md"
 echo -e "${GREEN}✓${RESET} Created .claude/team-rules.md (agent definitions + rules)"
 
-# ─── Copy slash commands ──────────────────────────────────────────────────────
+# ─── Copy slash commands as skills ───────────────────────────────────────────
+# Claude Code v2.1.88+ has a bug where .claude/commands/ aren't discovered.
+# Skills format (.claude/skills/<name>/SKILL.md) works reliably across all versions.
 
+COMMAND_COUNT=0
+for cmd_file in "$TEMPLATE_DIR/.claude/commands/"*.md; do
+  [ -e "$cmd_file" ] || continue
+  cmd_name=$(basename "$cmd_file" .md)
+  mkdir -p "$TARGET_DIR/.claude/skills/$cmd_name"
+  cp "$cmd_file" "$TARGET_DIR/.claude/skills/$cmd_name/SKILL.md"
+  COMMAND_COUNT=$((COMMAND_COUNT + 1))
+done
+echo -e "${GREEN}✓${RESET} Created .claude/skills/ ($COMMAND_COUNT slash commands)"
+
+# Also keep .claude/commands/ for backward compatibility with older Claude Code versions
 mkdir -p "$TARGET_DIR/.claude/commands"
 cp "$TEMPLATE_DIR/.claude/commands/"*.md "$TARGET_DIR/.claude/commands/"
-COMMAND_COUNT=$(ls "$TEMPLATE_DIR/.claude/commands/"*.md 2>/dev/null | wc -l | xargs)
-echo -e "${GREEN}✓${RESET} Created .claude/commands/ ($COMMAND_COUNT slash commands)"
 
 # ─── Copy skills ──────────────────────────────────────────────────────────────
 

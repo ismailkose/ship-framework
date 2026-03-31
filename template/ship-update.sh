@@ -348,6 +348,22 @@ else
   echo -e "${GREEN}✓${RESET} Synced ($TOTAL_UPDATED updated, $TOTAL_SKIPPED protected)"
 fi
 
+# ─── Step 5b: Mirror commands as skills ──────────────────────────────────────
+# Claude Code v2.1.88+ has a bug where .claude/commands/ aren't discovered.
+# Skills format (.claude/skills/<name>/SKILL.md) works reliably across all versions.
+
+SKILLS_SYNCED=0
+for cmd_file in "$PROJECT_DIR/.claude/commands/"*.md; do
+  [ -e "$cmd_file" ] || continue
+  cmd_name=$(basename "$cmd_file" .md)
+  mkdir -p "$PROJECT_DIR/.claude/skills/$cmd_name"
+  cp "$cmd_file" "$PROJECT_DIR/.claude/skills/$cmd_name/SKILL.md"
+  SKILLS_SYNCED=$((SKILLS_SYNCED + 1))
+done
+if [ $SKILLS_SYNCED -gt 0 ]; then
+  echo -e "${GREEN}✓${RESET} Mirrored $SKILLS_SYNCED commands as skills (Claude Code v2.1.88+ compatibility)"
+fi
+
 # ─── Step 6: Update cheatsheet ────────────────────────────────────────────────
 
 cp "$FRAMEWORK_DIR/CHEATSHEET.md" "$PROJECT_DIR/CHEATSHEET.md"
