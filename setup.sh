@@ -22,6 +22,15 @@ GREEN='\033[32m'
 YELLOW='\033[33m'
 RESET='\033[0m'
 
+# Cross-platform sed -i (macOS BSD sed vs GNU sed)
+sedi() {
+  if sed --version >/dev/null 2>&1; then
+    sed -i "$@"
+  else
+    sed -i '' "$@"
+  fi
+}
+
 echo ""
 echo -e "${BOLD}${ORANGE}Ship Framework${RESET} v${VERSION} — Setup"
 echo ""
@@ -91,7 +100,7 @@ PYEOF
 else
   # Fresh CLAUDE.md
   cp "$TEMPLATE_DIR/CLAUDE.md" "$TARGET_DIR/CLAUDE.md"
-  sed -i "s|__VERSION__|${VERSION}|g" "$TARGET_DIR/CLAUDE.md"
+  sedi "s|__VERSION__|${VERSION}|g" "$TARGET_DIR/CLAUDE.md"
   echo -e "${GREEN}✓${RESET} Created CLAUDE.md"
 fi
 
