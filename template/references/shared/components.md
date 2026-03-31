@@ -3,10 +3,10 @@
 > How the team thinks about UI components — from primitives to product.
 >
 > **Agent routing:**
-> Arc → Section 1 + 2 (plan the component architecture). Pick the primitive layer for the stack.
-> Dev → Section 1 + 2 (build rules + patterns). Use primitives, don't rebuild what's solved.
-> Pol → Section 1 (audit feel). Keyboard nav, focus states, interaction quality.
-> Eye → Section 1 (check visuals). Component consistency against design tokens.
+> Arc → Section 1 + 2 (plan the component architecture). Section 3.87 (use MCP to check available components and themes during planning).
+> Dev → Section 1 + 2 (build rules + patterns). Section 3.85-3.87 (upgrades, themes, MCP live data when building).
+> Pol → Section 1 (audit feel). Section 3.86 (theme presets for design direction).
+> Eye → Section 1 (check visuals). Section 3.9 (review checklist).
 > Test → Section 1 (verify it works). Keyboard nav, screen reader, focus order.
 > Crit → Section 1 (check adoption). Can a new user figure this out without help?
 
@@ -670,16 +670,91 @@ const schema = z.object({
 ### 3.8 Blocks (Pre-Built UI Patterns)
 
 shadcn provides complete pre-built blocks — full page sections you can install
-and customize. Categories include: dashboard layouts, authentication forms,
-sidebar navigation, calendar interfaces, e-commerce product displays.
+and customize.
+
+**Block categories:**
+
+| Category | What you get | When to use |
+|:---|:---|:---|
+| **dashboard** | Analytics layouts, KPI cards, charts, data tables | Admin panels, internal tools, SaaS dashboards |
+| **login** | Auth forms, sign-up flows, password reset | Any app with user accounts |
+| **sidebar** | Collapsible nav, nested menus, responsive sidebar | Apps with 5+ navigation items |
+| **calendar** | Date pickers, scheduling views, event displays | Booking, scheduling, planning tools |
+| **products** | Product cards, category grids, cart layouts | E-commerce, marketplace, catalog apps |
 
 **When to use blocks vs. building from components:**
 - Use blocks when you need a complete page section quickly (login form, dashboard layout)
 - Build from components when you need something blocks don't cover or when you want full control
+- Always check blocks first — even if you won't use one as-is, the patterns show battle-tested layouts
 
 Blocks are starting points, not final code. Install one, then customize it to
 match your product. They follow the same theming system — your CSS variables
 apply automatically.
+
+### 3.85 Upgrading & Managing Components
+
+shadcn components are copied into your project — they're YOUR code. This means
+upgrades aren't automatic, which is intentional (no surprise breaking changes).
+
+**To update a component:**
+```bash
+npx shadcn@latest add button --overwrite
+```
+
+**Before upgrading:** check if you've customized the component. If your `button.tsx`
+has custom variants or modified behavior, `--overwrite` will replace your changes.
+
+**Safe upgrade workflow:**
+1. `git diff components/ui/button.tsx` — see what you've changed
+2. If no changes → `npx shadcn@latest add button --overwrite`
+3. If customized → install to a temp location, manually merge the upstream changes
+4. Run your tests after every component upgrade
+
+**Rule:** Behavior customizations belong in wrapper components (`components/`), not
+in `components/ui/`. This keeps UI primitives clean and upgradeable.
+
+### 3.86 TweakCN Theme Presets
+
+42 pre-built theme presets available via TweakCN. Use these as starting points
+instead of building color systems from scratch.
+
+**Useful starting themes by product type:**
+
+| Product type | Themes to try |
+|:---|:---|
+| SaaS / dashboards | Modern Minimal, Clean Slate, Graphite, Mono |
+| Creative / playful | Bubblegum, Candyland, Pastel Dreams, Soft Pop |
+| Developer tools | Cyberpunk, Doom 64, Catppuccin, Darkmatter |
+| Professional / enterprise | Elegant Luxury, Perpetuity, Supabase, Vercel |
+| Nature / wellness | Nature, Sage Garden, Kodama Grove, Ocean Breeze |
+
+**To apply a theme:** use the shadcn MCP tool `apply_theme` with the theme ID,
+or browse themes at tweakcn.com and copy the CSS variables into `globals.css`.
+
+### 3.87 Shadcn MCP — Live Component Data
+
+When the Shadcn UI MCP server is connected, agents can pull live component data
+instead of relying only on this reference file.
+
+**Available MCP tools:**
+
+| Tool | When to use |
+|:---|:---|
+| `list_components` | During /ship-plan — see all 46 available components |
+| `get_component_metadata` | During /ship-build — check props, variants, dependencies before building |
+| `get_component` | During /ship-build — pull actual source code when customizing a component |
+| `get_component_demo` | During /ship-build — see proper usage examples |
+| `list_themes` | During /ship-plan — browse 42 theme presets when choosing design direction |
+| `apply_theme` | During /ship-build — apply a TweakCN theme preset to the project |
+
+**Routing rules:**
+- Arc uses `list_components` + `list_themes` during planning to see what's available
+- Dev uses `get_component` + `get_component_demo` when building — live source beats memory
+- Dev uses `get_component_metadata` before customizing — know the props before modifying
+- Pol uses `list_themes` when establishing design direction — pick a preset as a starting point
+
+**When MCP is not available:** Fall back to this reference file. The component catalog
+(Section 3.1) and theming guide (Section 3.3) cover the same ground statically.
 
 ### 3.9 Review Checklist (for Eye and Test)
 

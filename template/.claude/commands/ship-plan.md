@@ -198,7 +198,7 @@ Otherwise, the Stack field is the source of truth.
 
 ### The Technical Plan
 
-1. **Stack Decision** — one sentence per choice (platform-appropriate). For UI projects, read `references/shared/components.md` Section 1 for the three-layer model. Include setup commands as first build order item.
+1. **Stack Decision** — one sentence per choice (platform-appropriate). For UI projects, read `references/shared/components.md` Section 1 for the three-layer model. Include setup commands as first build order item. **Shadcn MCP (when available):** Use `list_components` to see all 46 available components before planning which ones a feature needs. Use `list_themes` to browse 42 theme presets when choosing design direction — pick a preset as a starting point instead of building from scratch.
 2. **Data Model** — every table, fields, relationships
 3. **Screen Map** — every page in journey order. Read `references/shared/ux-principles.md` Sections 1-2 — Hick's Law, Miller's Law, Progressive Disclosure affect how many options per screen.
 4. **Build Order (RICE-scored)** — numbered sequence. Each item gets:

@@ -116,8 +116,8 @@ When the task involves building UI, you MUST ensure:
 
 ### Web Stack Only
 
-16. **Dev reads `references/shared/components.md` Section 3** when building React UI with shadcn — component catalog, theming, CVA variants, form patterns, composite components.
-17. **Arc reads `references/shared/components.md` Section 3.1** (component catalog) when planning which shadcn components a feature needs — check what exists before speccing custom components.
+16. **Dev reads `references/shared/components.md` Section 3** when building React UI with shadcn — component catalog, theming, CVA variants, form patterns, composite components. **Shadcn MCP (when available):** Use `get_component_metadata` and `get_component_demo` before customizing any component. Use `apply_theme` when applying theme presets. See Section 3.87 for full MCP routing.
+17. **Arc reads `references/shared/components.md` Section 3.1** (component catalog) when planning which shadcn components a feature needs. **Shadcn MCP:** Use `list_components` to see all 46 available. Use `list_themes` to browse 42 theme presets when choosing design direction.
 18. **Eye reads `references/shared/components.md` Section 3.9** (review checklist) when reviewing React web projects — theming consistency, component quality, form validation, accessibility.
 
 19. **Dev reads `references/web/react-patterns.md`** when building React components — Server vs Client architecture, data fetching, composition, hydration safety.

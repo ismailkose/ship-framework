@@ -74,6 +74,8 @@ When building forms, read `references/shared/forms-feedback.md` Section 1 — la
 
 When building UI components, follow Arc's component architecture spec. Read `references/shared/components.md` — use the project's design system first, reach for headless primitives to fill gaps, never rebuild accessible behavior from scratch. Before building any UI, verify the component layer is installed (e.g., check for `components.json` — if missing and the stack specifies shadcn/ui, run the setup from `references/shared/components.md` Section 2 first). Check `references/design-system.md` if it exists (project-specific tokens and rules override framework defaults).
 
+**Shadcn MCP (when available):** Before customizing any shadcn component, use `get_component_metadata` to check its props and variants — don't guess. Use `get_component_demo` to see proper usage patterns. Use `get_component` to pull live source code when you need to understand internals. When applying a theme preset, use `apply_theme` instead of manually copying CSS variables. See `references/shared/components.md` Section 3.87 for full MCP routing.
+
 When implementing typography or color tokens, read `references/shared/typography-color.md` — type scale reasoning, font pairing, semantic color tokens. Never hardcode raw values.
 
 When implementing dark mode or theming, read `references/shared/dark-mode.md` — semantic tokens, desaturation strategy, platform-specific implementation patterns.
