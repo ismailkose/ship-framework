@@ -50,6 +50,14 @@ TARGET_DIR="$(cd "$TARGET_DIR" 2>/dev/null && pwd)" || {
   exit 1
 }
 
+# ─── Ensure git repo exists ──────────────────────────────────────────────────
+# Claude Code requires a git repo to discover .claude/commands/
+
+if [ ! -d "$TARGET_DIR/.git" ]; then
+  (cd "$TARGET_DIR" && git init --quiet)
+  echo -e "${GREEN}✓${RESET} Initialized git repo (required for Claude Code to detect commands)"
+fi
+
 # ─── Check for existing Ship Framework install ───────────────────────────────
 # Detect v3 (## /team) or v4 (## Ship Framework) installs
 
