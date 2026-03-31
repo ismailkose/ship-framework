@@ -35,6 +35,17 @@ YELLOW='\033[33m'
 RED='\033[31m'
 RESET='\033[0m'
 
+# ─── Cross-platform sed -i (macOS BSD sed vs GNU sed) ────────────────────────
+sedi() {
+  if sed --version >/dev/null 2>&1; then
+    # GNU sed
+    sed -i "$@"
+  else
+    # BSD sed (macOS) — requires '' after -i
+    sed -i '' "$@"
+  fi
+}
+
 # ─── Step 1: Verify this is a Ship Framework project ─────────────────────────
 
 if [ ! -f "$PROJECT_DIR/CLAUDE.md" ] || [ ! -d "$PROJECT_DIR/.claude/commands" ]; then
@@ -44,7 +55,9 @@ if [ ! -f "$PROJECT_DIR/CLAUDE.md" ] || [ ! -d "$PROJECT_DIR/.claude/commands" ]
   exit 1
 fi
 
-CURRENT_VERSION=$(grep -oP 'Ship Framework.*?v\K[0-9.]+' "$PROJECT_DIR/CLAUDE.md" 2>/dev/null || echo "unknown")
+# macOS-compatible: BSD grep doesn't support -P (Perl regex), use sed instead
+CURRENT_VERSION=$(sed -n 's/.*Ship Framework.*v\([0-9.]*\).*/\1/p' "$PROJECT_DIR/CLAUDE.md" 2>/dev/null | head -1)
+CURRENT_VERSION="${CURRENT_VERSION:-unknown}"
 
 echo ""
 echo -e "${DIM}Fetching latest Ship Framework...${RESET}"
@@ -259,18 +272,19 @@ PYEOF
   # Replace /team with /ship-team, /plan with /ship-plan, etc.
   if grep -q '`/team' "$PROJECT_DIR/CLAUDE.md" 2>/dev/null || \
      grep -q '`/plan' "$PROJECT_DIR/CLAUDE.md" 2>/dev/null; then
-    sed -i 's|`/team`|`/ship-team`|g' "$PROJECT_DIR/CLAUDE.md"
-    sed -i 's|`/plan`|`/ship-plan`|g' "$PROJECT_DIR/CLAUDE.md"
-    sed -i 's|`/build`|`/ship-build`|g' "$PROJECT_DIR/CLAUDE.md"
-    sed -i 's|`/review`|`/ship-review`|g' "$PROJECT_DIR/CLAUDE.md"
-    sed -i 's|`/qa`|`/ship-qa`|g' "$PROJECT_DIR/CLAUDE.md"
-    sed -i 's|`/ship`|`/ship-launch`|g' "$PROJECT_DIR/CLAUDE.md"
-    sed -i 's|`/fix`|`/ship-fix`|g' "$PROJECT_DIR/CLAUDE.md"
-    sed -i 's|`/money`|`/ship-money`|g' "$PROJECT_DIR/CLAUDE.md"
-    sed -i 's|`/browse`|`/ship-browse`|g' "$PROJECT_DIR/CLAUDE.md"
-    sed -i 's|`/retro`|`/ship-retro`|g' "$PROJECT_DIR/CLAUDE.md"
+    # macOS-compatible: use sedi helper for cross-platform sed -i
+    sedi 's|`/team`|`/ship-team`|g' "$PROJECT_DIR/CLAUDE.md"
+    sedi 's|`/plan`|`/ship-plan`|g' "$PROJECT_DIR/CLAUDE.md"
+    sedi 's|`/build`|`/ship-build`|g' "$PROJECT_DIR/CLAUDE.md"
+    sedi 's|`/review`|`/ship-review`|g' "$PROJECT_DIR/CLAUDE.md"
+    sedi 's|`/qa`|`/ship-qa`|g' "$PROJECT_DIR/CLAUDE.md"
+    sedi 's|`/ship`|`/ship-launch`|g' "$PROJECT_DIR/CLAUDE.md"
+    sedi 's|`/fix`|`/ship-fix`|g' "$PROJECT_DIR/CLAUDE.md"
+    sedi 's|`/money`|`/ship-money`|g' "$PROJECT_DIR/CLAUDE.md"
+    sedi 's|`/browse`|`/ship-browse`|g' "$PROJECT_DIR/CLAUDE.md"
+    sedi 's|`/retro`|`/ship-retro`|g' "$PROJECT_DIR/CLAUDE.md"
     # Fix any double-prefix from /ship → /ship-launch
-    sed -i 's|`/ship-launch-|`/ship-|g' "$PROJECT_DIR/CLAUDE.md"
+    sedi 's|`/ship-launch-|`/ship-|g' "$PROJECT_DIR/CLAUDE.md"
     echo -e "${GREEN}✓${RESET} Updated command references in CLAUDE.md (/plan → /ship-plan, etc.)"
   fi
 
@@ -351,7 +365,7 @@ done
 # ─── Step 8: Update version stamp in CLAUDE.md ───────────────────────────────
 
 if grep -q "Ship Framework" "$PROJECT_DIR/CLAUDE.md"; then
-  sed -i "s|Ship Framework.*v[0-9.]*|Ship Framework](https://github.com/ismailkose/ship-framework) v${VERSION}|g" "$PROJECT_DIR/CLAUDE.md"
+  sedi "s|Ship Framework.*v[0-9.]*|Ship Framework](https://github.com/ismailkose/ship-framework) v${VERSION}|g" "$PROJECT_DIR/CLAUDE.md"
   echo -e "${GREEN}✓${RESET} Updated version stamp in CLAUDE.md"
 else
   echo "" >> "$PROJECT_DIR/CLAUDE.md"
