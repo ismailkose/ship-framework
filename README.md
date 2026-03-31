@@ -197,15 +197,16 @@ your-project/
       ship/                    # Routing skills (ux, web, motion, components, ios, android + safety)
       your-skills/             # Your skills (design system, API patterns, etc.)
   references/
-    shared/                    # 15 deep references — the design brain
+    shared/                    # 16 deep references — the design brain
       ux-principles.md         #   Hick's, Miller's, Fitts's, Peak-End, HEART
-      typography-color.md      #   Type scale, font pairing, semantic color tokens
+      typography-color.md      #   Type scale, font pairing, OKLCH color, fluid type
+      interaction-design.md    #   8 interactive states, micro-interactions, gestures
       forms-feedback.md        #   Input patterns, validation, empty states, toasts
       navigation.md            #   Nav architecture, back behavior, deep linking
       layout-responsive.md     #   Mobile-first, breakpoints, spacing scale
       touch-interaction.md     #   Tap targets, gestures, press feedback, haptics
       dark-mode.md             #   Theming strategy, semantic tokens, contrast
-      design-quality.md        #   First impression, AI slop detection, coherence
+      design-quality.md        #   First impression, 18 AI slop patterns, coherence
       design-research.md       #   Competitive research, design system creation
       components.md            #   Three-layer model, 46 component catalog
       animation.md             #   Motion budget, 8 pattern foundations

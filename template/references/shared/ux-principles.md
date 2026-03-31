@@ -13,9 +13,10 @@
 >
 > **Deep-dive references:** This file covers the principles (the "why"). For deeper implementation patterns, see:
 > - `touch-interaction.md` — extends Section 2 (Fitts's Law) with gesture patterns, haptics, press feedback, safe areas
+> - `interaction-design.md` — extends Section 2 (Making Interactions Work) with 8-state model, micro-interaction timing, gesture design
 > - `layout-responsive.md` — extends Section 3 (spacing/hierarchy) with breakpoint reasoning, mobile-first philosophy, grid systems
 > - `forms-feedback.md` — extends Section 5 (data entry) with validation patterns, progressive disclosure, empty states
-> - `typography-color.md` — extends Section 3 (visual hierarchy) with type scale reasoning, color token systems
+> - `typography-color.md` — extends Section 3 (visual hierarchy) with type scale reasoning, color token systems, OKLCH color
 >
 > This file is the foundation. The deep-dives supplement it — they don't replace it. Always read this file first.
 

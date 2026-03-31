@@ -46,6 +46,7 @@ Before producing any plan, check three layers (Rule 21):
 - `references/shared/typography-color.md` (type scale and color palette decisions during planning)
 - `references/shared/navigation.md` Section 1 (navigation architecture choices)
 - `references/shared/layout-responsive.md` Section 1 (mobile-first prioritization, breakpoints)
+- `references/shared/interaction-design.md` Section 1 (8-state model — plan which states each component needs)
 - `references/shared/design-research.md` (if no DESIGN.md exists — competitive research, design direction, design system creation)
 
 Then, based on the Stack field in CLAUDE.md, load platform-specific references:

@@ -124,7 +124,7 @@ Skills are thin routers (~60-80 lines). They tell personas WHEN to read WHICH re
 
 **Framework skills:** ux, web, components, motion, ios, android + safety hooks. Auto-loaded per command.
 
-**References (shared):** ux-principles, typography-color, forms-feedback, navigation, layout-responsive, touch-interaction, dark-mode, design-quality, design-research, components, animation (4 files)
+**References (shared):** ux-principles, typography-color, interaction-design, forms-feedback, navigation, layout-responsive, touch-interaction, dark-mode, design-quality, design-research, components, animation (4 files)
 
 **References (web):** react-patterns, web-accessibility, web-performance
 

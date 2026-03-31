@@ -6,6 +6,32 @@ To update an existing project, run `bash ship-update.sh` from your project root,
 
 ---
 
+## 2026.03.31 — Phase 1: Interaction Design, OKLCH Color, AI Slop Expansion
+
+### New Reference
+- **interaction-design.md** — 8 interactive states model (default, hover, focus, active, disabled, loading, error, success), micro-interaction timing guide, gesture design patterns with keyboard parity. 460 lines.
+
+### Enhanced References
+- **typography-color.md** — Added fluid type scales with `clamp()`, OKLCH perceptually uniform color (palette generation, browser support, HSL comparison), font alternatives beyond Google Fonts (system stacks, self-hosted, variable fonts), recommended font stacks by product type. +160 lines.
+- **design-quality.md** — Expanded AI slop detection from 10 to 18 patterns. New patterns: Contrast Theater, Single-Breakpoint Responsiveness, Orphaned Interactive States, Icon-Label Mismatch, Uniform Border Radius, Stock Illustration Syndrome, Navigation Overload, Premature Dark Mode. +180 lines.
+
+### Routing Updates
+- **ship-team.md** — Added item 15: interaction-design.md routing for Dev, Pol, Eye, Crit
+- **ship-build.md** — Added interaction-design.md Sections 1-2 for interactive component builds
+- **ship-review.md** — Crit: interaction states audit. Pol: 18 slop patterns + state coverage audit
+- **ship-plan.md** — Added interaction-design.md Section 1 for component state planning
+- **ux-principles.md** — Added interaction-design.md to deep-dive reference map
+- **README.md** — Updated file tree (16 shared references), updated descriptions
+- **CHEATSHEET.md** — Added interaction-design to reference list
+
+### Sources
+- 8-state model: impeccable by Paul Bakaus
+- Micro-interactions: Dan Saffer's Microinteractions
+- OKLCH: CSS Color Level 4 spec, oklch.com
+- Fluid type: Utopia type scale methodology
+
+---
+
 ## 2026.03.30 — Design Enrichment: Skills Route, References Teach
 
 Major design intelligence overhaul. Skills slimmed from heavy inline rules to thin routing tables (~60-80 lines each). Deep knowledge moved into 18 reference files (7,500+ lines total) that teach Claude how to think about design domains. Filled gaps identified by analyzing gstack design skills, ui-ux-pro-max-skill, and Vercel agent-skills.

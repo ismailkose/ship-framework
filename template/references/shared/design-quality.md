@@ -381,6 +381,186 @@ These aren't edge cases. They're the first screens new users see.
 
 ---
 
+### Pattern: Contrast Theater
+
+**What it looks like:**
+- Text passes WCAG contrast check in theory
+- But text is small (14px), thin weight (300), on a textured or gradient background
+- Technically 4.5:1 on the solid color portion, but unreadable in practice
+- Light gray text on white that "passes" because the specific gray is #767676
+
+**Why it happens:**
+AI checks the contrast ratio between two flat colors. It doesn't account for font weight, size, background complexity, or real-world viewing conditions (outdoor, dim screen, aging eyes).
+
+**The fix:**
+Contrast is a floor, not a ceiling. Aim for 7:1 for body text (WCAG AAA). For text below 16px or weight below 400, add an extra 1.5:1 margin above the minimum. Never place text on gradients or images without a solid overlay.
+
+**Correct example:** Body text at 16px/400 weight uses #333333 on white (12.6:1). Readable in any condition.
+
+**Incorrect example:** Helper text at 13px/300 weight uses #767676 on white (4.5:1). Passes the checker, fails the user.
+
+---
+
+### Pattern: Single-Breakpoint Responsiveness
+
+**What it looks like:**
+- Design looks great at 1440px (designer's screen)
+- Looks okay at 375px (iPhone mockup)
+- Falls apart at 768px (iPad), 1024px (small laptop), 320px (SE)
+- Content overflows, columns stack badly, whitespace collapses
+
+**Why it happens:**
+AI generates for two widths: desktop and mobile. Everything between is an afterthought because training data skews toward full-width and phone screenshots.
+
+**The fix:**
+Design for fluid, not fixed. Use `clamp()`, percentage widths, and container queries instead of fixed breakpoints. Test at 5 widths minimum: 320px, 480px, 768px, 1024px, 1440px. Content should reflow naturally, not jump between layouts.
+
+**Correct example:** A card grid that uses `grid-template-columns: repeat(auto-fill, minmax(280px, 1fr))` — cards reflow at every width without breakpoints.
+
+**Incorrect example:** A card grid with `@media (max-width: 768px) { grid-template-columns: 1fr; }` — jumps from 3 columns to 1 column with nothing in between.
+
+---
+
+### Pattern: Orphaned Interactive States
+
+**What it looks like:**
+- Buttons have hover and active states
+- No focus-visible ring (keyboard users invisible)
+- No disabled state (or disabled looks like default with `opacity: 0.5`)
+- No loading state (user clicks, nothing happens for 2 seconds)
+- No error state on the component itself
+
+**Why it happens:**
+AI generates the visual states it "sees" most often: default, hover, maybe active. Focus, disabled, loading, error, and success are functional states that require intentional design, not visual memory.
+
+**The fix:**
+Use the 8-state model from `interaction-design.md`. Every interactive component needs: default, hover, focus, active, disabled, loading, error, success (where applicable). Define all states upfront — don't add them when bugs are reported.
+
+**Correct example:** A button component with explicit CSS for all 8 states, including `focus-visible` with a 2px offset ring and a loading spinner that replaces the label.
+
+**Incorrect example:** A button with `:hover` and nothing else. Keyboard users can't see focus. Submitting shows no feedback for 3 seconds.
+
+---
+
+### Pattern: Icon-Label Mismatch
+
+**What it looks like:**
+- A gear icon labeled "Preferences" (not "Settings")
+- A heart icon for "Bookmark" (not "Favorite")
+- A paper plane icon for "Submit" (not "Send")
+- A cloud icon for "Sync" (inconsistent with the download icon next to it)
+
+**Why it happens:**
+AI picks icons that are semantically adjacent but not precise. A gear "kind of" means preferences. A heart "sort of" means bookmark. The mismatch is subtle enough that it passes casual review but creates micro-confusion for every user interaction.
+
+**The fix:**
+Icon and label must say the same thing. If the label says "Settings," the icon must be universally recognized as "settings" (gear). If you can't find an icon that precisely matches, use the label alone — no icon beats a wrong icon.
+
+**Correct example:** Gear + "Settings", Trash + "Delete", Download arrow + "Download".
+
+**Incorrect example:** Heart + "Bookmark", Cloud + "Save", Bell + "Updates".
+
+---
+
+### Pattern: Uniform Border Radius
+
+**What it looks like:**
+- Every element uses `border-radius: 12px`
+- Small badges (24px tall) look like pills
+- Large cards look slightly rounded
+- Buttons, inputs, cards, modals — all identical radius
+- Nothing feels intentionally shaped
+
+**Why it happens:**
+AI applies one radius value uniformly. It's "consistent" in the worst sense — consistent like a monotone voice is consistent.
+
+**The fix:**
+Scale border radius with element size. Small elements get smaller radius; large elements get larger radius. Create a radius scale tied to the spacing system.
+
+```
+Radius scale:
+- xs (badges, tags): 4px
+- sm (buttons, inputs): 6-8px
+- md (cards, dropdowns): 12px
+- lg (modals, dialogs): 16px
+- full (avatars, toggles): 9999px
+```
+
+**Correct example:** Buttons at 8px radius, cards at 12px, modal at 16px, avatar at full circle. Each element feels intentionally shaped.
+
+**Incorrect example:** Everything at 12px. Badges look like pills, buttons look like cards, nothing has visual distinction.
+
+---
+
+### Pattern: Stock Illustration Syndrome
+
+**What it looks like:**
+- Purple/blue gradient blobs as backgrounds
+- Isometric illustrations of people at computers
+- Abstract 3D shapes floating in hero sections
+- Illustrations that could belong to any company
+- "Diverse team of professionals" stock imagery
+
+**Why it happens:**
+AI reaches for the most statistically common visual patterns: gradient blobs (Stripe-era), isometric illustrations (2018-era SaaS), and abstract 3D (2020-era landing pages). These are visual comfort food — recognizable, safe, meaningless.
+
+**The fix:**
+Illustrations should be specific to your product. Show the actual product in use. If you must use illustrations, commission or generate ones that reflect your specific brand identity — not generic "tech company" imagery. If you can't do custom, use no illustrations. Clean whitespace beats generic stock.
+
+**Correct example:** A project management tool showing an actual screenshot of a Kanban board with realistic tasks, or a custom illustration of the specific workflow the product enables.
+
+**Incorrect example:** A project management tool hero with an isometric illustration of people standing around a giant calendar that could be any productivity app.
+
+---
+
+### Pattern: Navigation Overload
+
+**What it looks like:**
+- Top nav with 8+ items
+- Sidebar with 15+ links
+- Footer with 30+ links in 5 columns
+- Breadcrumb + tabs + sidebar all visible simultaneously
+- Mobile hamburger menu opens to reveal 20+ items in a flat list
+
+**Why it happens:**
+AI includes every page/feature as a navigation item. It treats nav as a complete index rather than a curated path. More complete = better, in AI logic. But more complete = overwhelming for users.
+
+**The fix:**
+Navigation should show 5-7 top-level items maximum (Miller's Law). Group related items under clear categories. Use progressive disclosure: primary nav visible, secondary nav on interaction. Mobile nav should prioritize the 4-5 most-used items, with "More" for the rest.
+
+**Correct example:** Top nav with 5 items (Home, Features, Pricing, Docs, Sign In). Docs page has its own sidebar for sub-navigation. Clean separation.
+
+**Incorrect example:** Top nav with Home, Features, Pricing, About, Blog, Docs, API, Community, Support, Careers, Contact, Partners, Press. User can't find anything because everything is there.
+
+---
+
+### Pattern: Premature Dark Mode
+
+**What it looks like:**
+- Dark mode implemented as `filter: invert(1)` or naive color swap
+- Images inverted (photos look like negatives)
+- Shadows don't work (light shadows on dark backgrounds disappear)
+- Contrast breaks (text that was dark-on-light becomes light-on-dark but not enough contrast)
+- Colors that vibrate (fully saturated colors on dark backgrounds)
+
+**Why it happens:**
+AI treats dark mode as a color swap rather than a redesign. Light mode tokens get inverted rather than re-evaluated. The assumption is: flip the background, flip the text, done.
+
+**The fix:**
+Dark mode is a separate design pass, not an inversion. Each color token needs a dark-mode-specific value. Reduce saturation. Increase surface elevation differences (use lighter grays for raised surfaces, not shadows). Test every screen in dark mode independently.
+
+See `dark-mode.md` for the full dark mode reference. Key rules:
+- Never use `filter: invert()` — it breaks images, SVGs, and brand colors
+- Desaturate all colors by 10-20% for dark backgrounds
+- Use surface elevation (lighter = higher) instead of shadows
+- Test contrast ratios separately for dark mode — don't assume light mode ratios carry over
+
+**Correct example:** Dark mode with hand-tuned token values: `--surface-raised: #2a2a2a` (lighter than `--surface-base: #1a1a1a`), desaturated primary, elevated cards distinguished by surface color rather than shadow.
+
+**Incorrect example:** Dark mode via `html.dark { filter: invert(1) hue-rotate(180deg); }`. Photos are inverted, brand colors are wrong, and some elements have doubled inversion.
+
+---
+
 ## Section 3: Cross-Page Consistency Audit
 
 ### Why Consistency Matters Beyond Aesthetics
@@ -632,7 +812,7 @@ When you review a design:
 
 1. **First Impression (5 seconds):** Does it feel coherent? Does it communicate identity? Does hierarchy exist?
 
-2. **Slop Patterns (30 seconds):** Scan for the 10 patterns above. Generic hero? Card grid sameness? Decoration over meaning? Fake personality? Flag them.
+2. **Slop Patterns (30 seconds):** Scan for the 18 patterns above. Generic hero? Card grid sameness? Orphaned states? Stock illustrations? Flag them.
 
 3. **Consistency Audit (2 minutes):** Pick 3 elements. Check them across pages. Anything inconsistent?
 

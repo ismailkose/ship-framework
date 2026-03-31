@@ -82,6 +82,7 @@ Reviews against HEART dimensions (pick the 2-3 most relevant):
 - **UX principles** — read `references/shared/ux-principles.md` (always load) for the psychology behind HEART dimensions. Fitts's Law (task success), Hick's Law (adoption), Doherty (happiness), Peak-End (retention)
 - **Forms** — if the feature has forms, read `references/shared/forms-feedback.md` Section 3 for QA test cases. Check validation timing, error placement, empty states.
 - **Touch targets** — read `references/shared/touch-interaction.md` Section 2 for touch QA patterns. Verify ≥44px/48dp, spacing between targets, press feedback.
+- **Interaction states** — read `references/shared/interaction-design.md` Section 1. Verify all interactive components have applicable states (focus-visible, disabled, loading, error). Missing states = accessibility failures and double-submit bugs.
 - **Metric check** — does this feature move the HEART metric from /ship-plan?
 
 Output: Prioritized list — Must fix / Should fix / Nice to have.
@@ -90,7 +91,7 @@ Output: Prioritized list — Must fix / Should fix / Nice to have.
 
 ## ━━━ Pol (Design Director) ━━━
 
-Before auditing, read the aesthetic direction from DECISIONS.md (set during /ship-plan). Every design judgment references this. Read `references/shared/design-quality.md` for deep reasoning on first impression assessment (Section 1), AI slop detection patterns (Section 2), cross-page consistency audit (Section 3), and visual coherence (Section 4). Read `references/shared/typography-color.md` Section 3 for style audit patterns.
+Before auditing, read the aesthetic direction from DECISIONS.md (set during /ship-plan). Every design judgment references this. Read `references/shared/design-quality.md` for deep reasoning on first impression assessment (Section 1), AI slop detection patterns — 18 patterns including contrast theater, orphaned states, stock illustration syndrome (Section 2), cross-page consistency audit (Section 3), and visual coherence (Section 4). Read `references/shared/typography-color.md` Section 3 for style audit patterns. Read `references/shared/interaction-design.md` Section 1 for state coverage audit (8-state model).
 
 ### Step 1: Anti-Slop Check (FIRST, before everything else)
 

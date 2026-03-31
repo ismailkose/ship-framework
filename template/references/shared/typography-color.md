@@ -273,6 +273,99 @@ Proportional numbers (default) align by width, causing everything to jiggle.
 }
 ```
 
+### Fluid Type Scales with clamp()
+
+Fixed pixel sizes break across viewports. A 49px heading looks great on desktop,
+overwhelming on mobile. Fluid type scales with `clamp()` solve this — one declaration,
+every screen size.
+
+**The pattern:** `clamp(minimum, preferred, maximum)`
+
+The preferred value uses viewport width (`vw`) so the size scales smoothly. The min/max
+cap it at readable extremes.
+
+```css
+/* Incorrect — separate media queries, jumpy transitions */
+h1 { font-size: 32px; }
+@media (min-width: 768px) { h1 { font-size: 42px; } }
+@media (min-width: 1200px) { h1 { font-size: 56px; } }
+
+/* Correct — fluid type, smooth scaling */
+:root {
+  --font-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);   /* 12-14px */
+  --font-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);       /* 14-16px */
+  --font-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);    /* 16-18px */
+  --font-md: clamp(1.25rem, 1.1rem + 0.75vw, 1.5rem);      /* 20-24px */
+  --font-lg: clamp(1.5rem, 1.2rem + 1.5vw, 2.25rem);       /* 24-36px */
+  --font-xl: clamp(2rem, 1.5rem + 2.5vw, 3.5rem);          /* 32-56px */
+}
+
+h1 { font-size: var(--font-xl); }   /* scales 32px → 56px */
+h2 { font-size: var(--font-lg); }   /* scales 24px → 36px */
+p  { font-size: var(--font-base); } /* scales 16px → 18px */
+```
+
+**Why clamp() beats media queries:**
+- No breakpoint jumps — sizes transition smoothly
+- One token per size instead of 3-4 declarations
+- Works across every viewport, including tablets and foldables
+- Line height can also be fluid: `line-height: clamp(1.4, 1.3 + 0.15vw, 1.6)`
+
+### Font Alternatives Beyond Google Fonts
+
+Google Fonts is the default. It's also a performance cost (extra DNS lookup, render-blocking
+request) and a privacy concern (Google tracks font requests). Consider alternatives:
+
+**System font stack (zero cost, instant render):**
+```css
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+               "Helvetica Neue", Arial, sans-serif;
+}
+```
+This uses whatever the user's OS provides. Fast, familiar, zero network cost. Best for
+body text in performance-sensitive apps.
+
+**Self-hosted fonts (control, no third-party):**
+Download the font files, serve from your own domain. No Google tracking, no external
+dependency. Use `font-display: swap` to prevent invisible text during load.
+
+```css
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/inter-var.woff2") format("woff2");
+  font-weight: 100 900;
+  font-display: swap; /* show fallback immediately, swap when loaded */
+}
+```
+
+**Variable fonts (one file, every weight):**
+A single variable font file replaces 6-8 static files. Smaller total download, smoother
+weight transitions.
+
+```css
+/* Instead of loading Inter-Regular, Inter-Medium, Inter-Bold separately */
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/inter-variable.woff2") format("woff2-variations");
+  font-weight: 100 900; /* full weight range in one file */
+}
+
+/* Now you can use any weight, not just predefined steps */
+.subtle { font-weight: 350; }
+.emphasis { font-weight: 550; }
+```
+
+**Recommended stacks by product type:**
+
+| Product | Heading Font | Body Font | Why |
+|---------|-------------|-----------|-----|
+| SaaS / Dashboard | Inter, system stack | Inter, system stack | Clarity, fast load |
+| Marketing site | Instrument Serif, Fraunces | Inter, DM Sans | Personality + readability |
+| Dev tools | JetBrains Mono, Fira Code | System stack | Monospace signals technical |
+| Wellness / Health | Lora, Source Serif | Source Sans, Nunito | Warmth via serif |
+| Finance | IBM Plex Sans | IBM Plex Sans | Neutral authority |
+
 ---
 
 ## Section 2: Color System
@@ -486,6 +579,77 @@ Define all states for every color token. This prevents ad-hoc color decisions.
   cursor: not-allowed;
 }
 ```
+
+### OKLCH: Perceptually Uniform Color
+
+HSL lies to you. `hsl(60, 100%, 50%)` (yellow) looks far brighter than `hsl(240, 100%, 50%)`
+(blue) despite identical lightness values. That's because HSL's "lightness" is mathematical,
+not perceptual. OKLCH fixes this.
+
+**OKLCH = Lightness (L), Chroma (C), Hue (H)**
+
+- **L** (0-1): Perceptual lightness — 0.5 in OKLCH actually *looks* like 50% brightness,
+  regardless of hue
+- **C** (0-0.4): Chroma (saturation intensity) — higher = more vivid
+- **H** (0-360): Hue angle — same as HSL but mapped to perceptual color space
+
+**Why this matters for design systems:**
+
+In HSL, creating "same lightness" variants across hues produces wildly different
+perceived brightness. In OKLCH, matching the L value guarantees visual consistency.
+
+```css
+/* HSL — "same lightness" but looks completely different */
+:root {
+  --blue: hsl(220, 80%, 50%);    /* looks dark */
+  --yellow: hsl(50, 80%, 50%);   /* looks bright */
+  --green: hsl(140, 80%, 50%);   /* looks medium */
+  /* All "50% lightness" — none look the same brightness */
+}
+
+/* OKLCH — actual perceptual uniformity */
+:root {
+  --blue: oklch(0.55 0.2 250);   /* looks 55% bright */
+  --yellow: oklch(0.55 0.2 90);  /* looks 55% bright — same perceived weight */
+  --green: oklch(0.55 0.2 150);  /* looks 55% bright — consistent */
+}
+```
+
+**Practical use: generating color scales**
+
+With OKLCH you can create a 10-step shade scale by adjusting only L, keeping chroma
+and hue constant. Every step looks like a proportional shade change.
+
+```css
+:root {
+  --blue-50:  oklch(0.97 0.02 250);  /* near-white tint */
+  --blue-100: oklch(0.93 0.04 250);
+  --blue-200: oklch(0.85 0.08 250);
+  --blue-300: oklch(0.75 0.12 250);
+  --blue-400: oklch(0.65 0.16 250);
+  --blue-500: oklch(0.55 0.20 250);  /* primary */
+  --blue-600: oklch(0.48 0.18 250);
+  --blue-700: oklch(0.40 0.16 250);
+  --blue-800: oklch(0.32 0.12 250);
+  --blue-900: oklch(0.25 0.08 250);  /* near-black shade */
+}
+```
+
+**Browser support:** OKLCH is supported in all modern browsers (Chrome 111+, Safari 15.4+,
+Firefox 113+). For older browsers, provide an HSL fallback:
+
+```css
+.button {
+  background: hsl(220, 80%, 50%);             /* fallback */
+  background: oklch(0.55 0.2 250);            /* modern browsers */
+}
+```
+
+**When to use OKLCH vs HSL:**
+- Use OKLCH for design systems, palette generation, and any multi-hue color work
+- Use HSL for quick prototyping where perceptual accuracy doesn't matter
+- Always use OKLCH when creating accessible color pairs — the L value directly
+  correlates with perceived contrast
 
 ### Dark Mode: Desaturation Strategy
 
