@@ -1,5 +1,7 @@
 # Ship Framework
 
+`v2026.03.31` · 19 deep references · 8 personas · 6 commands
+
 **An AI product team in your terminal.**
 
 You're a designer who vibe codes. A PM who prototypes. Someone building toward founder — not there yet, but getting closer with every product you ship. You need engineering, and that's what Claude Code is for. But raw Claude Code is like having a brilliant engineer with no product sense, no design eye, and no business context. It builds what you say, not what you need.
