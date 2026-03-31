@@ -197,10 +197,12 @@ your-project/
       ship/                    # Routing skills (ux, web, motion, components, ios, android + safety)
       your-skills/             # Your skills (design system, API patterns, etc.)
   references/
-    shared/                    # 16 deep references — the design brain
+    shared/                    # 18 deep references — the design brain
       ux-principles.md         #   Hick's, Miller's, Fitts's, Peak-End, HEART
       typography-color.md      #   Type scale, font pairing, OKLCH color, fluid type
       interaction-design.md    #   8 interactive states, micro-interactions, gestures
+      copy-clarity.md          #   UX writing, voice framework, AI copy slop patterns
+      hardening-guide.md       #   Error boundaries, edge cases, pre-launch checklist
       forms-feedback.md        #   Input patterns, validation, empty states, toasts
       navigation.md            #   Nav architecture, back behavior, deep linking
       layout-responsive.md     #   Mobile-first, breakpoints, spacing scale
@@ -209,7 +211,7 @@ your-project/
       design-quality.md        #   First impression, 18 AI slop patterns, coherence
       design-research.md       #   Competitive research, design system creation
       components.md            #   Three-layer model, 46 component catalog
-      animation.md             #   Motion budget, 8 pattern foundations
+      animation.md             #   Motion budget, tokens, 8 pattern foundations
       animation-css.md         #   CSS transforms, transitions, keyframes
       animation-framer-motion.md  Framer Motion API
       animation-performance.md #   60fps optimization, reduced motion

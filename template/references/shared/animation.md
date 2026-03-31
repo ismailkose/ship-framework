@@ -223,6 +223,133 @@ Define these in your project for consistent easing:
 }
 ```
 
+### Motion Tokens: A Complete System
+
+Define a full motion token system — easing, duration, and reduced-motion overrides in one place. This prevents ad-hoc timing values scattered through the codebase.
+
+```css
+:root {
+  /* === Duration tokens === */
+  --duration-instant: 0ms;        /* no animation needed */
+  --duration-fast: 100ms;         /* micro-interactions: press, toggle */
+  --duration-normal: 200ms;       /* standard transitions: hover, color change */
+  --duration-moderate: 300ms;     /* entrances, exits, page transitions */
+  --duration-slow: 500ms;         /* large element transitions, hero moments */
+
+  /* === Easing tokens === */
+  --ease-default: cubic-bezier(.23, 1, .32, 1);    /* ease-out-quint: elements arriving */
+  --ease-in: cubic-bezier(.32, 0, .67, 0);          /* elements leaving */
+  --ease-in-out: cubic-bezier(.645, .045, .355, 1); /* elements moving on screen */
+  --ease-bounce: cubic-bezier(.34, 1.56, .64, 1);   /* playful overshoot (use sparingly) */
+
+  /* === Spring equivalents (for JS/Framer Motion) === */
+  --spring-snappy: 400 / 30;     /* stiffness / damping — buttons, toggles */
+  --spring-gentle: 200 / 20;     /* panels, drawers */
+  --spring-bouncy: 300 / 10;     /* celebrations, playful moments */
+
+  /* === Stagger tokens === */
+  --stagger-fast: 30ms;          /* snappy list reveal */
+  --stagger-normal: 50ms;        /* standard stagger */
+  --stagger-slow: 80ms;          /* dramatic reveal */
+  --stagger-max-items: 8;        /* beyond this, don't stagger */
+
+  /* === Distance tokens === */
+  --distance-subtle: 4px;        /* micro shifts: hover lift */
+  --distance-normal: 8px;        /* standard entrance: fade + rise */
+  --distance-large: 16px;        /* emphasized entrance */
+  --distance-full: 100%;         /* slide in/out of view */
+}
+
+/* === Reduced motion: override durations, keep fades === */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-normal: 0ms;
+    --duration-moderate: 0ms;
+    --duration-slow: 0ms;
+    --distance-subtle: 0px;
+    --distance-normal: 0px;
+    --distance-large: 0px;
+    --distance-full: 0px;
+    /* Keep opacity transitions at a short duration for visual continuity */
+  }
+}
+```
+
+**Usage pattern:**
+```css
+.card {
+  transition: transform var(--duration-normal) var(--ease-default),
+              box-shadow var(--duration-normal) var(--ease-default);
+}
+.card:hover {
+  transform: translateY(calc(-1 * var(--distance-subtle)));
+}
+
+.list-item {
+  animation: fade-in-up var(--duration-moderate) var(--ease-default);
+  animation-delay: calc(var(--index) * var(--stagger-normal));
+}
+```
+
+**Why tokens:** When you need to make all animations faster (performance issue) or slower (product feels rushed), change one file instead of searching 47 components. When `prefers-reduced-motion` activates, distance tokens go to `0px` — transforms become no-ops, but opacity transitions remain for visual continuity.
+
+### Reduced Motion: Implementation Depth
+
+The basic `prefers-reduced-motion` media query is necessary but not sufficient. Here's the full strategy:
+
+**Level 1: CSS override (required)**
+```css
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+```
+
+**Level 2: JS detection (for spring animations)**
+```tsx
+// Hook for reduced motion preference
+function useReducedMotion() {
+  const [reduced, setReduced] = useState(
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const handler = (e) => setReduced(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  return reduced;
+}
+
+// Usage: swap spring for instant
+const reduced = useReducedMotion();
+const transition = reduced
+  ? { duration: 0 }
+  : { type: "spring", stiffness: 400, damping: 30 };
+```
+
+**Level 3: In-app toggle (best practice)**
+Some users want reduced motion in the OS but accept it in specific apps. Offer an in-app motion preference that overrides or supplements the system setting.
+
+**What to keep with reduced motion:**
+- Opacity fades (short, 150ms max) — provides visual continuity without motion
+- Color transitions — non-spatial, safe for motion sensitivity
+- Progress bar advancement — functional, not decorative
+
+**What to remove:**
+- All transform-based animations (translate, scale, rotate)
+- Parallax scrolling
+- Auto-playing videos/animations
+- Page transition slides
+- Bouncy spring effects
+
 ---
 
 ## Section 2: Audit Checklist

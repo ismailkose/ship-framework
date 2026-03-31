@@ -6,6 +6,26 @@ To update an existing project, run `bash ship-update.sh` from your project root,
 
 ---
 
+## 2026.03.31 — Phase 2: Hardening, UX Copy, Motion Tokens
+
+### New References
+- **hardening-guide.md** — Error boundaries, network error patterns, optimistic UI recovery, edge case tables (text, numeric, timing, file upload, auth), environmental hardening (browser matrix, performance, security, accessibility), pre-launch checklist.
+- **copy-clarity.md** — Voice & tone framework (3 dimensions, tone map by context), copy patterns (button labels, error messages, empty states, confirmation dialogs, loading copy), AI copy slop detection (exclamation inflation, vague value props, synonym cycling, emoji seasoning, "we" overuse).
+
+### Enhanced References
+- **animation.md** — Added motion token system (duration, easing, spring, stagger, distance tokens with CSS custom properties), full reduced motion implementation (3 levels: CSS override, JS detection hook, in-app toggle), what to keep vs remove with reduced motion.
+
+### Routing Updates
+- **ship-team.md** — Added items 16-17: hardening-guide and copy-clarity routing
+- **ship-build.md** — Added copy-clarity Section 2 for copy implementation, hardening-guide for error handling
+- **ship-review.md** — Crit: copy clarity + edge case review. Pol: copy-clarity Sections 1-3 for voice + AI slop
+- **ship-launch.md** — Added production hardening check before tests (references hardening-guide Section 3)
+- **ux-principles.md** — Added copy-clarity to deep-dive reference map
+- **README.md** — Updated file tree (18 shared references)
+- **CHEATSHEET.md** — Added copy-clarity and hardening-guide to reference list
+
+---
+
 ## 2026.03.31 — Phase 1: Interaction Design, OKLCH Color, AI Slop Expansion
 
 ### New Reference

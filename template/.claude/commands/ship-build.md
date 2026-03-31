@@ -84,6 +84,10 @@ When building navigation, read `references/shared/navigation.md` Section 2 — b
 
 When building UI with animations or transitions, follow Arc's motion spec and read `references/shared/animation.md` Section 3 for build rules and Section 4 for pattern foundations. Learn from the patterns — don't copy them blindly. Adapt techniques to your stack and what Arc specced. For deep-dive API references when you need them: `references/shared/animation-css.md`, `references/shared/animation-framer-motion.md` (if stack uses it), `references/shared/animation-performance.md`.
 
+When writing user-facing copy (button labels, error messages, empty states, confirmation dialogs), read `references/shared/copy-clarity.md` Section 2 — specific verb labels, error message structure (what happened + how to fix), empty state patterns.
+
+When preparing for launch or building error handling, read `references/shared/hardening-guide.md` — error boundaries, edge case tables (text, numeric, timing, auth), network error patterns, pre-launch checklist.
+
 **Web stack:** Also read `references/web/react-patterns.md` for Server vs Client components, composition, and hydration safety. Read `references/web/web-accessibility.md` for semantic HTML and ARIA patterns.
 
 ## Decision Classification

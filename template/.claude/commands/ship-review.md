@@ -83,6 +83,8 @@ Reviews against HEART dimensions (pick the 2-3 most relevant):
 - **Forms** — if the feature has forms, read `references/shared/forms-feedback.md` Section 3 for QA test cases. Check validation timing, error placement, empty states.
 - **Touch targets** — read `references/shared/touch-interaction.md` Section 2 for touch QA patterns. Verify ≥44px/48dp, spacing between targets, press feedback.
 - **Interaction states** — read `references/shared/interaction-design.md` Section 1. Verify all interactive components have applicable states (focus-visible, disabled, loading, error). Missing states = accessibility failures and double-submit bugs.
+- **Copy clarity** — read `references/shared/copy-clarity.md` Section 2. Are button labels specific verbs? Do error messages explain what happened + how to fix it? Are empty states guiding, not blank?
+- **Edge cases** — read `references/shared/hardening-guide.md` Section 2. Test with empty strings, very long text, special characters, double-click, back button after submit.
 - **Metric check** — does this feature move the HEART metric from /ship-plan?
 
 Output: Prioritized list — Must fix / Should fix / Nice to have.
@@ -91,7 +93,7 @@ Output: Prioritized list — Must fix / Should fix / Nice to have.
 
 ## ━━━ Pol (Design Director) ━━━
 
-Before auditing, read the aesthetic direction from DECISIONS.md (set during /ship-plan). Every design judgment references this. Read `references/shared/design-quality.md` for deep reasoning on first impression assessment (Section 1), AI slop detection patterns — 18 patterns including contrast theater, orphaned states, stock illustration syndrome (Section 2), cross-page consistency audit (Section 3), and visual coherence (Section 4). Read `references/shared/typography-color.md` Section 3 for style audit patterns. Read `references/shared/interaction-design.md` Section 1 for state coverage audit (8-state model).
+Before auditing, read the aesthetic direction from DECISIONS.md (set during /ship-plan). Every design judgment references this. Read `references/shared/design-quality.md` for deep reasoning on first impression assessment (Section 1), AI slop detection patterns — 18 patterns including contrast theater, orphaned states, stock illustration syndrome (Section 2), cross-page consistency audit (Section 3), and visual coherence (Section 4). Read `references/shared/typography-color.md` Section 3 for style audit patterns. Read `references/shared/interaction-design.md` Section 1 for state coverage audit (8-state model). Read `references/shared/copy-clarity.md` for voice consistency audit (Section 1), copy patterns (Section 2), and AI copy slop detection (Section 3).
 
 ### Step 1: Anti-Slop Check (FIRST, before everything else)
 

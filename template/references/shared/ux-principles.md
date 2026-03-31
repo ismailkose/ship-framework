@@ -16,6 +16,7 @@
 > - `interaction-design.md` — extends Section 2 (Making Interactions Work) with 8-state model, micro-interaction timing, gesture design
 > - `layout-responsive.md` — extends Section 3 (spacing/hierarchy) with breakpoint reasoning, mobile-first philosophy, grid systems
 > - `forms-feedback.md` — extends Section 5 (data entry) with validation patterns, progressive disclosure, empty states
+> - `copy-clarity.md` — extends Section 5 (UX Writing) with voice framework, copy patterns, AI copy slop detection
 > - `typography-color.md` — extends Section 3 (visual hierarchy) with type scale reasoning, color token systems, OKLCH color
 >
 > This file is the foundation. The deep-dives supplement it — they don't replace it. Always read this file first.
