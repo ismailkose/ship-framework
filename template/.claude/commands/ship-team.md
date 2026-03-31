@@ -104,6 +104,7 @@ When the task involves building UI, you MUST ensure:
 15. **Dev reads `references/shared/interaction-design.md` Sections 1-2** when building interactive components — 8-state model (default, hover, focus, active, disabled, loading, error, success), micro-interaction timing, button state machines. **Pol reads Section 1** to audit state coverage. **Eye reads Sections 1-2** to verify all states render correctly. **Crit reads Section 1** for missing states that cause accessibility failures.
 16. **Dev reads `references/shared/hardening-guide.md`** before shipping — error boundaries, edge case tables, network error patterns, pre-launch checklist. **Test reads Sections 2-3** for edge case testing (text, numeric, timing, file upload, auth). **Crit reads Section 1** for error recovery impact on task success.
 17. **Pol reads `references/shared/copy-clarity.md`** during review — voice consistency, AI copy slop detection (exclamation inflation, vague value props, synonym cycling). **Vi reads Section 1** when defining voice and tone. **Crit reads Section 2** for copy clarity review (button labels, error messages, empty states). **Dev reads Section 2** for copy implementation patterns.
+18. **Arc reads `references/shared/spatial-design.md` Sections 1-2** when planning layout architecture — spacing systems, density strategy (high/medium/low matches product type). **Dev reads Sections 1-3** when implementing spacing tokens and whitespace. **Pol reads Sections 1-3** to audit spacing consistency, density, content-to-chrome ratio.
 
 ### iOS Stack Only
 
@@ -139,7 +140,7 @@ When the task involves building UI, you MUST ensure:
 
 ### Reference Scope Summary
 
-- **Shared (items 1-17):** Load for all stacks. Core design intelligence.
+- **Shared (items 1-18):** Load for all stacks. Core design intelligence.
 - **iOS (items 15-23):** Load when the stack includes SwiftUI, iOS, or mobile.
 - **Web (items 19-21 + 24-26):** Load when the stack includes React, Next.js, or web.
 - **Android (placeholder):** Load when the stack includes Android.

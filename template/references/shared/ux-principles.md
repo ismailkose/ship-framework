@@ -15,6 +15,7 @@
 > - `touch-interaction.md` — extends Section 2 (Fitts's Law) with gesture patterns, haptics, press feedback, safe areas
 > - `interaction-design.md` — extends Section 2 (Making Interactions Work) with 8-state model, micro-interaction timing, gesture design
 > - `layout-responsive.md` — extends Section 3 (spacing/hierarchy) with breakpoint reasoning, mobile-first philosophy, grid systems
+> - `spatial-design.md` — extends Section 3 (spacing/proximity) with spacing token systems, density strategy, whitespace as hierarchy
 > - `forms-feedback.md` — extends Section 5 (data entry) with validation patterns, progressive disclosure, empty states
 > - `copy-clarity.md` — extends Section 5 (UX Writing) with voice framework, copy patterns, AI copy slop detection
 > - `typography-color.md` — extends Section 3 (visual hierarchy) with type scale reasoning, color token systems, OKLCH color

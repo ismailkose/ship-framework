@@ -6,6 +6,33 @@ To update an existing project, run `bash ship-update.sh` from your project root,
 
 ---
 
+## 2026.03.31 — Phase 3: Spatial Design, Research Depth, Overlap Fixes
+
+### New Reference
+- **spatial-design.md** — Spacing systems (4px/8px base, semantic tokens), density strategy (high/medium/low matched to product type, density modes via CSS custom properties), whitespace as design tool (active vs passive, hierarchy through space, content-to-chrome ratio).
+
+### Enhanced References
+- **design-research.md** — Added Section 4: Design Audit Methodology (inventory → extract → cluster → consolidate → document workflow), competitive analysis depth framework (flow comparison, design system extraction, 2x2 differentiation map). Updated Quick Start with deeper analysis steps.
+
+### Overlap Quality Fixes
+5 cross-reference notes added to clarify boundaries between overlapping references:
+1. **typography-color.md** Section 3 → design-quality.md (type/color style vs visual consistency)
+2. **layout-responsive.md** Section 2 → spatial-design.md + ux-principles.md (implementation vs philosophy vs psychology)
+3. **forms-feedback.md** Section 2 → copy-clarity.md (structure/placement vs words)
+4. **touch-interaction.md** → interaction-design.md (physical layer vs behavioral layer)
+5. **design-quality.md** Section 2 → copy-clarity.md Section 3 (visual slop vs written slop)
+
+### Routing Updates
+- **ship-team.md** — Added item 18: spatial-design.md routing for Arc, Dev, Pol
+- **ship-build.md** — Added spatial-design.md for layout builds
+- **ship-plan.md** — Added spatial-design.md Sections 1-2 for spacing/density planning
+- **ship-review.md** — Pol: spatial-design audit (spacing consistency, density, chrome ratio)
+- **ux-principles.md** — Added spatial-design.md to deep-dive reference map
+- **README.md** — Updated file tree (19 shared references)
+- **CHEATSHEET.md** — Added spatial-design to reference list
+
+---
+
 ## 2026.03.31 — Phase 2: Hardening, UX Copy, Motion Tokens
 
 ### New References

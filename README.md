@@ -197,10 +197,11 @@ your-project/
       ship/                    # Routing skills (ux, web, motion, components, ios, android + safety)
       your-skills/             # Your skills (design system, API patterns, etc.)
   references/
-    shared/                    # 18 deep references — the design brain
+    shared/                    # 19 deep references — the design brain
       ux-principles.md         #   Hick's, Miller's, Fitts's, Peak-End, HEART
       typography-color.md      #   Type scale, font pairing, OKLCH color, fluid type
       interaction-design.md    #   8 interactive states, micro-interactions, gestures
+      spatial-design.md        #   Spacing tokens, density strategy, whitespace
       copy-clarity.md          #   UX writing, voice framework, AI copy slop patterns
       hardening-guide.md       #   Error boundaries, edge cases, pre-launch checklist
       forms-feedback.md        #   Input patterns, validation, empty states, toasts

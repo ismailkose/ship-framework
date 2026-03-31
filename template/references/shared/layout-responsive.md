@@ -45,6 +45,8 @@ The standard breakpoint scale is not arbitrary—each reflects a real device con
 
 ## Section 2: Spacing & Grid System
 
+> **Overlap note:** This section covers spacing *implementation* (grid systems, responsive behavior, CSS patterns). For spacing *philosophy* (why consistent spacing matters, density strategy, whitespace as a design tool), see `spatial-design.md`. For the *psychological* basis of spacing (Gestalt proximity, visual grouping), see `ux-principles.md` Section 3.
+
 ### 4pt/8dp Base Unit Philosophy
 
 A consistent spacing scale creates **visual rhythm**. Every margin, padding, and gap becomes a multiple of a base unit:

@@ -68,7 +68,7 @@ Always load shared references: `references/shared/ux-principles.md`, `references
 
 When building UI interactions, read `references/shared/ux-principles.md` Sections 2-3 — the code examples show correct vs incorrect patterns for hit areas, response time, input handling, spacing, and visual hierarchy. For deeper touch patterns (gestures, haptics, press feedback), read `references/shared/touch-interaction.md`. For interactive component states (the 8-state model: default, hover, focus, active, disabled, loading, error, success) and micro-interaction timing, read `references/shared/interaction-design.md` Sections 1-2.
 
-When building layouts, read `references/shared/layout-responsive.md` — mobile-first philosophy, breakpoint reasoning, spacing scale. This supplements ux-principles.md with deeper implementation detail.
+When building layouts, read `references/shared/layout-responsive.md` — mobile-first philosophy, breakpoint reasoning, spacing scale. For spacing philosophy and density strategy, read `references/shared/spatial-design.md` — spacing tokens, density modes, whitespace as hierarchy. Both supplement ux-principles.md with deeper implementation detail.
 
 When building forms, read `references/shared/forms-feedback.md` Section 1 — labels, validation timing, progressive disclosure, multi-step patterns. Section 2 has feedback patterns (empty states, toasts, confirmation vs undo).
 

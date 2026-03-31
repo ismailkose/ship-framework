@@ -6,6 +6,8 @@
 > Eye → Section 1 (verify tap targets visually, press feedback quality)
 > Pol → Section 1 (audit interaction consistency)
 > Test → Section 2 (verify targets, rapid interaction, gesture conflicts, safe areas)
+>
+> **Overlap note:** This file covers the *physical layer* — tap targets, safe areas, haptics, press feedback timing. For the *behavioral layer* (8-state model, micro-interaction patterns, gesture design philosophy), see `interaction-design.md`. Both files complement each other.
 
 ## Section 1: Touch Target Design
 

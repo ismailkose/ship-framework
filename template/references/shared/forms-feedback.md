@@ -93,6 +93,8 @@ Long multi-step forms benefit from "Save and continue later" buttons that store 
 
 ## Section 2: Feedback Patterns
 
+> **Overlap note:** This section covers feedback *structure and placement* (where to show errors, how to structure empty states, toast vs inline patterns). For the actual *words* in error messages, empty states, and confirmation dialogs, see `copy-clarity.md` Section 2.
+
 ### Empty States: Onboarding, Not Just "No Data"
 
 An empty state is the user's first interaction with a feature. It's a teaching moment, not a failure state. A blank list with no guidance leaves users wondering:

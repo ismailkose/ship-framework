@@ -66,6 +66,8 @@ The right density matches the content. A data-heavy admin panel needs density; a
 
 ## Section 2: AI Slop Pattern Detection
 
+> **Overlap note:** This section covers *visual* AI slop (generic layouts, decoration, spacing, component patterns). For *written* AI slop (exclamation inflation, vague value props, synonym cycling, emoji overuse), see `copy-clarity.md` Section 3. Both types appear together — a design with generic hero layout AND vague copy is doubly sloppy.
+
 THIS IS CRITICAL for vibe-coding designers. When Claude generates UI, it falls into predictable patterns that look "good enough" but lack craft. A senior designer spots these instantly. Learn to spot them in your own (and Claude's) output, then fix them before shipping.
 
 ### Pattern: Generic Hero Sections

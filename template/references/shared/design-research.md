@@ -276,12 +276,81 @@ If you change the primary color in DESIGN.md, update tokens.css *once*, and the 
 
 ---
 
+## Section 4: Design Audit Methodology
+
+### When to Run a Design Audit
+
+Run a design audit when:
+- Inheriting an existing codebase with no documented design system
+- Design has evolved organically over months without cleanup
+- Multiple designers/developers have contributed without coordination
+- Users report "it feels inconsistent" but can't say why
+- Before a major redesign or rebrand
+
+### The Audit Process
+
+**Step 1: Inventory** — Screenshot every unique screen. Organize by flow (onboarding, core, settings, error states). Count: how many screens total? How many have unique layouts?
+
+**Step 2: Extract** — For each screen, document:
+- Colors used (exact hex/OKLCH values — use DevTools color picker)
+- Font sizes, weights, and families
+- Spacing values (padding, margins, gaps)
+- Border radii
+- Shadow values
+- Icon style and source
+
+**Step 3: Cluster** — Group similar values. You'll typically find:
+- 5-12 different grays where 3-4 are needed
+- 8-15 font sizes where 5-7 are needed
+- Random spacing values (13px, 17px, 22px) instead of a scale
+- 3-4 slightly different border radii
+
+**Step 4: Consolidate** — Map clusters to tokens:
+- "These 5 blues are all trying to be the primary color → consolidate to 1 primary + 2 variants"
+- "These 8 font sizes map to a 1.25 ratio scale with 2 outliers → adopt the scale, fix the outliers"
+- "Spacing is random → adopt 8px base, snap everything"
+
+**Step 5: Document** — Fill DESIGN.md with consolidated decisions. This is now the source of truth.
+
+### Competitive Analysis: Depth Framework
+
+Beyond the basic template in Section 1, deep competitive analysis asks:
+
+**Flow comparison:** Map the same user journey (signup → first value) across 3 competitors. Time each step. Count taps. Identify where competitors add friction vs where they're smooth.
+
+**Design system extraction:** For each competitor, identify:
+- Their type scale (measure headings, body, captions)
+- Their color system (primary, secondary, semantic colors)
+- Their spacing rhythm (consistent multiples or random?)
+- Their component vocabulary (cards, lists, tables — what patterns do they repeat?)
+
+**Differentiation map:** Create a 2x2 matrix with your key differentiators:
+
+```
+                  Information-dense ←→ Minimal
+                        ↑
+                    Professional
+Competitor A: [•]                    Competitor B: [•]
+
+                                     You: [★]
+
+                      Playful
+Competitor C: [•]
+                        ↓
+```
+
+Place each competitor and yourself. The open quadrants are your differentiation opportunities.
+
+---
+
 ## Quick Start: Fill This In First
 
-1. **Competitive research**: Pick 3 competitors, spend 30 min each, fill the template above
-2. **Brand personality**: Write 3–5 adjectives
-3. **Product type**: Identify your category (finance, health, social, etc.)
-4. **Audience**: Who are you building for?
-5. **DESIGN.md**: Fill the template above with your decisions
-6. **Coherence check**: Run the validation checklist
-7. **Build**: Now you can build—every component will have a system to reference
+1. **Competitive research**: Pick 3 competitors, spend 30 min each, fill the template in Section 1
+2. **Deep analysis**: Run flow comparison and design system extraction (Section 4)
+3. **Differentiation map**: Plot competitors on 2x2 matrix, find open space
+4. **Brand personality**: Write 3–5 adjectives
+5. **Product type**: Identify your category (finance, health, social, etc.)
+6. **Audience**: Who are you building for?
+7. **DESIGN.md**: Fill the template in Section 3 with your decisions
+8. **Coherence check**: Run the validation checklist
+9. **Build**: Now you can build — every component has a system to reference

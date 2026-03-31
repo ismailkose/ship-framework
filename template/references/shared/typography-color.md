@@ -685,6 +685,8 @@ becomes `#7FA8C2` in dark mode — same hue, lower saturation.
 
 ## Section 3: Style Selection & Audit
 
+> **Overlap note:** This section covers typography and color style decisions. For broader visual consistency (component consistency, navigation, interactive patterns), see `design-quality.md` Sections 3-4. For AI-generated visual slop detection, see `design-quality.md` Section 2. For AI-generated *copy* slop, see `copy-clarity.md` Section 3.
+
 ### Matching Style to Product Type & Audience
 
 Design style should match user expectations. A meditation app styled like a stock trading
