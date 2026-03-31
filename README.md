@@ -247,10 +247,16 @@ your-project/
 
 **UX & design references:**
 
+- [impeccable](https://github.com/pbakaus/impeccable) by Paul Bakaus — 8-state interaction model, AI slop patterns, design hardening
+- [stitch-skills](https://github.com/nicholasgriffintn/stitch-skills) by Google Labs — design system patterns, component architecture
 - [ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) by NextLevelBuilder — design intelligence, 161 color palettes, 57 font pairings, 99 UX guidelines, style selection
 - [Animations on the Web](https://animations.dev) by Emil Kowalski — motion design principles and timing
 - [userinterface.wiki](https://userinterface.wiki) by Raphael Salaja — UI component patterns and interaction design
 - [Laws of UX](https://lawsofux.com) by Jon Yablonski — UX heuristics and design psychology
+- [Microinteractions](https://www.oreilly.com/library/view/microinteractions/9781491945957/) by Dan Saffer — micro-interaction design patterns
+- [Butterick's Practical Typography](https://practicaltypography.com) — typographic standards, type scale reasoning
+- [Interaction of Color](https://yalebooks.yale.edu/book/9780300179354/interaction-of-color/) by Josef Albers — color theory foundations
+- [Space in Design Systems](https://medium.com/eightshapes-llc/space-in-design-systems-188bcbae0d62) by Nathan Curtis — spacing system methodology
 
 **Web & React references:**
 
