@@ -84,6 +84,18 @@ echo -e "  Latest version:    ${BOLD}$VERSION${RESET}"
 echo ""
 
 if [ "$CURRENT_VERSION" = "$VERSION" ]; then
+  # Still mirror commands as skills even if version matches (fixes Claude Code v2.1.88+ bug)
+  SKILLS_SYNCED=0
+  for cmd_file in "$PROJECT_DIR/.claude/commands/"*.md; do
+    [ -e "$cmd_file" ] || continue
+    cmd_name=$(basename "$cmd_file" .md)
+    mkdir -p "$PROJECT_DIR/.claude/skills/$cmd_name"
+    cp "$cmd_file" "$PROJECT_DIR/.claude/skills/$cmd_name/SKILL.md"
+    SKILLS_SYNCED=$((SKILLS_SYNCED + 1))
+  done
+  if [ $SKILLS_SYNCED -gt 0 ]; then
+    echo -e "${GREEN}✓${RESET} Verified $SKILLS_SYNCED commands mirrored as skills"
+  fi
   echo -e "${GREEN}✓${RESET} Already up to date."
   echo ""
   exit 0
