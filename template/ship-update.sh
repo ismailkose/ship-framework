@@ -75,6 +75,17 @@ FRAMEWORK_DIR="$TMP_DIR/ship-framework"
 TEMPLATE_DIR="$FRAMEWORK_DIR/template"
 VERSION=$(cat "$FRAMEWORK_DIR/VERSION" 2>/dev/null || echo "unknown")
 
+# ─── Self-heal: update this script first, then re-exec if changed ───────────
+# Prevents "old script can't parse new features" failures.
+if [ -f "$TEMPLATE_DIR/ship-update.sh" ] && [ "${SHIP_UPDATE_REEXEC:-}" != "1" ]; then
+  if ! diff -q "$PROJECT_DIR/ship-update.sh" "$TEMPLATE_DIR/ship-update.sh" > /dev/null 2>&1; then
+    cp "$TEMPLATE_DIR/ship-update.sh" "$PROJECT_DIR/ship-update.sh"
+    chmod +x "$PROJECT_DIR/ship-update.sh"
+    echo -e "${DIM}Script updated — restarting...${RESET}"
+    SHIP_UPDATE_REEXEC=1 exec bash "$PROJECT_DIR/ship-update.sh" "$@"
+  fi
+fi
+
 echo ""
 echo -e "${BOLD}${ORANGE}Ship Framework${RESET} v${VERSION} — Update"
 echo ""

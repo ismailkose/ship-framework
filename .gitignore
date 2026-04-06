@@ -11,3 +11,9 @@ PLAN-*.md
 # Test project
 test-project/
 test/
+ANALYSIS-gstack-vs-ship-*.md
+TRADING-DESK-PLAN.md
+design-enrichment-plan.docx
+ios-muscle-plan.md
+ship-evolution-plan.md
+website-rebuild-prompt.md
