@@ -266,6 +266,23 @@ config.timeoutIntervalForRequest = 60 // Fallback timeout
 - [ ] Pagination checks `Task.isCancelled` between pages?
 - [ ] Network reachability monitored via `NWPathMonitor` wrapped in `AsyncStream`?
 
+## Enriched Common Mistakes
+
+- ❌ Assuming URLSession throws for 4xx/5xx responses — it doesn't, check `httpResponse.statusCode`
+- ❌ Not implementing retry with exponential backoff — transient failures need graceful recovery
+- ❌ Hardcoding base URLs — use configuration for different environments
+- ❌ Missing `Content-Type` header on POST requests — server may reject the body
+- ❌ Not cancelling in-flight requests when view disappears — use `.task` modifier or manual cancellation
+
+## Enriched Review Checklist
+
+- [ ] HTTP status codes checked (not just data presence)
+- [ ] Retry logic with exponential backoff for transient errors
+- [ ] Request cancellation tied to view lifecycle
+- [ ] Token refresh handled transparently (middleware/interceptor pattern)
+- [ ] No hardcoded URLs — environment-based configuration
+- [ ] Error responses decoded and displayed to user
+
 ---
 
 _Source: Apple Developer Documentation · URLSession & URLSessionConfiguration · Condensed for Ship Framework agent reference_

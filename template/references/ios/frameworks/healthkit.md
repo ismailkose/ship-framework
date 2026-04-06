@@ -539,5 +539,23 @@ HKUnit.minute()                             // Duration
 - [ ] Error handling for denied authorization
 - [ ] Sample metadata (device, location, metadata dict) populated correctly
 
+## Enriched Common Mistakes
+
+- ❌ Over-requesting data types — ask only for what you need, users see the full list
+- ❌ Not handling authorization denial — HealthKit returns empty results (not errors) when denied
+- ❌ Assuming HealthKit availability — not available on iPad, check `HKHealthStore.isHealthDataAvailable()`
+- ❌ Blocking main thread with queries — use async/await or background queue
+- ❌ Using wrong statistics options — `.cumulativeSum` for step counts, `.discreteAverage` for heart rate
+- ❌ Missing Background Delivery entitlement for observer queries
+
+## Enriched Review Checklist
+
+- [ ] `isHealthDataAvailable()` checked before any HealthKit call
+- [ ] Authorization requested for minimum required data types
+- [ ] Empty results handled (not treated as errors)
+- [ ] Queries use appropriate statistics options for data type
+- [ ] Background delivery configured with proper frequency
+- [ ] Workout sessions properly started and ended
+
 ---
 _Source: Apple Developer Documentation · Condensed for Ship Framework agent reference_

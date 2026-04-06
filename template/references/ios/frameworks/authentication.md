@@ -154,5 +154,24 @@ func storeTokenInKeychain(_ token: String) {
 - [ ] HTTPS enforced for all auth requests
 - [ ] Error messages don't expose user email/account status
 
+## Enriched Common Mistakes
+
+- ❌ Requesting email/name on every Sign in with Apple — only available on FIRST authorization
+- ❌ Not checking credential state on app launch — user may have revoked Apple ID connection
+- ❌ Using `.preferImmediatelyAvailableCredentials` for first-time sign up — it's for returning users only
+- ❌ Not validating identity token server-side — client tokens can be spoofed
+- ❌ Storing credentials outside Keychain — UserDefaults, files are not secure
+- ❌ Ignoring `credentialRevokedNotification` — must sign user out when received
+
+## Enriched Review Checklist
+
+- [ ] Credential state checked on every app launch (`getCredentialState`)
+- [ ] Email/name cached from first authorization (not re-requested)
+- [ ] Identity token validated on server before trusting
+- [ ] `credentialRevokedNotification` observed and handled
+- [ ] Keychain used for credential storage
+- [ ] Both `.preferImmediatelyAvailableCredentials` and interactive flows supported
+- [ ] Biometric authentication (Face ID/Touch ID) configured with proper fallback
+
 ---
 _Source: Apple Developer Documentation · Condensed for Ship Framework agent reference_

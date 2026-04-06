@@ -355,6 +355,33 @@ BGTaskScheduler.shared.register(forTaskWithIdentifier: "process") { task in
 - [ ] Tested in simulator with scheme arguments `com.apple.CoreData.ConcurrencyDebug`?
 - [ ] Database or file writes are atomic (no corruption on interrupt)?
 
+## Enriched Common Mistakes
+
+- ❌ Missing expirationHandler — task hangs without graceful cleanup
+- ❌ Registering handlers on demand instead of app startup — handlers won't be available when task fires
+- ❌ Scheduling tasks too frequently — system ignores requests < 15 minutes apart
+- ❌ Blocking main thread in background task — defeats purpose of background processing
+- ❌ Forgetting Background Tasks entitlement — enabled task never runs
+
+## Enriched Review Checklist
+
+- [ ] ExpirationHandler set on all background tasks
+- [ ] Task handlers registered in app startup (AppDelegate/SceneDelegate)
+- [ ] Task reschedule logic prevents scheduling dead-mans-switch
+- [ ] Minimum 15-minute scheduling intervals respected
+- [ ] No synchronous I/O (use async/await)
+- [ ] Background Tasks capability enabled in Xcode
+
+## BGContinuedProcessingTask (iOS 26+)
+
+Extended background runtime for long-running operations:
+
+```swift
+let request = BGContinuedProcessingTaskRequest(identifier: "com.app.extended")
+request.estimatedDuration = 60 // Estimate runtime in seconds
+try BGTaskScheduler.shared.submit(request)
+```
+
 ---
 
 _Source: Apple Developer Documentation · BackgroundTasks, URLSession, WKExtendedRuntimeSession · Condensed for Ship Framework agent reference_

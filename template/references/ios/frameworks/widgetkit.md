@@ -348,6 +348,23 @@ struct MyWidgetPushHandler: WidgetPushHandler {
 - [ ] Shared data uses App Groups `UserDefaults`
 - [ ] Widget refresh time not < 15 minutes (system limit)
 
+## Enriched Common Mistakes
+
+- ❌ Using deprecated `IntentTimelineProvider` instead of `AppIntentTimelineProvider` — the old API lacks async/await
+- ❌ Ignoring interactive widgets — add AppIntent actions for Control Center (iOS 18+)
+- ❌ Not supporting Liquid Glass rendering mode — iOS 26 requires explicit `WidgetAccentedRenderingMode` adaptation
+- ❌ Forgetting `WidgetPushHandler` registration — push-based updates require handler setup
+- ❌ Exceeding refresh budget — widgets have daily limits, don't poll excessively
+
+## Enriched Review Checklist
+
+- [ ] Using `AppIntentTimelineProvider` (not deprecated `IntentTimelineProvider`)
+- [ ] Interactive widgets configured with AppIntentConfiguration
+- [ ] Control Center iOS 18+ widgets implemented
+- [ ] Liquid Glass rendering mode tested (iOS 26+)
+- [ ] WidgetPushHandler registered for push updates
+- [ ] Timeline refresh budget respected (not excessive polling)
+
 ## visionOS Widgets
 
 - Mounting styles: `.elevated` (floating on surface), `.recessed` (embedded in wall/surface).

@@ -306,6 +306,24 @@ let combined = MatterAddDeviceRequest.DeviceCriteria.all([
 - [ ] UI updates run on main thread (from background completion handlers)
 - [ ] Automatic reconnection handled via delegate (no manual retry loops)
 
+## Enriched Common Mistakes
+
+- ❌ Not checking homeManager.homes for nil — app crashes when HomeKit unavailable
+- ❌ Blocking UI on characteristic reads/writes — completion handlers run off main thread
+- ❌ Not verifying characteristic type before reading — crashes if characteristic missing
+- ❌ Not handling "Home Not Invited" scenario — user removed from shared home
+- ❌ Modifying characteristic without permission checks — may write invalid values
+
+## Enriched Review Checklist
+
+- [ ] homeManager.homes checked for nil
+- [ ] All characteristic operations wrapped in error handlers
+- [ ] Characteristic types verified before access
+- [ ] "Home Not Invited" scenario handled gracefully
+- [ ] Characteristic values validated against metadata before write
+- [ ] Matter device criteria patterns used correctly
+- [ ] UI updates dispatched to main thread from callbacks
+
 ---
 
 _Source: Apple Developer Documentation · Condensed for Ship Framework agent reference_

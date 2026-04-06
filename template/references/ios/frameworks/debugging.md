@@ -2,6 +2,8 @@
 
 > **When to read:** Dev reads this when profiling performance, debugging memory leaks, tracking network requests, or investigating SwiftUI rendering issues.
 
+> **Cross-reference:** For SwiftUI-specific performance profiling, see `swiftui-core.md` Section 10. This file covers general debugging, memory, and Instruments.
+
 ---
 
 ## Triage
@@ -409,6 +411,23 @@ let result = await cacheActor.getCached("key")
 - [ ] os_signpost markers added for long operations?
 - [ ] Database queries profiled for N+1 problems?
 - [ ] Breakpoints and conditional breakpoints used for debugging?
+
+## Enriched Common Mistakes
+
+- ❌ Profiling Debug builds — always profile Release builds (Debug has optimizations disabled)
+- ❌ Using `print()` for production logging — use `os.Logger` with proper subsystem/category
+- ❌ Ignoring Memory Graph Debugger — it catches retain cycles Instruments misses
+- ❌ Not checking Thread Checker — data races in Swift Concurrency are silent until crash
+- ❌ Treating 250ms hangs as acceptable — the main thread hang threshold is 250ms in MetricKit
+
+## Enriched Review Checklist
+
+- [ ] Profiling done on Release builds, not Debug
+- [ ] `os.Logger` used instead of `print()` for production logging
+- [ ] Memory Graph Debugger run to check for retain cycles
+- [ ] Thread Checker enabled during development
+- [ ] No main thread hangs > 250ms
+- [ ] `xctrace` CLI available for automated performance testing
 
 ---
 

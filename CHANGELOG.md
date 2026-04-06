@@ -6,6 +6,40 @@ To update an existing project, run `bash ship-update.sh` from your project root,
 
 ---
 
+## 2026.04.07 — iOS Muscle: Deep Framework Enrichment
+
+### Core Reference Enrichment
+- **swiftui-core.md** — Added ~800 lines: NavigationSplitView, sheet detents, iOS 26 tabs, deep linking, PhaseAnimator, KeyframeAnimator, @Animatable macro, gesture composition, @GestureState, grid layouts, iOS 26 layout APIs, MV pattern, @Observable ownership rules, Coordinator pattern, UIHostingController. NEW Section 10: Performance Diagnostics (Instruments workflow, Self._printChanges, identity/lifetime, lazy loading). Common Mistakes added to every section.
+- **swift-essentials.md** — Added ~700 lines: if/switch expressions, typed throws, Never type, Regex builders, FormatStyle API, modern collection APIs. Swift 6.3 concurrency (SE-0466 default MainActor, SE-0493 async defer, SE-0473 clock epochs), concurrency error triage, Sendable rules table, synchronization primitives (Mutex, Atomic). NEW sections: Codable Patterns, Swift Testing framework.
+
+### Framework Reference Enrichment
+- **All 47 existing framework references** now include Common Mistakes (5-8 anti-patterns each) and Review Checklists (5-8 verification items each). Crit and Eye use these during /ship-review.
+- **swiftdata.md** — Major enrichment: schema versioning, @ModelActor for background ops, type-safe #Predicate, PersistentIdentifier patterns.
+- **storekit.md** — Added Family Sharing, subscription grace periods, SubscriptionStoreView.
+- **authentication.md** — Added credential state lifecycle, identity token validation.
+- **healthkit.md** — Added HKSampleQueryDescriptor async/await, empty-results-on-denial pattern.
+- **cloudkit.md** — Added CKSyncEngine (iOS 17+) as recommended sync approach.
+- **coreml.md** — Added async loading, MLTensor (iOS 18+), MLState stateful prediction.
+- **debugging.md** — Added Memory Graph Debugger workflow, 250ms hang threshold, os_signpost.
+- **networking.md** — Added token refresh pattern, exponential backoff, middleware architecture.
+- **accessibility.md** — Added VoiceOver reading order, focus restoration, custom rotors.
+
+### 14 New Framework References
+- **Common:** avkit.md, pdfkit.md, cryptokit.md, financekit.md
+- **Gaming:** gamekit.md, spritekit.md, scenekit.md (with deprecation note), tabletopkit.md
+- **Specialized:** accessorysetupkit.md, dockkit.md, sensorkit.md, browserenginekit.md, appmigrationkit.md, cryptotokenkit.md
+
+### Routing Updates
+- **ship-team.md** — Added Gaming Stack routing (items 22-25), framework Review Checklist routing for Crit
+- **ship-review.md** — Crit now reads framework Review Checklists during review
+- **ship-build.md** — Dev reads framework Common Mistakes before building
+- **team-rules.md** — Added swiftui-core.md Section 10 routing for Dev and Crit
+
+### Cross-Reference Notes
+5 overlap quality fixes: swiftui-core.md ↔ ux-principles.md (performance), swift-essentials.md ↔ swiftui-core.md (concurrency), webkit.md ↔ swiftui-core.md, accessibility.md ↔ ux-principles.md, debugging.md ↔ swiftui-core.md
+
+---
+
 ## 2026.04.06 — Depth Evolution: New Commands, Session Memory, QA Consolidation
 
 ### New Commands

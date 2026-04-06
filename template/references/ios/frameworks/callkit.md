@@ -455,6 +455,24 @@ class VoIPManager {
 - [ ] Call Directory phone numbers in ascending E.164 order (Int64 format)
 - [ ] Call Directory loader handles both incremental and full refresh contexts
 
+## Enriched Common Mistakes
+
+- ❌ Not calling action.fulfill() or action.fail() — UI hangs, user perceives frozen app
+- ❌ Reporting incoming call without implementing CXProviderDelegate — call never connects
+- ❌ Not calling reportNewIncomingCall before VoIP push completion handler returns — call dismissed
+- ❌ Creating multiple CXProvider instances — causes conflicts and crashes
+- ❌ Missing CallKit entitlement or VoIP background mode — system won't wake app
+
+## Enriched Review Checklist
+
+- [ ] Every CXProviderDelegate action fulfills or fails immediately
+- [ ] CXProviderDelegate methods fully implemented
+- [ ] VoIP push completion called after reportNewIncomingCall
+- [ ] Single CXProvider singleton instance
+- [ ] CallKit capability and VoIP background mode enabled
+- [ ] AVAudioSession properly configured for VoIP
+- [ ] Phone numbers in E.164 format for Call Directory
+
 ---
 
 _Source: Apple Developer Documentation · Condensed for Ship Framework agent reference_

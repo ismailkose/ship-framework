@@ -1671,6 +1671,68 @@ Use this checklist when reviewing any chat UI implementation.
 
 ---
 
+## Common Mistakes
+
+- ❌ Not virtualizing long message lists — renders all messages, kills performance on 100+ messages
+- ❌ Animating messages on every chat re-open — causes replay animations. Use `isMessageSendAnimating` flag to trigger only on send.
+- ❌ Hard-coding blank size — dynamic based on keyboard state, composer height, content height. Recalculate on layout changes.
+- ❌ Streaming assistant messages without rate limiting — concurrent word animations cause jank. Use animation pool (max 4 words).
+- ❌ Re-parsing all markdown on every token — expensive operation. Parse incrementally as tokens arrive.
+- ❌ Handling keyboard without interactive dismissal — feels non-native. Use `.scrollDismissesKeyboard(.interactively)` on iOS 16+.
+- ❌ Floating composer without blur/glass effect — looks flat, breaks immersion. Use Liquid Glass pattern (iOS 18+).
+
+---
+
+## Review Checklist
+
+### Message Flow
+- [ ] New user messages animate in smoothly (spring, ~300-400ms)
+- [ ] User message completion callback fires before assistant message appears
+- [ ] Assistant messages fade in with staggered streaming animation
+- [ ] Opening existing chats scrolls to end WITHOUT animation replay
+- [ ] Animation flag (`isMessageSendAnimating`) prevents replay on chat re-open
+
+### Scroll Behavior
+- [ ] User messages scroll to top of visible area (not bottom)
+- [ ] Blank size (distance to bottom) calculated dynamically
+- [ ] Blank size recalculates when keyboard state, composer, or content changes
+- [ ] Scroll position synced with blank size changes
+- [ ] Scrolling up doesn't shift keyboard away
+
+### Composer
+- [ ] Floats above content with Liquid Glass blur (iOS 18+) or semi-transparent background
+- [ ] Sticks above keyboard even during interactive dismissal
+- [ ] Height changes cascade to scroll position (only when at bottom)
+- [ ] Swipe-up gesture focuses text input
+- [ ] Supports image/file paste from Photos, Files, clipboard
+- [ ] Multiline input grows without horizontal scroll indicators
+
+### Streaming
+- [ ] Text fades in word-by-word (32ms stagger between batches)
+- [ ] Animation pool limits concurrent animations (max 4 words)
+- [ ] Already-seen content renders immediately (no re-animation)
+- [ ] Markdown parsed incrementally (not full re-parse per token)
+- [ ] Code blocks include copy button with haptic feedback
+- [ ] Stream updates don't cause layout thrashing
+
+### Performance
+- [ ] Message list virtualized (only visible messages rendered)
+- [ ] Message views implement equality checks or memo optimization
+- [ ] Animation state updates don't trigger re-renders
+- [ ] Scroll operations debounced (~16ms)
+- [ ] Height measurements batched
+- [ ] Keyboard transitions smooth without jitter
+
+### Platform (iOS)
+- [ ] Interactive keyboard dismissal enabled (`.scrollDismissesKeyboard(.interactively)`)
+- [ ] Liquid Glass follows Apple guidelines (no glass-on-glass stacking)
+- [ ] Context menus use native system menus
+- [ ] Sheets use morphing transitions where appropriate
+- [ ] Initial scroll position set to bottom (`.defaultScrollAnchor(.bottom)`)
+- [ ] Content insets adjust for safe areas and keyboard
+
+---
+
 ## Resources
 
 - [How we built the v0 iOS app](https://vercel.com/blog/how-we-built-the-v0-ios-app) — Vercel engineering blog

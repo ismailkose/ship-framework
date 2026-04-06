@@ -401,6 +401,103 @@ var tileColor: Color {
 - Use generated asset symbols: `Image(.avatar)` over `Image("avatar")` — type-safe, catches missing assets at compile time.
 - Use `#Preview { }` — never the legacy `PreviewProvider` protocol.
 
+### If/Switch Expressions (Swift 5.9+)
+
+Use if/switch as expressions that return values:
+
+```swift
+let icon = if isEnabled { "checkmark.circle.fill" } else { "xmark.circle" }
+
+let color: Color = switch priority {
+  case .high: .red
+  case .medium: .orange
+  case .low: .green
+}
+```
+
+### Typed Throws
+
+Specify exact error types for better caller handling:
+
+```swift
+enum NetworkError: Error {
+  case noConnection, timeout, serverError(Int)
+}
+
+func fetchData() throws(NetworkError) -> Data {
+  guard isConnected else { throw .noConnection }
+  // ...
+}
+
+// Caller gets typed catch:
+do {
+  let data = try fetchData()
+} catch .noConnection {
+  showOfflineUI()
+} catch .timeout {
+  retryWithBackoff()
+} catch .serverError(let code) {
+  logServerError(code)
+}
+```
+
+### Never Type
+
+Use `Never` for functions that don't return:
+
+```swift
+func fatalConfiguration() -> Never {
+  fatalError("Missing required configuration")
+}
+
+// As generic constraint — Result that can't fail:
+typealias Infallible<T> = Result<T, Never>
+```
+
+### Regex Builders (Swift 5.7+)
+
+```swift
+import RegexBuilder
+
+let datePattern = Regex {
+  Capture { One(.digit).repeating(count: 4) }  // year
+  "-"
+  Capture { One(.digit).repeating(1...2) }     // month
+  "-"
+  Capture { One(.digit).repeating(1...2) }     // day
+}
+
+if let match = dateString.firstMatch(of: datePattern) {
+  let (_, year, month, day) = match.output
+}
+```
+
+### FormatStyle API
+
+```swift
+// Numbers
+let price = 42.5.formatted(.currency(code: "USD"))  // "$42.50"
+let percent = 0.85.formatted(.percent)                // "85%"
+let compact = 1_500_000.formatted(.number.notation(.compactName))  // "1.5M"
+
+// Dates
+let relative = date.formatted(.relative(presentation: .named))  // "yesterday"
+let custom = date.formatted(.dateTime.month(.wide).day().year())  // "April 6, 2026"
+
+// Duration
+let duration = Duration.seconds(3723).formatted(.time(pattern: .hourMinuteSecond))  // "1:02:03"
+
+// Lists
+let list = ["Red", "Blue", "Green"].formatted(.list(type: .and))  // "Red, Blue, and Green"
+```
+
+### Swift Language Common Mistakes
+- ❌ Using `guard` for simple nil checks that don't need early return — `if let` is clearer
+- ❌ Force unwrapping in production code — always handle optionals safely
+- ❌ Using existential types (`any Protocol`) when opaque types (`some Protocol`) work — opaque is faster
+- ❌ Encoding `Date` with default strategy (`.deferredToDate` → timeIntervalSinceReferenceDate) — use `.iso8601`
+- ❌ Manual JSON key mapping when `CodingKeys` enum handles it
+
 ### Review Checklist
 - [ ] All enum cases handled in switch statements
 - [ ] Error types are specific, not generic `Error`
@@ -415,6 +512,8 @@ var tileColor: Color {
 ---
 
 ## Section 2: Concurrency (Swift 6.2)
+
+> For SwiftUI-specific concurrency patterns (@Observable, .task, MainActor views), see `swiftui-core.md` Section 7. This section covers Swift language-level concurrency.
 
 Swift 6.2 brings comprehensive tools for safe concurrent code. Master the triage workflow and synchronization primitives.
 
@@ -823,13 +922,98 @@ Every async entry point in your code should have explicit cancellation handling:
 
 ### Swift 6.3 Updates
 
-Swift 6.3 (Xcode 26.4, March 2026) adds:
-- **`@c` attribute** — expose Swift functions/enums to C code (embedded/systems programming).
-- **`@specialize`** — provide pre-specialized implementations of generic APIs for common types.
-- **`@inline(always)`** — guarantee function inlining for direct calls.
-- **Android SDK** — first stable Swift SDK for Android development.
+**SE-0466 — Default MainActor Isolation:** In Swift 6.3, top-level code and types not explicitly annotated are isolated to `@MainActor` by default. Opt out explicitly:
 
-These are primarily library-author and cross-platform features. No changes to concurrency model or actor isolation rules from Swift 6.2.
+```swift
+nonisolated func backgroundWork() async {
+  // Runs off main actor
+}
+
+// Or mark entire type:
+nonisolated class DataProcessor {
+  // All members are nonisolated
+}
+```
+
+**SE-0493 — Async Defer:**
+```swift
+func processFile() async throws {
+  let handle = try await openFile()
+  async defer { await handle.close() }  // runs even on throw
+  // ... work with file
+}
+```
+
+**SE-0473 — Clock Epochs:**
+```swift
+let deadline = ContinuousClock.Instant.now + .seconds(30)
+// ContinuousClock doesn't pause during sleep — use for network timeouts
+// SuspendingClock pauses during sleep — use for UI timers
+```
+
+### Concurrency Error Triage
+
+3-step workflow when compiler reports isolation errors:
+
+1. **Identify the boundary** — Which actor is the code on? Which actor does it need to reach?
+2. **Choose the fix:**
+   - Same actor → no fix needed
+   - Different actor → `await` the call
+   - Non-isolated → mark `nonisolated` or use `sending`
+3. **Verify Sendable** — data crossing actor boundaries must be `Sendable`
+
+### Actor Isolation Core Principles
+
+1. Actor-isolated state can only be accessed from within the actor
+2. Calls between actors are always `async` (even if the method isn't)
+3. `@MainActor` is a global actor — all UI code lives here
+
+### Sendable Rules
+
+| Type | Sendable? | How |
+|---|---|---|
+| Value types (struct, enum) | ✅ Automatic | If all stored properties are Sendable |
+| Actor | ✅ Always | Actors are inherently safe |
+| Final class | ✅ Manual | Conform to `Sendable`, ensure thread safety |
+| Non-final class | ❌ Never | Can't guarantee subclass safety |
+| Closure | ✅ Explicit | Use `@Sendable` annotation |
+
+### Synchronization Primitives
+
+```swift
+// Mutex (Swift 6+) — lightweight synchronization
+import Synchronization
+let counter = Mutex(0)
+counter.withLock { $0 += 1 }
+
+// Atomic (Swift 6+) — lock-free for simple values
+let flag = Atomic(false)
+flag.store(true, ordering: .releasing)
+
+// OSAllocatedUnfairLock — iOS 16+, replaces os_unfair_lock
+let lock = OSAllocatedUnfairLock(initialState: 0)
+lock.withLock { state in state += 1 }
+```
+
+### @Observable with Concurrency
+
+```swift
+// Observations block — react to Observable changes off-main-actor
+let changes = Observations {
+  model.items  // tracked property
+}
+for await items in changes {
+  await processInBackground(items)
+}
+```
+
+### Concurrency Common Mistakes
+- ❌ Using `nonisolated(unsafe)` as a quick fix — it silences the compiler but doesn't fix the race
+- ❌ Creating `Task { }` inside `body` — use `.task` modifier instead (automatic cancellation)
+- ❌ Blocking main actor with synchronous work — use `Task.detached` for heavy computation
+- ❌ Assuming `Task.cancel()` stops execution — check `Task.isCancelled` inside the task
+- ❌ Using `DispatchQueue.main.async` in SwiftUI — use `@MainActor` instead
+- ❌ Making every class `@unchecked Sendable` — fix the actual thread safety issue
 
 ---
 

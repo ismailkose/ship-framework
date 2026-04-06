@@ -303,5 +303,23 @@ func reverseGeocode(coordinate: CLLocationCoordinate2D) async {
 - [ ] `.mapInteractionModes()` restricts gestures appropriately
 - [ ] Cycling directions support (iOS 26+) when applicable
 
+## Enriched Common Mistakes
+
+- ❌ Not adding location privacy strings in Info.plist — permission request will fail silently
+- ❌ Not checking authorization status before using location — crashes if permission denied
+- ❌ Using deprecated CLLocationManagerDelegate instead of CLLocationUpdate.liveUpdates() — old API is complex
+- ❌ Synchronous geocoding blocking main thread — always use async/await
+- ❌ Not limiting MKLocalSearch results with region — returns worldwide results, inefficient
+
+## Enriched Review Checklist
+
+- [ ] Location privacy strings in Info.plist
+- [ ] Authorization status checked before accessing location
+- [ ] CLLocationUpdate.liveUpdates() used (iOS 17+)
+- [ ] All geocoding/search async (no main thread blocking)
+- [ ] MKLocalSearch queries include region parameter
+- [ ] Location updates properly stopped when done
+- [ ] Permission denial handled gracefully
+
 ---
 _Source: Apple Developer Documentation · Condensed for Ship Framework agent reference_

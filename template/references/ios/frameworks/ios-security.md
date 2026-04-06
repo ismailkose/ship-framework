@@ -202,4 +202,37 @@ let decrypted = try AES.GCM.open(box, using: key)
 
 ---
 
+## Common Mistakes
+
+- ❌ Storing tokens in UserDefaults — plaintext XML, readable from backups. Use Keychain with proper accessibility tier.
+- ❌ Using `LAContext.evaluatePolicy()` alone for authentication — trivially bypassable via Frida. Use hardware-bound secrets (Secure Enclave).
+- ❌ Hardcoding API keys in source code — extractable via `strings`. Fetch from server at app startup.
+- ❌ Missing `kSecAttrAccessible` on Keychain items — defaults to `WhenUnlocked`, breaks background operations and widgets.
+- ❌ Storing sensitive data in @AppStorage — plaintext in UserDefaults. Always use Keychain for credentials.
+- ❌ Not handling `errSecInteractionNotAllowed` — device locked, don't delete, retry later gracefully.
+- ❌ Deleting and re-adding Keychain items instead of update — causes race conditions, inconsistent state on crash.
+
+---
+
+## Review Checklist
+
+- [ ] All credentials stored in Keychain (not UserDefaults, not Core Data)
+- [ ] Keychain items use appropriate `kSecAttrAccessible` tier for use case
+- [ ] Biometric authentication uses hardware-bound secrets (Secure Enclave), not boolean gates
+- [ ] Sensitive data (tokens, API keys) never logged in production
+- [ ] Keychain operations use actor pattern (not @MainActor)
+- [ ] Add-or-update pattern used (never delete-then-add)
+- [ ] `kSecMatchLimit` set explicitly on update/delete queries
+- [ ] Token refresh is atomic (add new before deleting old)
+- [ ] Logout clears ALL credential artifacts (tokens, refresh tokens, biometric keys)
+- [ ] App Transport Security enabled (HTTP requires documented exception)
+- [ ] CryptoKit uses AES.GCM or ChaChaPoly (not MD5/SHA1 for security)
+- [ ] No nonce reuse under same key (unique per encryption operation)
+- [ ] Post-quantum cryptography (ML-KEM/ML-DSA) considered for iOS 26+
+- [ ] Secure Enclave operations skip Simulator (unreliable, test on device)
+- [ ] Error handling covers `errSecInteractionNotAllowed` (device locked)
+- [ ] Tests mock Keychain via protocol abstraction
+
+---
+
 _Source: Swift Security Expert skill (ivan-magda), OWASP MASVS 2024, Apple Security documentation · Condensed for Ship Framework agent reference_

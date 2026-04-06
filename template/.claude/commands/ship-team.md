@@ -102,7 +102,7 @@ When the task involves building UI, you MUST ensure:
 13. **Pol reads `references/shared/design-quality.md`** during review — first impression assessment, AI slop detection, cross-page consistency, visual coherence. **Eye reads Sections 2-4** for visual quality audit.
 14. **Pol reads `references/shared/design-research.md`** during planning when no design system exists yet — competitive research, design direction, DESIGN.md creation.
 15. **Dev reads `references/shared/interaction-design.md` Sections 1-2** when building interactive components — 8-state model (default, hover, focus, active, disabled, loading, error, success), micro-interaction timing, button state machines. **Pol reads Section 1** to audit state coverage. **Eye reads Sections 1-2** to verify all states render correctly. **Crit reads Section 1** for missing states that cause accessibility failures.
-16. **Dev reads `references/shared/hardening-guide.md`** before shipping — error boundaries, edge case tables, network error patterns, pre-launch checklist. **Test reads Sections 2-3** for edge case testing (text, numeric, timing, file upload, auth). **Crit reads Section 1** for error recovery impact on task success.
+16. **Dev reads `references/shared/hardening-guide.md`** before shipping — error boundaries, edge case tables, network error patterns, pre-launch checklist. **Test reads Sections 2-3** for edge case testing (text, numeric, timing, file upload, auth). **Crit reads Section 1** for error recovery impact on task success. **Crit reads the Review Checklist in the relevant `references/ios/frameworks/` file** when reviewing framework-specific code — every framework reference now includes Common Mistakes and a Review Checklist.
 17. **Pol reads `references/shared/copy-clarity.md`** during review — voice consistency, AI copy slop detection (exclamation inflation, vague value props, synonym cycling). **Vi reads Section 1** when defining voice and tone. **Crit reads Section 2** for copy clarity review (button labels, error messages, empty states). **Dev reads Section 2** for copy implementation patterns.
 18. **Arc reads `references/shared/spatial-design.md` Sections 1-2** when planning layout architecture — spacing systems, density strategy (high/medium/low matches product type). **Dev reads Sections 1-3** when implementing spacing tokens and whitespace. **Pol reads Sections 1-3** to audit spacing consistency, density, content-to-chrome ratio.
 
@@ -128,6 +128,13 @@ When the task involves building UI, you MUST ensure:
 20. **Dev reads `references/web/web-accessibility.md`** when building any web UI — semantic HTML, ARIA, focus management, screen reader patterns.
 21. **Arc reads `references/web/web-performance.md`** when planning — Core Web Vitals targets. **Dev reads** when optimizing images, fonts, bundles.
 
+### Gaming Stack (when project includes games)
+
+22. **Dev reads `references/ios/frameworks/gamekit.md`** when building Game Center features — authentication, leaderboards, achievements, multiplayer.
+23. **Dev reads `references/ios/frameworks/spritekit.md`** when building 2D game scenes — nodes, actions, physics, touch handling.
+24. **Dev reads `references/ios/frameworks/scenekit.md`** when building 3D scenes — note: maintenance mode post-WWDC 2025, prefer RealityKit for new projects.
+25. **Dev reads `references/ios/frameworks/tabletopkit.md`** when building visionOS multiplayer board games.
+
 ### Android Stack Only
 
 *(When references/android/ has content, load Android-specific references here)*
@@ -142,6 +149,7 @@ When the task involves building UI, you MUST ensure:
 
 - **Shared (items 1-18):** Load for all stacks. Core design intelligence.
 - **iOS (items 15-23):** Load when the stack includes SwiftUI, iOS, or mobile.
+- **Gaming (items 22-25):** Load when the project is a game or includes Game Center.
 - **Web (items 19-21 + 24-26):** Load when the stack includes React, Next.js, or web.
 - **Android (placeholder):** Load when the stack includes Android.
 - **Chat (items 27-29):** Load when the project includes a chat or conversational AI interface, regardless of stack.

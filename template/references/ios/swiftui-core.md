@@ -396,6 +396,119 @@ struct SettingsView {
 - `.largeSubtitle` placement — subtitle under large navigation title.
 - `sharedBackgroundVisibility(.hidden)` — hides the shared glass background behind toolbar items.
 
+### NavigationSplitView (Multi-Column)
+
+Use `NavigationSplitView` for two-column or three-column layouts (iPad, Mac Catalyst).
+
+```swift
+// Two-column
+NavigationSplitView {
+  List(categories, selection: $selectedCategory) { category in
+    NavigationLink(category.name, value: category)
+  }
+} detail: {
+  if let category = selectedCategory {
+    CategoryDetail(category: category)
+  } else {
+    ContentUnavailableView("Select a Category", systemImage: "folder")
+  }
+}
+
+// Three-column
+NavigationSplitView {
+  SidebarView(selection: $selectedCategory)
+} content: {
+  if let category = selectedCategory {
+    CategoryListView(category: category, selection: $selectedItem)
+  }
+} detail: {
+  if let item = selectedItem {
+    ItemDetailView(item: item)
+  }
+}
+```
+
+Control column visibility with `NavigationSplitViewVisibility`:
+- `.automatic` — system decides
+- `.all` — show all columns
+- `.doubleColumn` — show two columns
+- `.detailOnly` — show detail only
+
+### Sheet Presentation (iOS 16+)
+
+```swift
+.sheet(isPresented: $showSheet) {
+  SheetContent()
+    .presentationDetents([.medium, .large])        // snap points
+    .presentationDragIndicator(.visible)            // grabber bar
+    .presentationCornerRadius(20)                   // corner radius
+    .presentationBackground(.ultraThinMaterial)     // background
+    .presentationContentInteraction(.scrolls)       // scroll vs resize
+    .interactiveDismissDisabled(hasUnsavedChanges)  // prevent dismiss
+}
+```
+
+Custom height detents:
+```swift
+.presentationDetents([
+  .fraction(0.3),        // 30% of screen
+  .height(200),          // fixed 200pt
+  .medium,               // system medium
+  .large                 // full height
+])
+```
+
+### iOS 26 Tab Enhancements
+
+```swift
+TabView {
+  Tab("Home", systemImage: "house") { HomeView() }
+  Tab("Browse", systemImage: "magnifyingglass") { BrowseView() }
+  Tab(role: .search) { SearchView() }  // search role — iOS 26
+
+  TabSection("Library") {
+    Tab("Favorites", systemImage: "heart") { FavoritesView() }
+    Tab("Downloads", systemImage: "arrow.down") { DownloadsView() }
+  }
+}
+.tabViewStyle(.sidebarAdaptable)  // sidebar on iPad, tab bar on iPhone
+```
+
+### Deep Linking
+
+**Universal Links (recommended):**
+1. Create Apple App Site Association (AASA) file at `https://yourdomain.com/.well-known/apple-app-site-association`
+2. Handle in SwiftUI:
+```swift
+.onOpenURL { url in
+  // Parse URL and navigate
+  if let route = AppRoute(from: url) {
+    navigationPath.append(route)
+  }
+}
+```
+
+**NSUserActivity Handoff:**
+```swift
+.userActivity("com.app.viewing") { activity in
+  activity.isEligibleForHandoff = true
+  activity.targetContentIdentifier = item.id.uuidString
+}
+.onContinueUserActivity("com.app.viewing") { activity in
+  // Restore state from activity
+}
+```
+
+### Navigation Common Mistakes
+- ❌ Using deprecated `NavigationView` — always use `NavigationStack` or `NavigationSplitView`
+- ❌ Putting `.navigationDestination` inside a `NavigationLink` — place it on the `List` or parent container
+- ❌ Multiple `NavigationStack`s nested — one per navigation hierarchy only
+- ❌ Forgetting `Hashable` conformance on route types
+- ❌ Not testing deep link restoration after app termination
+- ❌ Using `.sheet` for drill-down — sheets are for modal tasks, not hierarchical navigation
+- ❌ Mixing programmatic and `NavigationLink(destination:)` — pick one pattern
+- ❌ Not providing empty state in `NavigationSplitView` detail column
+
 ---
 
 ## Section 2: Swift 6.2 Concurrency
@@ -808,6 +921,53 @@ VStack {
 - Always test with Reduce Transparency and Reduce Motion enabled
 - Always gate with `if #available(iOS 26, *)`
 
+### GlassEffectContainer
+
+Group multiple glass elements to render as a unified glass surface:
+
+```swift
+GlassEffectContainer {
+  HStack {
+    Button("Share", systemImage: "square.and.arrow.up") {}
+    Button("Edit", systemImage: "pencil") {}
+    Button("Delete", systemImage: "trash", role: .destructive) {}
+  }
+  .glassEffect(.regular)
+}
+```
+
+### Glass Morphing
+
+Animate between glass element identities for smooth transitions:
+
+```swift
+// Source
+Image(systemName: icon)
+  .glassEffect(.regular)
+  .glassEffectID(item.id, in: namespace)
+
+// Destination
+DetailView(item: item)
+  .glassEffect(.regular)
+  .matchedTransitionSource(id: item.id, in: namespace)
+```
+
+Glass variants:
+- `.regular` — standard frosted glass with tint
+- `.identity` — clear glass, content is the visual (for avatars, icons)
+
+### Accessibility with Liquid Glass
+- ❌ Never rely on glass transparency alone to convey state — use labels
+- ✅ Check `UIAccessibility.isReduceTransparencyEnabled` — provide opaque fallback
+- ✅ Respect `accessibilityReduceMotion` — disable morphing animations
+
+### Liquid Glass Common Mistakes
+- ❌ Nesting `glassEffect` modifiers — only one per element
+- ❌ Using glass on text-heavy content — readability suffers
+- ❌ Forgetting `GlassEffectContainer` when grouping glass elements
+- ❌ Applying glass to scrolling content without testing blur performance
+- ❌ Not testing with Reduce Transparency accessibility setting
+
 ---
 
 ## Section 4: SwiftUI Animation
@@ -1107,6 +1267,140 @@ withAnimation(reduceMotion ? .none : .spring()) {
 - Don't animate layout changes that cause content reflow
 - Use `.animation(.default, value: property)` for implicit — prefer explicit `withAnimation`
 
+### PhaseAnimator
+
+Cycle through discrete phases automatically or triggered by a value:
+
+```swift
+PhaseAnimator([0, 1, 2]) { phase in
+  Circle()
+    .scaleEffect(phase == 1 ? 1.2 : 1.0)
+    .opacity(phase == 2 ? 0.5 : 1.0)
+} animation: { phase in
+  switch phase {
+  case 0: .spring(duration: 0.3)
+  case 1: .easeInOut(duration: 0.5)
+  default: .easeOut(duration: 0.2)
+  }
+}
+```
+
+### KeyframeAnimator
+
+Multi-property timelines with precise control:
+
+```swift
+struct AnimationValues {
+  var scale: Double = 1.0
+  var rotation: Angle = .zero
+  var opacity: Double = 1.0
+}
+
+KeyframeAnimator(initialValue: AnimationValues(), trigger: trigger) { values in
+  Circle()
+    .scaleEffect(values.scale)
+    .rotationEffect(values.rotation)
+    .opacity(values.opacity)
+} keyframes: { _ in
+  KeyframeTrack(\.scale) {
+    SpringKeyframe(1.5, duration: 0.3, spring: .bouncy)
+    CubicKeyframe(1.0, duration: 0.2)
+  }
+  KeyframeTrack(\.rotation) {
+    LinearKeyframe(.degrees(360), duration: 0.5)
+  }
+  KeyframeTrack(\.opacity) {
+    LinearKeyframe(0.5, duration: 0.2)
+    LinearKeyframe(1.0, duration: 0.3)
+  }
+}
+```
+
+Keyframe types: `LinearKeyframe`, `CubicKeyframe`, `SpringKeyframe`, `MoveKeyframe` (instant jump).
+
+### @Animatable Macro (iOS 26+)
+
+Eliminates boilerplate for custom animatable properties:
+
+```swift
+@Animatable
+struct PulseEffect: ViewModifier {
+  var progress: Double  // automatically animatable
+
+  func body(content: Content) -> some View {
+    content
+      .scaleEffect(1.0 + progress * 0.2)
+      .opacity(1.0 - progress * 0.3)
+  }
+}
+```
+
+### Navigation Zoom Transitions (iOS 18+)
+
+```swift
+NavigationLink(value: item) {
+  ItemCard(item: item)
+    .matchedTransitionSource(id: item.id, in: namespace)
+}
+
+// In destination:
+DetailView(item: item)
+  .navigationTransition(.zoom(sourceID: item.id, in: namespace))
+```
+
+### ContentTransition
+
+Animate in-place text and number changes:
+
+```swift
+Text(count, format: .number)
+  .contentTransition(.numericText(countsDown: count < previousCount))
+
+Text(status)
+  .contentTransition(.interpolate)  // smooth morph between strings
+```
+
+### Symbol Effects
+
+Animate SF Symbols:
+
+```swift
+Image(systemName: "wifi")
+  .symbolEffect(.variableColor.iterative)  // animated signal strength
+  .symbolEffect(.bounce, value: triggerValue)  // bounce on change
+  .symbolEffect(.pulse)  // gentle pulse
+  .symbolEffect(.breathe)  // breathing animation
+  .symbolRenderingMode(.hierarchical)
+```
+
+### Spring Initialization Forms
+
+```swift
+// Perceptual (recommended for UI)
+.spring(duration: 0.5, bounce: 0.3)
+
+// Physical (mass-spring-damper)
+.spring(mass: 1.0, stiffness: 100, damping: 10)
+
+// Response-based
+.spring(response: 0.5, dampingFraction: 0.8)
+
+// Presets
+.spring(.bouncy)     // playful
+.spring(.smooth)     // professional
+.spring(.snappy)     // responsive
+.spring(.interactive) // following touch
+```
+
+### Animation Common Mistakes
+- ❌ Using `.animation(nil)` expecting it to disable animations — use `withAnimation(.identity)` or remove the modifier
+- ❌ Attaching `.animation()` to a container instead of specific properties — causes unexpected child animations
+- ❌ Forgetting `accessibilityReduceMotion` — always provide reduced motion alternative
+- ❌ Using `withAnimation` inside `.task` or `onAppear` without checking if view is still visible
+- ❌ Animating `frame` size changes without `matchedGeometryEffect` — causes layout jumps
+- ❌ Using `.animation(.default)` — be explicit about duration and curve
+- ❌ Not testing animation with slow animations enabled in Simulator (Debug → Slow Animations)
+
 ---
 
 ## Section 5: Gestures
@@ -1388,6 +1682,71 @@ Text("Press me")
 - Use simultaneous/sequenced composition to prevent gesture conflicts
 - Test `@GestureState` reset behavior across different scenarios
 
+### Gesture Composition
+
+Combine gestures for complex interactions:
+
+```swift
+// Simultaneous — both active at once (pinch + rotate)
+let combined = MagnifyGesture()
+  .simultaneously(with: RotateGesture())
+
+// Sequenced — second starts after first ends (long press then drag)
+let sequence = LongPressGesture(minimumDuration: 0.5)
+  .sequenced(before: DragGesture())
+
+// Exclusive — first matching gesture wins
+let exclusive = TapGesture(count: 2)
+  .exclusively(before: TapGesture(count: 1))
+```
+
+### @GestureState vs @State
+
+`@GestureState` automatically resets to initial value when gesture ends — use it for transient visual feedback:
+
+```swift
+@GestureState private var dragOffset: CGSize = .zero  // auto-resets
+@State private var finalPosition: CGSize = .zero        // persists
+
+var body: some View {
+  Circle()
+    .offset(x: finalPosition.width + dragOffset.width,
+            y: finalPosition.height + dragOffset.height)
+    .gesture(
+      DragGesture()
+        .updating($dragOffset) { value, state, _ in
+          state = value.translation  // transient — resets on end
+        }
+        .onEnded { value in
+          finalPosition.width += value.translation.width
+          finalPosition.height += value.translation.height
+        }
+    )
+}
+```
+
+### GestureMask
+
+Control which views receive gestures:
+
+```swift
+.gesture(dragGesture, including: .gesture)      // only this view
+.gesture(dragGesture, including: .subviews)     // only subviews
+.gesture(dragGesture, including: .all)          // this view + subviews
+```
+
+### Renamed Gesture APIs
+- `MagnificationGesture` → `MagnifyGesture` (use new name)
+- `RotationGesture` → `RotateGesture` (use new name)
+- `minimumAngleDelta` on `RotateGesture` — threshold before rotation starts
+
+### Gesture Common Mistakes
+- ❌ Using `@State` for drag offsets — use `@GestureState` for auto-reset
+- ❌ Putting `.gesture` on a zero-frame view — gesture needs a hit-testable area
+- ❌ Not using `.highPriorityGesture` when parent and child both have gestures
+- ❌ Forgetting `.simultaneously` when combining pinch + rotate
+- ❌ Using `TapGesture(count: 1)` when single-tap conflicts with double-tap — use `.exclusively`
+
 ---
 
 ## Section 6: Layout & Components
@@ -1639,6 +1998,90 @@ ScrollView(.horizontal) {
   }
 }
 ```
+
+### Grid Layouts
+
+```swift
+// LazyVGrid — columns
+let columns = [
+  GridItem(.fixed(100)),          // exact width
+  GridItem(.flexible(minimum: 80, maximum: 200)),  // range
+  GridItem(.adaptive(minimum: 100))  // as many as fit
+]
+
+LazyVGrid(columns: columns, spacing: 16) {
+  ForEach(items) { item in
+    ItemCard(item: item)
+  }
+}
+```
+
+### iOS 26 Layout APIs
+
+```swift
+// Safe area bar — fixed bar in safe area
+.safeAreaBar(edge: .bottom) {
+  PlayerBar()
+}
+
+// Background extension — extend content behind safe area
+.backgroundExtensionEffect(.regular)
+
+// Scroll edge effect
+ScrollView {
+  content
+}
+.scrollEdgeEffectStyle(.soft, for: .top)  // blur/fade at scroll edge
+```
+
+### Form Controls
+
+```swift
+Form {
+  Section("Account") {
+    TextField("Name", text: $name)
+    SecureField("Password", text: $password)
+  }
+
+  Section("Preferences") {
+    Picker("Theme", selection: $theme) {
+      ForEach(Theme.allCases) { Text($0.name).tag($0) }
+    }
+    Toggle("Notifications", isOn: $notificationsEnabled)
+    Stepper("Font Size: \(fontSize)", value: $fontSize, in: 12...24)
+    DatePicker("Birthday", selection: $birthday, displayedComponents: .date)
+    ColorPicker("Accent Color", selection: $accentColor)
+  }
+}
+```
+
+### Searchable
+
+```swift
+NavigationStack {
+  List(filteredItems) { item in
+    ItemRow(item: item)
+  }
+  .searchable(text: $searchText, prompt: "Search items")
+  .searchSuggestions {
+    ForEach(suggestions) { suggestion in
+      Text(suggestion.name)
+        .searchCompletion(suggestion.name)
+    }
+  }
+  .searchScopes($scope) {
+    Text("All").tag(SearchScope.all)
+    Text("Recent").tag(SearchScope.recent)
+  }
+}
+```
+
+### Layout Common Mistakes
+- ❌ Using array indices as ForEach IDs — causes wrong animations and state loss
+- ❌ Putting `GeometryReader` inside `LazyVStack` — breaks lazy loading
+- ❌ Using `ScrollView` when `List` is appropriate — lose swipe actions, selection
+- ❌ Hardcoding frame sizes instead of using flexible layout
+- ❌ Nesting `ScrollView`s in the same direction — unpredictable scroll behavior
 
 ---
 
@@ -2240,6 +2683,83 @@ Do multiple views share complex presentation state?
 - **Under-engineered:** Bare MV with 15+ screens sharing complex state → recommend MVVM or Coordinator
 - **Good fit:** Pattern matches complexity → enforce its isolation rules
 
+### MV Pattern (Model-View)
+
+Prefer lightweight MV over unnecessary ViewModels. `@Observable` makes ViewModels redundant for most views:
+
+```swift
+// ✅ Direct model observation — no ViewModel needed
+@Observable
+class UserProfile {
+  var name: String = ""
+  var avatarURL: URL?
+  var isLoading: Bool = false
+
+  func refresh() async {
+    isLoading = true
+    defer { isLoading = false }
+    // fetch from network
+  }
+}
+
+struct ProfileView: View {
+  var profile: UserProfile
+
+  var body: some View {
+    VStack {
+      Text(profile.name)
+      AsyncImage(url: profile.avatarURL)
+    }
+    .task { await profile.refresh() }
+  }
+}
+```
+
+### @Observable Ownership Rules
+
+| Scenario | Annotation | Why |
+|---|---|---|
+| View creates and owns the model | `@State` | View manages lifecycle |
+| View receives model from parent | Plain property (no wrapper) | Parent manages lifecycle |
+| Model shared across view hierarchy | `@Environment` | Injected via `.environment()` |
+| Model in SwiftData container | `@Query` | Container manages lifecycle |
+| Model used in sheet/navigation destination | Pass as parameter | Avoid @Binding to whole model |
+
+### View Composition Strategies
+
+1. **Subviews** — extract into separate structs for reuse and clarity
+2. **@ViewBuilder** — computed properties or functions returning `some View`
+3. **ViewModifier** — reusable appearance/behavior changes via `.modifier()`
+
+### View Member Ordering Convention
+
+```swift
+struct MyView: View {
+  // 1. Type aliases and nested types
+  // 2. Static properties
+  // 3. @Environment properties
+  // 4. @State / @Binding / @Query properties
+  // 5. Regular properties (let/var)
+  // 6. body
+  // 7. Subviews (private computed properties)
+  // 8. Helper methods
+}
+```
+
+### Async Data Loading
+
+```swift
+.task {
+  // Runs when view appears, cancelled when view disappears
+  await viewModel.loadData()
+}
+
+.task(id: selectedCategory) {
+  // Restarts when id changes — automatic cancellation of previous
+  await viewModel.loadItems(for: selectedCategory)
+}
+```
+
 ---
 
 ## Section 8: UIKit Interop
@@ -2496,6 +3016,112 @@ NSLayoutConstraint.activate([
 - Use `.sizeThatFits()` for proper intrinsic sizing in iOS 16+
 - Use `UIHostingConfiguration` to embed SwiftUI in collection/table cells
 - Set `sizingOptions = [.intrinsicContentSize]` on UIHostingController for proper sizing
+
+### Coordinator Pattern (Delegate Bridge)
+
+**Critical:** Assign delegates in `makeUIView`, not `updateUIView`:
+
+```swift
+struct MapViewRepresentable: UIViewRepresentable {
+  @Binding var selectedAnnotation: MapAnnotation?
+
+  func makeCoordinator() -> Coordinator {
+    Coordinator(self)
+  }
+
+  func makeUIView(context: Context) -> MKMapView {
+    let mapView = MKMapView()
+    mapView.delegate = context.coordinator  // ✅ assign here
+    return mapView
+  }
+
+  func updateUIView(_ mapView: MKMapView, context: Context) {
+    // ❌ Don't assign delegate here — called on every state update
+    // Update map state only
+  }
+
+  class Coordinator: NSObject, MKMapViewDelegate {
+    var parent: MapViewRepresentable
+    init(_ parent: MapViewRepresentable) { self.parent = parent }
+
+    func mapView(_ mapView: MKMapView, didSelect annotation: MKAnnotation) {
+      parent.selectedAnnotation = annotation as? MapAnnotation
+    }
+  }
+}
+```
+
+### UIHostingController
+
+Three-step embedding of SwiftUI in UIKit:
+
+```swift
+let hostingController = UIHostingController(rootView: SwiftUIView())
+
+// 1. Add as child
+addChild(hostingController)
+
+// 2. Add view and constrain
+view.addSubview(hostingController.view)
+hostingController.view.translatesAutoresizingMaskIntoConstraints = false
+NSLayoutConstraint.activate([
+  hostingController.view.topAnchor.constraint(equalTo: view.topAnchor),
+  hostingController.view.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+  hostingController.view.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+  hostingController.view.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+])
+
+// 3. Notify
+hostingController.didMove(toParent: self)
+```
+
+iOS 16+ sizing options:
+```swift
+hostingController.sizingOptions = .intrinsicContentSize  // auto-size
+```
+
+### UIKit Interop Common Mistakes
+- ❌ Assigning delegates in `updateUIView` — causes repeated setup
+- ❌ Forgetting `didMove(toParent:)` after adding `UIHostingController`
+- ❌ Not using `sizingOptions` on iOS 16+ — causes incorrect layout
+- ❌ Using closures when `@Binding` is needed for two-way state sync
+- ❌ Not updating Coordinator's parent reference in `updateUIView`
+
+### WebKit in SwiftUI
+
+**Choose the right tool:**
+| Need | Use |
+|---|---|
+| Display web content in your UI | `WebView` (iOS 26+) |
+| Open URL in system browser experience | `SFSafariViewController` |
+| OAuth / authentication flow | `ASWebAuthenticationSession` |
+| Full browser features | `WKWebView` via `UIViewRepresentable` (last resort) |
+
+iOS 26+ `WebView` with observable state:
+
+```swift
+@Observable
+class BrowserModel {
+  var url: URL?
+  var title: String = ""
+  var isLoading: Bool = false
+}
+
+WebView(url: browserModel.url)
+  .onNavigationStarted { browserModel.isLoading = true }
+  .onNavigationFinished { browserModel.isLoading = false }
+```
+
+JavaScript integration:
+```swift
+webView.callJavaScript("document.title") { result in
+  // handle result
+}
+```
+
+- ❌ Don't wrap `WKWebView` manually when `WebView` (iOS 26+) is available
+- ❌ Don't use custom URL schemes for arbitrary third-party content
+- ✅ Use `NavigationDeciding` protocol to intercept and handle navigation
 
 ---
 
@@ -2858,6 +3484,107 @@ extension View {
 VStack { /* content */ }
   .glassCard()
 ```
+
+---
+
+## Section 10: Performance Diagnostics
+
+> **When to read:** Dev reads when optimizing SwiftUI performance.
+> Crit reads when reviewing for performance issues.
+> For design-level performance decisions (perceived speed, skeleton screens, optimistic UI),
+> see `shared/ux-principles.md` Section 3. This section covers SwiftUI-specific profiling.
+
+### Diagnostic Workflow
+
+```
+Code Review → Profile in Instruments → Diagnose → Remediate → Verify
+```
+
+**Step 1: Code-First Review** — check for these antipatterns before profiling:
+
+1. `UUID()` in `.id()` modifier — forces complete view recreation every update
+2. `@Observable` class with many properties but view only reads one — use granular access
+3. `GeometryReader` inside `LazyVStack` — defeats lazy loading
+4. `AnyView` type erasure — breaks SwiftUI's structural identity
+5. `.animation()` on container instead of specific property
+6. Fetching data in `body` — use `.task` or `.onAppear`
+7. Large `body` with many conditionals — extract subviews
+
+**Step 2: Profile with Instruments**
+
+Three SwiftUI-specific instruments:
+- **SwiftUI View Body** — shows which view bodies are re-evaluated and how often
+- **SwiftUI View Properties** — tracks @State/@Binding changes triggering updates
+- **Core Animation Commits** — measures actual rendering time per frame
+
+**Step 3: Debug with `Self._printChanges()`**
+
+```swift
+var body: some View {
+  let _ = Self._printChanges()  // Debug only — prints which property changed
+  // ... view content
+}
+```
+
+Output shows exactly which property triggered the re-evaluation.
+
+### Identity and Lifetime
+
+Three identity types in SwiftUI:
+
+1. **Structural identity** — SwiftUI infers from position in view tree (default)
+2. **Explicit identity** — `.id(stableValue)` — must be stable across updates
+3. **AnyView** — erases identity entirely — avoid in performance-critical paths
+
+**Rule:** Stable identity = stable state. If `.id()` changes, SwiftUI destroys and recreates the view and all its state.
+
+### Lazy Loading Decision Tree
+
+```
+Need scrolling list?
+├── Yes → Is data homogeneous?
+│   ├── Yes → List (with selection, swipe, editing)
+│   └── No → LazyVStack inside ScrollView
+└── No → VStack (always loads all children)
+```
+
+- `LazyVStack` / `LazyHStack` — creates views on demand as they scroll into view
+- `LazyVGrid` / `LazyHGrid` — grid layout with lazy loading
+- Never put `GeometryReader` inside lazy containers
+- Use `.onAppear` / `.onDisappear` on items for prefetching
+
+### State Observation Optimization
+
+```swift
+// ❌ Observing entire model — view updates when ANY property changes
+struct BadView: View {
+  var model: BigModel  // reads all 20 properties
+  var body: some View {
+    Text(model.name)  // only needs .name but updates for .count, .date, etc.
+  }
+}
+
+// ✅ Granular access — view only updates when accessed properties change
+struct GoodView: View {
+  var model: BigModel
+  var body: some View {
+    let name = model.name  // only this property is tracked
+    Text(name)
+  }
+}
+```
+
+### Performance Review Checklist
+- [ ] No `UUID()` or random values in `.id()` modifiers
+- [ ] No `AnyView` in lists or frequently-updated views
+- [ ] `@Observable` properties accessed granularly (not entire model)
+- [ ] Lazy containers used for scrolling content (10+ items)
+- [ ] No `GeometryReader` inside lazy containers
+- [ ] `.task(id:)` used instead of `.onChange` + manual cancellation
+- [ ] Heavy computations moved to background with `Task.detached`
+- [ ] Images use `AsyncImage` or proper caching, not inline `UIImage`
+- [ ] Animations use explicit values, not `.animation(.default)` on containers
+- [ ] Profiled with Instruments before claiming "fast enough"
 
 ---
 

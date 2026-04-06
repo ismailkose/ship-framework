@@ -1,6 +1,6 @@
 # Ship Framework
 
-`v2026.04.06` · 19 deep references · 10 personas · 21 commands
+`v2026.04.07` · 61 framework references · 10 personas · 21 commands
 
 **An AI product team in your terminal.**
 
@@ -136,7 +136,7 @@ Declare your stack once. Ship only loads what's relevant:
 Stack: web (Next.js, Tailwind, Vercel)
 ```
 
-Web project? You get web references. iOS project? You get Apple HIG, SwiftUI patterns, and 47 framework guides. Android? Material 3 and Compose patterns. No irrelevant context cluttering your sessions.
+Web project? You get web references. iOS project? You get Apple HIG, SwiftUI patterns, and 61 framework guides. Android? Material 3 and Compose patterns. No irrelevant context cluttering your sessions.
 
 ---
 

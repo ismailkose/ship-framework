@@ -167,6 +167,100 @@ final class Author {
 - [ ] `propertiesToFetch` and `fetchIdentifiers` used for large result sets
 - [ ] `@ModelActor` used for background work instead of `@MainActor`
 
+## Schema Versioning and Migration
+
+```swift
+enum SchemaV1: VersionedSchema {
+  static var versionIdentifier = Schema.Version(1, 0, 0)
+  static var models: [any PersistentModel.Type] { [Item.self] }
+
+  @Model class Item {
+    var name: String
+    init(name: String) { self.name = name }
+  }
+}
+
+enum SchemaV2: VersionedSchema {
+  static var versionIdentifier = Schema.Version(2, 0, 0)
+  static var models: [any PersistentModel.Type] { [Item.self] }
+
+  @Model class Item {
+    var name: String
+    var category: String  // new field
+    init(name: String, category: String = "General") {
+      self.name = name
+      self.category = category
+    }
+  }
+}
+
+enum MigrationPlan: SchemaMigrationPlan {
+  static var schemas: [any VersionedSchema.Type] { [SchemaV1.self, SchemaV2.self] }
+  static var stages: [MigrationStage] {
+    [.lightweight(fromVersion: SchemaV1.self, toVersion: SchemaV2.self)]
+  }
+}
+```
+
+## @ModelActor for Background Operations
+
+```swift
+@ModelActor
+actor DataProcessor {
+  func importItems(_ rawItems: [RawItem]) throws {
+    for raw in rawItems {
+      let item = Item(name: raw.name)
+      modelContext.insert(item)
+    }
+    try modelContext.save()
+  }
+}
+
+// Usage — safe cross-actor data passing with PersistentIdentifier:
+let processor = DataProcessor(modelContainer: container)
+let itemIDs = try await processor.importItems(rawData)
+
+// Back on main actor — fetch by ID:
+let item = modelContext.model(for: persistentID) as? Item
+```
+
+## Type-Safe Predicates
+
+```swift
+let expensive = #Predicate<Item> { $0.price > 100 }
+let recentExpensive = #Predicate<Item> { $0.price > 100 && $0.date > cutoffDate }
+
+let descriptor = FetchDescriptor<Item>(
+  predicate: expensive,
+  sortBy: [SortDescriptor(\.date, order: .reverse)]
+)
+descriptor.fetchLimit = 20
+
+let items = try modelContext.fetch(descriptor)
+```
+
+## Enriched Common Mistakes
+
+- ❌ Omitting inverse relationships — SwiftData expects bidirectional relationships, missing inverses cause data inconsistency
+- ❌ Passing `@Model` objects across actor boundaries — use `PersistentIdentifier` instead, then fetch on the receiving actor
+- ❌ Forgetting `try modelContext.save()` in `@ModelActor` — auto-save only works on `@MainActor` context
+- ❌ Using `@Query` outside SwiftUI views — `@Query` only works in `View` bodies
+- ❌ Not providing defaults for new properties in migrations — causes crash on existing data
+- ❌ Using `@Transient` properties without default values — transient properties aren't persisted, must have defaults
+- ❌ Putting complex computed properties in `#Predicate` — predicates compile to SQL, only simple comparisons work
+
+## Enriched Review Checklist
+
+- [ ] All relationships have explicit inverses (or use `inverse: nil` if intentional)
+- [ ] `@Model` objects never cross actor boundaries (use `PersistentIdentifier`)
+- [ ] Schema migration plan covers all version transitions
+- [ ] `#Predicate` expressions are SQL-compatible (no complex Swift)
+- [ ] `@Query` only used in SwiftUI view contexts
+- [ ] Background operations use `@ModelActor`
+- [ ] `modelContext.save()` called explicitly in non-main contexts
+- [ ] All new schema properties have default values
+- [ ] `@Transient` properties initialized with default values
+
 ---
 
 ## Predicate Safety Rules

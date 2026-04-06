@@ -309,5 +309,22 @@ let output = try await model.prediction(from: input)
 - [ ] Memory tested on target devices (especially older devices with less RAM)
 - [ ] Fallback strategy documented if model unavailable
 
+## Enriched Common Mistakes
+
+- ❌ Loading models synchronously on main thread — use `MLModel.load()` async (iOS 16+)
+- ❌ Wrong compute unit selection — `.all` lets Core ML choose, don't force `.cpuAndGPU` unless profiled
+- ❌ Not handling model loading failures — model file may be corrupt or missing
+- ❌ Creating new model instance for every prediction — cache and reuse
+- ❌ Ignoring `MLTensor` (iOS 18+) — lazy evaluation is more memory-efficient for large data
+
+## Enriched Review Checklist
+
+- [ ] Models loaded asynchronously (not blocking main thread)
+- [ ] Compute units set appropriately (`.all` unless profiled)
+- [ ] Model instances cached and reused
+- [ ] Prediction errors handled gracefully
+- [ ] Memory profiled for large models
+- [ ] Batch prediction used when processing multiple inputs
+
 ---
 _Source: Apple Developer Documentation · Condensed for Ship Framework agent reference_

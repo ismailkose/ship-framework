@@ -2,6 +2,8 @@
 
 > **When to read:** Dev reads this when implementing features for VoiceOver support, Dynamic Type, custom actions, and accessibility testing.
 
+> **Cross-reference:** For design-level accessibility guidance (WCAG, contrast, touch targets), see `shared/ux-principles.md` Section 5. This file covers iOS-specific VoiceOver, Dynamic Type, and UIAccessibility APIs.
+
 ---
 
 ## Triage
@@ -339,6 +341,24 @@ var body: some View {
 - [ ] Test with VoiceOver enabled (simulator Settings)?
 - [ ] Accessibility Inspector shows no missing labels?
 - [ ] No custom colors used that are inaccessible at 3x zoom?
+
+## Enriched Common Mistakes
+
+- ❌ Only testing with VoiceOver — also test Dynamic Type, Reduce Motion, Reduce Transparency
+- ❌ Using `.accessibilityHidden(true)` on interactive elements — hides from assistive tech
+- ❌ Not providing `.accessibilityLabel` for icon-only buttons
+- ❌ Incorrect reading order — use `.accessibilitySortPriority` to fix
+- ❌ Not handling focus restoration after sheet/modal dismissal — use `@FocusState` with `.task`
+
+## Enriched Review Checklist
+
+- [ ] All interactive elements have accessibility labels
+- [ ] Reading order makes logical sense (test with VoiceOver)
+- [ ] Dynamic Type supported up to Accessibility sizes
+- [ ] Reduce Motion respected for all animations
+- [ ] Focus management handles modal presentation/dismissal
+- [ ] Custom rotors provided for complex navigation
+- [ ] Color is never the only indicator of state
 
 ## Assistive Access (iOS 26+)
 

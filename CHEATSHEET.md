@@ -191,7 +191,7 @@ Skills are thin routers (~60-80 lines). They tell personas WHEN to read WHICH re
 
 **References (web):** react-patterns, web-accessibility, web-performance
 
-**References (ios):** swiftui-core, hig-ios, swift-essentials, 47 framework guides
+**References (ios):** swiftui-core, hig-ios, swift-essentials, 61 framework guides (core: swiftdata, storekit, networking, cloudkit, coreml; gaming: gamekit, spritekit, scenekit, tabletopkit; common: avkit, pdfkit, cryptokit, financekit; specialized: accessorysetupkit, dockkit, sensorkit, browserenginekit, appmigrationkit, cryptotokenkit + 47 others)
 
 **Yours:** Skills in `.claude/skills/your-skills/`. References in `references/`. Wire in CLAUDE.md. Ship auto-detects new skills.
 

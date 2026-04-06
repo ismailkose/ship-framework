@@ -271,6 +271,19 @@ final class AppState: Sendable {
 
 ---
 
+## Common Mistakes
+
+- ❌ Requesting all permissions at app launch — ask only when feature is needed
+- ❌ Not checking permission denial with fallback — app becomes unusable
+- ❌ Ignoring Info.plist privacy descriptions — app rejected without them
+- ❌ Not finishing StoreKit 2 transactions — users get refunds, app marked unreliable
+- ❌ Missing privacy policy or linking broken URL — auto-rejection
+- ❌ Hardcoded test credentials in release build — rejectors find them
+- ❌ Age rating mismatch (4+ app with user-generated content) — rejection
+- ❌ Allowing HTTP without App Transport Security exception — requires justification
+
+---
+
 ## Review Checklist
 
 - [ ] All Info.plist `NS*UsageDescription` keys match features?

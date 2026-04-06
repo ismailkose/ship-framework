@@ -358,5 +358,23 @@ ActivityConfiguration(for: DeliveryAttributes.self) { context in
 - [ ] Lock Screen layout under ~160 points height
 - [ ] `.supplementalActivityFamilies([.small, .medium])` configured
 
+## Enriched Common Mistakes
+
+- ❌ Not requesting ActivityKit permission — call `ActivityAuthorizationInfo.current.requestPermission()` at app launch
+- ❌ Not listening for push token updates — iterate `activity.pushTokenUpdates` and send to backend
+- ❌ Updating with incomplete ContentState — always provide complete state, no partial fields
+- ❌ Over-updating frequency — throttle to prevent battery drain and system stress
+- ❌ Forgetting `NSSupportsLiveActivities` in Info.plist — add to host app, not extension
+
+## Enriched Review Checklist
+
+- [ ] ActivityKit permission requested at launch
+- [ ] Push token updates streamed to backend server
+- [ ] Complete ContentState provided on every update
+- [ ] Update frequency throttled appropriately
+- [ ] `NSSupportsLiveActivities = YES` in host app Info.plist
+- [ ] Activity lifecycle properly managed (start/update/end)
+- [ ] Push updates handle errors gracefully
+
 ---
 _Source: Apple Developer Documentation · Condensed for Ship Framework agent reference_

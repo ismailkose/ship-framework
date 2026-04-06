@@ -2,6 +2,8 @@
 
 > **When to read:** Dev reads this when building iOS 26+ article/detail views, help centers, in-app documentation, or other embedded web experiences backed by HTML, CSS, and JavaScript.
 
+> **Cross-reference:** For SwiftUI WebView integration (iOS 26+), see `swiftui-core.md` Section 8.
+
 ---
 
 ## Triage

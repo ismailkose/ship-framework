@@ -341,5 +341,97 @@ struct MyIntent: AppIntent { }
 - **`IndexedEntity`** + `searchableAttributes` — Spotlight indexing for app entities.
 - **Swift Package support** — AppIntents can now be defined in Swift packages.
 
+## 4-Step Triage Workflow for AppIntents
+
+When debugging AppIntent issues, follow this sequence:
+1. **Intent signature missing or wrong** — Verify `static var title`, `static var description`, and `@Parameter` properties are present
+2. **Parameter type mismatch** — Ensure `@Parameter` types conform to `AppEnum` or are Codable primitives
+3. **Perform execution fails** — Check `perform()` doesn't throw uncaught errors; use `.result(error:)` for failures
+4. **Siri/Spotlight not discovering intent** — Verify `AppShortcutsProvider` registered; rebuild app and clear Siri cache
+
+## SnippetIntent (iOS 26+) Example
+
+```swift
+struct RecipeSnippetIntent: SnippetIntent {
+    static var title: LocalizedStringResource = "Show Recipe"
+
+    @Parameter(title: "Recipe ID")
+    var recipeID: String
+
+    func perform() async throws -> some IntentResult & ShowsSnippetView {
+        let recipe = try await RecipeStore.shared.fetch(id: recipeID)
+        return .result(
+            value: recipe,
+            view: RecipeSnippetView(recipe: recipe)
+        )
+    }
+}
+
+// SwiftUI view displayed inline in system UI
+struct RecipeSnippetView: View {
+    let recipe: Recipe
+    var body: some View {
+        VStack(spacing: 12) {
+            Image(recipe.imageName)
+                .resizable()
+                .frame(height: 120)
+                .clipped()
+            Text(recipe.name)
+                .font(.headline)
+            Text("\(recipe.prepTime) min")
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+    }
+}
+```
+
+## Non-Optional Parameter Crash Pattern
+
+```swift
+// ❌ WRONG — Non-optional parameter with no default crashes if not provided
+struct DeleteIntent: AppIntent {
+    @Parameter(title: "Item ID") // No default, no optional
+    var itemID: String  // Crashes if missing
+
+    func perform() async throws -> some IntentResult {
+        try await delete(itemID)
+        return .result()
+    }
+}
+
+// ✅ CORRECT — Either make optional or provide default
+struct DeleteIntent: AppIntent {
+    @Parameter(title: "Item ID", default: "")  // Default provided
+    var itemID: String
+
+    func perform() async throws -> some IntentResult {
+        guard !itemID.isEmpty else {
+            return .result(error: "Item ID required")
+        }
+        try await delete(itemID)
+        return .result()
+    }
+}
+```
+
+## Enriched Common Mistakes
+
+- ❌ Forgetting `async` in `perform()` method — always use `async throws`
+- ❌ Not implementing AppEnum for enum parameters — causes casting errors at runtime
+- ❌ Missing `@Parameter` defaults for optional inputs — crashes when not provided
+- ❌ Using deprecated `@AssistantEntity` instead of `@AppEntity` — only `@AssistantIntent` still works
+- ❌ Ignoring 4-step triage workflow — most issues follow predictable patterns
+
+## Enriched Review Checklist
+
+- [ ] Perform method is async and throws
+- [ ] All @Parameter properties have titles
+- [ ] Enum parameters conform to AppEnum
+- [ ] Non-optional parameters have defaults or meaningful validation
+- [ ] AppShortcutsProvider properly registered
+- [ ] SnippetIntent returns ShowsSnippetView (iOS 26+)
+- [ ] No deprecated @AssistantEntity (use @AppEntity instead)
+
 ---
 _Source: Apple Developer Documentation · Condensed for Ship Framework agent reference_

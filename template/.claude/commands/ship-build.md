@@ -72,6 +72,8 @@ When building layouts, read `references/shared/layout-responsive.md` — mobile-
 
 When building forms, read `references/shared/forms-feedback.md` Section 1 — labels, validation timing, progressive disclosure, multi-step patterns. Section 2 has feedback patterns (empty states, toasts, confirmation vs undo).
 
+**Framework Common Mistakes:** Every file in `references/ios/frameworks/` now includes a Common Mistakes section. When building with a specific framework, Dev reads the Common Mistakes from the matching framework reference BEFORE writing code — prevention is cheaper than debugging.
+
 When building UI components, follow Arc's component architecture spec. Read `references/shared/components.md` — use the project's design system first, reach for headless primitives to fill gaps, never rebuild accessible behavior from scratch. Before building any UI, verify the component layer is installed (e.g., check for `components.json` — if missing and the stack specifies shadcn/ui, run the setup from `references/shared/components.md` Section 2 first). Check `references/design-system.md` if it exists (project-specific tokens and rules override framework defaults).
 
 **Shadcn MCP check:** If the stack includes shadcn/ui, check if the Shadcn UI MCP is connected (try `list_components`). If connected — use it: `get_component_metadata` to check props before customizing, `get_component_demo` for usage patterns, `apply_theme` for theme presets. See `references/shared/components.md` Section 3.87 for full routing. If NOT connected — suggest once: "💡 The Shadcn UI MCP gives me live component source, demos, and 42 theme presets. Want me to help you set it up?" Then continue with the static reference file. Don't ask again in the same session.

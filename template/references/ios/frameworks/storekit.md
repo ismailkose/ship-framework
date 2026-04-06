@@ -335,5 +335,26 @@ DO:
 - **`SubscriptionOfferView`** — native SwiftUI view for merchandising subscription offers.
 - **`visibleRelationship`** parameter: `.upgrade`, `.downgrade`, `.crossgrade`, `.current`, `.all` — controls which plans are shown.
 
+## Enriched Common Mistakes
+
+- ❌ Not calling `.finish()` on transactions — unfinished transactions re-deliver on every launch
+- ❌ Hardcoding prices — always use `Product.displayPrice` from StoreKit
+- ❌ Ignoring Ask to Buy (`.pending` state) — must handle gracefully for family accounts
+- ❌ Not listening for `Transaction.updates` — miss renewals, revocations, refunds
+- ❌ Using `AppStore.sync()` as primary restore — it's a fallback, `Transaction.currentEntitlements` is the source of truth
+- ❌ Not handling subscription grace periods — `inGracePeriod` means still entitled
+- ❌ Ignoring `revocationDate` on transactions — must revoke access when set
+
+## Enriched Review Checklist
+
+- [ ] All transactions `.finish()`ed after processing
+- [ ] Prices displayed from `Product.displayPrice`, never hardcoded
+- [ ] `.pending` purchase state handled (Ask to Buy)
+- [ ] `Transaction.updates` listener active from app launch
+- [ ] `Transaction.currentEntitlements` used for entitlement checks
+- [ ] Subscription states handle grace period and billing retry
+- [ ] `SubscriptionStoreView` used for paywall (iOS 17+) where appropriate
+- [ ] Restore purchases accessible per App Store Review guidelines
+
 ---
 _Source: Apple Developer Documentation · Condensed for Ship Framework agent reference_

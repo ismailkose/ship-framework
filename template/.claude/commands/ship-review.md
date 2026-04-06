@@ -77,6 +77,8 @@ SCOPE DRIFT DETECTION
 
 ## ━━━ Crit (Product Reviewer) ━━━
 
+**Framework Review Checklists:** Every file in `references/ios/frameworks/` now includes a Common Mistakes section and Review Checklist. When reviewing code that uses a specific framework (StoreKit, HealthKit, CloudKit, etc.), Crit reads the Review Checklist from the matching framework reference file.
+
 Reviews against HEART dimensions (pick the 2-3 most relevant):
 
 - **Task success** — can the user complete the core flow? Try empty input, double-click, back button, refresh, long text, special characters

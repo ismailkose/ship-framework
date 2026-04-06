@@ -426,5 +426,22 @@ NotificationCenter.default.addObserver(
 - [ ] Exponential backoff implemented for retries
 - [ ] CloudKit + iCloud capability enabled in Xcode capabilities
 
+## Enriched Common Mistakes
+
+- ❌ Not checking iCloud account status before operations — user may be signed out
+- ❌ Using unique constraints with CloudKit — CloudKit doesn't support them, causes sync failures
+- ❌ Not handling `.serverRecordChanged` errors — must resolve conflicts (usually last-writer-wins)
+- ❌ Ignoring `CKSyncEngine` (iOS 17+) — it's now the recommended sync approach over manual zone fetches
+- ❌ Not persisting sync state tokens — causes full re-sync on every launch
+
+## Enriched Review Checklist
+
+- [ ] iCloud account status checked before operations
+- [ ] `CKSyncEngine` used for sync (iOS 17+) instead of manual fetch/push
+- [ ] Conflict resolution strategy implemented for `.serverRecordChanged`
+- [ ] Sync state tokens persisted between launches
+- [ ] No unique constraints on CloudKit-synced SwiftData models
+- [ ] Subscription set up for push-based change notifications
+
 ---
 _Source: Apple Developer Documentation · Condensed for Ship Framework agent reference_
