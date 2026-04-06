@@ -6,6 +6,38 @@ To update an existing project, run `bash ship-update.sh` from your project root,
 
 ---
 
+## 2026.04.06 — Depth Evolution: New Commands, Session Memory, QA Consolidation
+
+### New Commands
+- **ship-think** — Pre-planning idea validation. 6 forcing questions (Real Pain, Status Quo, Specificity, Narrowest Wedge, Surprise, Taste Test). Scope modes: `--dream`, `--focus`, `--strip`. Writes idea brief to DECISIONS.md, feeds into /ship-plan.
+- **ship-design** — 6-phase design system consultation: Context → Research → System Proposal → Drill-down → Preview → Documentation. SAFE/RISK breakdown per category. Creates DESIGN.md as authoritative design system file.
+- **ship-variants** — 3 theory-backed variant generation, each optimizing for a different UX principle (Hick's Law, Peak-End, etc). HTML comparison board with star ratings and priority selector. Taste memory writes to LEARNINGS.md and DESIGN.md. Flags: `--quick`, `--refine`, `--taste`.
+- **ship-html** — Production-quality responsive HTML prototyping. Design tokens as CSS custom properties. Semantic HTML, responsive by flow not breakpoint. Pol quality check (anti-slop, token consistency, responsive, states). Flags: `--quick`, `--dark`, `--form`.
+- **ship-perf** — Core Web Vitals measurement (LCP, CLS, INP) with real Chromium. 3 runs averaged, Fast 3G throttled pass. Anti-pattern scan from web-performance.md. PERF-REPORT.md with before/after. CI assertion generation with `--ci` flag.
+
+### Improved Commands
+- **ship-plan** — Added ship-think integration (reads IDEA BRIEF from DECISIONS.md). Added LEARNINGS.md reading at session start. New Pol Design Director Plan Scoring: 7 dimensions (Information Architecture, Interaction State Coverage, User Journey, AI Slop Risk, Design System Alignment, Responsive & Accessibility, Unresolved Decisions) scored 0-10, must average ≥7. Search-before-recommending for Arc. Flags: `--pol-only`, `--dream`, `--focus`, `--strip`.
+- **ship-fix** — Added LEARNINGS.md reading. Phase 0.5: Known Pattern Check (searches LEARNINGS.md bug patterns and framework docs before investigating). Architecture Assessment at strike 3 (tactical fix vs structural refactor). Bug pattern writing to LEARNINGS.md after each fix.
+- **ship-review** — QA consolidated into review. New flags: `--product`, `--design`, `--visual`, `--test`, `--report`, `--fix` (legacy `crit-only`/`pol-only`/`eye-only` still supported). Full Test persona merged from ship-qa: test runner check, scope/tiers, run existing tests, explore like user, write missing tests, health score. Search-before-recommending for Crit and Pol. LEARNINGS.md writes for code patterns and design preferences.
+- **ship-browse** — Complete rewrite from 47-line alias to 170-line full command. Headed browser mode (`--watch`), cookie import from installed browsers (`--auth`), Core Web Vitals snapshot (`--perf`), enhanced Eye workflow with 6 phases, persistent session support.
+
+### Session Memory
+- **LEARNINGS.md** — New persistent team memory file. Sections: Bug Patterns, Design Preferences, Code Patterns, Deployment Notes, Architecture Decisions. Multiple personas read at session start and write during their work. Created by setup.sh and ship-update.sh.
+
+### QA Consolidation
+- **ship-qa** — Deprecated. Now shows 28-line notice redirecting to `/ship-review --test`. Migration table maps old → new commands.
+
+### Migration & Backward Compatibility
+- **ship-update.sh** — Auto-fixes `/ship-qa` references in CLAUDE.md and TASKS.md. Backs up ship-team.md before overwriting (`.backup` file). Shows migration notice with diff command if routing table changed. LEARNINGS.md and DESIGN.md added to protected files.
+
+### Documentation
+- **CHEATSHEET.md** — Complete rewrite: 5 sections (Core Loop, Design Tools, When You Need It, Safety, Optional), flag reference tables, key files table, Design Readiness framework.
+- **README.md** — Updated badge (v2026.04.06 · 19 deep references · 10 personas · 21 commands), new Design Tools section, expanded file structure listing all 21 commands.
+- **team-rules.md** — Updated core loop (ship-think → ship-plan with Pol → ship-build → ship-review with Test), new command sections, updated flow diagram.
+- **ship-team.md** — Updated routing table: "New idea" routes through ship-think first, added routes for ship-design/variants/html/perf, ship-qa replaced with ship-review --test.
+
+---
+
 ## 2026.03.31 — Phase 3: Spatial Design, Research Depth, Overlap Fixes
 
 ### New Reference
