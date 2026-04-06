@@ -226,7 +226,7 @@ if [ "$V3_MIGRATION" = true ]; then
   CLEANED_ROOT=0
   for old_file in "$PROJECT_DIR/references/"*.md; do
     [ -f "$old_file" ] || continue
-    local fname=$(basename "$old_file")
+    fname=$(basename "$old_file")
     # If the file exists in ios/ or shared/, the root copy is stale
     if [ -f "$PROJECT_DIR/references/ios/$fname" ] || [ -f "$PROJECT_DIR/references/shared/$fname" ]; then
       rm "$old_file"
