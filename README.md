@@ -1,6 +1,6 @@
 # Ship Framework
 
-`v2026.04.07` · 61 framework references · 10 personas · 21 commands
+`v2026.04.07a` · 61 framework references · 10 personas · 21 commands
 
 **An AI product team in your terminal.**
 

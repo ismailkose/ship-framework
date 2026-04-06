@@ -222,6 +222,21 @@ if [ "$V3_MIGRATION" = true ]; then
     done
   fi
 
+  # ── Clean up any remaining root-level .md files that now live in subdirs ──
+  CLEANED_ROOT=0
+  for old_file in "$PROJECT_DIR/references/"*.md; do
+    [ -f "$old_file" ] || continue
+    local fname=$(basename "$old_file")
+    # If the file exists in ios/ or shared/, the root copy is stale
+    if [ -f "$PROJECT_DIR/references/ios/$fname" ] || [ -f "$PROJECT_DIR/references/shared/$fname" ]; then
+      rm "$old_file"
+      CLEANED_ROOT=$((CLEANED_ROOT + 1))
+    fi
+  done
+  if [ $CLEANED_ROOT -gt 0 ]; then
+    echo -e "${GREEN}✓${RESET} Removed $CLEANED_ROOT stale root-level reference files (moved to subdirs)"
+  fi
+
   # ── Move frameworks/ to ios/frameworks/ ──
   if [ -d "$PROJECT_DIR/references/frameworks" ] && [ ! -d "$PROJECT_DIR/references/ios/frameworks" ]; then
     mkdir -p "$PROJECT_DIR/references/ios"
@@ -368,10 +383,19 @@ sync_template_dir() {
 
   mkdir -p "$dst_dir"
 
+  # Enable dotglob so we sync hidden dirs like .claude/
+  local _prev_dotglob=$(shopt -p dotglob 2>/dev/null)
+  shopt -s dotglob
+
   for src_file in "$src_dir"/*; do
     [ -e "$src_file" ] || continue
     local filename=$(basename "$src_file")
     local relpath="${rel_prefix}${filename}"
+
+    # Skip .git directories (dotglob matches them now)
+    [ "$filename" = ".git" ] && continue
+    [ "$filename" = ".gitignore" ] && continue
+    [ "$filename" = ".github" ] && continue
 
     if [ -d "$src_file" ]; then
       sync_template_dir "$src_file" "$dst_dir/$filename" "${relpath}/"
@@ -389,6 +413,9 @@ sync_template_dir() {
       cp "$src_file" "$dst_dir/$filename"
     fi
   done
+
+  # Restore previous dotglob state
+  eval "$_prev_dotglob"
 }
 
 sync_template_dir "$TEMPLATE_DIR" "$PROJECT_DIR" ""
@@ -439,7 +466,8 @@ done
 # ─── Step 8: Update version stamp in CLAUDE.md ───────────────────────────────
 
 if grep -q "Ship Framework" "$PROJECT_DIR/CLAUDE.md"; then
-  sedi "s|Ship Framework.*v[0-9.]*|Ship Framework](https://github.com/ismailkose/ship-framework) v${VERSION}|g" "$PROJECT_DIR/CLAUDE.md"
+  # Replace the entire footer line to avoid partial-match corruption
+  sedi "s|^>.*Ship Framework.*|> Ship Framework v${VERSION} — [github.com/ismailkose/ship-framework](https://github.com/ismailkose/ship-framework)|" "$PROJECT_DIR/CLAUDE.md"
   echo -e "${GREEN}✓${RESET} Updated version stamp in CLAUDE.md"
 else
   echo "" >> "$PROJECT_DIR/CLAUDE.md"

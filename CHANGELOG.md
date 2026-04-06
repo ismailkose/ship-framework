@@ -6,6 +6,20 @@ To update an existing project, run `bash ship-update.sh` from your project root,
 
 ---
 
+## 2026.04.07a — Hotfix: Dotglob + Version Stamp + Cleanup
+
+### Critical Fix
+- **ship-update.sh: dotglob bug** — `sync_template_dir` used `"$src_dir"/*` which doesn't match dotfiles in bash. The `.claude/` directory was completely skipped during updates, so new command files (ship-think, ship-design, ship-variants, ship-html, ship-perf) never landed on existing installs. Fixed by enabling `shopt -s dotglob` inside the sync function, with `.git`/`.gitignore`/`.github` exclusions.
+
+### Bug Fixes
+- **Version stamp corruption** — The sed pattern for updating the CLAUDE.md footer could mangle the markdown link syntax, producing `> Ship Framework](https://...` (missing opening `[`). Replaced with a full-line replacement anchored on `^>.*Ship Framework`.
+- **Stale reference path** — `swiftui-core.md` header pointed to `references/frameworks/` instead of `references/ios/frameworks/`.
+
+### Migration Improvements
+- **Root-level reference cleanup** — Added catch-all migration step: any `.md` file at `references/` root that also exists in `references/ios/` or `references/shared/` is automatically removed. Handles edge cases the named-file migration missed.
+
+---
+
 ## 2026.04.07 — iOS Muscle: Deep Framework Enrichment
 
 ### Core Reference Enrichment
