@@ -16,11 +16,21 @@ Routes everything. You don't need to remember any other command.
 
 | Command | Who | One-liner |
 |---------|-----|-----------|
-| `/ship-plan` | Vi + Arc | Plan the product and architecture. They argue, you get a battle-tested plan. |
+| `/ship-think` | Vi | Validate the idea first. Six forcing questions that kill bad ideas early. |
+| `/ship-plan` | Vi + Pol + Arc | Plan the product, score design readiness, architect the code. Battle-tested plan. |
 | `/ship-build` | Dev | Build one feature. Scope enforcement, atomic commits. |
-| `/ship-review` | Crit + Pol + Eye | Review quality. Confidence score 0-100. |
-| `/ship-qa` | Test | Run tests, write missing ones, health score. |
+| `/ship-review` | Crit + Pol + Eye + Test | The quality gate. UX, design, visual QA, tests, health score. |
 | `/ship-launch` | Cap | Deploy + measurement plan. |
+
+---
+
+## 🎨 Design Tools
+
+| Command | Who | One-liner |
+|---------|-----|-----------|
+| `/ship-design` | Pol + Eye | Create a design system from scratch — research, propose, preview, document. |
+| `/ship-variants` | Pol | Generate 3 theory-backed design options. Compare, rate, learn your taste. |
+| `/ship-html` | Dev + Pol | Production-quality responsive HTML prototype. No framework needed. |
 
 ---
 
@@ -28,9 +38,10 @@ Routes everything. You don't need to remember any other command.
 
 | Command | Situation |
 |---------|-----------|
-| `/ship-fix [error]` | Something broke. Paste the error. |
+| `/ship-fix [error]` | Something broke. Paste the error. Checks known patterns first. |
+| `/ship-browse` | Visual QA with browser power. `--watch` for headed mode, `--auth` for cookies. |
+| `/ship-perf` | Measure Core Web Vitals. Before/after comparison. CI assertions. |
 | `/ship-money` | Need pricing strategy. |
-| `/ship-browse` | Quick visual QA with screenshots. |
 | `/ship-retro` | End of week. What actually happened. |
 
 ---
@@ -52,6 +63,56 @@ Routes everything. You don't need to remember any other command.
 |---------|------|
 | `/ship-codex` | Second opinion from Codex (review / challenge / consult) |
 | `/ship-update` | Update Ship Framework |
+
+---
+
+## /ship-review Flags
+
+The single quality gate. Use flags for partial runs:
+
+| Flag | What runs |
+|------|-----------|
+| (no flag) | Everything — Crit + Pol + Eye + Test + Adversarial |
+| `--product` | Crit only (HEART dimensions, UX) |
+| `--design` | Pol only (design craft, anti-slop) |
+| `--visual` | Eye only (screenshots, same as /ship-browse) |
+| `--test` | Test only (automated + manual, health score) |
+| `--report` | Full run, report only, no fixes |
+| `--fix` | Full run + auto-fix obvious issues |
+
+---
+
+## /ship-plan Scope Modes
+
+| Flag | Mode |
+|------|------|
+| `--dream` | Expand scope — find the 10-star version |
+| `--focus` | Hold scope — execute exactly what's described |
+| `--strip` | Reduce scope — fastest path to validation |
+
+---
+
+## /ship-browse Flags
+
+| Flag | What it does |
+|------|-------------|
+| `--watch` | Headed mode — visible browser, watch Eye navigate |
+| `--auth` | Import cookies from your real browser for authenticated testing |
+| `--perf` | Include Core Web Vitals snapshot in visual QA |
+
+---
+
+## Key Files
+
+| File | Purpose | Who writes |
+|------|---------|-----------|
+| `CLAUDE.md` | Product context, founder profile, stack | You |
+| `TASKS.md` | Task backlog | All personas |
+| `DECISIONS.md` | Settled decisions | Vi, Arc, you |
+| `CONTEXT.md` | Session context | All personas |
+| `LEARNINGS.md` | Patterns across sessions | Bug, Crit, Pol, Cap |
+| `DESIGN.md` | Design system tokens | Pol (via /ship-design) |
+| `PERF-REPORT.md` | Performance benchmarks | Eye (via /ship-perf) |
 
 ---
 
@@ -103,6 +164,8 @@ Every command ends with a status — written like a teammate, not a log:
 **RICE:** (Reach × Impact × Confidence) / Effort
 
 **Health Score:** Start at 100. Critical: -25, High: -15, Medium: -8, Low: -3. Above 90 = ship it.
+
+**Design Readiness:** 7 dimensions scored 0-10 during /ship-plan. Must average ≥7 to proceed.
 
 ---
 

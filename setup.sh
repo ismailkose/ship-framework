@@ -225,6 +225,11 @@ if [ -f "$TEMPLATE_DIR/CONTEXT.md" ] && [ ! -f "$TARGET_DIR/CONTEXT.md" ]; then
   echo -e "${GREEN}✓${RESET} Created CONTEXT.md"
 fi
 
+if [ -f "$TEMPLATE_DIR/LEARNINGS.md" ] && [ ! -f "$TARGET_DIR/LEARNINGS.md" ]; then
+  cp "$TEMPLATE_DIR/LEARNINGS.md" "$TARGET_DIR/LEARNINGS.md"
+  echo -e "${GREEN}✓${RESET} Created LEARNINGS.md (team memory across sessions)"
+fi
+
 # ─── Copy self-contained update script ────────────────────────────────────────
 
 if [ -f "$TEMPLATE_DIR/ship-update.sh" ]; then

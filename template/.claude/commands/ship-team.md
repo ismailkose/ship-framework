@@ -242,17 +242,22 @@ After each subagent completes:
 Based on what the founder asks, pick the right flow:
 
 - **"Continue" / "Keep going" / "What's next"** → Read TASKS.md → pick up next task → route to right agents
-- **"New idea" / "I want to build..."** → /ship-plan (Vi + Arc + Adversarial argue → battle-tested plan) → summarize, ask if ready for /ship-build
+- **"New idea" / "I want to build..."** → /ship-think (validate idea) → /ship-plan (Vi + Pol + Arc + Adversarial) → summarize, ask if ready for /ship-build
 - **"Build this" / "Let's make..."** → /ship-plan arc-only (quick technical plan) → /ship-build (verify component layer, then build) → summarize what to test
-- **"Review this" / "How does it look?"** → /ship-review (Crit + Pol + Eye + Adversarial → quality verdict)
-- **"Check the UI" / "Does it look right?"** → /ship-review eye-only (visual QA → screenshots + design comparison)
-- **"Test this" / "Is it working?"** → /ship-qa → run tests, write missing tests, report
-- **"Ship it" / "Let's go live"** → /ship-qa → /ship-launch (checklist) → resolve blockers → deploy steps
-- **"Fix this" / [error message]** → /ship-fix → fix → teach
+- **"Review this" / "How does it look?"** → /ship-review (Crit + Pol + Eye + Test + Adversarial → quality verdict + health score)
+- **"Check the UI" / "Does it look right?"** → /ship-review --visual (Eye only → screenshots + design comparison)
+- **"Test this" / "Is it working?"** → /ship-review --test (Test persona → run tests, write missing, health score)
+- **"Ship it" / "Let's go live"** → /ship-review → /ship-launch (checklist) → resolve blockers → deploy steps
+- **"Fix this" / [error message]** → /ship-fix → check known patterns → investigate → fix → teach → write to LEARNINGS.md
 - **"Add payments" / "How do we monetize?"** → /ship-money → implementation plan
-- **"Full cycle"** → /ship-plan → /ship-build → /ship-review → /ship-qa → /ship-launch (the whole pipeline)
-- **"Take over this project"** → /ship-plan arc-only (assess codebase) → /ship-review (HEART + design audit) → /ship-plan vi-only (product-level JTBD + magic moment) → /ship-money (who pays, how) → present roadmap options
-- **"Health check" / "What's the state of things?"** → /ship-plan vi-only → /ship-review → /ship-qa health-score → prioritized roadmap
+- **"Create a design system" / "Design this"** → /ship-design → research, propose, preview, document
+- **"Show me options" / "Explore designs"** → /ship-variants → 3 theory-backed variants with comparison board
+- **"Prototype this in HTML"** → /ship-html → production-quality responsive HTML
+- **"How fast is it?" / "Check performance"** → /ship-perf → Core Web Vitals benchmark
+- **"Is this idea worth building?"** → /ship-think → six forcing questions → verdict
+- **"Full cycle"** → /ship-think → /ship-plan → /ship-build → /ship-review → /ship-launch (the whole pipeline)
+- **"Take over this project"** → /ship-plan arc-only (assess codebase) → /ship-review (full quality gate) → /ship-plan vi-only (product-level JTBD) → /ship-money (who pays) → present roadmap
+- **"Health check" / "What's the state of things?"** → /ship-plan vi-only → /ship-review → prioritized roadmap
 - **"Prioritize" / "What should we build next?"** → RICE-score all candidates → present ranked list
 - **"Retro" / "How did this week go?"** → Retro → git stats, velocity, wins, drags, next focus
 - **"Add these tasks: [list]"** → Add to TASKS.md in priority order → confirm

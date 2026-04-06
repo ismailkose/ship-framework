@@ -1,6 +1,6 @@
 # Ship Framework
 
-`v2026.03.31` · 19 deep references · 8 personas · 6 commands
+`v2026.04.06` · 19 deep references · 10 personas · 21 commands
 
 **An AI product team in your terminal.**
 
@@ -49,25 +49,34 @@ That's the 80% workflow. One command. The team figures out the rest.
 
 ## When You Want More Control
 
-Ship has 16 commands. You don't need to learn them all — `/ship-team` handles routing. But when you want to call a specific specialist directly, here's how they're organized:
+Ship has 21 commands. You don't need to learn them all — `/ship-team` handles routing. But when you want to call a specific specialist directly, here's how they're organized:
 
 ### 🔄 The Core Loop — every feature goes through this
 
 | Command | Who | What happens |
 |:---|:---|:---|
-| **ship-plan** | Vi + Arc | Product brief + technical plan. They argue, you get a battle-tested plan. |
+| **ship-think** | Vi | Validate the idea. Six forcing questions kill bad ideas before you invest time. |
+| **ship-plan** | Vi + Pol + Arc | Product brief + design readiness score + technical plan. They argue, you decide. |
 | **ship-build** | Dev | Builds one feature at a time. Scope enforcement, atomic commits. |
-| **ship-review** | Crit + Pol + Eye | UX quality, design polish, visual QA. Confidence score 0-100. |
-| **ship-qa** | Test | Runs tests, writes missing ones, edge cases. Health score. |
+| **ship-review** | Crit + Pol + Eye + Test | The quality gate. UX, design, visual QA, tests. Health score 0-100. |
 | **ship-launch** | Cap | Readiness check, deploy, measurement plan. |
+
+### 🎨 Design Tools
+
+| Command | Who | What happens |
+|:---|:---|:---|
+| **ship-design** | Pol + Eye | Create a design system from scratch. Research competitors, propose tokens, preview mockups, write DESIGN.md. |
+| **ship-variants** | Pol | Generate 3 theory-backed design options. HTML comparison board. Learns your taste over time. |
+| **ship-html** | Dev + Pol | Production-quality responsive HTML. No framework, proper text reflow. |
 
 ### 🔧 When You Need It
 
 | Command | Who | What happens |
 |:---|:---|:---|
-| **ship-fix** | Bug | Paste the error. Systematic investigation, no guessing. |
+| **ship-fix** | Bug | Paste the error. Checks known patterns first, then systematic investigation. |
+| **ship-browse** | Eye | Visual QA with browser power. Headed mode, cookie import, perf snapshots. |
+| **ship-perf** | Eye + Test | Core Web Vitals benchmark. Before/after comparison. CI assertions. |
 | **ship-money** | Biz | Pricing strategy starting from willingness-to-pay. |
-| **ship-browse** | Eye | Screenshots checked against your design system. |
 | **ship-retro** | Retro | Reads git history. What actually happened, not what you think. |
 
 ### 🛡️ Safety Net — set once, runs in the background
@@ -141,7 +150,7 @@ Ship splits design intelligence into two layers:
 
 Example flow: you run `/ship-build` → Dev loads the UX skill → skill says "read `references/shared/forms-feedback.md` Section 1 for form implementation" → Dev reads the reference and applies the reasoning to the specific form being built.
 
-Ship comes with 10 framework skills and 18 deep reference files covering UX, typography, color, forms, navigation, layout, touch, dark mode, animation, components, design quality, and platform-specific patterns. All auto-loaded based on your declared stack.
+Ship comes with 10 framework skills and 19 deep reference files covering UX, typography, color, forms, navigation, layout, touch, dark mode, animation, components, design quality, and platform-specific patterns. All auto-loaded based on your declared stack. The team also learns your patterns over time — bug fixes write to LEARNINGS.md, design reviews record your taste preferences, and every session starts by reading what past sessions discovered.
 
 ### Add Your Own
 
@@ -164,6 +173,10 @@ Vi:        Here's the job statement — users want to reduce eye strain
            during evening sessions. Magic moment: the first time the
            interface shifts and everything just feels right.
 
+Pol:       Design readiness score: 62/70. Information Architecture 9/10,
+           Interaction States 7/10 — we need to plan the toggle states.
+           AI Slop Risk 8/10 — the color strategy is intentional.
+
 Arc:       Two approaches. Minimal: CSS variables + system preference
            detection, 2 hours. Clean: full theme engine with custom
            palettes, 2 days. I'd go Minimal — ship it, see if users
@@ -176,13 +189,13 @@ Crit:      Contrast ratios pass. Toggle is discoverable. One issue —
            the chart colors don't adapt. Not blocking but worth fixing.
 
 Test:      12 tests written. All passing. Edge case covered: system
-           preference changes while app is open.
+           preference changes while app is open. Health score: 88/100.
 
 Cap:       ✓ DONE — Dark mode is live. Measuring: daily active users
            after 6pm (baseline: 340). Check in one week.
 ```
 
-One idea → planned, built, reviewed, tested, shipped, measured. That's Ship.
+One idea → planned, scored, built, reviewed, tested, shipped, measured. That's Ship.
 
 ---
 
@@ -192,9 +205,33 @@ One idea → planned, built, reviewed, tested, shipped, measured. That's Ship.
 your-project/
   CLAUDE.md                    # Yours — product, founder, stack, principles
   CHEATSHEET.md                # Quick reference
+  LEARNINGS.md                 # Team memory — bug patterns, design preferences, code patterns
+  DESIGN.md                    # Design system tokens (created by /ship-design)
+  PERF-REPORT.md               # Performance benchmarks (created by /ship-perf)
   .claude/
     team-rules.md              # Framework — personas, rules, coaching
-    commands/                  # 16 slash commands
+    commands/                  # 21 slash commands
+      ship-think.md            #   Pre-planning idea validation
+      ship-plan.md             #   Product + design scoring + architecture
+      ship-build.md            #   Build one feature with TDD
+      ship-review.md           #   Quality gate (Crit + Pol + Eye + Test)
+      ship-launch.md           #   Deploy + measurement
+      ship-design.md           #   Design system creation
+      ship-variants.md         #   Theory-backed design exploration
+      ship-html.md             #   Responsive HTML prototyping
+      ship-fix.md              #   Systematic debugging
+      ship-browse.md           #   Visual QA with browser power
+      ship-perf.md             #   Performance benchmarking
+      ship-money.md            #   Monetization strategy
+      ship-retro.md            #   Weekly retrospective
+      ship-team.md             #   Orchestrator — routes everything
+      ship-codex.md            #   Cross-model verification
+      ship-careful.md          #   Destructive command warnings
+      ship-freeze.md           #   Directory edit lock
+      ship-guard.md            #   Combined safety
+      ship-unfreeze.md         #   Remove lock
+      ship-update.md           #   Framework update
+      ship-qa.md               #   (deprecated → /ship-review --test)
     skills/
       ship/                    # Routing skills (ux, web, motion, components, ios, android + safety)
       your-skills/             # Your skills (design system, API patterns, etc.)
@@ -226,7 +263,7 @@ your-project/
     android/                   # Material 3, Compose patterns
 ```
 
-**CLAUDE.md** is yours — edit freely, never overwritten. **team-rules.md** is the framework's — auto-synced on update.
+**CLAUDE.md** is yours — edit freely, never overwritten. **LEARNINGS.md** and **DESIGN.md** are yours too — the team writes to them but updates never overwrite your content. **team-rules.md** is the framework's — auto-synced on update.
 
 ---
 

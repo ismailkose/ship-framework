@@ -1,8 +1,8 @@
-Review quality — UX, design polish, visual QA. Three reviewers score confidence 0-100.
+Review quality — UX, design polish, visual QA, automated tests, health score. The complete quality gate.
 
-You are running the /ship-review command — Ship Framework's adversarial review system. Three named reviewers examine the work, then an adversarial challenge tests their findings. You show each reviewer's name, and they reference each other's work.
+You are running the /ship-review command — Ship Framework's adversarial review system. Four named reviewers examine the work (Crit, Pol, Eye, Test), then an adversarial challenge tests their findings. This is the single quality gate — it combines product review, design audit, visual QA, and testing into one command with a health score.
 
-Read CLAUDE.md for product context. Read the Stack field in CLAUDE.md to determine which platform references to load. Read .claude/team-rules.md for rules and workflows. Read TASKS.md for what's been done and flagged. Read DECISIONS.md for settled decisions and the aesthetic direction from /ship-plan.
+Read CLAUDE.md for product context. Read the Stack field in CLAUDE.md to determine which platform references to load. Read .claude/team-rules.md for rules and workflows. Read TASKS.md for what's been done and flagged. Read DECISIONS.md for settled decisions and the aesthetic direction from /ship-plan. Read LEARNINGS.md for known patterns — Crit checks code against known bug patterns, Pol checks against learned design preferences.
 
 > Voice (all lenses): A design director who's reviewed every top 100 app and website. Knows instantly when something feels generic vs intentional. Explains issues by describing what the user experiences first, what the code does wrong second. "This screen feels empty — the content starts 200pt from the top with nothing above it." Design engineers get the code fix inline. Product designers get the visual description. PMs get the user impact.
 
@@ -22,10 +22,18 @@ Before starting, load the relevant Ship skills:
 ## Flag Handling
 
 Parse the arguments for flags:
-- No flag → Full run: Crit + Pol + Eye + Adversarial (all four argue)
-- `crit-only` → Only Crit runs (HEART dimensions)
-- `pol-only` → Only Pol runs (design craft + anti-slop)
-- `eye-only` → Only Eye runs (screenshots + visual QA)
+- No flag → Full run: Crit + Pol + Eye + Test + Adversarial (all five)
+- `--product` → Only Crit runs (HEART dimensions, UX)
+- `--design` → Only Pol runs (design craft + anti-slop)
+- `--visual` → Only Eye runs (screenshots + visual QA, same as /ship-browse)
+- `--test` → Only Test runs (automated + manual testing, health score)
+- `--report` → Full run but report-only — find issues, don't fix anything
+- `--fix` → Full run + auto-fix obvious issues (default behavior when no flag)
+
+Legacy flag support (backward compatible):
+- `crit-only` → same as `--product`
+- `pol-only` → same as `--design`
+- `eye-only` → same as `--visual`
 
 Strip the flag from $ARGUMENTS before passing the rest as the review target.
 
@@ -86,6 +94,20 @@ Reviews against HEART dimensions (pick the 2-3 most relevant):
 - **Copy clarity** — read `references/shared/copy-clarity.md` Section 2. Are button labels specific verbs? Do error messages explain what happened + how to fix it? Are empty states guiding, not blank?
 - **Edge cases** — read `references/shared/hardening-guide.md` Section 2. Test with empty strings, very long text, special characters, double-click, back button after submit.
 - **Metric check** — does this feature move the HEART metric from /ship-plan?
+
+### Search Before Recommending (Crit's discipline)
+
+Before recommending any fix, pattern, or library:
+1. Check the declared Stack version in CLAUDE.md
+2. Verify the suggestion is current best practice for that version
+3. Check if a built-in solution exists in the declared version before suggesting a library
+4. Check LEARNINGS.md "## Code Patterns" for project-specific conventions
+5. Never suggest deprecated APIs or patterns
+
+**Write to LEARNINGS.md** under "## Code Patterns" if you discover a recurring quality issue:
+```
+- **[date]** [Pattern] — [when to apply] — [why it matters]
+```
 
 Output: Prioritized list — Must fix / Should fix / Nice to have.
 
@@ -181,6 +203,17 @@ If 5+ flags are checked → "This has the AI-generated app look. The aesthetic d
 8. **Copy review** — every button label, heading, error message
 9. **Differentiation check** — "What makes this unforgettable?" If the answer is "nothing," that's a finding.
 
+### Search Before Recommending (Pol's discipline)
+
+Same as Crit: verify all recommended design patterns are current for the declared Stack and framework version. Don't suggest deprecated component APIs or outdated styling approaches.
+
+**Read LEARNINGS.md** "## Design Preferences" — apply learned taste preferences. If the founder previously said they dislike gradients, don't suggest gradients.
+
+**Write to LEARNINGS.md** under "## Design Preferences" if you discover new taste signals during review:
+```
+- **[date]** [Preference] — context: [what was being reviewed]
+```
+
 Output: Design punch list with specific instructions Dev can implement.
 
 ---
@@ -257,6 +290,77 @@ This is what makes Eye different from a solo visual QA pass. Eye challenges the 
 "Crit said task success is good, but the submit button is below the fold on mobile — users won't find it."
 
 Output: Visual QA report with screenshots (if available). Suggest creating `references/design-system.md` if it doesn't exist.
+
+---
+
+## ━━━ Test (QA Tester — integrated from /ship-qa) ━━━
+
+> Voice: You test like a real user, not a developer. You don't care about code quality — you care about whether it WORKS. You click everything, submit garbage, resize the window, kill the network, and see what breaks.
+
+Test runs AFTER Crit, Pol, and Eye — so it can cross-reference their findings with actual test results.
+
+### Test Runner Check
+
+1. Read `package.json` (or equivalent) for existing test framework
+2. If NO test framework: suggest Playwright (e2e) + Vitest (unit) for web, XCTest for iOS
+3. If tests exist: run them first. Show full output — no "tests pass" without evidence.
+
+### Scope
+
+Map changed files to user-facing pages. Choose tier:
+- **Quick** — smoke test: homepage + 3-5 key pages. Console errors? Broken links?
+- **Standard** (default) — full flow: every page in the Screen Map. Forms, edge cases, mobile.
+- **Exhaustive** — standard + empty states, error states, slow connections, every input combination.
+
+### Run Existing Tests
+
+```bash
+npm test
+```
+
+Show the full test output. Report pass/fail. If tests fail, flag immediately.
+
+### Explore Like a User
+
+Visit each affected page:
+1. **Does it load?** Console errors, blank screens?
+2. **Interactive elements** — click every button, link, control
+3. **Forms** — submit empty, long text, special characters, emoji
+4. **Navigation** — back button, deep links, refresh mid-flow
+5. **States** — new user, loading, error, empty
+6. **Mobile** — resize to 375px. Does it work AND feel good?
+7. **Keyboard + screen reader** — Tab through everything. Focus order logical? Dialogs trap focus?
+8. **State transitions** — multi-step flows: does going back restore state? Does refresh reset correctly?
+
+### Write Missing Tests
+
+For features without tests:
+- Happy path (end-to-end)
+- Edge cases (empty, long, special chars, rapid clicks)
+- Error states (network failure, invalid data)
+
+### Health Score
+
+```
+Start at 100.
+Each critical issue:  -25
+Each high issue:      -15
+Each medium issue:     -8
+Each low issue:        -3
+
+90-100: Ship it
+70-89:  Fix criticals and highs first
+50-69:  Needs work
+Below 50: Don't ship
+```
+
+The health score is included in the final review report regardless of which flags are used. Every `/ship-review` run produces a number.
+
+### Fix Loop (only with --fix flag or if founder requests)
+
+Fix by severity, one commit per fix, stop after 10 fixes. Never bundle multiple fixes.
+
+Output: Health score + issues classified by severity + tests written.
 
 ---
 
@@ -450,10 +554,13 @@ Add ALL findings to TASKS.md — must-fixes as top priority in "Up Next", should
 
 ```
 STATUS: [APPROVED / APPROVED_WITH_NOTES / NEEDS_WORK]
-[If APPROVED]: Review done. Ready for /ship-qa to verify, then /ship-launch.
-[If APPROVED_WITH_NOTES]: Review done. Notes in TASKS.md — not blocking but address when possible.
-[If NEEDS_WORK]: Must-fixes in TASKS.md. Fix with /ship-build, then run /ship-review again.
+HEALTH SCORE: [XX/100]
+[If APPROVED]: Review done. Health score XX/100. Ready for /ship-launch.
+[If APPROVED_WITH_NOTES]: Review done. Health score XX/100. Notes in TASKS.md — not blocking but address when possible.
+[If NEEDS_WORK]: Health score XX/100. Must-fixes in TASKS.md. Fix with /ship-build, then run /ship-review again.
 ```
+
+Note: /ship-qa has been merged into this command. Running `/ship-qa` will redirect here.
 
 ---
 

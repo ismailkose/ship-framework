@@ -118,6 +118,8 @@ PROTECTED_FILES=(
   "TASKS.md"
   "DECISIONS.md"
   "CONTEXT.md"
+  "LEARNINGS.md"
+  "DESIGN.md"
   "references/design-system.md"
 )
 
@@ -307,6 +309,39 @@ PYEOF
   echo ""
 fi
 
+# ─── Step 4a: v4 → v4.1 migration (ship-qa deprecation) ────────────────────
+# Users on v4 (pre-2026.04.06) may have /ship-qa references in CLAUDE.md or TASKS.md
+
+if grep -q '/ship-qa' "$PROJECT_DIR/CLAUDE.md" 2>/dev/null; then
+  sedi 's|/ship-qa|/ship-review --test|g' "$PROJECT_DIR/CLAUDE.md"
+  echo -e "${GREEN}✓${RESET} Updated /ship-qa → /ship-review --test in CLAUDE.md"
+fi
+
+if [ -f "$PROJECT_DIR/TASKS.md" ] && grep -q '/ship-qa' "$PROJECT_DIR/TASKS.md" 2>/dev/null; then
+  sedi 's|/ship-qa|/ship-review --test|g' "$PROJECT_DIR/TASKS.md"
+  echo -e "${GREEN}✓${RESET} Updated /ship-qa → /ship-review --test in TASKS.md"
+fi
+
+# ─── Step 4b: Migration helper — back up customizable routing files ──────────
+# ship-team.md contains the Task Routing table that users often customize.
+# Back it up before overwriting so they can see what changed and re-apply.
+
+MIGRATION_WARNINGS=""
+
+if [ -f "$PROJECT_DIR/.claude/commands/ship-team.md" ] && [ -f "$TEMPLATE_DIR/.claude/commands/ship-team.md" ]; then
+  # Check if user's file differs from the NEW template (i.e., they'll lose changes)
+  if ! diff -q "$PROJECT_DIR/.claude/commands/ship-team.md" "$TEMPLATE_DIR/.claude/commands/ship-team.md" > /dev/null 2>&1; then
+    # Back up the current version
+    cp "$PROJECT_DIR/.claude/commands/ship-team.md" "$PROJECT_DIR/.claude/commands/ship-team.md.backup"
+
+    # Generate a human-readable diff summary
+    DIFF_OUTPUT=$(diff --unified=3 "$PROJECT_DIR/.claude/commands/ship-team.md" "$TEMPLATE_DIR/.claude/commands/ship-team.md" 2>/dev/null | head -80)
+    if [ -n "$DIFF_OUTPUT" ]; then
+      MIGRATION_WARNINGS="ship-team"
+    fi
+  fi
+fi
+
 # ─── Step 5: Sync template ───────────────────────────────────────────────────
 
 echo -e "${BOLD}Syncing files:${RESET}"
@@ -383,7 +418,7 @@ echo -e "${GREEN}✓${RESET} Updated CHEATSHEET.md"
 
 # ─── Step 7: Create root-level files if missing ──────────────────────────────
 
-for root_file in DECISIONS.md CONTEXT.md TASKS.md; do
+for root_file in DECISIONS.md CONTEXT.md TASKS.md LEARNINGS.md; do
   if [ ! -f "$PROJECT_DIR/$root_file" ] && [ -f "$TEMPLATE_DIR/$root_file" ]; then
     cp "$TEMPLATE_DIR/$root_file" "$PROJECT_DIR/$root_file"
     echo -e "${GREEN}✓${RESET} Created $root_file (new in this version)"
@@ -432,12 +467,34 @@ for i in "$@"; do
   prev_arg="$i"
 done
 
+# ─── Step 10: Show migration warnings ───────────────────────────────────────
+
+if [ -n "$MIGRATION_WARNINGS" ]; then
+  echo ""
+  echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
+  echo -e "${BOLD}Migration Notice: Routing table changed${RESET}"
+  echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
+  echo ""
+  echo -e "  ${BOLD}ship-team.md${RESET} has been updated with new routes and features."
+  echo -e "  Your previous version was backed up to:"
+  echo ""
+  echo -e "    ${DIM}.claude/commands/ship-team.md.backup${RESET}"
+  echo ""
+  echo -e "  If you customized the Task Routing table, you can compare:"
+  echo ""
+  echo -e "    ${BOLD}diff .claude/commands/ship-team.md.backup .claude/commands/ship-team.md${RESET}"
+  echo ""
+  echo -e "  Then re-apply any custom routes you added."
+  echo ""
+  echo -e "${YELLOW}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
+fi
+
 # ─── Summary ──────────────────────────────────────────────────────────────────
 
 echo ""
 echo -e "${BOLD}${ORANGE}Updated!${RESET} v${CURRENT_VERSION} → v${VERSION}"
 echo ""
-echo -e "${DIM}Your CLAUDE.md content, TASKS.md, DECISIONS.md, and CONTEXT.md are untouched.${RESET}"
+echo -e "${DIM}Your CLAUDE.md content, TASKS.md, DECISIONS.md, CONTEXT.md, and LEARNINGS.md are untouched.${RESET}"
 if [ "$V3_MIGRATION" = true ]; then
   echo ""
   echo -e "${BOLD}v4 changes to know about:${RESET}"

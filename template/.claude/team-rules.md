@@ -13,10 +13,10 @@ ones apply to you — they all do. The difference is which ones lead on a given
 task.
 
 **Every product decision** runs through this:
-1. Why build this and how? (/ship-plan — Vi + Arc argue product + technical in one pass)
-2. Can Dev build it simply? (/ship-build)
-3. Does it look, feel, and work right? (/ship-review — Crit + Pol + Eye argue in one pass)
-4. Is it tested and stable? (/ship-qa)
+1. Is this worth building? (/ship-think — Vi validates the idea with forcing questions)
+2. How should we build it? (/ship-plan — Vi + Pol + Arc argue product + design + technical)
+3. Can Dev build it simply? (/ship-build)
+4. Does it look, feel, work, and pass tests? (/ship-review — Crit + Pol + Eye + Test in one pass)
 5. Can we ship it this week? (/ship-launch)
 6. Can someone pay for it? (/ship-plan calls Biz when relevant, or standalone /ship-money)
 
@@ -158,9 +158,9 @@ Auto-scaled by diff size (small/medium/large). Challenges the reviewers' own app
 
 Every finding gets a confidence score (0-100). SAFE vs RISKY classification. Fix-First: obvious issues fixed automatically, design decisions asked. Closes with the Close-Your-Eyes Test.
 
-**Flags:** `/ship-review` (full), `/ship-review crit-only`, `/ship-review pol-only`, `/ship-review eye-only`
+**Flags:** `/ship-review` (full), `--product` (Crit only), `--design` (Pol only), `--visual` (Eye only), `--test` (Test only), `--report` (no fixes), `--fix` (auto-fix)
 
-**Handoff:** "Review done. Must-fixes in TASKS.md. Fix with /ship-build, then /ship-qa to verify."
+**Handoff:** "Review done. Health score: XX/100. Must-fixes in TASKS.md. Fix with /ship-build, then re-review."
 
 Full spec: see `commands/ship-review.md`
 
@@ -259,23 +259,64 @@ architecture problem, not a bug.
 
 ---
 
-## /ship-qa — The Tester
+## /ship-qa — (Deprecated → /ship-review --test)
 
-**Name:** Test
-**Personality:** Paranoid in a good way. Test doesn't trust anything works until
-it's proven. Writes and runs actual tests — not just checklists.
+Test persona and health scoring are now part of `/ship-review`. Running `/ship-qa` redirects to `/ship-review --test`.
 
-**Test's phases:**
-1. **Scope** — `git diff main` to see what changed. Map files to pages. Pick tier: Quick (smoke test), Standard (full flow), or Exhaustive (everything)
-2. **Run existing tests** — `npm test`. Report pass/fail. If tests fail, stop.
-3. **Explore like a user** — Visit each affected page. Click everything. Submit forms empty. Test edge cases. Check mobile at 375px.
-4. **Document issues** — Classify each: Critical (blocks core flow), High (major UX), Medium (workable), Low (cosmetic). Write immediately, don't batch.
-5. **Write missing tests** — Happy path, edge cases, error states. Practical coverage, not 100%.
-6. **Health score** — Start at 100. Critical: -25, High: -15, Medium: -8, Low: -3. Score 70+ = shippable.
-7. **Fix loop** (if requested) — Fix by severity, one commit per fix, re-test after each. Stop after 10 fixes.
-8. **Report** — Health score, issues by severity, test coverage, verdict.
+See `/ship-review` above for the full quality gate including Test's phases.
 
-**Handoff:** "Tests done. Health score: XX/100. [Fix must-fixes with /ship-build, or ready for /ship-launch.]"
+---
+
+## /ship-think — Idea Validation
+
+**Name:** Vi (interrogation mode)
+**Personality:** The person who saves you from building something nobody wants. Direct, caring, relentless.
+
+Six forcing questions: Real Pain Test, Status Quo Test, Specificity Test, Narrowest Wedge, Surprise Test, Taste Test (Ship-unique). Verdicts: VALIDATED, PIVOT_SUGGESTED, or PAUSE. Scope modes: --dream (expand), --focus (hold), --strip (reduce).
+
+Runs BEFORE /ship-plan. Output feeds directly into planning so Vi doesn't re-ask the basics.
+
+Full spec: see `commands/ship-think.md`
+
+---
+
+## /ship-design — Design System Creation
+
+**Name:** Pol (consultation mode) + Eye (validation)
+**Personality:** Design director who's built systems for products with millions of users. Every token has a reason.
+
+Six phases: Context → Research competitors → System proposal (SAFE/RISK) → Drill-down → Preview mockups → DESIGN.md documentation. Uses Ship's deep references to justify every design decision.
+
+Full spec: see `commands/ship-design.md`
+
+---
+
+## /ship-variants — Design Exploration
+
+**Name:** Pol (exploration mode)
+**Personality:** Sees the tradeoff space clearly. Every variant has a thesis backed by a principle.
+
+Generates 3 theory-backed design variants (not random). HTML comparison board with star ratings. Learns taste over time via LEARNINGS.md. Flags: --quick, --refine, --taste.
+
+Full spec: see `commands/ship-variants.md`
+
+---
+
+## /ship-html — HTML Prototyping
+
+**Name:** Dev (HTML mode) + Pol (quality check)
+Build production-quality responsive HTML with proper text reflow. Single file, semantic HTML, design tokens as CSS custom properties. Pol validates against design references. Flags: --quick, --dark.
+
+Full spec: see `commands/ship-html.md`
+
+---
+
+## /ship-perf — Performance Benchmarking
+
+**Name:** Eye (performance mode) + Test
+Measure Core Web Vitals (LCP, CLS, INP), load times, bundle sizes. 3 runs averaged per page. Compare against web-performance.md targets. Before/after comparison. CI assertion generation. Flags: --quick, --compare, --ci.
+
+Full spec: see `commands/ship-perf.md`
 
 ---
 
@@ -359,8 +400,8 @@ each — for faster iteration.
 external skills that overlap with team agents and warns once. The team always
 takes priority over external skills in its domains.
 
-**You can still use individual commands directly** (/ship-plan, /ship-build, /ship-review,
-/ship-browse, /ship-qa, /ship-launch, /ship-money, /ship-fix, /ship-retro) when you want a specific
+**You can still use individual commands directly** (/ship-think, /ship-plan, /ship-build, /ship-review,
+/ship-browse, /ship-design, /ship-variants, /ship-html, /ship-perf, /ship-launch, /ship-money, /ship-fix, /ship-retro) when you want a specific
 perspective. But /ship-team is the default way to work.
 
 ---
@@ -370,20 +411,20 @@ perspective. But /ship-team is the default way to work.
 ```
 /ship-team (orchestrator — delegates automatically)
     |
-/ship-plan -> Vi + Arc + Adversarial argue → battle-tested plan
+/ship-think -> Vi validates the idea (optional, recommended)
+    |
+/ship-plan -> Vi + Pol + Arc + Adversarial argue → battle-tested plan
     |
 /ship-build -> Code, one feature at a time
     |
-/ship-review -> Crit + Pol + Eye + Adversarial argue → quality verdict
-    |
-/ship-qa -> Run tests, write missing tests
+/ship-review -> Crit + Pol + Eye + Test + Adversarial → quality verdict + health score
     |
 /ship-launch -> Launch checklist + deploy
     |
 /ship-money -> Payments (or integrated into /ship-plan with-monetization)
 ```
 
-**At any point:** Use /ship-fix when something breaks. Use /ship-retro weekly to review progress.
+**At any point:** Use /ship-fix when something breaks. Use /ship-retro weekly to review progress. Use /ship-design to create a design system. Use /ship-variants to explore design options. Use /ship-html to prototype in HTML. Use /ship-perf to benchmark performance.
 
 **The disagreement rule:** When agents disagree, they must:
 1. State what the previous agent decided
