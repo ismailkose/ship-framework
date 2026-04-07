@@ -6,6 +6,22 @@ To update an existing project, run `bash ship-update.sh` from your project root,
 
 ---
 
+## 2026.04.07b — Reference Gate + AI Mockups + Smart Flags
+
+### New Features
+- **Reference Gate (Rule 25)** — Every command now enforces mandatory reference reading before any work begins. Agents must print a `REFERENCES LOADED` receipt before proceeding. Reviews flag `REF_SKIP` when issues were preventable by reading references. No exceptions for speed, small changes, or "I already know this."
+- **AI Mockup Generation** — `/ship-variants` and `/ship-design` now support `--mockup` flag for GPT Image API integration. Generates high-fidelity AI mockup images alongside HTML comparison boards. Auto-detected when `OPENAI_API_KEY` is set and the brief is a full page/screen. Falls back to HTML-only when unavailable. Uses `gpt-image-1` with portrait (1024x1536) for mobile and landscape (1536x1024) for web.
+- **Smart Flag Resolution** — All 5 design/review commands (ship-review, ship-variants, ship-design, ship-plan, ship-html) now auto-detect the right flag based on context. The team reads the diff size, file types, project state, and prior outputs to choose the appropriate mode. Explicit flags always override. Each command announces its decision so you know what happened.
+
+### How Smart Flags Work
+- **ship-review**: Auto-selects `--design` for CSS-only changes, `--product` for small diffs, full suite near releases
+- **ship-plan**: Auto-selects `vi-only` for vague ideas, `arc-only` for technical requests, inherits scope mode from /ship-think
+- **ship-variants**: Auto-selects `--quick` for single components, `--refine` when recent feedback exists, `--mockup` when API key available
+- **ship-design**: Auto-selects `--audit` when DESIGN.md exists, `--mockup` when API key available for full consultations
+- **ship-html**: Auto-adds `--dark` when DESIGN.md has dark tokens, `--form` when brief mentions forms
+
+---
+
 ## 2026.04.07a — Hotfix: Dotglob + Version Stamp + Cleanup
 
 ### Critical Fix

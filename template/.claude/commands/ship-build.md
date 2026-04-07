@@ -17,6 +17,23 @@ Before starting, load the relevant Ship skills:
 4. If animations are in the plan → read `.claude/skills/ship/motion/SKILL.md`
 5. Check CLAUDE.md "My Skills" section for user-declared skill wiring matching /ship-build — load any matching skills
 
+## Reference Gate (Rule 25 — mandatory)
+
+**STOP.** Before writing any code, you MUST read the references listed above and print a receipt:
+
+```
+REFERENCES LOADED:
+- [filename] ✓
+- [filename] ✓
+- [filename] ✓
+```
+
+**Framework Common Mistakes:** When building with a specific framework (StoreKit, HealthKit, CloudKit, etc.), Dev reads the Common Mistakes section from the matching file in `references/ios/frameworks/`. These are real patterns that cause real bugs.
+
+Do NOT proceed to Build Scope until this receipt is printed. Skipping references to move faster creates rework. This gate exists because it was violated and cost time (see LEARNINGS.md).
+
+---
+
 ## Build Scope (declare before each feature)
 
 Before building each feature, declare your scope:

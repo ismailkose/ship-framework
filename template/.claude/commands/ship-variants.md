@@ -19,15 +19,58 @@ Before generating variants, load:
 - `references/shared/navigation.md` (navigation patterns)
 - `references/shared/components.md` (component architecture)
 
+## Reference Gate (Rule 25 — mandatory)
+
+**STOP.** Before generating any variants, you MUST read the references listed above and print a receipt:
+
+```
+REFERENCES LOADED:
+- [filename] ✓
+- [filename] ✓
+```
+
+Do NOT proceed to Pol's variant generation until this receipt is printed.
+
 ---
 
 ## Flag Handling
 
-Parse the arguments for flags:
-- No flag → 3 variants + HTML comparison board
+### Smart Flag Resolution (auto-detect when no flag given)
+
+**If the user passes an explicit flag → always use it. No override.**
+
+If NO flag is given, the team decides based on context:
+
+```
+1. CHECK scope of the design brief:
+   - Single component (button, card, input)    → auto-select --quick (2 variants inline, no board for a button)
+   - Full page or screen                       → full run (3 variants + comparison board)
+   - Multiple pages or flow                    → full run + suggest breaking into per-page sessions
+
+2. CHECK for prior feedback:
+   - If variant-feedback.json exists and is recent (< 24h) → auto-select --refine
+   - If variant-feedback.json exists and is old             → full run (fresh exploration)
+
+3. CHECK taste maturity:
+   - If LEARNINGS.md has 5+ design preferences  → weight variants toward learned taste
+   - If LEARNINGS.md has 0 preferences           → make variants more diverse to discover taste
+
+4. CHECK for GPT Image availability:
+   - Run: echo $OPENAI_API_KEY | head -c 3
+   - If key exists AND brief is a full page/screen → auto-add --mockup (generate AI mockups alongside HTML)
+   - If key exists AND brief is a component        → skip mockup (HTML is better for components)
+   - If no key                                     → HTML only (no mockup flag)
+
+ANNOUNCE the decision: "Auto-selecting --quick (single component). Override with an explicit flag for the full comparison board."
+```
+
+### Available Flags
+
+- No flag → Smart resolution (see above), defaults to 3 variants + HTML comparison board
 - `--quick` → 2 variants, show inline (no comparison board)
 - `--refine` → Read previous variant-feedback.json, generate refined options
 - `--taste` → Show current taste profile from DESIGN.md and LEARNINGS.md
+- `--mockup` → Generate AI mockup images via GPT Image API (requires OPENAI_API_KEY)
 
 Strip the flag from $ARGUMENTS before passing the rest as the design brief.
 
@@ -124,6 +167,89 @@ The `variant-feedback.json` structure:
 ```
 
 If running with `--quick`: skip the HTML board. Show variants inline with token details and ask for preference directly.
+
+### Step 3b: AI Mockup Generation (--mockup flag or auto-detected)
+
+**Skip this step if --mockup is not active.**
+
+Generate high-fidelity AI mockups for each variant using GPT Image API. These complement the HTML board — HTML shows working interaction, mockups show visual polish and feeling.
+
+#### Availability Check
+
+```bash
+if [ -z "$OPENAI_API_KEY" ]; then
+  echo "Skipping mockups — OPENAI_API_KEY not set. HTML comparison board is available."
+  # Continue without mockups
+fi
+```
+
+#### Prompt Construction
+
+For each variant, construct an image generation prompt that combines:
+1. **Product context** — from CLAUDE.md (what the product is, who it's for)
+2. **Variant thesis** — the design principle this variant optimizes for
+3. **Design tokens** — specific colors, typography, spacing from the variant
+4. **Platform** — from Stack in CLAUDE.md (iOS app screen, web page, Android, etc.)
+5. **Taste preferences** — from LEARNINGS.md (if any)
+
+**Prompt template:**
+```
+A high-fidelity [platform] UI mockup of a [product type] app screen.
+[Variant thesis description].
+Design: [font family] typography, [color palette description], [spacing description].
+The screen shows [specific content/feature from the brief].
+Style: modern, polished, production-ready UI design. Clean and professional.
+[Taste preferences if any, e.g., "Minimal aesthetic, generous whitespace, no gradients."]
+Do NOT include any device frames, hands, or external elements — just the UI screen.
+```
+
+#### Generate Images
+
+For each variant (A, B, C), call the GPT Image API:
+
+```bash
+curl -s -X POST "https://api.openai.com/v1/images/generations" \
+  -H "Authorization: Bearer $OPENAI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-1",
+    "prompt": "[constructed prompt for variant]",
+    "size": "1024x1536",
+    "quality": "high",
+    "n": 1
+  }' | python3 -c "
+import sys, json, base64
+data = json.load(sys.stdin)
+img = base64.b64decode(data['data'][0]['b64_json'])
+with open('[output_path]', 'wb') as f:
+    f.write(img)
+"
+```
+
+**Output files:**
+- `variant-A-mockup.png`
+- `variant-B-mockup.png`
+- `variant-C-mockup.png`
+
+**Size choice:** `1024x1536` for mobile app screens (portrait), `1536x1024` for web/desktop layouts. Read Stack from CLAUDE.md to decide.
+
+#### Embed in Comparison Board
+
+If the HTML comparison board was also generated, update it to include the mockup images:
+- Add an `<img>` tag above each variant's HTML rendering
+- Label: "AI Mockup (visual direction)" above the image
+- Label: "Working HTML (interactive)" above the HTML
+
+#### Error Handling
+
+- If API call fails: log the error, continue with HTML-only board
+- If rate limited: wait 5 seconds, retry once, then continue without mockups
+- If API key invalid: print "OPENAI_API_KEY is set but invalid. Skipping mockups."
+- Never block the entire command because of a mockup failure
+
+#### Cost Note
+
+Print after generation: "Generated 3 mockups via GPT Image API (~$0.04-0.08 per image depending on model)."
 
 ### Step 4: Process Feedback
 

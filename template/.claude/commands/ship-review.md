@@ -17,12 +17,54 @@ Before starting, load the relevant Ship skills:
 4. Read the platform skill for the current Stack (e.g., `.claude/skills/ship/ios/SKILL.md` for iOS)
 5. Check CLAUDE.md "My Skills" section for user-declared skill wiring matching /ship-review — load any matching skills
 
+## Reference Gate (Rule 25 — mandatory)
+
+**STOP.** Before running any review lens, you MUST read the references each persona requires (listed in their sections below) and print a receipt:
+
+```
+REFERENCES LOADED:
+- [filename] ✓
+- [filename] ✓
+- [filename] ✓
+```
+
+**REF_SKIP detection:** During review, if you find an issue that a reference would have caught during /ship-build, flag it as `REF_SKIP` in the findings. Write it to LEARNINGS.md so the pattern compounds.
+
+Do NOT proceed to Step 0 (Scope Drift) until this receipt is printed.
+
 ---
 
 ## Flag Handling
 
-Parse the arguments for flags:
-- No flag → Full run: Crit + Pol + Eye + Test + Adversarial (all five)
+### Smart Flag Resolution (auto-detect when no flag given)
+
+**If the user passes an explicit flag → always use it. No override.**
+
+If NO flag is given, the team decides based on context:
+
+```
+1. RUN: git diff --stat HEAD~1 (or staged diff) to measure change scope
+2. DETECT file types changed:
+   - Only .css/.scss/styling files     → auto-select --design
+   - Only test files                   → auto-select --test
+   - Only .md/.txt/copy files          → auto-select --product
+   - Only asset/image files            → auto-select --visual
+3. DETECT diff size:
+   - < 20 lines changed               → auto-select --product (quick Crit pass, skip full suite)
+   - 20-200 lines changed              → full run (all five lenses)
+   - 200+ lines changed                → full run + enhanced adversarial
+4. DETECT release proximity:
+   - Branch name contains release/hotfix/deploy → full run (all lenses, no shortcuts)
+   - Recent git tag within 5 commits            → full run
+5. DETECT prior review:
+   - If LAST_REVIEW_HASH matches HEAD~1 (only latest commit is new) → incremental review of new commit only
+
+ANNOUNCE the decision: "Auto-selecting --design (only CSS files changed). Override with an explicit flag if you want the full suite."
+```
+
+### Available Flags
+
+- No flag → Smart resolution (see above), defaults to full run if ambiguous
 - `--product` → Only Crit runs (HEART dimensions, UX)
 - `--design` → Only Pol runs (design craft + anti-slop)
 - `--visual` → Only Eye runs (screenshots + visual QA, same as /ship-browse)

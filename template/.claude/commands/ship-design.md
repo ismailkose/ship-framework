@@ -24,15 +24,58 @@ Platform-specific (based on Stack in CLAUDE.md):
 - If web: `references/web/web-accessibility.md`, `references/web/web-performance.md`
 - If ios: `references/ios/hig-ios.md`, `references/ios/swiftui-core.md`
 
+## Reference Gate (Rule 25 — mandatory)
+
+**STOP.** Before starting any phase, you MUST read the references listed above and print a receipt:
+
+```
+REFERENCES LOADED:
+- [filename] ✓
+- [filename] ✓
+```
+
+Do NOT proceed to Phase 1 until this receipt is printed.
+
 ---
 
 ## Flag Handling
 
-Parse the arguments for flags:
-- No flag → Full 6-phase consultation
+### Smart Flag Resolution (auto-detect when no flag given)
+
+**If the user passes an explicit flag → always use it. No override.**
+
+If NO flag is given, the team decides based on context:
+
+```
+1. CHECK for existing design system:
+   - DESIGN.md exists and has tokens         → auto-select --audit (system exists, review it)
+   - DESIGN.md exists but is sparse/empty    → full run (build out the system)
+   - No DESIGN.md                            → full run (create from scratch)
+
+2. CHECK request specificity:
+   - User asks about tokens/colors/spacing   → auto-select --tokens
+   - User mentions competitor or "research"  → auto-select --research
+   - User asks to "create" or "build"        → full run
+
+3. CHECK project maturity:
+   - No committed code yet (empty project)   → full run (establish system before code)
+   - Existing codebase with no design system → --audit first (extract what's already in use, then propose)
+
+4. CHECK for GPT Image availability:
+   - Run: echo $OPENAI_API_KEY | head -c 3
+   - If key exists AND running full consultation → auto-add --mockup (AI mockups in Phase 5)
+   - If no key → HTML preview only
+
+ANNOUNCE the decision: "Auto-selecting --audit (DESIGN.md already exists). Override with no flag for a full consultation."
+```
+
+### Available Flags
+
+- No flag → Smart resolution (see above), defaults to full 6-phase consultation
 - `--audit` → Audit existing design system against Ship references
 - `--tokens` → Generate/update design token file only
 - `--research` → Competitor research phase only
+- `--mockup` → Generate AI mockup images in Phase 5 via GPT Image API (requires OPENAI_API_KEY)
 
 Strip the flag from $ARGUMENTS before passing the rest as context.
 
@@ -145,9 +188,50 @@ Generate visual previews of the system in action:
 
 Include all tokens as CSS custom properties so the preview is a living reference.
 
-**If image generation is available** (GPT Image API or similar):
-- Generate high-fidelity mockups of the key screens
-- Use the exact fonts, colors, and spacing from the proposal
+**AI Mockup Generation** (auto-enabled when OPENAI_API_KEY is set, or via `--mockup` flag):
+
+Check availability:
+```bash
+if [ -z "$OPENAI_API_KEY" ]; then
+  echo "Skipping AI mockups — OPENAI_API_KEY not set. HTML preview is available."
+fi
+```
+
+If available, generate high-fidelity mockups of the key screens using GPT Image API:
+
+For each preview screen (signup, dashboard, settings, empty state), construct a prompt:
+```
+A high-fidelity [platform] UI mockup of a [product type] [screen name].
+Typography: [font family] at [base size] with [scale ratio].
+Colors: [primary], [secondary], [background], [text] — [light/dark mode].
+Spacing: [base unit] system, [density level].
+The screen shows [realistic content for this screen].
+Style: modern, polished, production-ready. [Emotional keywords from Phase 1].
+Do NOT include device frames, hands, or external elements — just the UI.
+```
+
+```bash
+curl -s -X POST "https://api.openai.com/v1/images/generations" \
+  -H "Authorization: Bearer $OPENAI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-image-1",
+    "prompt": "[constructed prompt]",
+    "size": "[1024x1536 for mobile, 1536x1024 for web]",
+    "quality": "high",
+    "n": 1
+  }' | python3 -c "
+import sys, json, base64
+data = json.load(sys.stdin)
+img = base64.b64decode(data['data'][0]['b64_json'])
+with open('design-preview-[screen].png', 'wb') as f:
+    f.write(img)
+"
+```
+
+Output: `design-preview-signup.png`, `design-preview-dashboard.png`, etc.
+Embed in the HTML preview page alongside the working HTML versions.
+If API fails: continue with HTML-only preview, log the error.
 
 **Eye validates the preview:**
 - Check against `design-quality.md` first impression assessment

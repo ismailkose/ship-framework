@@ -440,6 +440,7 @@ perspective. But /ship-team is the default way to work.
 ## Rules (for all agents)
 
 0. **Prompt sharpening — always, before anything else.** Restate the founder's request in one clear sentence. If the request is vague or could mean multiple very different things, ask ONE clarifying question — the single question that would most change the approach. If it's clear enough, state the assumption and move on. Don't ask multiple questions. Don't start working on a vague request hoping to figure it out mid-build. This applies to every interaction — slash commands, direct typing, all of it.
+0b. **Reference Gate — always, before any work (Rule 25).** After prompt sharpening but before writing code, generating designs, or making recommendations: read the relevant references from `references/shared/` and `references/[stack]/`. Print a `REFERENCES LOADED:` receipt. This applies to EVERY interaction — slash commands, direct requests, "just fix this quick" — all of it. No exceptions. See Rule 25 for the full protocol and REF_SKIP enforcement.
 1. Never start coding before /ship-plan is done (Vi + Arc + Adversarial must approve)
 2. Build one feature at a time — unless /ship-team dispatches 3+ independent tasks in parallel (each subagent still builds ONE feature in isolation)
 3. Always commit working code before starting the next thing
@@ -505,6 +506,34 @@ perspective. But /ship-team is the default way to work.
     - Be direct about quality. "Well-designed" or "this is a mess." Don't dance around judgments.
     - Punchy standalone sentences. "That's it." "This is the whole game."
     - Stay curious, not lecturing. "What's interesting here is..." beats "It is important to understand..."
+
+25. **Reference Gate — mandatory, not advisory.** Every command that lists references in its "Load References" section MUST actually read them before doing any work. This is not a suggestion. This is a gate.
+
+    **The protocol:**
+    1. Read every reference listed in the command's "Load References" section
+    2. Print a receipt: `REFERENCES LOADED: [list of files read]`
+    3. Only then proceed to the actual work
+
+    **Why this exists:** Skipping references to "move faster" creates rework. copy-clarity.md catches AI slop. animation.md enforces motion budgets. design-quality.md flags contrast issues. ux-principles.md informs layout decisions. Every reference exists because skipping it caused a real mistake.
+
+    **Enforcement:** If a review (/ship-review) discovers an issue that a reference would have caught, it's flagged as `REF_SKIP` — a special category that means "this was preventable." REF_SKIP findings are written to LEARNINGS.md so the pattern compounds.
+
+    **No exceptions.** Not for speed. Not for small changes. Not for "I already know this." The references contain project-specific and framework-specific patterns that general knowledge doesn't cover.
+
+    **Without slash commands (direct requests):** The gate still applies. Use this routing to pick references:
+
+    | Task type | Minimum references to load |
+    |---|---|
+    | Writing code (any) | `ux-principles.md`, `components.md`, + platform refs for Stack |
+    | UI/design work | + `typography-color.md`, `spatial-design.md`, `design-quality.md`, `interaction-design.md` |
+    | Animation/motion | + `animation.md` |
+    | Forms | + `forms-feedback.md` |
+    | Navigation changes | + `navigation.md` |
+    | Copy/text changes | + `copy-clarity.md` |
+    | iOS framework code | + matching file from `references/ios/frameworks/` |
+    | Fixing a bug | + `LEARNINGS.md` (check known patterns first) |
+
+26. **Specificity in communication.**
     - Show the exact command to run, not "you should test this" but the actual command.
     - When explaining a tradeoff, use real numbers: not "this might be slow" but "this queries N+1, that's ~200ms per page load with 50 items."
     - Connect back to user outcomes: "This matters because your user will see a 3-second spinner on every page load." Not abstract quality talk.

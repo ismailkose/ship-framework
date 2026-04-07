@@ -88,12 +88,53 @@ Then, based on the Stack field in CLAUDE.md, load platform-specific references:
 - Web: MDN, browser APIs, React/Next.js docs
 - Android: Android docs, Jetpack libraries, Material guidelines
 
+## Reference Gate (Rule 25 — mandatory)
+
+**STOP.** Before producing any plan, you MUST read the references listed above and print a receipt:
+
+```
+REFERENCES LOADED:
+- [filename] ✓
+- [filename] ✓
+- [filename] ✓
+```
+
+Do NOT proceed to Vi's brief until this receipt is printed. Skipping references to move faster creates rework. This gate exists because it was violated and cost time (see LEARNINGS.md).
+
 ---
 
 ## Flag Handling
 
-Parse the arguments for flags:
-- No flag → Full run: Vi + Pol Score + Arc + Adversarial (all four argue)
+### Smart Flag Resolution (auto-detect when no flag given)
+
+**If the user passes an explicit flag → always use it. No override.**
+
+If NO flag is given, the team decides based on context:
+
+```
+1. CHECK idea maturity (from $ARGUMENTS):
+   - Vague idea ("I want to build something for X")     → auto-select vi-only (brainstorm first)
+   - Clear idea with user/problem defined                → full run (Vi + Pol + Arc + Adversarial)
+   - Technical request ("add caching to the API")        → auto-select arc-only (skip product brief)
+
+2. CHECK for /ship-think output:
+   - Idea brief in DECISIONS.md with scope mode          → inherit scope mode (dream/focus/strip)
+   - No idea brief                                       → Vi runs full forcing questions
+
+3. CHECK scope mode (if not inherited from /ship-think):
+   - Early stage (no code, greenfield)                   → auto-select --dream (explore the full vision)
+   - Existing product (adding a feature)                 → auto-select --focus (hold scope)
+   - User says "quick", "fast", "MVP", "simple"          → auto-select --strip (minimum viable)
+
+4. CHECK monetization relevance:
+   - $ARGUMENTS mentions pricing, payments, subscription, monetization → auto-add with-monetization
+
+ANNOUNCE the decision: "Auto-selecting arc-only (technical request, product brief already exists). Override with an explicit flag for the full run."
+```
+
+### Available Flags
+
+- No flag → Smart resolution (see above), defaults to full run if ambiguous
 - `vi-only` → Only Vi runs (early brainstorming, no architecture yet)
 - `arc-only` → Only Arc runs (assumes Vi's brief already exists in TASKS.md or DECISIONS.md)
 - `pol-only` → Only Pol design dimension scoring (useful for evaluating an existing plan)

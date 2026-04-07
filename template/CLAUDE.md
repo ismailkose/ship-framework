@@ -65,6 +65,9 @@ Copy `.env.example` to `.env.local` and fill in your keys.
 **Rules, personas, and workflows:** `.claude/team-rules.md`
 That file is managed by Ship Framework — don't edit it. This file is yours.
 
+**⚠ Reference Gate (always enforced — with or without slash commands):**
+Before writing ANY code, generating ANY design, or making ANY technical recommendation, you MUST read the relevant references from `references/`. This is not optional. Print a `REFERENCES LOADED:` receipt before proceeding. See Rule 25 in team-rules.md. If you skip references to "move faster," the review will catch it and flag it as `REF_SKIP` — a preventable mistake.
+
 **Commands:**
 
 | Command | What it does |

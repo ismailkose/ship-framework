@@ -28,8 +28,8 @@ Routes everything. You don't need to remember any other command.
 
 | Command | Who | One-liner |
 |---------|-----|-----------|
-| `/ship-design` | Pol + Eye | Create a design system from scratch — research, propose, preview, document. |
-| `/ship-variants` | Pol | Generate 3 theory-backed design options. Compare, rate, learn your taste. |
+| `/ship-design` | Pol + Eye | Create a design system from scratch — research, propose, preview, document. `--mockup` for AI images. |
+| `/ship-variants` | Pol | Generate 3 theory-backed design options. Compare, rate, learn your taste. `--mockup` for AI images. |
 | `/ship-html` | Dev + Pol | Production-quality responsive HTML prototype. No framework needed. |
 
 ---
@@ -66,6 +66,12 @@ Routes everything. You don't need to remember any other command.
 
 ---
 
+## Smart Flag Resolution
+
+**No flag needed.** All commands auto-detect the right mode from context (diff size, file types, project state). The team announces what it picked. Explicit flags always override.
+
+---
+
 ## /ship-review Flags
 
 The single quality gate. Use flags for partial runs:
@@ -99,6 +105,17 @@ The single quality gate. Use flags for partial runs:
 | `--watch` | Headed mode — visible browser, watch Eye navigate |
 | `--auth` | Import cookies from your real browser for authenticated testing |
 | `--perf` | Include Core Web Vitals snapshot in visual QA |
+
+---
+
+## AI Mockups (requires OPENAI_API_KEY)
+
+| Command | Flag | What it does |
+|---------|------|-------------|
+| `/ship-variants` | `--mockup` | Generate AI mockup images alongside HTML comparison board |
+| `/ship-design` | `--mockup` | Generate AI mockup previews in Phase 5 |
+
+Auto-detected when `OPENAI_API_KEY` is set and the brief is a full page/screen. Falls back to HTML-only.
 
 ---
 

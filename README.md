@@ -1,6 +1,6 @@
 # Ship Framework
 
-`v2026.04.07a` · 61 framework references · 10 personas · 21 commands
+`v2026.04.07b` · 61 framework references · 10 personas · 21 commands
 
 **An AI product team in your terminal.**
 
@@ -65,8 +65,8 @@ Ship has 21 commands. You don't need to learn them all — `/ship-team` handles 
 
 | Command | Who | What happens |
 |:---|:---|:---|
-| **ship-design** | Pol + Eye | Create a design system from scratch. Research competitors, propose tokens, preview mockups, write DESIGN.md. |
-| **ship-variants** | Pol | Generate 3 theory-backed design options. HTML comparison board. Learns your taste over time. |
+| **ship-design** | Pol + Eye | Create a design system from scratch. Research competitors, propose tokens, preview mockups (AI or HTML), write DESIGN.md. |
+| **ship-variants** | Pol | Generate 3 theory-backed design options. HTML comparison board + AI mockups. Learns your taste over time. |
 | **ship-html** | Dev + Pol | Production-quality responsive HTML. No framework, proper text reflow. |
 
 ### 🔧 When You Need It
@@ -94,6 +94,14 @@ Ship has 21 commands. You don't need to learn them all — `/ship-team` handles 
 |:---|:---|
 | **ship-codex** | Second opinion from OpenAI Codex. Review, challenge, or consult. |
 | **ship-update** | Updates Ship Framework to latest version. |
+
+---
+
+## Smart Flags — No Flags Needed
+
+Every command auto-detects the right mode from context. The team reads your diff size, file types, project state, and prior outputs — then picks the appropriate flag automatically. You'll see what it chose. Explicit flags always override.
+
+**AI Mockups:** Set `OPENAI_API_KEY` and `/ship-variants` and `/ship-design` auto-generate high-fidelity AI mockups via GPT Image API alongside the HTML comparison boards.
 
 ---
 
