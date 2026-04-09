@@ -6,6 +6,15 @@ To update an existing project, run `bash ship-update.sh` from your project root,
 
 ---
 
+## 2026.04.08 — Stale v3 Command Cleanup
+
+### Bug Fixes
+- **Always-on v3 cleanup** — Old non-prefixed commands (plan.md, build.md, ship.md, architect.md, etc.) are now removed on every update, not just during initial v3→v4 migration. Fixes projects that updated from intermediate versions before the migration logic existed.
+- **Skills mirror scoped to ship-* only** — The command→skill mirror now only copies `ship-*` prefixed files, preventing stale v3 commands from being duplicated as skills.
+- **Stale skill cleanup** — If a v3 command was previously mirrored as a skill, the orphaned skill folder is also removed.
+
+---
+
 ## 2026.04.07b — Reference Gate + AI Mockups + Smart Flags
 
 ### New Features

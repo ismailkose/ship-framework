@@ -433,12 +433,40 @@ else
   echo -e "${GREEN}✓${RESET} Synced ($TOTAL_UPDATED updated, $TOTAL_SKIPPED protected)"
 fi
 
+# ─── Step 5a: Always clean stale v3 commands ────────────────────────────────
+# Runs every update, not just during migration. Catches projects that updated
+# from intermediate versions before the v3→v4 migration code existed.
+
+STALE_V3_COMMANDS=(
+  "plan.md" "build.md" "review.md" "qa.md" "ship.md"
+  "fix.md" "money.md" "browse.md" "team.md" "retro.md" "update.md"
+  "visionary.md" "architect.md" "critic.md" "polish.md"
+  "health.md" "status.md"
+)
+
+STALE_REMOVED=0
+for old_cmd in "${STALE_V3_COMMANDS[@]}"; do
+  if [ -f "$PROJECT_DIR/.claude/commands/$old_cmd" ]; then
+    rm "$PROJECT_DIR/.claude/commands/$old_cmd"
+    STALE_REMOVED=$((STALE_REMOVED + 1))
+    # Also remove the mirrored skill if it exists
+    skill_name=$(basename "$old_cmd" .md)
+    if [ -d "$PROJECT_DIR/.claude/skills/$skill_name" ]; then
+      rm -rf "$PROJECT_DIR/.claude/skills/$skill_name"
+    fi
+  fi
+done
+if [ $STALE_REMOVED -gt 0 ]; then
+  echo -e "${GREEN}✓${RESET} Removed $STALE_REMOVED stale v3 commands (non-prefixed duplicates)"
+fi
+
 # ─── Step 5b: Mirror commands as skills ──────────────────────────────────────
 # Claude Code v2.1.88+ has a bug where .claude/commands/ aren't discovered.
 # Skills format (.claude/skills/<name>/SKILL.md) works reliably across all versions.
+# Only mirror ship-* prefixed commands — never non-framework commands.
 
 SKILLS_SYNCED=0
-for cmd_file in "$PROJECT_DIR/.claude/commands/"*.md; do
+for cmd_file in "$PROJECT_DIR/.claude/commands/ship-"*.md; do
   [ -e "$cmd_file" ] || continue
   cmd_name=$(basename "$cmd_file" .md)
   mkdir -p "$PROJECT_DIR/.claude/skills/$cmd_name"
