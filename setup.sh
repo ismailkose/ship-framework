@@ -123,7 +123,7 @@ echo -e "${GREEN}✓${RESET} Created .claude/team-rules.md (agent definitions + 
 # Skills format (.claude/skills/<name>/SKILL.md) works reliably across all versions.
 
 COMMAND_COUNT=0
-for cmd_file in "$TEMPLATE_DIR/.claude/commands/"*.md; do
+for cmd_file in "$TEMPLATE_DIR/.claude/commands/ship-"*.md; do
   [ -e "$cmd_file" ] || continue
   cmd_name=$(basename "$cmd_file" .md)
   mkdir -p "$TARGET_DIR/.claude/skills/$cmd_name"
@@ -198,8 +198,17 @@ if [ -d "$TEMPLATE_DIR/references/ios" ]; then
   fi
 fi
 
+# Web references
+if [ -d "$TEMPLATE_DIR/references/web" ]; then
+  mkdir -p "$TARGET_DIR/references/web"
+  cp "$TEMPLATE_DIR/references/web/"*.md "$TARGET_DIR/references/web/" 2>/dev/null
+  WEB_COUNT=$(ls "$TEMPLATE_DIR/references/web/"*.md 2>/dev/null | wc -l | xargs)
+  if [ "$WEB_COUNT" -gt 0 ]; then
+    echo -e "${GREEN}✓${RESET} Created references/web/ ($WEB_COUNT web references)"
+  fi
+fi
+
 # Create empty platform directories for future content
-mkdir -p "$TARGET_DIR/references/web"
 mkdir -p "$TARGET_DIR/references/android"
 mkdir -p "$TARGET_DIR/references/cross-platform"
 
