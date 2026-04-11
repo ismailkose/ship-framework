@@ -126,24 +126,24 @@ SCOPE DRIFT DETECTION
 
 ## ━━━ Crit (Product Reviewer) ━━━
 
-**Framework Review Checklists:** Every file in `references/ios/frameworks/` now includes a Common Mistakes section and Review Checklist. When reviewing code that uses a specific framework (StoreKit, HealthKit, CloudKit, etc.), Crit reads the Review Checklist from the matching framework reference file.
+**Framework Review Checklists:** Every file in `.claude/skills/ship/ios/references/frameworks/` now includes a Common Mistakes section and Review Checklist. When reviewing code that uses a specific framework (StoreKit, HealthKit, CloudKit, etc.), Crit reads the Review Checklist from the matching framework reference file.
 
 Reviews against HEART dimensions (pick the 2-3 most relevant):
 
 - **Task success** — can the user complete the core flow? Try empty input, double-click, back button, refresh, long text, special characters
-- **Adoption** — could a first-time user figure this out with zero context? Does it work without a mouse? Read `references/shared/components.md` Section 1 (always load) — are primitives handling accessibility or is it rebuilt manually?
+- **Adoption** — could a first-time user figure this out with zero context? Does it work without a mouse? Read `.claude/skills/ship/components/references/components.md` Section 1 (always load) — are primitives handling accessibility or is it rebuilt manually?
 - **Happiness** — does the user feel like they got value? (the "so what" test)
 - **Engagement** — would they interact deeply, or bounce?
 - **Retention** — would they come back tomorrow? What would bring them back?
 - **Mobile** — would I actually want to use this on my phone?
 - **Speed** — anything slow? Loading states missing?
-- **Animation balance** — if the product has animations, read `references/shared/animation.md` Section 1 (always load: Motion Budget + Motion Hierarchy). Is motion earning its place or just decorating? Are repeated interactions (used 50x/day) still animated when they shouldn't be?
-- **UX principles** — read `references/shared/ux-principles.md` (always load) for the psychology behind HEART dimensions. Fitts's Law (task success), Hick's Law (adoption), Doherty (happiness), Peak-End (retention)
-- **Forms** — if the feature has forms, read `references/shared/forms-feedback.md` Section 3 for QA test cases. Check validation timing, error placement, empty states.
-- **Touch targets** — read `references/shared/touch-interaction.md` Section 2 for touch QA patterns. Verify ≥44px/48dp, spacing between targets, press feedback.
-- **Interaction states** — read `references/shared/interaction-design.md` Section 1. Verify all interactive components have applicable states (focus-visible, disabled, loading, error). Missing states = accessibility failures and double-submit bugs.
-- **Copy clarity** — read `references/shared/copy-clarity.md` Section 2. Are button labels specific verbs? Do error messages explain what happened + how to fix it? Are empty states guiding, not blank?
-- **Edge cases** — read `references/shared/hardening-guide.md` Section 2. Test with empty strings, very long text, special characters, double-click, back button after submit.
+- **Animation balance** — if the product has animations, read `.claude/skills/ship/motion/references/animation.md` Section 1 (always load: Motion Budget + Motion Hierarchy). Is motion earning its place or just decorating? Are repeated interactions (used 50x/day) still animated when they shouldn't be?
+- **UX principles** — read `.claude/skills/ship/ux/references/ux-principles.md` (always load) for the psychology behind HEART dimensions. Fitts's Law (task success), Hick's Law (adoption), Doherty (happiness), Peak-End (retention)
+- **Forms** — if the feature has forms, read `.claude/skills/ship/ux/references/forms-feedback.md` Section 3 for QA test cases. Check validation timing, error placement, empty states.
+- **Touch targets** — read `.claude/skills/ship/ux/references/touch-interaction.md` Section 2 for touch QA patterns. Verify ≥44px/48dp, spacing between targets, press feedback.
+- **Interaction states** — read `.claude/skills/ship/ux/references/interaction-design.md` Section 1. Verify all interactive components have applicable states (focus-visible, disabled, loading, error). Missing states = accessibility failures and double-submit bugs.
+- **Copy clarity** — read `.claude/skills/ship/ux/references/copy-clarity.md` Section 2. Are button labels specific verbs? Do error messages explain what happened + how to fix it? Are empty states guiding, not blank?
+- **Edge cases** — read `.claude/skills/ship/hardening/references/hardening-guide.md` Section 2. Test with empty strings, very long text, special characters, double-click, back button after submit.
 - **Metric check** — does this feature move the HEART metric from /ship-plan?
 
 ### Search Before Recommending (Crit's discipline)
@@ -166,7 +166,7 @@ Output: Prioritized list — Must fix / Should fix / Nice to have.
 
 ## ━━━ Pol (Design Director) ━━━
 
-Before auditing, read the aesthetic direction from DECISIONS.md (set during /ship-plan). Every design judgment references this. Read `references/shared/design-quality.md` for deep reasoning on first impression assessment (Section 1), AI slop detection patterns — 18 patterns including contrast theater, orphaned states, stock illustration syndrome (Section 2), cross-page consistency audit (Section 3), and visual coherence (Section 4). Read `references/shared/typography-color.md` Section 3 for style audit patterns. Read `references/shared/interaction-design.md` Section 1 for state coverage audit (8-state model). Read `references/shared/copy-clarity.md` for voice consistency audit (Section 1), copy patterns (Section 2), and AI copy slop detection (Section 3). Read `references/shared/spatial-design.md` for spacing consistency audit (Section 1), density appropriateness (Section 2), and content-to-chrome ratio (Section 3).
+Before auditing, read the aesthetic direction from DECISIONS.md (set during /ship-plan). Every design judgment references this. Read `.claude/skills/ship/ux/references/design-quality.md` for deep reasoning on first impression assessment (Section 1), AI slop detection patterns — 18 patterns including contrast theater, orphaned states, stock illustration syndrome (Section 2), cross-page consistency audit (Section 3), and visual coherence (Section 4). Read `.claude/skills/ship/ux/references/typography-color.md` Section 3 for style audit patterns. Read `.claude/skills/ship/ux/references/interaction-design.md` Section 1 for state coverage audit (8-state model). Read `.claude/skills/ship/ux/references/copy-clarity.md` for voice consistency audit (Section 1), copy patterns (Section 2), and AI copy slop detection (Section 3). Read `.claude/skills/ship/ux/references/spatial-design.md` for spacing consistency audit (Section 1), density appropriateness (Section 2), and content-to-chrome ratio (Section 3).
 
 ### Step 1: Anti-Slop Check (FIRST, before everything else)
 
@@ -246,9 +246,9 @@ If 5+ flags are checked → "This has the AI-generated app look. The aesthetic d
 ### Step 2-9: Design Audit
 
 2. **Typography audit** — is the type hierarchy clear? Does it match the aesthetic direction?
-3. **Color system** — is the palette consistent and intentional? Read `references/shared/ux-principles.md` Section 3 (always load) for layout principles.
+3. **Color system** — is the palette consistent and intentional? Read `.claude/skills/ship/ux/references/ux-principles.md` Section 3 (always load) for layout principles.
 4. **Spacing rhythm** — consistent system? No magic numbers.
-5. **Interaction details** — hover states, transitions, loading states, focus states. Audit keyboard navigation and focus rings. Read `references/shared/components.md` Section 1 (always load) for what primitives should handle vs what you style.
+5. **Interaction details** — hover states, transitions, loading states, focus states. Audit keyboard navigation and focus rings. Read `.claude/skills/ship/components/references/components.md` Section 1 (always load) for what primitives should handle vs what you style.
 6. **Empty & error states** — what does a new user see? What happens when things break?
 7. **Mobile refinement** — not just "it fits" but "it feels native on a phone"
 8. **Copy review** — every button label, heading, error message
@@ -271,7 +271,7 @@ Output: Design punch list with specific instructions Dev can implement.
 
 ## ━━━ Eye (Visual QA) ━━━
 
-Has access to Crit's and Pol's findings and actively cross-references them. Read `references/shared/design-quality.md` Sections 2-4 for visual quality assessment patterns. For web stacks, also read `references/web/web-accessibility.md` for semantic HTML and focus audit patterns.
+Has access to Crit's and Pol's findings and actively cross-references them. Read `.claude/skills/ship/ux/references/design-quality.md` Sections 2-4 for visual quality assessment patterns. For web stacks, also read `.claude/skills/ship/web/references/web-accessibility.md` for semantic HTML and focus audit patterns.
 
 ### Phase 0: Design System Discovery
 

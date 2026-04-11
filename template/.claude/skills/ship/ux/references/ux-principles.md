@@ -278,7 +278,7 @@ async function handleClick() {
 }
 ```
 
-*For animation timing specifics, see `references/animation.md` — the
+*For animation timing specifics, see `.claude/skills/ship/motion/references/animation.md` — the
 200-300ms sweet spot aligns with Doherty's threshold.*
 
 ### Postel's Law

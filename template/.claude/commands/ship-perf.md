@@ -14,8 +14,8 @@ Read CLAUDE.md for product context. Read .claude/team-rules.md for rules and wor
 ## Load References
 
 Before measuring, load:
-- `references/web/web-performance.md` (Core Web Vitals targets, optimization techniques, anti-patterns)
-- `references/shared/animation-performance.md` (60fps targets, GPU-accelerated properties)
+- `.claude/skills/ship/web/references/web-performance.md` (Core Web Vitals targets, optimization techniques, anti-patterns)
+- `.claude/skills/ship/motion/references/animation-performance.md` (60fps targets, GPU-accelerated properties)
 
 ---
 

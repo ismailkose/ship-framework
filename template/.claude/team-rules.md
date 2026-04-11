@@ -440,7 +440,7 @@ perspective. But /ship-team is the default way to work.
 ## Rules (for all agents)
 
 0. **Prompt sharpening — always, before anything else.** Restate the founder's request in one clear sentence. If the request is vague or could mean multiple very different things, ask ONE clarifying question — the single question that would most change the approach. If it's clear enough, state the assumption and move on. Don't ask multiple questions. Don't start working on a vague request hoping to figure it out mid-build. This applies to every interaction — slash commands, direct typing, all of it.
-0b. **Reference Gate — always, before any work (Rule 25).** After prompt sharpening but before writing code, generating designs, or making recommendations: read the relevant references from `references/shared/` and `references/[stack]/`. Print a `REFERENCES LOADED:` receipt. This applies to EVERY interaction — slash commands, direct requests, "just fix this quick" — all of it. No exceptions. See Rule 25 for the full protocol and REF_SKIP enforcement.
+0b. **Reference Gate — always, before any work (Rule 25).** After prompt sharpening but before writing code, generating designs, or making recommendations: read the relevant references from `.claude/skills/ship/ux/references/` (and other skill reference directories) and `.claude/skills/ship/[stack]/references/`. Print a `REFERENCES LOADED:` receipt. This applies to EVERY interaction — slash commands, direct requests, "just fix this quick" — all of it. No exceptions. See Rule 25 for the full protocol and REF_SKIP enforcement.
 1. Never start coding before /ship-plan is done (Vi + Arc + Adversarial must approve)
 2. Build one feature at a time — unless /ship-team dispatches 3+ independent tasks in parallel (each subagent still builds ONE feature in isolation)
 3. Always commit working code before starting the next thing
@@ -460,8 +460,8 @@ perspective. But /ship-team is the default way to work.
 17. **Screenshot evidence required for UI changes.** Eye defaults to "NEEDS WORK" on any visual change unless there's actual screenshot proof that it looks and works correctly. No "looks correct based on the code" — take the screenshot, view it, then make the call. If screenshot capture fails, request manual verification from the founder. This applies to every UI review, not just final QA.
 18. **Mid-build status reporting.** During multi-task builds (3+ tasks), report progress after each completed task. Format: current task number / total, what just passed, what's next, any retries so far, any concerns. Keep it to 2-3 lines — not a full report. The founder should never have to ask "where are we?" during a build.
 19. **Platform API first — no custom builds when a platform API exists.** Before building ANY custom component, check if the platform already provides it. Use the platform's native solution — even if the custom version seems "simpler" or "more flexible." Custom implementations only when there is genuinely no platform equivalent. This applies to: UI effects, layout, presentation, navigation, accessibility, and data flow. When in doubt, search the platform's documentation first. Eye rejects any PR that custom-builds something the platform already provides natively.
-    - **iOS:** Check Apple's native SwiftUI/UIKit APIs and system frameworks. See `references/ios/swiftui-core.md` Section 6.5 for the 9 most common violations.
-    - **iOS Performance:** Dev reads `references/ios/swiftui-core.md` Section 10 when optimizing SwiftUI performance — diagnostic workflow, Instruments profiling, identity/lifetime, lazy loading. Crit reads `references/ios/swiftui-core.md` Section 10 Review Checklist when reviewing for performance issues.
+    - **iOS:** Check Apple's native SwiftUI/UIKit APIs and system frameworks. See `.claude/skills/ship/ios/references/swiftui-core.md` Section 6.5 for the 9 most common violations.
+    - **iOS Performance:** Dev reads `.claude/skills/ship/ios/references/swiftui-core.md` Section 10 when optimizing SwiftUI performance — diagnostic workflow, Instruments profiling, identity/lifetime, lazy loading. Crit reads `.claude/skills/ship/ios/references/swiftui-core.md` Section 10 Review Checklist when reviewing for performance issues.
     - **Android:** Check Jetpack libraries, Material components, and Android platform APIs before building custom.
     - **Web:** Check browser APIs (MDN), established library patterns (React docs, etc.), and CSS-native solutions before building custom.
     - **Cross-platform:** Check the framework's built-in components (React Native core, Flutter widgets) before adding native bridges or custom implementations.
@@ -470,7 +470,7 @@ perspective. But /ship-team is the default way to work.
 
     Layer 1: THE CODEBASE — Does this already exist in the project? Search for similar files, functions, components, or patterns. Don't rebuild what's there.
 
-    Layer 2: THE REFERENCES — Is this a solved pattern in Ship Framework's reference docs? Check `references/shared/` for platform-agnostic patterns (components, UX principles, animation). Then check `references/[your-stack]/` for platform-specific guidance — e.g. `references/ios/` for SwiftUI/HIG, `references/web/` for React/browser patterns, `references/android/` for Jetpack/Material. Only load references for YOUR declared stack. If no platform-specific reference exists yet, skip to Layer 3.
+    Layer 2: THE REFERENCES — Is this a solved pattern in Ship Framework's reference docs? Check `.claude/skills/ship/ux/references/` (and other skill reference directories) for platform-agnostic patterns (components, UX principles, animation). Then check `.claude/skills/ship/[your-stack]/references/` for platform-specific guidance — e.g. `.claude/skills/ship/ios/references/` for SwiftUI/HIG, `.claude/skills/ship/web/references/` for React/browser patterns, `.claude/skills/ship/android/references/` for Jetpack/Material. Only load references for YOUR declared stack. If no platform-specific reference exists yet, skip to Layer 3.
 
     Layer 3: THE PLATFORM — Does the platform vendor provide this? iOS: Check Apple docs, WWDC sessions, system frameworks (Rule 19). Web: Check MDN, browser APIs, established libraries (React docs, etc.). Android: Check Android docs, Jetpack libraries, Material guidelines. Don't reinvent what the platform already provides.
 
@@ -531,7 +531,7 @@ perspective. But /ship-team is the default way to work.
     | Forms | + `forms-feedback.md` |
     | Navigation changes | + `navigation.md` |
     | Copy/text changes | + `copy-clarity.md` |
-    | iOS framework code | + matching file from `references/ios/frameworks/` |
+    | iOS framework code | + matching file from `.claude/skills/ship/ios/references/frameworks/` |
     | Fixing a bug | + `LEARNINGS.md` (check known patterns first) |
 
 26. **Specificity in communication.**

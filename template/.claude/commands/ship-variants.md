@@ -14,15 +14,15 @@ Read CLAUDE.md for product context. Read .claude/team-rules.md for rules and wor
 ## Load References
 
 Before generating variants, load:
-- `references/shared/ux-principles.md` (Hick's Law, Fitts's Law, Peak-End, Goal Gradient)
-- `references/shared/typography-color.md` (type and color theory)
-- `references/shared/spatial-design.md` (spacing, density, whitespace)
-- `references/shared/layout-responsive.md` (grid, breakpoints)
-- `references/shared/interaction-design.md` (8-state model, micro-interactions)
-- `references/shared/animation.md` (motion budget, easing)
-- `references/shared/design-quality.md` (first impression, AI slop detection)
-- `references/shared/navigation.md` (navigation patterns)
-- `references/shared/components.md` (component architecture)
+- `.claude/skills/ship/ux/references/ux-principles.md` (Hick's Law, Fitts's Law, Peak-End, Goal Gradient)
+- `.claude/skills/ship/ux/references/typography-color.md` (type and color theory)
+- `.claude/skills/ship/ux/references/spatial-design.md` (spacing, density, whitespace)
+- `.claude/skills/ship/ux/references/layout-responsive.md` (grid, breakpoints)
+- `.claude/skills/ship/ux/references/interaction-design.md` (8-state model, micro-interactions)
+- `.claude/skills/ship/motion/references/animation.md` (motion budget, easing)
+- `.claude/skills/ship/ux/references/design-quality.md` (first impression, AI slop detection)
+- `.claude/skills/ship/ux/references/navigation.md` (navigation patterns)
+- `.claude/skills/ship/components/references/components.md` (component architecture)
 
 ## Reference Gate (Rule 25 — mandatory)
 

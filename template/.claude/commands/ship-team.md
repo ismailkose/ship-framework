@@ -92,63 +92,63 @@ When the task involves building UI, you MUST ensure:
 
 ### Always Load (Shared — all stacks)
 
-1. **Arc reads `references/shared/components.md`** before planning. For React web stacks, Arc's build order MUST start with component layer setup (`npx shadcn@latest init --base base`) as item #0 — before any feature work.
-2. **Arc reads `references/shared/ux-principles.md` Sections 1-2, 5** when planning screen maps — Hick's Law, Miller's Law affect how many options per screen. Section 5 has control hierarchy, thumb zone, onboarding, writing voice, accessibility, inclusion.
-3. **Arc reads `references/shared/animation.md` Sections 1-2** before speccing the motion system.
-4. **Dev reads `references/shared/components.md`** and verifies the component layer is installed (check for `components.json`) before building any UI. If missing, install it first.
-5. **Dev reads `references/shared/ux-principles.md` Sections 2-3, 5** when building UI interactions — hit areas, response time, spacing, visual hierarchy. Section 5 has device capabilities, smart data entry, loading, accessibility rules.
-6. **Dev reads `references/shared/animation.md` Sections 3-4** when building UI with transitions.
-7. **Pol reads `references/shared/typography-color.md`** when planning — define type scale and color palette. Dev reads Sections 1-3 when implementing design tokens.
-8. **Dev reads `references/shared/forms-feedback.md` Section 1** when building any form — labels, validation, progressive disclosure. **Pol reads Section 2** for feedback pattern audit (empty states, toasts, confirmation vs undo).
-9. **Arc reads `references/shared/navigation.md` Section 1** when planning navigation architecture. **Dev reads Section 2** when implementing back behavior, deep linking, URL state.
-10. **Dev reads `references/shared/layout-responsive.md`** when building layouts — mobile-first, breakpoints, spacing scale. Supplements ux-principles.md Sections 2-3 with deeper implementation detail.
-11. **Dev reads `references/shared/touch-interaction.md` Section 1** when building interactive elements — tap targets, gestures, press feedback. Supplements ux-principles.md Section 2 (Fitts's Law) with deeper touch patterns.
-12. **Dev reads `references/shared/dark-mode.md`** when implementing theming — semantic tokens, desaturation, platform-specific patterns.
-13. **Pol reads `references/shared/design-quality.md`** during review — first impression assessment, AI slop detection, cross-page consistency, visual coherence. **Eye reads Sections 2-4** for visual quality audit.
-14. **Pol reads `references/shared/design-research.md`** during planning when no design system exists yet — competitive research, design direction, DESIGN.md creation.
-15. **Dev reads `references/shared/interaction-design.md` Sections 1-2** when building interactive components — 8-state model (default, hover, focus, active, disabled, loading, error, success), micro-interaction timing, button state machines. **Pol reads Section 1** to audit state coverage. **Eye reads Sections 1-2** to verify all states render correctly. **Crit reads Section 1** for missing states that cause accessibility failures.
-16. **Dev reads `references/shared/hardening-guide.md`** before shipping — error boundaries, edge case tables, network error patterns, pre-launch checklist. **Test reads Sections 2-3** for edge case testing (text, numeric, timing, file upload, auth). **Crit reads Section 1** for error recovery impact on task success. **Crit reads the Review Checklist in the relevant `references/ios/frameworks/` file** when reviewing framework-specific code — every framework reference now includes Common Mistakes and a Review Checklist.
-17. **Pol reads `references/shared/copy-clarity.md`** during review — voice consistency, AI copy slop detection (exclamation inflation, vague value props, synonym cycling). **Vi reads Section 1** when defining voice and tone. **Crit reads Section 2** for copy clarity review (button labels, error messages, empty states). **Dev reads Section 2** for copy implementation patterns.
-18. **Arc reads `references/shared/spatial-design.md` Sections 1-2** when planning layout architecture — spacing systems, density strategy (high/medium/low matches product type). **Dev reads Sections 1-3** when implementing spacing tokens and whitespace. **Pol reads Sections 1-3** to audit spacing consistency, density, content-to-chrome ratio.
+1. **Arc reads `.claude/skills/ship/components/references/components.md`** before planning. For React web stacks, Arc's build order MUST start with component layer setup (`npx shadcn@latest init --base base`) as item #0 — before any feature work.
+2. **Arc reads `.claude/skills/ship/ux/references/ux-principles.md` Sections 1-2, 5** when planning screen maps — Hick's Law, Miller's Law affect how many options per screen. Section 5 has control hierarchy, thumb zone, onboarding, writing voice, accessibility, inclusion.
+3. **Arc reads `.claude/skills/ship/motion/references/animation.md` Sections 1-2** before speccing the motion system.
+4. **Dev reads `.claude/skills/ship/components/references/components.md`** and verifies the component layer is installed (check for `components.json`) before building any UI. If missing, install it first.
+5. **Dev reads `.claude/skills/ship/ux/references/ux-principles.md` Sections 2-3, 5** when building UI interactions — hit areas, response time, spacing, visual hierarchy. Section 5 has device capabilities, smart data entry, loading, accessibility rules.
+6. **Dev reads `.claude/skills/ship/motion/references/animation.md` Sections 3-4** when building UI with transitions.
+7. **Pol reads `.claude/skills/ship/ux/references/typography-color.md`** when planning — define type scale and color palette. Dev reads Sections 1-3 when implementing design tokens.
+8. **Dev reads `.claude/skills/ship/ux/references/forms-feedback.md` Section 1** when building any form — labels, validation, progressive disclosure. **Pol reads Section 2** for feedback pattern audit (empty states, toasts, confirmation vs undo).
+9. **Arc reads `.claude/skills/ship/ux/references/navigation.md` Section 1** when planning navigation architecture. **Dev reads Section 2** when implementing back behavior, deep linking, URL state.
+10. **Dev reads `.claude/skills/ship/ux/references/layout-responsive.md`** when building layouts — mobile-first, breakpoints, spacing scale. Supplements ux-principles.md Sections 2-3 with deeper implementation detail.
+11. **Dev reads `.claude/skills/ship/ux/references/touch-interaction.md` Section 1** when building interactive elements — tap targets, gestures, press feedback. Supplements ux-principles.md Section 2 (Fitts's Law) with deeper touch patterns.
+12. **Dev reads `.claude/skills/ship/ux/references/dark-mode.md`** when implementing theming — semantic tokens, desaturation, platform-specific patterns.
+13. **Pol reads `.claude/skills/ship/ux/references/design-quality.md`** during review — first impression assessment, AI slop detection, cross-page consistency, visual coherence. **Eye reads Sections 2-4** for visual quality audit.
+14. **Pol reads `.claude/skills/ship/ux/references/design-research.md`** during planning when no design system exists yet — competitive research, design direction, DESIGN.md creation.
+15. **Dev reads `.claude/skills/ship/ux/references/interaction-design.md` Sections 1-2** when building interactive components — 8-state model (default, hover, focus, active, disabled, loading, error, success), micro-interaction timing, button state machines. **Pol reads Section 1** to audit state coverage. **Eye reads Sections 1-2** to verify all states render correctly. **Crit reads Section 1** for missing states that cause accessibility failures.
+16. **Dev reads `.claude/skills/ship/hardening/references/hardening-guide.md`** before shipping — error boundaries, edge case tables, network error patterns, pre-launch checklist. **Test reads Sections 2-3** for edge case testing (text, numeric, timing, file upload, auth). **Crit reads Section 1** for error recovery impact on task success. **Crit reads the Review Checklist in the relevant `.claude/skills/ship/ios/references/frameworks/` file** when reviewing framework-specific code — every framework reference now includes Common Mistakes and a Review Checklist.
+17. **Pol reads `.claude/skills/ship/ux/references/copy-clarity.md`** during review — voice consistency, AI copy slop detection (exclamation inflation, vague value props, synonym cycling). **Vi reads Section 1** when defining voice and tone. **Crit reads Section 2** for copy clarity review (button labels, error messages, empty states). **Dev reads Section 2** for copy implementation patterns.
+18. **Arc reads `.claude/skills/ship/ux/references/spatial-design.md` Sections 1-2** when planning layout architecture — spacing systems, density strategy (high/medium/low matches product type). **Dev reads Sections 1-3** when implementing spacing tokens and whitespace. **Pol reads Sections 1-3** to audit spacing consistency, density, content-to-chrome ratio.
 
 ### iOS Stack Only
 
-7. **Arc reads `references/ios/hig-ios.md` Sections 1, 4, 7-8** when planning screen maps for iOS/SwiftUI projects — navigation patterns, color system, component choices, app lifecycle patterns.
-8. **Dev reads `references/ios/hig-ios.md` Sections 2-6, 8-9** when building iOS UI — safe areas, Dynamic Type, semantic colors, touch targets, spring animations, notifications, multitasking, foundations (extended typography, color, dark mode, materials, images, layout).
-9. **Dev reads `references/ios/swiftui-core.md`** when building any SwiftUI feature — navigation implementation (router pattern, NavigationStack/SplitView, sheet routing, deep links), Swift 6.2 concurrency (@concurrent, MainActor isolation, Sendable), Liquid Glass implementation (including scroll edge effects / progressive blur), animation, gestures, layout, **Section 6.5: No-Hack APIs** (sensoryFeedback, containerRelativeFrame, symbolEffect, scrollDismissesKeyboard, presentationDetents, FocusState, toolbarVisibility, MeshGradient), architecture (@Observable), UIKit interop.
-10. **Dev reads `references/ios/swift-essentials.md`** when writing Swift code — language features (result builders, macros, typed throws), Codable patterns, Swift Testing.
-11. **Dev reads files in `references/ios/frameworks/`** matching the feature being built — e.g., building HealthKit feature → read `frameworks/healthkit.md`. Only read framework files relevant to the current task.
-12. **Arc reads `references/ios/swiftui-core.md` Section 1** when planning navigation architecture — router pattern, NavigationStack vs NavigationSplitView, sheet routing, deep links.
-13. **Eye reads `references/ios/hig-ios.md` Section 10** for HIG design review checklists (navigation, typography, color, touch, materials, accessibility, lifecycle).
-14. **Eye reads `references/ios/swiftui-core.md` Section 9** for SwiftUI implementation review checklists (navigation code, concurrency, Liquid Glass, animation, architecture, No-Hack API enforcement).
-15. **Eye reads review checklists in `references/ios/frameworks/`** files when reviewing framework-specific code.
+7. **Arc reads `.claude/skills/ship/ios/references/hig-ios.md` Sections 1, 4, 7-8** when planning screen maps for iOS/SwiftUI projects — navigation patterns, color system, component choices, app lifecycle patterns.
+8. **Dev reads `.claude/skills/ship/ios/references/hig-ios.md` Sections 2-6, 8-9** when building iOS UI — safe areas, Dynamic Type, semantic colors, touch targets, spring animations, notifications, multitasking, foundations (extended typography, color, dark mode, materials, images, layout).
+9. **Dev reads `.claude/skills/ship/ios/references/swiftui-core.md`** when building any SwiftUI feature — navigation implementation (router pattern, NavigationStack/SplitView, sheet routing, deep links), Swift 6.2 concurrency (@concurrent, MainActor isolation, Sendable), Liquid Glass implementation (including scroll edge effects / progressive blur), animation, gestures, layout, **Section 6.5: No-Hack APIs** (sensoryFeedback, containerRelativeFrame, symbolEffect, scrollDismissesKeyboard, presentationDetents, FocusState, toolbarVisibility, MeshGradient), architecture (@Observable), UIKit interop.
+10. **Dev reads `.claude/skills/ship/ios/references/swift-essentials.md`** when writing Swift code — language features (result builders, macros, typed throws), Codable patterns, Swift Testing.
+11. **Dev reads files in `.claude/skills/ship/ios/references/frameworks/`** matching the feature being built — e.g., building HealthKit feature → read `frameworks/healthkit.md`. Only read framework files relevant to the current task.
+12. **Arc reads `.claude/skills/ship/ios/references/swiftui-core.md` Section 1** when planning navigation architecture — router pattern, NavigationStack vs NavigationSplitView, sheet routing, deep links.
+13. **Eye reads `.claude/skills/ship/ios/references/hig-ios.md` Section 10** for HIG design review checklists (navigation, typography, color, touch, materials, accessibility, lifecycle).
+14. **Eye reads `.claude/skills/ship/ios/references/swiftui-core.md` Section 9** for SwiftUI implementation review checklists (navigation code, concurrency, Liquid Glass, animation, architecture, No-Hack API enforcement).
+15. **Eye reads review checklists in `.claude/skills/ship/ios/references/frameworks/`** files when reviewing framework-specific code.
 
 ### Web Stack Only
 
-16. **Dev reads `references/shared/components.md` Section 3** when building React UI with shadcn — component catalog, theming, CVA variants, form patterns, composite components. **Shadcn MCP (when available):** Use `get_component_metadata` and `get_component_demo` before customizing any component. Use `apply_theme` when applying theme presets. See Section 3.87 for full MCP routing.
-17. **Arc reads `references/shared/components.md` Section 3.1** (component catalog) when planning which shadcn components a feature needs. **Shadcn MCP:** Use `list_components` to see all 46 available. Use `list_themes` to browse 42 theme presets when choosing design direction.
-18. **Eye reads `references/shared/components.md` Section 3.9** (review checklist) when reviewing React web projects — theming consistency, component quality, form validation, accessibility.
+16. **Dev reads `.claude/skills/ship/components/references/components.md` Section 3** when building React UI with shadcn — component catalog, theming, CVA variants, form patterns, composite components. **Shadcn MCP (when available):** Use `get_component_metadata` and `get_component_demo` before customizing any component. Use `apply_theme` when applying theme presets. See Section 3.87 for full MCP routing.
+17. **Arc reads `.claude/skills/ship/components/references/components.md` Section 3.1** (component catalog) when planning which shadcn components a feature needs. **Shadcn MCP:** Use `list_components` to see all 46 available. Use `list_themes` to browse 42 theme presets when choosing design direction.
+18. **Eye reads `.claude/skills/ship/components/references/components.md` Section 3.9** (review checklist) when reviewing React web projects — theming consistency, component quality, form validation, accessibility.
 
-19. **Dev reads `references/web/react-patterns.md`** when building React components — Server vs Client architecture, data fetching, composition, hydration safety.
-20. **Dev reads `references/web/web-accessibility.md`** when building any web UI — semantic HTML, ARIA, focus management, screen reader patterns.
-21. **Arc reads `references/web/web-performance.md`** when planning — Core Web Vitals targets. **Dev reads** when optimizing images, fonts, bundles.
+19. **Dev reads `.claude/skills/ship/web/references/react-patterns.md`** when building React components — Server vs Client architecture, data fetching, composition, hydration safety.
+20. **Dev reads `.claude/skills/ship/web/references/web-accessibility.md`** when building any web UI — semantic HTML, ARIA, focus management, screen reader patterns.
+21. **Arc reads `.claude/skills/ship/web/references/web-performance.md`** when planning — Core Web Vitals targets. **Dev reads** when optimizing images, fonts, bundles.
 
 ### Gaming Stack (when project includes games)
 
-22. **Dev reads `references/ios/frameworks/gamekit.md`** when building Game Center features — authentication, leaderboards, achievements, multiplayer.
-23. **Dev reads `references/ios/frameworks/spritekit.md`** when building 2D game scenes — nodes, actions, physics, touch handling.
-24. **Dev reads `references/ios/frameworks/scenekit.md`** when building 3D scenes — note: maintenance mode post-WWDC 2025, prefer RealityKit for new projects.
-25. **Dev reads `references/ios/frameworks/tabletopkit.md`** when building visionOS multiplayer board games.
+22. **Dev reads `.claude/skills/ship/ios/references/frameworks/gamekit.md`** when building Game Center features — authentication, leaderboards, achievements, multiplayer.
+23. **Dev reads `.claude/skills/ship/ios/references/frameworks/spritekit.md`** when building 2D game scenes — nodes, actions, physics, touch handling.
+24. **Dev reads `.claude/skills/ship/ios/references/frameworks/scenekit.md`** when building 3D scenes — note: maintenance mode post-WWDC 2025, prefer RealityKit for new projects.
+25. **Dev reads `.claude/skills/ship/ios/references/frameworks/tabletopkit.md`** when building visionOS multiplayer board games.
 
 ### Android Stack Only
 
-*(When references/android/ has content, load Android-specific references here)*
+*(When `.claude/skills/ship/android/references/` has content, load Android-specific references here)*
 
 ### Chat/Messaging Interface (all stacks)
 
-19. **Dev reads `references/ios/frameworks/chat-ui.md` Part 1 + Part 2** (SwiftUI) **or Part 1 + Part 3** (React Native) **or Part 1 + Part 4** (React Web) when building any chat, messaging, or AI assistant interface. Part 1 is universal — read it regardless of stack. Load the variant matching the current stack.
-20. **Arc reads `references/ios/frameworks/chat-ui.md` Sections 1.1 + 1.3 + 1.9** when planning chat architecture — philosophy, blank size problem, and shared API pattern.
-21. **Eye reads `references/ios/frameworks/chat-ui.md` Part 5** (review checklist) when reviewing any chat UI — animation sequencing, keyboard edge cases, streaming, performance.
+19. **Dev reads `.claude/skills/ship/ios/references/frameworks/chat-ui.md` Part 1 + Part 2** (SwiftUI) **or Part 1 + Part 3** (React Native) **or Part 1 + Part 4** (React Web) when building any chat, messaging, or AI assistant interface. Part 1 is universal — read it regardless of stack. Load the variant matching the current stack.
+20. **Arc reads `.claude/skills/ship/ios/references/frameworks/chat-ui.md` Sections 1.1 + 1.3 + 1.9** when planning chat architecture — philosophy, blank size problem, and shared API pattern.
+21. **Eye reads `.claude/skills/ship/ios/references/frameworks/chat-ui.md` Part 5** (review checklist) when reviewing any chat UI — animation sequencing, keyboard edge cases, streaming, performance.
 
 ### Reference Scope Summary
 

@@ -10,10 +10,10 @@ description: |
 This skill routes personas to motion knowledge. Deep rules, timing standards, and patterns live in reference files.
 
 **Reference files:**
-- `references/shared/animation.md` — Motion budget, hierarchy, build rules, 8 pattern foundations
-- `references/shared/animation-css.md` — CSS transforms, transitions, keyframes, View Transitions API
-- `references/shared/animation-framer-motion.md` — Framer Motion API (React only)
-- `references/shared/animation-performance.md` — 60fps optimization, reduced motion testing
+- `.claude/skills/ship/motion/references/animation.md` — Motion budget, hierarchy, build rules, 8 pattern foundations
+- `.claude/skills/ship/motion/references/animation-css.md` — CSS transforms, transitions, keyframes, View Transitions API
+- `.claude/skills/ship/motion/references/animation-framer-motion.md` — Framer Motion API (React only)
+- `.claude/skills/ship/motion/references/animation-performance.md` — 60fps optimization, reduced motion testing
 
 ## Priority Enforcement — What Blocks Shipping
 
@@ -44,21 +44,21 @@ This skill routes personas to motion knowledge. Deep rules, timing standards, an
 
 When Dev builds animations:
 
-1. **Motion budget** — read `references/shared/animation.md` Section 1. Is there room for this animation?
+1. **Motion budget** — read `.claude/skills/ship/motion/references/animation.md` Section 1. Is there room for this animation?
 2. **Timing + easing** — use the table above. Read Section 3 for detailed rules.
 3. **Reduced motion** — MANDATORY. Read Section 2 for implementation per platform.
-4. **Performance** — read `references/shared/animation-performance.md` Section 1. Transform/opacity only.
-5. **CSS implementation** — read `references/shared/animation-css.md` for transforms, transitions, keyframes.
-6. **Framer Motion** — if using, read `references/shared/animation-framer-motion.md`.
+4. **Performance** — read `.claude/skills/ship/motion/references/animation-performance.md` Section 1. Transform/opacity only.
+5. **CSS implementation** — read `.claude/skills/ship/motion/references/animation-css.md` for transforms, transitions, keyframes.
+6. **Framer Motion** — if using, read `.claude/skills/ship/motion/references/animation-framer-motion.md`.
 
 ## For Review (/ship-review)
 
 When Pol or Eye review motion:
 
-1. **Budget audit** — read `references/shared/animation.md` Section 1. Count simultaneous patterns. Flag >2.
+1. **Budget audit** — read `.claude/skills/ship/motion/references/animation.md` Section 1. Count simultaneous patterns. Flag >2.
 2. **Purpose check** — is each animation serving the user or decorating? Animations used 50x/day should be minimal.
 3. **Reduced motion** — verify `prefers-reduced-motion` is respected. If not, flag as Critical.
-4. **Performance** — read `references/shared/animation-performance.md`. Flag layout-triggering properties.
+4. **Performance** — read `.claude/skills/ship/motion/references/animation-performance.md`. Flag layout-triggering properties.
 5. **Direction** — forward nav pushes right/down, back pulls left/up. Flag reversals.
 
 ## For QA (/ship-qa)
@@ -70,7 +70,7 @@ When Test verifies motion:
 3. **Performance** — monitor frame rate. Flag anything <30fps.
 4. **Interrupt** — start animation, interact mid-way. Must respond, not lock up.
 
-Read `references/shared/animation-performance.md` for full testing steps.
+Read `.claude/skills/ship/motion/references/animation-performance.md` for full testing steps.
 
 ## See Also
 

@@ -61,30 +61,30 @@ Before producing any plan, check three layers (Rule 21):
 **Layer 1: THE CODEBASE** — Search the project for existing patterns, components, utilities. Don't rebuild what's there.
 
 **Layer 2: THE REFERENCES** — Always load:
-- `references/shared/ux-principles.md` (principles apply to all platforms)
-- `references/shared/components.md` (three-layer model applies to all platforms)
-- `references/shared/animation.md` (animation concepts apply to all platforms)
-- `references/shared/typography-color.md` (type scale and color palette decisions during planning)
-- `references/shared/navigation.md` Section 1 (navigation architecture choices)
-- `references/shared/layout-responsive.md` Section 1 (mobile-first prioritization, breakpoints)
-- `references/shared/spatial-design.md` Sections 1-2 (spacing system, density strategy — matches product type)
-- `references/shared/interaction-design.md` Section 1 (8-state model — plan which states each component needs)
-- `references/shared/design-research.md` (if no DESIGN.md exists — competitive research, design direction, design system creation)
+- `.claude/skills/ship/ux/references/ux-principles.md` (principles apply to all platforms)
+- `.claude/skills/ship/components/references/components.md` (three-layer model applies to all platforms)
+- `.claude/skills/ship/motion/references/animation.md` (animation concepts apply to all platforms)
+- `.claude/skills/ship/ux/references/typography-color.md` (type scale and color palette decisions during planning)
+- `.claude/skills/ship/ux/references/navigation.md` Section 1 (navigation architecture choices)
+- `.claude/skills/ship/ux/references/layout-responsive.md` Section 1 (mobile-first prioritization, breakpoints)
+- `.claude/skills/ship/ux/references/spatial-design.md` Sections 1-2 (spacing system, density strategy — matches product type)
+- `.claude/skills/ship/ux/references/interaction-design.md` Section 1 (8-state model — plan which states each component needs)
+- `.claude/skills/ship/ux/references/design-research.md` (if no DESIGN.md exists — competitive research, design direction, design system creation)
 
 Then, based on the Stack field in CLAUDE.md, load platform-specific references:
 
 **If Stack is ios:**
-- `references/ios/swiftui-core.md`
-- `references/ios/hig-ios.md`
-- `references/ios/frameworks/` (all files in this directory)
+- `.claude/skills/ship/ios/references/swiftui-core.md`
+- `.claude/skills/ship/ios/references/hig-ios.md`
+- `.claude/skills/ship/ios/references/frameworks/` (all files in this directory)
 
 **If Stack is web:**
-- `references/web/react-patterns.md` (Server vs Client architecture, composition)
-- `references/web/web-accessibility.md` (semantic HTML foundation, ARIA patterns)
-- `references/web/web-performance.md` (Core Web Vitals targets for planning)
+- `.claude/skills/ship/web/references/react-patterns.md` (Server vs Client architecture, composition)
+- `.claude/skills/ship/web/references/web-accessibility.md` (semantic HTML foundation, ARIA patterns)
+- `.claude/skills/ship/web/references/web-performance.md` (Core Web Vitals targets for planning)
 
 **If Stack is android:**
-- `references/android/` (all files in this directory, when content exists)
+- `.claude/skills/ship/android/references/` (all files in this directory, when content exists)
 
 **If no references exist yet for the detected stack:** Skip to Layer 3.
 
@@ -213,7 +213,7 @@ Answer all of these:
 1. **The Bar Test** — one sentence explanation for a stranger
 2. **The Existing Workaround** — how people solve this today
 3. **The Job Statement (JTBD)** — "When I [situation], I want to [motivation], so I can [outcome]." No vague personas — write the actual job.
-4. **The Magic Moment** — the moment the outcome from the job statement lands. Consider Peak-End Rule and Goal Gradient from `references/shared/ux-principles.md` Section 4.
+4. **The Magic Moment** — the moment the outcome from the job statement lands. Consider Peak-End Rule and Goal Gradient from `.claude/skills/ship/ux/references/ux-principles.md` Section 4.
 5. **The Kill List** — features to NOT build for v1
 6. **The 2-Week Bet** — smallest thing to test demand
 7. **The Success Metric (North Star)** — pick one HEART dimension (Happiness, Engagement, Adoption, Retention, Task success) and one measurable number. Specify: how to verify it, when to check, what failure looks like.
@@ -268,16 +268,16 @@ Otherwise, the Stack field is the source of truth.
 
 ### The Technical Plan
 
-1. **Stack Decision** — one sentence per choice (platform-appropriate). For UI projects, read `references/shared/components.md` Section 1 for the three-layer model. Include setup commands as first build order item. **Shadcn MCP check:** If the stack includes shadcn/ui, check if the Shadcn UI MCP is connected (try `list_components`). If connected — use `list_components` to see all 46 available before planning which ones a feature needs, and `list_themes` to browse 42 theme presets for design direction. If NOT connected — suggest once: "💡 The Shadcn UI MCP gives me live component data and 42 theme presets for design direction. Want me to help you set it up?" Then continue with the static reference file.
+1. **Stack Decision** — one sentence per choice (platform-appropriate). For UI projects, read `.claude/skills/ship/components/references/components.md` Section 1 for the three-layer model. Include setup commands as first build order item. **Shadcn MCP check:** If the stack includes shadcn/ui, check if the Shadcn UI MCP is connected (try `list_components`). If connected — use `list_components` to see all 46 available before planning which ones a feature needs, and `list_themes` to browse 42 theme presets for design direction. If NOT connected — suggest once: "💡 The Shadcn UI MCP gives me live component data and 42 theme presets for design direction. Want me to help you set it up?" Then continue with the static reference file.
 2. **Data Model** — every table, fields, relationships
-3. **Screen Map** — every page in journey order. Read `references/shared/ux-principles.md` Sections 1-2 — Hick's Law, Miller's Law, Progressive Disclosure affect how many options per screen.
+3. **Screen Map** — every page in journey order. Read `.claude/skills/ship/ux/references/ux-principles.md` Sections 1-2 — Hick's Law, Miller's Law, Progressive Disclosure affect how many options per screen.
 4. **Build Order (RICE-scored)** — numbered sequence. Each item gets:
    - A one-line JTBD: "When I [situation], I want to [motivation], so I can [outcome]"
    - A RICE score: Reach × Impact × Confidence / Effort
    The magic moment gets built FIRST regardless of score. Everything else by RICE. If a feature can't produce a clear JTBD, flag it.
    Mark complex features (multi-step, 3+ files) as `[COMPLEX]` — /ship-team auto-expands these after approval.
    Add time appetite per item (max time before cutting scope or extending).
-5. **Motion System** — read `references/shared/animation.md` Sections 1-2 if available. Define: what animates, timing, easing, spring config, reduced motion. Set motion budget per screen.
+5. **Motion System** — read `.claude/skills/ship/motion/references/animation.md` Sections 1-2 if available. Define: what animates, timing, easing, spring config, reduced motion. Set motion budget per screen.
 6. **Risks & Unknowns** — what could go wrong technically
 7. **Disagreements with Vi** — if Vi's brief asks for something risky, say so explicitly: "DISAGREEMENT WITH VI: [what and why]"
 8. **State Diagrams (for complex features)** — for features with 3+ states, draw the state machine:
@@ -383,11 +383,11 @@ Before including any library, pattern, or API in the plan:
 After Vi's brief and Arc's technical plan, before the Adversarial stress test, Pol scores the plan across 7 design dimensions.
 
 Load references:
-- `references/shared/ux-principles.md` (for Information Architecture and User Journey scoring)
-- `references/shared/interaction-design.md` (for Interaction State Coverage scoring)
-- `references/shared/design-quality.md` (for AI Slop Risk scoring)
-- `references/shared/design-research.md` (for Design System Alignment scoring)
-- `references/shared/layout-responsive.md` (for Responsive scoring)
+- `.claude/skills/ship/ux/references/ux-principles.md` (for Information Architecture and User Journey scoring)
+- `.claude/skills/ship/ux/references/interaction-design.md` (for Interaction State Coverage scoring)
+- `.claude/skills/ship/ux/references/design-quality.md` (for AI Slop Risk scoring)
+- `.claude/skills/ship/ux/references/design-research.md` (for Design System Alignment scoring)
+- `.claude/skills/ship/ux/references/layout-responsive.md` (for Responsive scoring)
 - If DESIGN.md exists: read it for established design system context
 
 ### The 7 Dimensions (0-10 each)

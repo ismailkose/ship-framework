@@ -83,7 +83,7 @@ This catches the case where Dev built 4 of 5 planned items and everyone forgot a
 
 ### Production Hardening Check
 
-Before proceeding to tests, read `references/shared/hardening-guide.md` Section 3 (pre-launch checklist). Verify:
+Before proceeding to tests, read `.claude/skills/ship/hardening/references/hardening-guide.md` Section 3 (pre-launch checklist). Verify:
 - Error boundaries on every distinct UI section
 - Loading states for every async operation
 - Empty states for every list/collection

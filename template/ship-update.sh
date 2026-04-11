@@ -248,10 +248,8 @@ if [ "$V3_MIGRATION" = true ]; then
     echo -e "${GREEN}✓${RESET} Cleaned up old references/frameworks/ (now at references/ios/frameworks/)"
   fi
 
-  # ── Create platform reference directories ──
-  mkdir -p "$PROJECT_DIR/references/web"
-  mkdir -p "$PROJECT_DIR/references/android"
-  mkdir -p "$PROJECT_DIR/references/cross-platform"
+  # ── Create references directory for user content ──
+  mkdir -p "$PROJECT_DIR/references"
 
   # ── Create skills directory structure ──
   if [ ! -d "$PROJECT_DIR/.claude/skills" ]; then
@@ -477,6 +475,67 @@ if [ $SKILLS_SYNCED -gt 0 ]; then
   echo -e "${GREEN}✓${RESET} Mirrored $SKILLS_SYNCED commands as skills (Claude Code v2.1.88+ compatibility)"
 fi
 
+# ─── Step 5c: Migrate old-style references to skill directories ──────────────
+# References moved from references/shared/, references/ios/, references/web/
+# into .claude/skills/ship/*/references/ in v2026.04.11.
+# sync_template_dir already copied the new files — this cleans up the old ones.
+
+REF_MIGRATED=0
+
+# Clean old shared/ references (now in ux/, motion/, components/, hardening/)
+if [ -d "$PROJECT_DIR/references/shared" ]; then
+  for f in "$PROJECT_DIR/references/shared/"*.md; do
+    [ -e "$f" ] || continue
+    fname=$(basename "$f")
+    [ "$fname" = "README.md" ] && continue
+    rm "$f"
+    REF_MIGRATED=$((REF_MIGRATED + 1))
+  done
+  rmdir "$PROJECT_DIR/references/shared" 2>/dev/null || true
+fi
+
+# Clean old ios/ references (now in .claude/skills/ship/ios/references/)
+if [ -d "$PROJECT_DIR/references/ios" ]; then
+  for f in "$PROJECT_DIR/references/ios/"*.md; do
+    [ -e "$f" ] || continue
+    rm "$f"
+    REF_MIGRATED=$((REF_MIGRATED + 1))
+  done
+  if [ -d "$PROJECT_DIR/references/ios/frameworks" ]; then
+    for f in "$PROJECT_DIR/references/ios/frameworks/"*.md; do
+      [ -e "$f" ] || continue
+      rm "$f"
+      REF_MIGRATED=$((REF_MIGRATED + 1))
+    done
+    rmdir "$PROJECT_DIR/references/ios/frameworks" 2>/dev/null || true
+  fi
+  rmdir "$PROJECT_DIR/references/ios" 2>/dev/null || true
+fi
+
+# Clean old web/ references (now in .claude/skills/ship/web/references/)
+if [ -d "$PROJECT_DIR/references/web" ]; then
+  for f in "$PROJECT_DIR/references/web/"*.md; do
+    [ -e "$f" ] || continue
+    rm "$f"
+    REF_MIGRATED=$((REF_MIGRATED + 1))
+  done
+  rmdir "$PROJECT_DIR/references/web" 2>/dev/null || true
+fi
+
+# Clean empty android/ and cross-platform/ directories
+rmdir "$PROJECT_DIR/references/android" 2>/dev/null || true
+rmdir "$PROJECT_DIR/references/cross-platform" 2>/dev/null || true
+
+# Add redirect README if missing
+if [ ! -f "$PROJECT_DIR/references/README.md" ] && [ -f "$TEMPLATE_DIR/references/README.md" ]; then
+  mkdir -p "$PROJECT_DIR/references"
+  cp "$TEMPLATE_DIR/references/README.md" "$PROJECT_DIR/references/README.md"
+fi
+
+if [ $REF_MIGRATED -gt 0 ]; then
+  echo -e "${GREEN}✓${RESET} Migrated references: removed $REF_MIGRATED old files (now in .claude/skills/ship/*/references/)"
+fi
+
 # ─── Step 6: Update cheatsheet ────────────────────────────────────────────────
 
 cp "$FRAMEWORK_DIR/CHEATSHEET.md" "$PROJECT_DIR/CHEATSHEET.md"
@@ -518,16 +577,16 @@ fi
 prev_arg=""
 for i in "$@"; do
   if [ "$prev_arg" = "--add-framework" ]; then
-    mkdir -p "$PROJECT_DIR/references/ios/frameworks"
+    mkdir -p "$PROJECT_DIR/.claude/skills/ship/ios/references/frameworks"
     IFS=',' read -ra NEW_FW <<< "$i"
     for fw in "${NEW_FW[@]}"; do
       fw=$(echo "$fw" | xargs)
-      if [ -f "$TEMPLATE_DIR/references/ios/frameworks/${fw}.md" ]; then
-        cp "$TEMPLATE_DIR/references/ios/frameworks/${fw}.md" "$PROJECT_DIR/references/ios/frameworks/"
+      if [ -f "$TEMPLATE_DIR/.claude/skills/ship/ios/references/frameworks/${fw}.md" ]; then
+        cp "$TEMPLATE_DIR/.claude/skills/ship/ios/references/frameworks/${fw}.md" "$PROJECT_DIR/.claude/skills/ship/ios/references/frameworks/"
         echo -e "${GREEN}✓${RESET} Added framework reference: ${fw}"
       else
         echo -e "${YELLOW}⚠${RESET}  Framework reference not found: ${fw}"
-        echo -e "${DIM}  Available: $(ls "$TEMPLATE_DIR/references/ios/frameworks/" 2>/dev/null | sed 's/\.md//g' | tr '\n' ', ' | sed 's/,$//')${RESET}"
+        echo -e "${DIM}  Available: $(ls "$TEMPLATE_DIR/.claude/skills/ship/ios/references/frameworks/" 2>/dev/null | sed 's/\.md//g' | tr '\n' ', ' | sed 's/,$//')${RESET}"
       fi
     done
   fi

@@ -66,7 +66,7 @@ Copy `.env.example` to `.env.local` and fill in your keys.
 That file is managed by Ship Framework — don't edit it. This file is yours.
 
 **⚠ Reference Gate (always enforced — with or without slash commands):**
-Before writing ANY code, generating ANY design, or making ANY technical recommendation, you MUST read the relevant references from `references/`. This is not optional. Print a `REFERENCES LOADED:` receipt before proceeding. See Rule 25 in team-rules.md. If you skip references to "move faster," the review will catch it and flag it as `REF_SKIP` — a preventable mistake.
+Before writing ANY code, generating ANY design, or making ANY technical recommendation, you MUST read the relevant references from `.claude/skills/ship/*/references/`. This is not optional. Print a `REFERENCES LOADED:` receipt and run `touch .claude/.refgate-loaded` before proceeding. See Rule 25 in team-rules.md. If you skip references to "move faster," the review will catch it and flag it as `REF_SKIP` — a preventable mistake.
 
 **Commands:**
 
@@ -100,11 +100,11 @@ Ship skills load automatically per command. Your skills activate based on wiring
 
 **Custom References:**
 
-<!-- The references/ directory has guides agents read automatically.
+<!-- Framework references live in .claude/skills/ship/*/references/.
+     Your custom references go in references/ at project root.
      Your references override framework defaults where they conflict.
      Format:
-       - references/your-file.md — Which agents read it and when
-     See references/README.md for the design system template. -->
+       - references/your-file.md — Which agents read it and when -->
 
 **Precedence:** team-rules.md > your skills > framework defaults
 

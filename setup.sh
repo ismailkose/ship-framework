@@ -158,59 +158,17 @@ if [ -f "$TEMPLATE_DIR/.claude/skills/README.md" ]; then
   cp "$TEMPLATE_DIR/.claude/skills/README.md" "$TARGET_DIR/.claude/skills/README.md"
 fi
 
-# ─── Copy references (platform-organized) ─────────────────────────────────────
+# ─── References ──────────────────────────────────────────────────────────────
+# Framework references now live inside skill directories (.claude/skills/ship/*/references/)
+# and are already copied by the cp -r above. The root references/ directory is for user content.
 
-# Shared references (always copied)
-if [ -d "$TEMPLATE_DIR/references/shared" ]; then
-  mkdir -p "$TARGET_DIR/references/shared"
-  cp "$TEMPLATE_DIR/references/shared/"*.md "$TARGET_DIR/references/shared/" 2>/dev/null
-  echo -e "${GREEN}✓${RESET} Created references/shared/ (UX principles, components, animation)"
+mkdir -p "$TARGET_DIR/references"
+if [ -f "$TEMPLATE_DIR/references/README.md" ]; then
+  cp "$TEMPLATE_DIR/references/README.md" "$TARGET_DIR/references/README.md"
 fi
 
-# iOS references
-if [ -d "$TEMPLATE_DIR/references/ios" ]; then
-  mkdir -p "$TARGET_DIR/references/ios"
-  cp "$TEMPLATE_DIR/references/ios/"*.md "$TARGET_DIR/references/ios/" 2>/dev/null
-
-  # iOS framework references (conditional)
-  if [ -d "$TEMPLATE_DIR/references/ios/frameworks" ]; then
-    mkdir -p "$TARGET_DIR/references/ios/frameworks"
-
-    if [ -n "$SHIP_FRAMEWORKS" ]; then
-      # Selective copy: SHIP_FRAMEWORKS="swiftdata,healthkit,storekit"
-      IFS=',' read -ra SELECTED <<< "$SHIP_FRAMEWORKS"
-      COPIED=0
-      for fw in "${SELECTED[@]}"; do
-        fw=$(echo "$fw" | xargs)
-        if [ -f "$TEMPLATE_DIR/references/ios/frameworks/${fw}.md" ]; then
-          cp "$TEMPLATE_DIR/references/ios/frameworks/${fw}.md" "$TARGET_DIR/references/ios/frameworks/"
-          COPIED=$((COPIED + 1))
-        else
-          echo -e "${YELLOW}⚠${RESET}  Framework reference not found: ${fw}"
-        fi
-      done
-      echo -e "${GREEN}✓${RESET} Created references/ios/frameworks/ ($COPIED selected)"
-    else
-      cp "$TEMPLATE_DIR/references/ios/frameworks/"*.md "$TARGET_DIR/references/ios/frameworks/" 2>/dev/null
-      TOTAL=$(ls "$TEMPLATE_DIR/references/ios/frameworks/"*.md 2>/dev/null | wc -l | xargs)
-      echo -e "${GREEN}✓${RESET} Created references/ios/frameworks/ ($TOTAL framework references)"
-    fi
-  fi
-fi
-
-# Web references
-if [ -d "$TEMPLATE_DIR/references/web" ]; then
-  mkdir -p "$TARGET_DIR/references/web"
-  cp "$TEMPLATE_DIR/references/web/"*.md "$TARGET_DIR/references/web/" 2>/dev/null
-  WEB_COUNT=$(ls "$TEMPLATE_DIR/references/web/"*.md 2>/dev/null | wc -l | xargs)
-  if [ "$WEB_COUNT" -gt 0 ]; then
-    echo -e "${GREEN}✓${RESET} Created references/web/ ($WEB_COUNT web references)"
-  fi
-fi
-
-# Create empty platform directories for future content
-mkdir -p "$TARGET_DIR/references/android"
-mkdir -p "$TARGET_DIR/references/cross-platform"
+REF_COUNT=$(find "$TARGET_DIR/.claude/skills/ship" -path "*/references/*.md" -type f 2>/dev/null | wc -l | xargs)
+echo -e "${GREEN}✓${RESET} References loaded ($REF_COUNT files across skill directories)"
 
 # ─── Copy cheatsheet ─────────────────────────────────────────────────────────
 

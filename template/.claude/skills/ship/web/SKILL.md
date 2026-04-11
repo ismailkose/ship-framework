@@ -11,9 +11,9 @@ paths: "*.tsx,*.jsx,*.css,*.scss,*.html,*.vue,*.svelte,*.astro,next.config.*,vit
 This skill routes personas to web-specific knowledge. Only loaded when `Stack: web` is declared in CLAUDE.md.
 
 **Reference files:**
-- `references/web/react-patterns.md` — React/Next.js patterns: Server Components, data fetching, re-render optimization, bundle size, composition, React 19 APIs
-- `references/web/web-accessibility.md` — Semantic HTML, ARIA, focus management, screen reader patterns, skip links, form accessibility
-- `references/web/web-performance.md` — Core Web Vitals, image optimization, font loading, virtualization, lazy loading, caching, anti-patterns
+- `.claude/skills/ship/web/references/react-patterns.md` — React/Next.js patterns: Server Components, data fetching, re-render optimization, bundle size, composition, React 19 APIs
+- `.claude/skills/ship/web/references/web-accessibility.md` — Semantic HTML, ARIA, focus management, screen reader patterns, skip links, form accessibility
+- `.claude/skills/ship/web/references/web-performance.md` — Core Web Vitals, image optimization, font loading, virtualization, lazy loading, caching, anti-patterns
 
 ## Priority Enforcement — What Blocks Shipping
 
@@ -32,41 +32,41 @@ This skill routes personas to web-specific knowledge. Only loaded when `Stack: w
 
 When Arc plans web features:
 
-1. **React architecture** — read `references/web/react-patterns.md` Section 1 for Server vs Client Components, data fetching strategy, rendering approach.
-2. **Component architecture** — read `references/web/react-patterns.md` Section 3 for composition patterns. Use compound pattern for complex components.
-3. **Performance budget** — read `references/web/web-performance.md` Section 1 for Core Web Vitals targets and initial performance decisions.
+1. **React architecture** — read `.claude/skills/ship/web/references/react-patterns.md` Section 1 for Server vs Client Components, data fetching strategy, rendering approach.
+2. **Component architecture** — read `.claude/skills/ship/web/references/react-patterns.md` Section 3 for composition patterns. Use compound pattern for complex components.
+3. **Performance budget** — read `.claude/skills/ship/web/references/web-performance.md` Section 1 for Core Web Vitals targets and initial performance decisions.
 
 ## For Building (/ship-build)
 
 When Dev builds web features:
 
-1. **React patterns** — read `references/web/react-patterns.md` Sections 1-4 for Server Components, data fetching, re-renders, bundle optimization.
-2. **Accessibility** — read `references/web/web-accessibility.md` for semantic elements, ARIA, focus management on every component.
-3. **Performance** — read `references/web/web-performance.md` Section 2 for image optimization, font loading, virtualization, lazy loading.
-4. **Forms** — read `references/shared/forms-feedback.md` + web-specific: `autocomplete`, `inputmode`, `spellCheck`, `defaultValue` over `value`, `beforeunload` for dirty forms.
-5. **Dark mode** — read `references/shared/dark-mode.md` Section 2 for `color-scheme: dark`, CSS custom properties, flash prevention, cookie storage.
+1. **React patterns** — read `.claude/skills/ship/web/references/react-patterns.md` Sections 1-4 for Server Components, data fetching, re-renders, bundle optimization.
+2. **Accessibility** — read `.claude/skills/ship/web/references/web-accessibility.md` for semantic elements, ARIA, focus management on every component.
+3. **Performance** — read `.claude/skills/ship/web/references/web-performance.md` Section 2 for image optimization, font loading, virtualization, lazy loading.
+4. **Forms** — read `.claude/skills/ship/ux/references/forms-feedback.md` + web-specific: `autocomplete`, `inputmode`, `spellCheck`, `defaultValue` over `value`, `beforeunload` for dirty forms.
+5. **Dark mode** — read `.claude/skills/ship/ux/references/dark-mode.md` Section 2 for `color-scheme: dark`, CSS custom properties, flash prevention, cookie storage.
 
 ## For Review (/ship-review)
 
 When Crit or Pol review web code:
 
-1. **Anti-patterns scan** — read `references/web/web-performance.md` Section 4 for the full anti-patterns checklist. Flag immediately: `<div onClick>`, `transition: all`, `outline: none` without replacement, `<img>` without dimensions, inputs without labels, `forwardRef` in React 19+.
-2. **React review** — read `references/web/react-patterns.md` Section 4 for: unnecessary `'use client'`, boolean prop accumulation, prop drilling, missing Suspense boundaries.
-3. **Accessibility review** — read `references/web/web-accessibility.md` Section 2 for: semantic elements, keyboard navigation, focus order, screen reader labels.
-4. **Performance review** — read `references/web/web-performance.md` Section 2 for: un-virtualized long lists, missing preconnect, unoptimized images, layout-triggering animations.
+1. **Anti-patterns scan** — read `.claude/skills/ship/web/references/web-performance.md` Section 4 for the full anti-patterns checklist. Flag immediately: `<div onClick>`, `transition: all`, `outline: none` without replacement, `<img>` without dimensions, inputs without labels, `forwardRef` in React 19+.
+2. **React review** — read `.claude/skills/ship/web/references/react-patterns.md` Section 4 for: unnecessary `'use client'`, boolean prop accumulation, prop drilling, missing Suspense boundaries.
+3. **Accessibility review** — read `.claude/skills/ship/web/references/web-accessibility.md` Section 2 for: semantic elements, keyboard navigation, focus order, screen reader labels.
+4. **Performance review** — read `.claude/skills/ship/web/references/web-performance.md` Section 2 for: un-virtualized long lists, missing preconnect, unoptimized images, layout-triggering animations.
 
 ## For QA (/ship-qa)
 
 When Test verifies web builds:
 
-1. **Lighthouse** — run Lighthouse. Read `references/web/web-performance.md` Section 3 for score interpretation and targets.
-2. **Accessibility** — tab through entire flow, screen reader test, skip link verification. Read `references/web/web-accessibility.md` Section 3.
-3. **Hydration** — check console for hydration warnings. Read `references/web/react-patterns.md` Section 5.
+1. **Lighthouse** — run Lighthouse. Read `.claude/skills/ship/web/references/web-performance.md` Section 3 for score interpretation and targets.
+2. **Accessibility** — tab through entire flow, screen reader test, skip link verification. Read `.claude/skills/ship/web/references/web-accessibility.md` Section 3.
+3. **Hydration** — check console for hydration warnings. Read `.claude/skills/ship/web/references/react-patterns.md` Section 5.
 4. **Cross-browser** — verify in Chrome, Safari, Firefox at minimum.
 
 ## Web-Specific Form Rules
 
-These extend `references/shared/forms-feedback.md` for web:
+These extend `.claude/skills/ship/ux/references/forms-feedback.md` for web:
 
 - `autocomplete` attribute on all inputs — browsers and password managers depend on it
 - `inputmode` for mobile keyboard control — `numeric`, `decimal`, `email`

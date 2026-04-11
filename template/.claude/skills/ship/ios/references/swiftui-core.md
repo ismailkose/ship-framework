@@ -7,7 +7,7 @@
 > This covers implementation patterns every SwiftUI project needs — navigation,
 > concurrency, Liquid Glass, animation, gestures, layout, architecture, and
 > UIKit interop. For framework-specific APIs (HealthKit, StoreKit, etc.),
-> see `references/ios/frameworks/`.
+> see `.claude/skills/ship/ios/references/frameworks/`.
 
 ---
 

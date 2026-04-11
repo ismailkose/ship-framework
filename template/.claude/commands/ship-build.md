@@ -35,7 +35,7 @@ REFERENCES LOADED:
 
 Then run: touch .claude/.refgate-loaded
 
-**Framework Common Mistakes:** When building with a specific framework (StoreKit, HealthKit, CloudKit, etc.), Dev reads the Common Mistakes section from the matching file in `references/ios/frameworks/`. These are real patterns that cause real bugs.
+**Framework Common Mistakes:** When building with a specific framework (StoreKit, HealthKit, CloudKit, etc.), Dev reads the Common Mistakes section from the matching file in `.claude/skills/ship/ios/references/frameworks/`. These are real patterns that cause real bugs.
 
 Do NOT proceed to Build Scope until this receipt is printed. Skipping references to move faster creates rework. This gate exists because it was violated and cost time (see LEARNINGS.md).
 
@@ -85,36 +85,36 @@ Your rules:
 This preserves both the scaffolded project AND all Ship Framework files.
 
 **Reference Loading (Stack-Aware):**
-Always load shared references: `references/shared/ux-principles.md`, `references/shared/components.md`, `references/shared/animation.md`. Then load platform-specific references matching the declared Stack in CLAUDE.md:
-- **iOS** → `references/ios/swiftui-core.md`, `references/ios/hig-ios.md`, `references/ios/swift-essentials.md`, `references/ios/frameworks/[relevant].md`
-- **Web** → `references/web/react-patterns.md`, `references/web/web-accessibility.md`, `references/web/web-performance.md`
-- **Android** → `references/android/` (when content exists)
+Always load shared references: `.claude/skills/ship/ux/references/ux-principles.md`, `.claude/skills/ship/components/references/components.md`, `.claude/skills/ship/motion/references/animation.md`. Then load platform-specific references matching the declared Stack in CLAUDE.md:
+- **iOS** → `.claude/skills/ship/ios/references/swiftui-core.md`, `.claude/skills/ship/ios/references/hig-ios.md`, `.claude/skills/ship/ios/references/swift-essentials.md`, `.claude/skills/ship/ios/references/frameworks/[relevant].md`
+- **Web** → `.claude/skills/ship/web/references/react-patterns.md`, `.claude/skills/ship/web/references/web-accessibility.md`, `.claude/skills/ship/web/references/web-performance.md`
+- **Android** → `.claude/skills/ship/android/references/` (when content exists)
 
-When building UI interactions, read `references/shared/ux-principles.md` Sections 2-3 — the code examples show correct vs incorrect patterns for hit areas, response time, input handling, spacing, and visual hierarchy. For deeper touch patterns (gestures, haptics, press feedback), read `references/shared/touch-interaction.md`. For interactive component states (the 8-state model: default, hover, focus, active, disabled, loading, error, success) and micro-interaction timing, read `references/shared/interaction-design.md` Sections 1-2.
+When building UI interactions, read `.claude/skills/ship/ux/references/ux-principles.md` Sections 2-3 — the code examples show correct vs incorrect patterns for hit areas, response time, input handling, spacing, and visual hierarchy. For deeper touch patterns (gestures, haptics, press feedback), read `.claude/skills/ship/ux/references/touch-interaction.md`. For interactive component states (the 8-state model: default, hover, focus, active, disabled, loading, error, success) and micro-interaction timing, read `.claude/skills/ship/ux/references/interaction-design.md` Sections 1-2.
 
-When building layouts, read `references/shared/layout-responsive.md` — mobile-first philosophy, breakpoint reasoning, spacing scale. For spacing philosophy and density strategy, read `references/shared/spatial-design.md` — spacing tokens, density modes, whitespace as hierarchy. Both supplement ux-principles.md with deeper implementation detail.
+When building layouts, read `.claude/skills/ship/ux/references/layout-responsive.md` — mobile-first philosophy, breakpoint reasoning, spacing scale. For spacing philosophy and density strategy, read `.claude/skills/ship/ux/references/spatial-design.md` — spacing tokens, density modes, whitespace as hierarchy. Both supplement ux-principles.md with deeper implementation detail.
 
-When building forms, read `references/shared/forms-feedback.md` Section 1 — labels, validation timing, progressive disclosure, multi-step patterns. Section 2 has feedback patterns (empty states, toasts, confirmation vs undo).
+When building forms, read `.claude/skills/ship/ux/references/forms-feedback.md` Section 1 — labels, validation timing, progressive disclosure, multi-step patterns. Section 2 has feedback patterns (empty states, toasts, confirmation vs undo).
 
-**Framework Common Mistakes:** Every file in `references/ios/frameworks/` now includes a Common Mistakes section. When building with a specific framework, Dev reads the Common Mistakes from the matching framework reference BEFORE writing code — prevention is cheaper than debugging.
+**Framework Common Mistakes:** Every file in `.claude/skills/ship/ios/references/frameworks/` now includes a Common Mistakes section. When building with a specific framework, Dev reads the Common Mistakes from the matching framework reference BEFORE writing code — prevention is cheaper than debugging.
 
-When building UI components, follow Arc's component architecture spec. Read `references/shared/components.md` — use the project's design system first, reach for headless primitives to fill gaps, never rebuild accessible behavior from scratch. Before building any UI, verify the component layer is installed (e.g., check for `components.json` — if missing and the stack specifies shadcn/ui, run the setup from `references/shared/components.md` Section 2 first). Check `references/design-system.md` if it exists (project-specific tokens and rules override framework defaults).
+When building UI components, follow Arc's component architecture spec. Read `.claude/skills/ship/components/references/components.md` — use the project's design system first, reach for headless primitives to fill gaps, never rebuild accessible behavior from scratch. Before building any UI, verify the component layer is installed (e.g., check for `components.json` — if missing and the stack specifies shadcn/ui, run the setup from `.claude/skills/ship/components/references/components.md` Section 2 first). Check `references/design-system.md` if it exists (project-specific tokens and rules override framework defaults).
 
-**Shadcn MCP check:** If the stack includes shadcn/ui, check if the Shadcn UI MCP is connected (try `list_components`). If connected — use it: `get_component_metadata` to check props before customizing, `get_component_demo` for usage patterns, `apply_theme` for theme presets. See `references/shared/components.md` Section 3.87 for full routing. If NOT connected — suggest once: "💡 The Shadcn UI MCP gives me live component source, demos, and 42 theme presets. Want me to help you set it up?" Then continue with the static reference file. Don't ask again in the same session.
+**Shadcn MCP check:** If the stack includes shadcn/ui, check if the Shadcn UI MCP is connected (try `list_components`). If connected — use it: `get_component_metadata` to check props before customizing, `get_component_demo` for usage patterns, `apply_theme` for theme presets. See `.claude/skills/ship/components/references/components.md` Section 3.87 for full routing. If NOT connected — suggest once: "💡 The Shadcn UI MCP gives me live component source, demos, and 42 theme presets. Want me to help you set it up?" Then continue with the static reference file. Don't ask again in the same session.
 
-When implementing typography or color tokens, read `references/shared/typography-color.md` — type scale reasoning, font pairing, semantic color tokens. Never hardcode raw values.
+When implementing typography or color tokens, read `.claude/skills/ship/ux/references/typography-color.md` — type scale reasoning, font pairing, semantic color tokens. Never hardcode raw values.
 
-When implementing dark mode or theming, read `references/shared/dark-mode.md` — semantic tokens, desaturation strategy, platform-specific implementation patterns.
+When implementing dark mode or theming, read `.claude/skills/ship/ux/references/dark-mode.md` — semantic tokens, desaturation strategy, platform-specific implementation patterns.
 
-When building navigation, read `references/shared/navigation.md` Section 2 — back behavior, deep linking, adaptive nav, URL state, modals vs navigation.
+When building navigation, read `.claude/skills/ship/ux/references/navigation.md` Section 2 — back behavior, deep linking, adaptive nav, URL state, modals vs navigation.
 
-When building UI with animations or transitions, follow Arc's motion spec and read `references/shared/animation.md` Section 3 for build rules and Section 4 for pattern foundations. Learn from the patterns — don't copy them blindly. Adapt techniques to your stack and what Arc specced. For deep-dive API references when you need them: `references/shared/animation-css.md`, `references/shared/animation-framer-motion.md` (if stack uses it), `references/shared/animation-performance.md`.
+When building UI with animations or transitions, follow Arc's motion spec and read `.claude/skills/ship/motion/references/animation.md` Section 3 for build rules and Section 4 for pattern foundations. Learn from the patterns — don't copy them blindly. Adapt techniques to your stack and what Arc specced. For deep-dive API references when you need them: `.claude/skills/ship/motion/references/animation-css.md`, `.claude/skills/ship/motion/references/animation-framer-motion.md` (if stack uses it), `.claude/skills/ship/motion/references/animation-performance.md`.
 
-When writing user-facing copy (button labels, error messages, empty states, confirmation dialogs), read `references/shared/copy-clarity.md` Section 2 — specific verb labels, error message structure (what happened + how to fix), empty state patterns.
+When writing user-facing copy (button labels, error messages, empty states, confirmation dialogs), read `.claude/skills/ship/ux/references/copy-clarity.md` Section 2 — specific verb labels, error message structure (what happened + how to fix), empty state patterns.
 
-When preparing for launch or building error handling, read `references/shared/hardening-guide.md` — error boundaries, edge case tables (text, numeric, timing, auth), network error patterns, pre-launch checklist.
+When preparing for launch or building error handling, read `.claude/skills/ship/hardening/references/hardening-guide.md` — error boundaries, edge case tables (text, numeric, timing, auth), network error patterns, pre-launch checklist.
 
-**Web stack:** Also read `references/web/react-patterns.md` for Server vs Client components, composition, and hydration safety. Read `references/web/web-accessibility.md` for semantic HTML and ARIA patterns.
+**Web stack:** Also read `.claude/skills/ship/web/references/react-patterns.md` for Server vs Client components, composition, and hydration safety. Read `.claude/skills/ship/web/references/web-accessibility.md` for semantic HTML and ARIA patterns.
 
 ## Decision Classification
 

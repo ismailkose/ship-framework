@@ -10,8 +10,8 @@ description: |
 This skill routes personas to component architecture knowledge. The three-layer model, composition patterns, and design token rules live in the reference file.
 
 **Reference files:**
-- `references/shared/components.md` — Three-layer model (Section 1-2), primitives + shadcn setup, 46 component catalog, theming, CVA, forms, review checklist
-- `references/web/react-patterns.md` — React composition patterns (Section 3), React 19 APIs (Section 5)
+- `.claude/skills/ship/components/references/components.md` — Three-layer model (Section 1-2), primitives + shadcn setup, 46 component catalog, theming, CVA, forms, review checklist
+- `.claude/skills/ship/web/references/react-patterns.md` — React composition patterns (Section 3), React 19 APIs (Section 5)
 
 ## The Three Layers (always enforce)
 
@@ -42,26 +42,26 @@ This skill routes personas to component architecture knowledge. The three-layer 
 When Arc plans component architecture:
 
 1. **Inventory check** — list existing components before speccing new ones.
-2. **Primitive selection** — read `references/shared/components.md` Section 2 for stack-specific primitives.
-3. **Composition plan** — for complex interactive components, plan compound pattern upfront. Read `references/web/react-patterns.md` Section 3.
+2. **Primitive selection** — read `.claude/skills/ship/components/references/components.md` Section 2 for stack-specific primitives.
+3. **Composition plan** — for complex interactive components, plan compound pattern upfront. Read `.claude/skills/ship/web/references/react-patterns.md` Section 3.
 4. **Token definition** — if no design tokens exist, define them before building UI.
 
 ## For Building (/ship-build)
 
 When Dev builds UI:
 
-1. **Before ANY component** — does the design system have it? Does a primitive handle it? Read `references/shared/components.md` Section 1-2.
+1. **Before ANY component** — does the design system have it? Does a primitive handle it? Read `.claude/skills/ship/components/references/components.md` Section 1-2.
 2. **Token compliance** — all values reference tokens. No hardcoded colors, sizes, spacing.
-3. **Composition** — tabs, panels, toggle groups, internal navigation = compound pattern. Read `references/web/react-patterns.md` Section 3.
+3. **Composition** — tabs, panels, toggle groups, internal navigation = compound pattern. Read `.claude/skills/ship/web/references/react-patterns.md` Section 3.
 4. **Prop check** — adding a 3rd boolean prop? Stop and refactor.
 
 ## For Review (/ship-review)
 
 When reviewing components:
 
-1. **Layer audit** — read `references/shared/components.md` Section 1. Anyone rebuilding primitives?
+1. **Layer audit** — read `.claude/skills/ship/components/references/components.md` Section 1. Anyone rebuilding primitives?
 2. **Token audit** — any hardcoded values? Flag them.
-3. **Composition audit** — read `references/web/react-patterns.md` Section 4. Boolean accumulation? Prop drilling? Missing compound pattern?
+3. **Composition audit** — read `.claude/skills/ship/web/references/react-patterns.md` Section 4. Boolean accumulation? Prop drilling? Missing compound pattern?
 4. **Consistency** — similar patterns should use same components.
 
 ## See Also

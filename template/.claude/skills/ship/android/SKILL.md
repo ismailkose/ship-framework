@@ -21,7 +21,7 @@ This skill will cover:
 - Play Store review guidelines
 
 **Reference files (to be created):**
-- `references/android/compose-patterns.md`
-- `references/android/material3.md`
-- `references/android/kotlin-essentials.md`
-- `references/android/platform-apis.md`
+- `.claude/skills/ship/android/references/compose-patterns.md`
+- `.claude/skills/ship/android/references/material3.md`
+- `.claude/skills/ship/android/references/kotlin-essentials.md`
+- `.claude/skills/ship/android/references/platform-apis.md`

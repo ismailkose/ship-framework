@@ -14,17 +14,17 @@ Read CLAUDE.md for product context. Read .claude/team-rules.md for rules and wor
 ## Load References
 
 Before building, load:
-- `references/shared/layout-responsive.md` (breakpoints, mobile-first, content priority)
-- `references/shared/typography-color.md` (type scale, color tokens, contrast)
-- `references/shared/forms-feedback.md` (form patterns, validation, if forms are involved)
-- `references/shared/spatial-design.md` (spacing scale, density)
-- `references/shared/components.md` (component patterns)
-- `references/shared/interaction-design.md` (states — hover, focus, active, disabled)
-- `references/shared/dark-mode.md` (if dark mode is requested)
+- `.claude/skills/ship/ux/references/layout-responsive.md` (breakpoints, mobile-first, content priority)
+- `.claude/skills/ship/ux/references/typography-color.md` (type scale, color tokens, contrast)
+- `.claude/skills/ship/ux/references/forms-feedback.md` (form patterns, validation, if forms are involved)
+- `.claude/skills/ship/ux/references/spatial-design.md` (spacing scale, density)
+- `.claude/skills/ship/components/references/components.md` (component patterns)
+- `.claude/skills/ship/ux/references/interaction-design.md` (states — hover, focus, active, disabled)
+- `.claude/skills/ship/ux/references/dark-mode.md` (if dark mode is requested)
 
 Platform-specific:
-- If web stack: `references/web/web-accessibility.md` (semantic HTML, ARIA)
-- If web stack: `references/web/web-performance.md` (performance targets)
+- If web stack: `.claude/skills/ship/web/references/web-accessibility.md` (semantic HTML, ARIA)
+- If web stack: `.claude/skills/ship/web/references/web-performance.md` (performance targets)
 
 ## Reference Gate (Rule 25 — mandatory)
 

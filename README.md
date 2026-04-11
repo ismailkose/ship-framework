@@ -165,9 +165,9 @@ Ship splits design intelligence into two layers:
 
 **References** are the brain (200-700+ lines). They teach Claude HOW to think about a domain — with reasoning, correct vs incorrect examples, and anti-patterns. Different personas read different sections of the same reference at different times.
 
-Example flow: you run `/ship-build` → Dev loads the UX skill → skill says "read `references/shared/forms-feedback.md` Section 1 for form implementation" → Dev reads the reference and applies the reasoning to the specific form being built.
+Example flow: you run `/ship-build` → Dev loads the UX skill → skill says "read `.claude/skills/ship/ux/references/forms-feedback.md` Section 1 for form implementation" → Dev reads the reference and applies the reasoning to the specific form being built.
 
-Ship comes with 10 framework skills and 19 deep reference files covering UX, typography, color, forms, navigation, layout, touch, dark mode, animation, components, design quality, and platform-specific patterns. All auto-loaded based on your declared stack. The team also learns your patterns over time — bug fixes write to LEARNINGS.md, design reviews record your taste preferences, and every session starts by reading what past sessions discovered.
+Each skill owns its references — the UX skill has 12 reference files, motion has 4, iOS has 64 (including 61 framework guides), web has 3. Total: 85 deep reference files covering UX, typography, color, forms, navigation, layout, touch, dark mode, animation, components, design quality, hardening, and platform-specific patterns. All auto-loaded based on your declared stack. The team also learns your patterns over time — bug fixes write to LEARNINGS.md, design reviews record your taste preferences, and every session starts by reading what past sessions discovered.
 
 ### Add Your Own
 
@@ -250,38 +250,22 @@ your-project/
       ship-update.md           #   Framework update
       ship-qa.md               #   (deprecated → /ship-review --test)
     skills/
-      ship/                    # Framework skills (ux, web, motion, components, ios, android, safety, hooks)
+      ship/                    # Framework skills — each owns its references
+        ux/                    #   12 references: UX principles, typography, forms, layout, etc.
+        motion/                #   4 references: animation system, CSS, Framer Motion, performance
+        components/            #   1 reference: component catalog, three-layer model
+        hardening/             #   1 reference: error handling, edge cases, pre-launch checklist
+        ios/                   #   64 references: SwiftUI, HIG, Swift essentials, 61 framework guides
+        web/                   #   3 references: React patterns, accessibility, performance
+        android/               #   (planned: Compose, Material 3, Kotlin, platform APIs)
         refgate/               #   Reference Gate hook — blocks first edit until refs loaded
         sessionstart/          #   Session Start hook — loads project context automatically
         freeze/                #   Directory lock hook
         careful/               #   Destructive command hook
+        guard/                 #   Combined: careful + freeze
+        unfreeze/              #   Remove directory lock
       your-skills/             # Your skills (design system, API patterns, etc.)
-  references/
-    shared/                    # 19 deep references — the design brain
-      ux-principles.md         #   Hick's, Miller's, Fitts's, Peak-End, HEART
-      typography-color.md      #   Type scale, font pairing, OKLCH color, fluid type
-      interaction-design.md    #   8 interactive states, micro-interactions, gestures
-      spatial-design.md        #   Spacing tokens, density strategy, whitespace
-      copy-clarity.md          #   UX writing, voice framework, AI copy slop patterns
-      hardening-guide.md       #   Error boundaries, edge cases, pre-launch checklist
-      forms-feedback.md        #   Input patterns, validation, empty states, toasts
-      navigation.md            #   Nav architecture, back behavior, deep linking
-      layout-responsive.md     #   Mobile-first, breakpoints, spacing scale
-      touch-interaction.md     #   Tap targets, gestures, press feedback, haptics
-      dark-mode.md             #   Theming strategy, semantic tokens, contrast
-      design-quality.md        #   First impression, 18 AI slop patterns, coherence
-      design-research.md       #   Competitive research, design system creation
-      components.md            #   Three-layer model, 46 component catalog
-      animation.md             #   Motion budget, tokens, 8 pattern foundations
-      animation-css.md         #   CSS transforms, transitions, keyframes
-      animation-framer-motion.md  Framer Motion API
-      animation-performance.md #   60fps optimization, reduced motion
-    web/                       # 3 web-specific references
-      react-patterns.md        #   Server/Client components, composition, hydration
-      web-accessibility.md     #   Semantic HTML, ARIA, focus, screen readers
-      web-performance.md       #   Core Web Vitals, image/font optimization
-    ios/                       # Apple HIG, SwiftUI, 47 framework guides
-    android/                   # Material 3, Compose patterns
+  references/                  # Your custom references (framework refs are in skills above)
 ```
 
 **CLAUDE.md** is yours — edit freely, never overwritten. **LEARNINGS.md** and **DESIGN.md** are yours too — the team writes to them but updates never overwrite your content. **team-rules.md** is the framework's — auto-synced on update.

@@ -14,20 +14,20 @@ Read CLAUDE.md for product context. Read .claude/team-rules.md for rules and wor
 ## Load References
 
 Before starting, load:
-- `references/shared/typography-color.md` (type scale, color theory, contrast)
-- `references/shared/spatial-design.md` (spacing systems, density strategy)
-- `references/shared/components.md` (three-layer model, component catalog)
-- `references/shared/animation.md` (motion system, easing, timing)
-- `references/shared/layout-responsive.md` (breakpoints, grid systems)
-- `references/shared/design-research.md` (competitive analysis methodology, design system template)
-- `references/shared/design-quality.md` (first impression, AI slop detection, coherence)
-- `references/shared/interaction-design.md` (8-state model)
-- `references/shared/dark-mode.md` (dark mode as separate system)
-- `references/shared/copy-clarity.md` (voice framework)
+- `.claude/skills/ship/ux/references/typography-color.md` (type scale, color theory, contrast)
+- `.claude/skills/ship/ux/references/spatial-design.md` (spacing systems, density strategy)
+- `.claude/skills/ship/components/references/components.md` (three-layer model, component catalog)
+- `.claude/skills/ship/motion/references/animation.md` (motion system, easing, timing)
+- `.claude/skills/ship/ux/references/layout-responsive.md` (breakpoints, grid systems)
+- `.claude/skills/ship/ux/references/design-research.md` (competitive analysis methodology, design system template)
+- `.claude/skills/ship/ux/references/design-quality.md` (first impression, AI slop detection, coherence)
+- `.claude/skills/ship/ux/references/interaction-design.md` (8-state model)
+- `.claude/skills/ship/ux/references/dark-mode.md` (dark mode as separate system)
+- `.claude/skills/ship/ux/references/copy-clarity.md` (voice framework)
 
 Platform-specific (based on Stack in CLAUDE.md):
-- If web: `references/web/web-accessibility.md`, `references/web/web-performance.md`
-- If ios: `references/ios/hig-ios.md`, `references/ios/swiftui-core.md`
+- If web: `.claude/skills/ship/web/references/web-accessibility.md`, `.claude/skills/ship/web/references/web-performance.md`
+- If ios: `.claude/skills/ship/ios/references/hig-ios.md`, `.claude/skills/ship/ios/references/swiftui-core.md`
 
 ## Reference Gate (Rule 25 — mandatory)
 

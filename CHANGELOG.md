@@ -6,7 +6,7 @@ To update an existing project, run `bash ship-update.sh` from your project root,
 
 ---
 
-## 2026.04.11 — Smarter Commands, Auto-Detection, Reference Gate, Session Awareness
+## 2026.04.11 — Smarter Commands, Auto-Detection, Reference Gate, Session Awareness, Reference Restructure
 
 ### Smarter Commands
 - **All 21 commands now have descriptions** — Each `/ship-*` command declares what it does in its metadata. This powers Claude Code's skill picker and prevents Claude from auto-triggering commands without you explicitly invoking them.
@@ -28,6 +28,13 @@ To update an existing project, run `bash ship-update.sh` from your project root,
 - **Environment variables** — Sets `SHIP_STACK`, `SHIP_VERSION`, `SHIP_PRODUCT` so hooks and scripts can use them throughout the session.
 - **Fresh gate every session** — Cleans stale reference gate state from previous sessions so the "read before you code" check fires fresh.
 - **Setup hints** — Gently reminds you if product name or Stack aren't configured yet.
+
+### Reference Restructure
+- **References moved into skill directories** — All 85 reference files now live inside their owning skill at `.claude/skills/ship/*/references/`. This enables Claude Code's progressive disclosure: skill metadata loads first, skill body loads on trigger, references load on demand. No more relying on prompt instructions to get Claude to read the right files.
+- **Ownership mapping** — UX skill owns 12 references (ux-principles, typography-color, design-quality, forms, layout, navigation, touch, spatial, copy, dark-mode, interaction-design, design-research). Motion skill owns 4 (animation, animation-css, animation-framer-motion, animation-performance). Components owns 1 (components). New hardening skill owns 1 (hardening-guide). iOS owns 64 (3 core + 61 frameworks). Web owns 3.
+- **New hardening skill** — Pre-launch hardening reference now has its own skill with priority enforcement table.
+- **Automatic migration** — Running `/ship-update` moves your references from the old locations and cleans up empty directories. All path references in commands, skills, and team-rules updated.
+- **User references stay at root** — The `references/` directory is now for your custom references. A README explains where framework references moved.
 
 ---
 
