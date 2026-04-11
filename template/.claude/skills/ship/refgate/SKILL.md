@@ -2,7 +2,7 @@
 name: ship-refgate
 description: |
   Reference Gate — blocks first Edit/Write until references are loaded. (ship)
-  Option D hybrid: hard block on first edit, no-op after refs are confirmed.
+  Hard block on first edit, no-op after refs are confirmed.
   Activated automatically. No user command needed.
 hooks:
   PreToolUse:
@@ -24,7 +24,7 @@ This skill enforces Rule 25 (Reference Gate) as a real PreToolUse hook. It block
 
 ## How It Works
 
-**Option D (Hybrid):** Hard block on the first edit, no-op after that.
+Hard block on the first edit, no-op after that.
 
 1. Session starts — no state files exist
 2. Agent tries first Edit/Write → hook checks for `.claude/.refgate-loaded`
@@ -52,9 +52,7 @@ This happens inside the command workflow — after the agent reads the relevant 
 
 ## Session Cleanup
 
-Both state files should be cleaned at session start (SessionStart hook, Phase 4) or treated as ephemeral. If they persist between sessions, the gate won't fire — but that's acceptable since a new session means a new context window where references need re-reading anyway.
-
-For now: the files live in `.claude/` which is project-local. If a user runs multiple sessions on the same project, the second session inherits the "loaded" state. This is a known trade-off accepted for Phase 3. Phase 4 (SessionStart hook) will add proper cleanup.
+Both state files are cleaned automatically at session start by the `ship-sessionstart` hook. If they persist between sessions (e.g., on older versions without the session start hook), the gate won't fire — but that's acceptable since a new session means a new context window where references need re-reading anyway.
 
 ## Compatibility
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Ship Framework — reference gate hook (Option D: Hybrid)
+# Ship Framework — reference gate hook
 # Blocks the FIRST Edit/Write if references haven't been loaded.
 # After first successful edit, becomes a no-op for the rest of the session.
 # Returns JSON: {} (allow) or {"permissionDecision":"deny","message":"..."} (block)
