@@ -1,6 +1,6 @@
 # Ship Framework
 
-`v2026.04.07b` · 61 framework references · 10 personas · 21 commands
+`v2026.04.11` · 61 framework references · 10 personas · 21 commands
 
 **An AI product team in your terminal.**
 
@@ -88,6 +88,13 @@ Ship has 21 commands. You don't need to learn them all — `/ship-team` handles 
 | **ship-guard** | Both at once. |
 | **ship-unfreeze** | Removes the lock. |
 
+### 🔒 Automatic Hooks — no commands needed
+
+| Hook | When | What it does |
+|:---|:---|:---|
+| **Reference Gate** | First Edit/Write | Blocks coding until references are loaded. Passes after first successful edit. |
+| **Session Start** | Session opens | Loads your Stack, product name, version, task count. Cleans stale state. |
+
 ### ⚡ Optional
 
 | Command | What it does |
@@ -145,6 +152,8 @@ Stack: web (Next.js, Tailwind, Vercel)
 ```
 
 Web project? You get web references. iOS project? You get Apple HIG, SwiftUI patterns, and 61 framework guides. Android? Material 3 and Compose patterns. No irrelevant context cluttering your sessions.
+
+Platform skills also auto-activate by file type — touch a `.swift` file and iOS knowledge loads, edit a `.tsx` and web patterns activate. The Stack declaration and file detection work together so nothing gets missed.
 
 ---
 
@@ -241,7 +250,11 @@ your-project/
       ship-update.md           #   Framework update
       ship-qa.md               #   (deprecated → /ship-review --test)
     skills/
-      ship/                    # Routing skills (ux, web, motion, components, ios, android + safety)
+      ship/                    # Framework skills (ux, web, motion, components, ios, android, safety, hooks)
+        refgate/               #   Reference Gate hook — blocks first edit until refs loaded
+        sessionstart/          #   Session Start hook — loads project context automatically
+        freeze/                #   Directory lock hook
+        careful/               #   Destructive command hook
       your-skills/             # Your skills (design system, API patterns, etc.)
   references/
     shared/                    # 19 deep references — the design brain
