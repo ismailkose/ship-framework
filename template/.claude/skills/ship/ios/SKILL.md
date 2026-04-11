@@ -3,6 +3,7 @@ name: ship-ios
 description: |
   iOS/SwiftUI platform skill. Apple API enforcement, HIG compliance, SwiftUI patterns.
   Only loaded when Stack is ios. (ship)
+paths: "*.swift,*.xib,*.storyboard,*.xcodeproj,*.plist,*.entitlements,Package.swift"
 ---
 
 # iOS Platform Skill

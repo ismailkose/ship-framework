@@ -512,7 +512,8 @@ perspective. But /ship-team is the default way to work.
     **The protocol:**
     1. Read every reference listed in the command's "Load References" section
     2. Print a receipt: `REFERENCES LOADED: [list of files read]`
-    3. Only then proceed to the actual work
+    3. Run `touch .claude/.refgate-loaded` to signal the reference gate hook
+    4. Only then proceed to the actual work
 
     **Why this exists:** Skipping references to "move faster" creates rework. copy-clarity.md catches AI slop. animation.md enforces motion budgets. design-quality.md flags contrast issues. ux-principles.md informs layout decisions. Every reference exists because skipping it caused a real mistake.
 

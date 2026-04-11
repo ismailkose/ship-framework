@@ -1,3 +1,9 @@
+---
+description: "Visual QA with browser power — screenshots, headed mode, cookie import, performance snapshots."
+disable-model-invocation: true
+allowed-tools: Read Grep Glob Bash
+---
+
 Visual QA with browser power — screenshots, headed mode, cookie import, performance snapshots.
 
 You are running the /ship-browse command — Ship Framework's browser-powered visual QA tool. Eye navigates the app with real Chromium, takes screenshots, and checks design quality. Enhanced with persistent sessions, authentication support, and optional performance measurement.

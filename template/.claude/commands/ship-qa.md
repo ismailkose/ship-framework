@@ -1,3 +1,8 @@
+---
+description: "Deprecated — merged into /ship-review. Use /ship-review or /ship-review --test."
+disable-model-invocation: true
+---
+
 ⚠️ /ship-qa has been merged into /ship-review. Use /ship-review instead.
 
 This command has been deprecated. The Test persona and health scoring system are now part of /ship-review.

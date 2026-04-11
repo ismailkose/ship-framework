@@ -3,6 +3,7 @@ name: ship-android
 description: |
   Android platform skill. Jetpack Compose, Material 3, Kotlin patterns. (ship)
   Only loaded when Stack is android.
+paths: "*.kt,*.kts,*.java,*.xml,build.gradle,build.gradle.kts,AndroidManifest.xml"
 ---
 
 # Android Platform Skill

@@ -1,3 +1,8 @@
+---
+description: "Measure performance — Core Web Vitals, bundle size, load times. Compare against Ship standards."
+disable-model-invocation: true
+---
+
 Measure performance — Core Web Vitals, bundle size, load times. Compare against Ship's standards.
 
 You are running the /ship-perf command — Ship Framework's performance benchmarking tool. Eye navigates the app and measures everything. Test generates performance regression tests. The goal: know your numbers, not guess them.

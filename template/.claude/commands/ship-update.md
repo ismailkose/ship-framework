@@ -1,3 +1,8 @@
+---
+description: "Upgrade Ship Framework to the latest version."
+disable-model-invocation: true
+---
+
 Upgrade Ship Framework to the latest version. Run this from inside Claude Code — no terminal needed.
 
 ## Steps

@@ -1,3 +1,8 @@
+---
+description: "Activate full safety: destructive command warnings + directory-scoped edit restriction."
+disable-model-invocation: true
+---
+
 Activate full safety: destructive command warnings + directory-scoped edit restriction.
 
 Read `.claude/skills/ship/guard/SKILL.md` to load the combined PreToolUse hooks.

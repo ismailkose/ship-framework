@@ -6,6 +6,34 @@ To update an existing project, run `bash ship-update.sh` from your project root,
 
 ---
 
+## 2026.04.11 — v5 Phase 1-4: Frontmatter, Platform Paths, Reference Gate Hook, SessionStart
+
+### Plugin Architecture (v5 Evolution)
+- **YAML frontmatter on all 21 commands** — Every `/ship-*` command now has proper frontmatter with `description` and `disable-model-invocation: true`. This aligns with the official Claude Code plugin spec: descriptions power the skill picker, and `disable-model-invocation` prevents Claude from auto-triggering commands without explicit user invocation.
+- **`paths` on platform skills** — iOS, Web, and Android skills now declare file-pattern triggers via `paths` frontmatter. When Claude Code touches matching files (e.g. `*.swift`, `*.tsx`, `*.kt`), the relevant platform skill activates automatically — no manual Stack declaration needed as a fallback.
+  - **iOS**: `*.swift, *.xib, *.storyboard, *.xcodeproj, *.plist, *.entitlements, Package.swift`
+  - **Web**: `*.tsx, *.jsx, *.css, *.scss, *.html, *.vue, *.svelte, *.astro, next.config.*, vite.config.*`
+  - **Android**: `*.kt, *.kts, *.java, *.xml, build.gradle, build.gradle.kts, AndroidManifest.xml`
+- **`allowed-tools` on ship-browse** — Restricted to `Read Grep Glob Bash` to prevent the browse command from making edits.
+
+### Reference Gate Hook (Phase 3 — Option D Hybrid)
+- **First-edit protection** — New `ship-refgate` skill with a PreToolUse hook on Edit and Write. The first edit in a session is hard-blocked unless references have been loaded. After the first successful edit, the hook becomes a no-op for the rest of the session.
+- **State files** — `.claude/.refgate-loaded` (created by commands after printing `REFERENCES LOADED` receipt) and `.claude/.refgate-passed` (created by the hook after first allowed edit).
+- **Rule 25 updated** — team-rules.md now includes `touch .claude/.refgate-loaded` as step 3 of the Reference Gate protocol. All 6 commands with explicit receipt blocks also updated.
+- **Under 1 second** — Pure bash file-existence check, well within the 5-second hook timeout.
+- **Compatible** — Works alongside freeze and careful hooks independently.
+
+### SessionStart Hook (Phase 4)
+- **Automatic project context** — New `ship-sessionstart` skill fires once when a Claude Code session begins. Reads CLAUDE.md to extract Stack, product name, and version. Counts open tasks, decisions, and learnings. Prints a status summary as Claude's initial context.
+- **Environment variables** — Sets `SHIP_STACK`, `SHIP_VERSION`, `SHIP_PRODUCT` via `$CLAUDE_ENV_FILE`, available to all subsequent hooks and scripts.
+- **Refgate cleanup** — Removes stale `.refgate-loaded` and `.refgate-passed` from previous sessions so the Reference Gate fires fresh every session.
+- **Gentle warnings** — Hints when product name is still the template default or Stack is not set. Does not block.
+
+### Planning
+- **v5 Evolution Plan** — Added `PLAN-v5-plugin-evolution.md` documenting the full 8-phase roadmap from v4 prompt-based architecture to v5 plugin-native architecture.
+
+---
+
 ## 2026.04.08 — Stale v3 Command Cleanup + Setup Fixes
 
 ### Bug Fixes

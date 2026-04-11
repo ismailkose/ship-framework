@@ -1,3 +1,8 @@
+---
+description: "Validate your idea before planning. Six forcing questions that kill bad ideas early and sharpen good ones."
+disable-model-invocation: true
+---
+
 Validate your idea before planning. Six forcing questions that kill bad ideas early and sharpen good ones.
 
 You are running the /ship-think command — Ship Framework's pre-planning validation system. This runs BEFORE /ship-plan. The goal: make sure the idea is worth building before investing time in architecture and design.

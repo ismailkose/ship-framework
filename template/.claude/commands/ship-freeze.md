@@ -1,3 +1,8 @@
+---
+description: "Lock edits to a specific directory for this session."
+disable-model-invocation: true
+---
+
 Lock edits to a specific directory for this session.
 
 Read `.claude/skills/ship/freeze/SKILL.md` to load the PreToolUse hook.

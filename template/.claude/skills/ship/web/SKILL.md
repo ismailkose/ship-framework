@@ -3,6 +3,7 @@ name: ship-web
 description: |
   Web platform skill. React/Next.js routing to web references. (ship)
   Only loaded when Stack is web. Loaded by all commands.
+paths: "*.tsx,*.jsx,*.css,*.scss,*.html,*.vue,*.svelte,*.astro,next.config.*,vite.config.*"
 ---
 
 # Web Platform Skill

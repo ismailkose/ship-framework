@@ -1,3 +1,8 @@
+---
+description: "Remove the directory-scoped edit restriction."
+disable-model-invocation: true
+---
+
 Remove the directory-scoped edit restriction.
 
 Delete the freeze state file:

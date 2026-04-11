@@ -1,3 +1,8 @@
+---
+description: "Build production-quality responsive HTML — no framework, no dependencies, proper text reflow."
+disable-model-invocation: true
+---
+
 Build production-quality responsive HTML — no framework, no dependencies, proper text reflow.
 
 You are running the /ship-html command — Ship Framework's HTML prototyping tool. Dev builds the HTML, Pol validates the quality. The goal: create HTML that looks intentional at EVERY viewport, not just the one you tested at.
@@ -30,6 +35,8 @@ REFERENCES LOADED:
 - [filename] ✓
 - [filename] ✓
 ```
+
+Then run: touch .claude/.refgate-loaded
 
 Do NOT proceed to Dev's build until this receipt is printed.
 

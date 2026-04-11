@@ -1,3 +1,8 @@
+---
+description: "Create or evolve a design system — competitor research, complete proposal, preview mockups, documented tokens."
+disable-model-invocation: true
+---
+
 Create or evolve a design system — competitor research, complete proposal, preview mockups, documented tokens.
 
 You are running the /ship-design command — Ship Framework's design system consultation. Pol leads the process, Eye validates the output. The goal: create a design system that's intentional, not default.
@@ -33,6 +38,8 @@ REFERENCES LOADED:
 - [filename] ✓
 - [filename] ✓
 ```
+
+Then run: touch .claude/.refgate-loaded
 
 Do NOT proceed to Phase 1 until this receipt is printed.
 

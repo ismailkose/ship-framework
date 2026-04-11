@@ -1,3 +1,8 @@
+---
+description: "Review quality — UX, design polish, visual QA, automated tests, health score. The complete quality gate."
+disable-model-invocation: true
+---
+
 Review quality — UX, design polish, visual QA, automated tests, health score. The complete quality gate.
 
 You are running the /ship-review command — Ship Framework's adversarial review system. Four named reviewers examine the work (Crit, Pol, Eye, Test), then an adversarial challenge tests their findings. This is the single quality gate — it combines product review, design audit, visual QA, and testing into one command with a health score.
@@ -27,6 +32,8 @@ REFERENCES LOADED:
 - [filename] ✓
 - [filename] ✓
 ```
+
+Then run: touch .claude/.refgate-loaded
 
 **REF_SKIP detection:** During review, if you find an issue that a reference would have caught during /ship-build, flag it as `REF_SKIP` in the findings. Write it to LEARNINGS.md so the pattern compounds.
 

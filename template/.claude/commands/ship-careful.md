@@ -1,3 +1,8 @@
+---
+description: "Activate destructive command guardrails for this session."
+disable-model-invocation: true
+---
+
 Activate destructive command guardrails for this session.
 
 Read `.claude/skills/ship/careful/SKILL.md` to load the PreToolUse hook.

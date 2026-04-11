@@ -1,3 +1,8 @@
+---
+description: "Generate theory-backed design variants — each justified against UX principles. Compare, rate, learn your taste."
+disable-model-invocation: true
+---
+
 Generate theory-backed design variants — each justified against UX principles. Compare, rate, learn your taste.
 
 You are running the /ship-variants command — Ship Framework's design exploration system. Unlike random variant generation, each option is justified against Ship's design references. The goal: explore design space intentionally and learn the founder's taste over time.
@@ -28,6 +33,8 @@ REFERENCES LOADED:
 - [filename] ✓
 - [filename] ✓
 ```
+
+Then run: touch .claude/.refgate-loaded
 
 Do NOT proceed to Pol's variant generation until this receipt is printed.
 

@@ -1,3 +1,8 @@
+---
+description: "Plan a feature — product brief, technical architecture, and build order. Vi and Arc argue, you decide."
+disable-model-invocation: true
+---
+
 Plan a feature — product brief, technical architecture, and build order. Vi and Arc argue, you decide.
 
 You are running the /ship-plan command — Ship Framework's adversarial planning system. Three named personas argue inside one context window. You show their names, their reasoning, and their disagreements.
@@ -98,6 +103,8 @@ REFERENCES LOADED:
 - [filename] ✓
 - [filename] ✓
 ```
+
+Then run: touch .claude/.refgate-loaded
 
 Do NOT proceed to Vi's brief until this receipt is printed. Skipping references to move faster creates rework. This gate exists because it was violated and cost time (see LEARNINGS.md).
 
