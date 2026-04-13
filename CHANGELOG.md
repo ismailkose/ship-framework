@@ -6,6 +6,13 @@ To update an existing project, run `bash ship-update.sh` from your project root,
 
 ---
 
+## 2026.04.12a — Code Anti-Slop
+
+### Code Quality Gate
+- **Crit now checks for AI-generated code smell before reviewing.** Six flags: wrapper abstractions used once, error handling for impossible scenarios, speculative configurability, bloated code, unplanned features, and unrelated changes in the diff. If 3+ flags trigger, Crit stops the review and tells Dev to simplify first. Mirrors how Pol's Anti-Slop check catches design slop — now code gets the same treatment.
+
+---
+
 ## 2026.04.12 — Plugin + Auto-Routing
 
 ### Install as a Plugin
