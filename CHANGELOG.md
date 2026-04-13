@@ -19,7 +19,7 @@ To update an existing project, run `bash ship-update.sh` from your project root,
 - **Direct commands still work.** `/ship-plan`, `/ship-build`, etc. are available when you want explicit control. Auto-routing and direct commands work side by side.
 
 ### E2E Quality Validation
-- **All 7 core commands validated at 93-100%** — ship-plan, ship-review, ship-build, ship-team, ship-fix, ship-launch, ship-think all pass quality benchmarks.
+- **All 7 core commands validated at 100%** — ship-plan, ship-review, ship-build, ship-team, ship-fix, ship-launch, ship-think all pass quality benchmarks.
 - **Before/after comparison** — Slimmed v5 commands produce equivalent quality to verbose v4 originals across 150+ quality markers.
 - **Marker calibration** — Quality markers widened to catch natural language variation (run-to-run AI wording differences, scenario-dependent behaviors).
 - **Test tooling** — HTML comparison tool, CLI scoring script, .md file upload workflow for repeatable quality benchmarking.
