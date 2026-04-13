@@ -25,14 +25,8 @@ Download `ship-framework.plugin` from the [latest release](https://github.com/is
 ### Claude Code (CLI)
 
 ```bash
-claude plugin add ./ship-framework.plugin
-```
-
-Or install from the repo:
-
-```bash
 git clone https://github.com/ismailkose/ship-framework.git
-claude plugin add ./ship-framework
+claude plugin add ./ship-framework/ship-framework.plugin
 ```
 
 ### Legacy (setup.sh)
