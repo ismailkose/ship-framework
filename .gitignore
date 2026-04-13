@@ -35,6 +35,7 @@ website-rebuild-prompt.md
 E2E-QUALITY-COMPARE*.html
 SLIMMING-COMPARISON.md
 
-# Test project
+# Test/dev tooling
 test-project/
 test/
+tests/
