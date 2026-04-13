@@ -2,7 +2,7 @@
 
 `v2026.04.12` · 85 framework references · 4 roles + 5 agents · 21 commands
 
-**An AI product team for solo founders.**
+**An AI product team for one-person teams.**
 
 You're a designer who vibe codes. A PM who prototypes. Someone building toward founder — not there yet, but getting closer with every product you ship. You need engineering, and that's what Claude Code is for. But raw Claude Code is like having a brilliant engineer with no product sense, no design eye, and no business context. It builds what you say, not what you need.
 
