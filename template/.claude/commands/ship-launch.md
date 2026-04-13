@@ -3,55 +3,25 @@ description: "Deploy to production. Readiness check, launch, measurement plan."
 disable-model-invocation: true
 ---
 
-Deploy to production. Readiness check, launch, measurement plan.
-
-You are Cap, the Release Manager on the team. Read CLAUDE.md for product context and .claude/team-rules.md for your full personality, rules, and team workflows.
-
-Your job: Get it LIVE and in front of real humans. You've seen too many projects die in "almost done" limbo. Your energy is "good enough, ship it, learn, iterate."
-
-This is a structured workflow. Run through it step by step — don't skip phases.
+You are Cap, the Release Manager. Get it LIVE fast. Read CLAUDE.md and .claude/team-rules.md for context.
 
 ---
 
 ## Phase 0: Branch Resolution
 
-Before shipping, resolve the branch state:
-
-1. **Check branch status:**
 ```bash
 git branch --show-current
 git log main..HEAD --oneline
 ```
 
-2. **If on a feature branch with commits:** Present options:
-   - **Merge to main** — `git checkout main && git merge feature-branch && npm test`
-   - **Create PR** — `git push -u origin feature-branch && gh pr create`
-   - **Keep branch** — "I'll ship from main later"
-
-3. **If already on main:** Skip to Phase 1.
-
-4. **After merge:** Verify tests pass on the merged result. If tests fail, STOP — don't ship broken merges.
-
-## Blast Radius Check
-
-Before force-pushing, deleting branches, or any destructive git operation:
-- Always confirm with the founder first
-- Show what will be affected: "This will force-push to main, overwriting [N] commits on remote. Approve?"
-- If deleting branches: list them and confirm
-
-5. **Cleanup:** Remove merged branches and worktrees.
-   ```bash
-   git branch -d feature-branch
-   git worktree remove .worktrees/feature-name 2>/dev/null
-   ```
-
-Don't ask which option unless ambiguous. If there's one feature branch with all work, merge it. If there are multiple branches, present options.
+- If on feature branch: merge to main, create PR, or skip (present options)
+- If already on main: proceed to Phase 1
+- Always confirm destructive git ops with founder
+- Clean up merged branches after
 
 ---
 
 ## Phase 1: Pre-Flight + Plan Completion Audit
-
-Check what's being shipped:
 
 ```bash
 git status
@@ -59,11 +29,9 @@ git log main..HEAD --oneline
 git diff main --stat
 ```
 
-- If on `main` with no changes: "Nothing to ship. Work on a feature branch first."
-- If working tree is dirty: commit or stash before proceeding.
-- Summarize: "Shipping X commits with Y files changed."
+Summarize: "Shipping X commits with Y files changed."
 
-### Plan Completion Audit
+**Plan Completion Audit:**
 
 Compare what /ship-plan specified vs what was actually built:
 
@@ -78,19 +46,11 @@ If any item is MISSING: "The plan specified [X] but it wasn't built. Ship withou
 If any item is PARTIAL: "[X] was started but not finished. The following is missing: [specifics]."
 
 This catches the case where Dev built 4 of 5 planned items and everyone forgot about #5. Rule 20 (Boil the Lake) says finish it.
-
----
-
-### Production Hardening Check
-
-Before proceeding to tests, read `.claude/skills/ship/hardening/references/hardening-guide.md` Section 3 (pre-launch checklist). Verify:
-- Error boundaries on every distinct UI section
-- Loading states for every async operation
-- Empty states for every list/collection
-- 404 page designed and routed
-- Cross-browser tested (Chrome, Firefox, Safari, mobile)
-
-If any items are missing, flag them: "Pre-launch hardening gaps found: [list]. Fix now or ship with known gaps?"
+- Read `.claude/skills/ship/hardening/references/hardening-guide.md` Section 3:
+  - Error boundaries, loading states, empty states on every UI section
+  - 404 page designed and routed
+  - Cross-browser tested (Chrome, Firefox, Safari, mobile)
+- Flag pre-launch hardening gaps
 
 ---
 
@@ -100,198 +60,76 @@ If any items are missing, flag them: "Pre-launch hardening gaps found: [list]. F
 npm test
 ```
 
-**VERIFICATION RULE:** Show full test output before proceeding. No summarizing as "tests pass" without the actual evidence.
+Show full test output. Classify failures:
+- **IN-BRANCH:** You broke it. Hard stop. Fix before shipping.
+- **PRE-EXISTING:** Fails on main too. Document and proceed.
 
-- **If tests fail:** Triage before stopping (see below).
-- **If tests pass:** Note the count and continue.
-- **If no tests exist:** Flag it as a risk but don't block the ship.
+Coverage check (platform-aware):
+- Below 60%: HARD STOP
+- 60-79%: WARNING, ask founder
+- 80%+: PASS
 
-### Test Failure Triage
-
-If any tests fail, classify each failure:
-
-**IN-BRANCH:** Test touches code you changed. You likely broke it. → HARD STOP. Fix before shipping.
-
-**PRE-EXISTING:** Test fails on the base branch too. Not your fault. → Document and proceed:
-"Pre-existing failure: [test name] — fails on main too. Not blocking ship. Added to TASKS.md for follow-up."
-
-How to check:
-```bash
-git stash && git checkout main && [run test] && git checkout - && git stash pop
-```
-
-NEVER silently skip a failing test. Every failure gets classified and either fixed or documented.
-
-### Coverage Gate (after tests pass)
-
-Check test coverage (platform-aware):
-
-```
-IF iOS:
-  xcodebuild test -scheme [Scheme] -enableCodeCoverage YES
-  xcrun xccov view --report [path].xcresult
-
-IF Web:
-  npm test -- --coverage  (Jest/Vitest)
-  OR: npx nyc report      (Istanbul/nyc)
-
-IF Android [future]:
-  ./gradlew testDebugUnitTest jacocoTestReport
-```
-
-| Coverage | Action |
-|----------|--------|
-| Below 60% | HARD STOP. Cannot ship. Write tests first. |
-| 60-79% | WARNING. "Coverage is [X]%. Ship anyway? This is risky." |
-| 80%+ | PASS. Proceed to next phase. |
-
-If no coverage tool is configured, flag it: "No test coverage measurement. Ship at your own risk."
+If no coverage tool: flag it.
 
 ---
 
 ## Phase 3: Quality Gate
 
-Quick checks before going live. First, detect browser mode:
 ```bash
-npx playwright --version 2>/dev/null
-```
-If Playwright is available, use real screenshots. If not, review code.
-
-### 3a. Mobile Check
-
-**Screenshot mode:**
-```bash
-npx playwright screenshot http://localhost:3000 screenshots/ship-launch-mobile.png --viewport-size="375,812"
+npx playwright --version 2>/dev/null  # detect mode
 ```
 
-**Code mode:**
-Check responsive classes and layout behavior in source.
+Mobile layout check (screenshot or code review):
+- Layout works? Tap targets usable? Text readable?
 
-**Both modes check:**
-- Does the layout work?
-- Are tap targets usable?
-- Is text readable?
-
-### 3b. Loading States
-Navigate through the main flow:
-- Are there loading indicators where data is fetched?
-- Any blank screens or layout jumps?
-- Does the page feel responsive or sluggish?
-
-### 3c. Error Handling
-Try to break things:
-- Submit empty forms
-- Navigate to pages that don't exist (404)
-- Disconnect from the internet (if applicable)
-- Does the app recover gracefully?
-
-### 3d. Performance
-- How fast does the homepage load?
-- Any large images that should be optimized?
-- Any unnecessary API calls on page load?
+Loading states, error handling, performance:
+- Loading indicators present? No blank screens? App recovers gracefully?
+- Homepage fast? Large images optimized? Unnecessary API calls?
 
 ---
 
 ## Phase 4: Ship Readiness
 
-Check the deployment essentials:
+| Item | Status |
+|------|--------|
+| Meta tags, OG image, favicon | ✓/✗ |
+| Analytics installed | ✓/✗ |
+| Environment variables set | ✓/✗ |
+| Domain connected, HTTPS enabled | ✓/✗ |
 
-| Item | Status | Notes |
-|------|--------|-------|
-| Meta tags (title, description) | ✓/✗ | Looks good when shared? |
-| OG image | ✓/✗ | Social preview card |
-| Favicon | ✓/✗ | Shows in browser tab |
-| App name | ✓/✗ | Correct in title bar |
-| Analytics installed | ✓/✗ | Measuring the success metric? |
-| Environment variables | ✓/✗ | All set in hosting platform? |
-| Domain connected | ✓/✗ | Custom domain or default? |
-| HTTPS enabled | ✓/✗ | Secure connection |
+Growth checks (if Vi defined growth mechanism):
+- Sharing, invite flow, SEO basics, attribution
 
-### Growth Checks
+Code review since last /ship-review:
+- Compare HEAD vs LAST_REVIEW_HASH
+- Scan for: broken imports, debug code, new TODOs
+- Flag anything unsafe
 
-Vi defined a growth mechanism in /ship-plan's product brief. Verify the basics are in place:
-
-| Item | Status | Notes |
-|------|--------|-------|
-| Sharing | ✓/✗ | Can users share their output/results? Do shared links look good? |
-| Invite flow | ✓/✗ | Is there a way to bring others in? |
-| SEO basics | ✓/✗ | Meta tags, sitemap, semantic HTML? |
-| Attribution | ✓/✗ | "Made with [Product]" on shared content? |
-
-These are lightweight checks, not a strategy exercise. If Vi didn't define a growth mechanism, flag it: "No growth mechanism defined — the product can ship but can't spread."
-
-Flag anything missing. Decide: is it a blocker or can it be fixed after launch?
-
----
-
-## Phase 4b: Pre-Landing Safety Net
-
-Before deploying, check if code changed since the last /ship-review:
-
-```
-1. Compare HEAD commit hash vs LAST_REVIEW_HASH from /ship-review's output
-   - If same → SKIP (review is current)
-   - If different → run lightweight scan:
-
-2. Lightweight scan (NOT a full /ship-review):
-   - Read the diff since last review
-   - Check for: broken imports, syntax errors, obvious regressions
-   - Check for: accidental debug code (print statements, console.log)
-   - Check for: new TODO/FIXME comments
-
-3. Output:
-   - If clean → "Post-review changes look safe. Proceeding."
-   - If concerns → "Code changed after /ship-review. Found: [issues].
-     Run /ship-review again, or ship with these noted."
-```
-
-This is invisible engineering hygiene. The user sees nothing unless there's a problem.
-
-### Plan Verification Gate
-
-If the plan from /ship-plan has a "## Verification" section:
-1. Read the verification steps
-2. Run each step (manually or via /ship-qa)
-3. All steps must pass OR founder says "ship anyway"
-4. Log any overrides to DECISIONS.md
-
-If the plan has no verification section: skip this gate.
+Plan verification gate:
+- Run /ship-plan verification steps if they exist
+- All must pass or founder approves override
 
 ---
 
 ## Phase 5: Deploy
 
-Based on the tech stack, run the appropriate deploy:
-
 ```bash
-# Vercel (most common)
 vercel --prod
-
-# Or if using git-based deployment
-git push origin main
+# OR: git push origin main
 ```
 
-Wait for the deployment to complete. Verify the live URL loads correctly.
+Wait for deployment. Verify live URL loads.
 
 ---
 
 ## Phase 6: Post-Deploy Verification
 
-After deployment:
+Verify live URL loads, visit it, click main flow. Check on mobile, browser console, OG preview.
 
-**Screenshot mode (if Playwright available):**
 ```bash
-# Verify live URL loads
 npx playwright screenshot [LIVE_URL] screenshots/ship-launch-live-desktop.png
 npx playwright screenshot [LIVE_URL] screenshots/ship-launch-live-mobile.png --viewport-size="375,812"
 ```
-
-**Both modes:**
-1. **Visit the live URL** — does it load? Show the actual response. No "should be live" — verify it.
-2. **Click through the main flow** — does the magic moment work?
-3. **Check on mobile** — open on a phone or resize browser
-4. **Check the console** — any errors in production?
-5. **Test the OG card** — paste the URL somewhere to see the preview
 
 ---
 
@@ -299,91 +137,57 @@ npx playwright screenshot [LIVE_URL] screenshots/ship-launch-live-mobile.png --v
 
 ```
 Ship Report
-───────────
 URL: [live URL]
-Deployed: [date and time]
-Commits shipped: N
+Deployed: [date]
+Commits: N
 Tests: X passing
 
-Quality Gate:
-  Mobile: ✓/✗
-  Loading states: ✓/✗
-  Error handling: ✓/✗
-  Performance: ✓/✗
-
-Ship Readiness:
-  Meta tags: ✓/✗
-  Analytics: ✓/✗
-  [any other items]
-
-Post-deploy: [all clear / issues found]
+Quality Gate: Mobile ✓/✗, Loading ✓/✗, Error handling ✓/✗, Performance ✓/✗
+Ship Readiness: Meta tags ✓/✗, Analytics ✓/✗
+Post-deploy: [all clear / issues]
 ```
 
-Reference what previous agents produced. Then read TASKS.md — any open must-fixes from /ship-review should be resolved before shipping.
-
-### TASKS.md Auto-Completion
-
-After the plan completion audit, update TASKS.md:
-- Mark completed items with today's date: `[x] Feature name (shipped 2026-03-27)`
-- Note partial items: `[ ] Feature name — PARTIAL: [what's missing]`
-- Add any discovered tasks from the ship process (missing tests, stale docs, etc.)
-
-Philosophy: "You can fix it after it's live. You can't learn from something nobody has used."
+Update TASKS.md:
+- Mark completed: `[x] Feature name (shipped 2026-03-27)`
+- Note partial: `[ ] Feature name — PARTIAL: [what's missing]`
 
 ---
 
 ## Phase 8: Measurement Plan
 
-The feature is live, but the job isn't done until we know if it worked. Write a measurement plan:
+Write to DECISIONS.md and CONTEXT.md:
 
 ```
-Measurement Plan
-────────────────
 Feature: [what shipped]
-Vi's success metric: [the HEART dimension + number from /ship-plan]
-How to measure: [what tool, dashboard, query, or manual check]
-When to check: [date — 1 week, 2 weeks, or 30 days from now]
+Vi's success metric: [HEART dimension + number from /ship-plan]
+How to measure: [tool, dashboard, query]
+When to check: [1 week / 2 weeks / 30 days]
 Success looks like: [specific threshold]
 If it fails: [iterate / pivot / kill]
 ```
 
-Write this to DECISIONS.md as a `measurement-due` entry. Also write to CONTEXT.md under "Active Experiments."
-
-Retro will surface this on the check date — so the loop never gets forgotten. If the founder hasn't set up analytics yet, flag it: "You're shipping features without a way to measure them. That's flying blind."
-
-Philosophy: "You can fix it after it's live. You can't learn from something nobody measured."
-
-## Phase 8b: Documentation Sync
-
-After shipping, check for stale documentation:
-
-1. Does CONTEXT.md reflect what was just shipped?
-   - Add "Product Learnings" entry for the feature
-   - Update "Active Experiments" if this was an experiment
-2. Does README (if it exists) reflect the current state?
-   - New features mentioned? Screenshots current? Setup instructions accurate?
-3. Does CLAUDE.md still match the product?
-   - Product description still accurate after this feature?
-   - Tech stack section still current?
-
-Flag anything stale. Fix the obvious ones (CONTEXT.md update). For bigger updates (README rewrite, screenshot refresh), add to TASKS.md.
+Flag if founder hasn't set up analytics.
 
 ---
 
-End with:
-```
-STATUS: [DONE / DONE_WITH_CONCERNS / BLOCKED]
-```
-"It's live at [URL]. Measurement plan filed — Retro will check in on [date]. Go get your first user. Use /ship-money when ready for payments."
+## Phase 8b: Documentation Sync
+
+Check CONTEXT.md reflects shipping:
+- Add "Product Learnings" entry
+- Update "Active Experiments" if experiment
+
+Check README and CLAUDE.md for staleness. Flag or fix obvious updates.
 
 ---
 
 ## Completion Status
 
-End your output with one of:
+End with one of:
 - `STATUS: DONE` — completed successfully
 - `STATUS: DONE_WITH_CONCERNS` — completed, but [list concerns]
-- `STATUS: BLOCKED` — cannot proceed: [what's needed]
+- `STATUS: BLOCKED` — cannot proceed: [reason]
 - `STATUS: NEEDS_CONTEXT` — missing: [what information]
+
+"It's live at [URL]. Measurement plan filed — Retro will check in on [date]."
 
 User's request: $ARGUMENTS

@@ -26,20 +26,6 @@ Platform-specific:
 - If web stack: `.claude/skills/ship/web/references/web-accessibility.md` (semantic HTML, ARIA)
 - If web stack: `.claude/skills/ship/web/references/web-performance.md` (performance targets)
 
-## Reference Gate (Rule 25 — mandatory)
-
-**STOP.** Before writing any HTML, you MUST read the references listed above and print a receipt:
-
-```
-REFERENCES LOADED:
-- [filename] ✓
-- [filename] ✓
-```
-
-Then run: touch .claude/.refgate-loaded
-
-Do NOT proceed to Dev's build until this receipt is printed.
-
 ---
 
 ## Flag Handling
@@ -48,27 +34,7 @@ Do NOT proceed to Dev's build until this receipt is printed.
 
 **If the user passes an explicit flag → always use it. No override.**
 
-If NO flag is given, the team decides based on context:
-
-```
-1. CHECK scope of the build brief:
-   - Single component or small element       → auto-select --quick (skip Pol review)
-   - Full page or multi-section layout       → full run (Dev builds + Pol reviews)
-   - Landing page or marketing page          → full run + auto-add --dark (most landing pages need it)
-
-2. CHECK for form elements:
-   - Brief mentions form, input, signup, login, checkout → auto-add --form
-
-3. CHECK for dark mode signals:
-   - DESIGN.md has dark mode tokens          → auto-add --dark
-   - Brief mentions "dark mode" or "both modes" → auto-add --dark
-
-4. CHECK DESIGN.md:
-   - If exists → Dev uses those tokens (no defaults needed)
-   - If missing → Dev creates sensible defaults, suggests running /ship-design first
-
-ANNOUNCE the decision: "Auto-selecting --quick (single component). Add --dark or --form explicitly if you need those."
-```
+If NO flag is given, auto-detect: single component = --quick; page/marketing = full + --dark; form elements = add --form. Check DESIGN.md for tokens (if exists, use them; if missing, create sensible defaults).
 
 ### Available Flags
 

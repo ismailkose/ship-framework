@@ -1,55 +1,71 @@
 # Ship Framework
 
-`v2026.04.11` · 61 framework references · 10 personas · 21 commands
+`v5.0.0` · 85 framework references · 4 roles + 5 agents · 21 commands
 
-**An AI product team in your terminal.**
+**An AI product team for solo founders.**
 
 You're a designer who vibe codes. A PM who prototypes. Someone building toward founder — not there yet, but getting closer with every product you ship. You need engineering, and that's what Claude Code is for. But raw Claude Code is like having a brilliant engineer with no product sense, no design eye, and no business context. It builds what you say, not what you need.
 
-This framework gives Claude Code structure. It turns one AI into a team of opinionated specialists who challenge each other, catch problems early, and keep you shipping. Not what you are today — what you can be tomorrow. You're the founder. They report to you.
+This framework gives Claude structure. It turns one AI into a team of opinionated specialists — 4 roles that argue in your conversation and 5 independent agents that review in separate context windows. They challenge each other, catch problems early, and keep you shipping. You're the founder. They report to you.
 
-```bash
-/ship-team I want to build a habit tracker for creative professionals
+```
+I want to build a habit tracker for creative professionals
 ```
 
-That's it. The team takes over — plans the product, architects the code, builds it, reviews the quality, tests everything, and ships it. You make the calls. They do the work.
+That's it. No commands needed. The team detects your intent and takes over — plans the product, architects the code, builds it, reviews the quality, tests everything, and ships it. You make the calls. They do the work.
 
 ---
 
-## Setup
+## Install
+
+### Cowork (Desktop App)
+
+Download `ship-framework.plugin` from the [latest release](https://github.com/ismailkose/ship-framework/releases) and open it. Cowork installs it automatically.
+
+### Claude Code (CLI)
+
+```bash
+claude plugin add ./ship-framework.plugin
+```
+
+Or install from the repo:
+
+```bash
+git clone https://github.com/ismailkose/ship-framework.git
+claude plugin add ./ship-framework
+```
+
+### Legacy (setup.sh)
+
+The classic `setup.sh` method still works for projects that prefer the template-copy approach:
 
 ```bash
 git clone https://github.com/ismailkose/ship-framework.git
 bash ship-framework/setup.sh
 ```
 
-Open Claude Code in your project. Type `/ship-team`. You're running.
+---
+
+## How It Works — Auto-Routing
+
+Ship Framework v5 is **always-on**. No slash commands required. Just describe what you want in natural language and the router matches your intent to the right agent:
+
+```
+Build me a login screen          → Dev builds it
+Something broke [paste error]    → Bug debugs it
+Is this worth building?          → Vi validates with forcing questions
+Review this                      → Full quality gate (Crit + Pol + Eye + Test)
+Ship it                          → Cap runs deploy checklist
+Continue                         → Picks up next task from your board
+```
+
+You can still use explicit `/ship-*` commands when you want more control. Auto-routing and direct commands work side by side.
 
 ---
 
-## The Only Command You Need to Remember
+## All 21 Commands
 
-```
-/ship-team
-```
-
-It routes everything. Say what you want in plain English:
-
-```bash
-/ship-team I want to build a weekly email digest
-/ship-team continue                    # pick up where you left off
-/ship-team Take over this project      # existing codebase
-/ship-team something broke [paste error]
-/ship-team status
-```
-
-That's the 80% workflow. One command. The team figures out the rest.
-
----
-
-## When You Want More Control
-
-Ship has 21 commands. You don't need to learn them all — `/ship-team` handles routing. But when you want to call a specific specialist directly, here's how they're organized:
+You don't need to learn these — auto-routing handles it. But when you want to call a specific specialist directly:
 
 ### 🔄 The Core Loop — every feature goes through this
 
@@ -165,7 +181,7 @@ Ship splits design intelligence into two layers:
 
 **References** are the brain (200-700+ lines). They teach Claude HOW to think about a domain — with reasoning, correct vs incorrect examples, and anti-patterns. Different personas read different sections of the same reference at different times.
 
-Example flow: you run `/ship-build` → Dev loads the UX skill → skill says "read `.claude/skills/ship/ux/references/forms-feedback.md` Section 1 for form implementation" → Dev reads the reference and applies the reasoning to the specific form being built.
+Example flow: you say "build the signup form" → Dev loads the UX skill → skill says "read forms-feedback.md Section 1 for form implementation" → Dev reads the reference and applies the reasoning to the specific form being built.
 
 Each skill owns its references — the UX skill has 12 reference files, motion has 4, iOS has 64 (including 61 framework guides), web has 3. Total: 85 deep reference files covering UX, typography, color, forms, navigation, layout, touch, dark mode, animation, components, design quality, hardening, and platform-specific patterns. All auto-loaded based on your declared stack. The team also learns your patterns over time — bug fixes write to LEARNINGS.md, design reviews record your taste preferences, and every session starts by reading what past sessions discovered.
 
@@ -184,7 +200,7 @@ Add references in `references/` and route them from CLAUDE.md under Custom Refer
 ## How It Actually Feels
 
 ```
-You:       /ship-team I want to add dark mode
+You:       I want to add dark mode
 
 Vi:        Here's the job statement — users want to reduce eye strain
            during evening sessions. Magic moment: the first time the
@@ -216,59 +232,46 @@ One idea → planned, scored, built, reviewed, tested, shipped, measured. That's
 
 ---
 
-## File Structure
+## Plugin Structure
 
 ```
-your-project/
-  CLAUDE.md                    # Yours — product, founder, stack, principles
-  CHEATSHEET.md                # Quick reference
-  LEARNINGS.md                 # Team memory — bug patterns, design preferences, code patterns
-  DESIGN.md                    # Design system tokens (created by /ship-design)
-  PERF-REPORT.md               # Performance benchmarks (created by /ship-perf)
-  .claude/
-    team-rules.md              # Framework — personas, rules, coaching
-    commands/                  # 21 slash commands
-      ship-think.md            #   Pre-planning idea validation
-      ship-plan.md             #   Product + design scoring + architecture
-      ship-build.md            #   Build one feature with TDD
-      ship-review.md           #   Quality gate (Crit + Pol + Eye + Test)
-      ship-launch.md           #   Deploy + measurement
-      ship-design.md           #   Design system creation
-      ship-variants.md         #   Theory-backed design exploration
-      ship-html.md             #   Responsive HTML prototyping
-      ship-fix.md              #   Systematic debugging
-      ship-browse.md           #   Visual QA with browser power
-      ship-perf.md             #   Performance benchmarking
-      ship-money.md            #   Monetization strategy
-      ship-retro.md            #   Weekly retrospective
-      ship-team.md             #   Orchestrator — routes everything
-      ship-codex.md            #   Cross-model verification
-      ship-careful.md          #   Destructive command warnings
-      ship-freeze.md           #   Directory edit lock
-      ship-guard.md            #   Combined safety
-      ship-unfreeze.md         #   Remove lock
-      ship-update.md           #   Framework update
-      ship-qa.md               #   (deprecated → /ship-review --test)
-    skills/
-      ship/                    # Framework skills — each owns its references
-        ux/                    #   12 references: UX principles, typography, forms, layout, etc.
-        motion/                #   4 references: animation system, CSS, Framer Motion, performance
-        components/            #   1 reference: component catalog, three-layer model
-        hardening/             #   1 reference: error handling, edge cases, pre-launch checklist
-        ios/                   #   64 references: SwiftUI, HIG, Swift essentials, 61 framework guides
-        web/                   #   3 references: React patterns, accessibility, performance
-        android/               #   (planned: Compose, Material 3, Kotlin, platform APIs)
-        refgate/               #   Reference Gate hook — blocks first edit until refs loaded
-        sessionstart/          #   Session Start hook — loads project context automatically
-        freeze/                #   Directory lock hook
-        careful/               #   Destructive command hook
-        guard/                 #   Combined: careful + freeze
-        unfreeze/              #   Remove directory lock
-      your-skills/             # Your skills (design system, API patterns, etc.)
-  references/                  # Your custom references (framework refs are in skills above)
+ship-framework/
+  .claude-plugin/plugin.json   # Plugin manifest (v5.0.0)
+  commands/                    # 21 slash commands
+  skills/
+    ship-router/               # Auto-routing — intent detection, command mapping
+    ship-agents/               # 5 review agents (Crit, Pol, Eye, Test, Adversarial)
+    ship-ux/                   # 12 UX references (principles, typography, forms, layout, etc.)
+    ship-motion/               # 4 animation references (CSS, Framer Motion, timing)
+    ship-components/           # Component catalog, three-layer model
+    ship-hardening/            # Error boundaries, edge cases, pre-launch checklist
+    ship-ios/                  # 64 references: SwiftUI, HIG, Swift essentials, 61 frameworks
+    ship-web/                  # 3 references: React patterns, accessibility, performance
+    ship-android/              # Jetpack Compose, Material 3
+    ship-refgate/              # Reference Gate — blocks coding until refs loaded
+    ship-sessionstart/         # Session Start — loads project context automatically
+    ship-careful/              # Destructive command warnings
+    ship-freeze/               # Directory edit lock
+    ship-guard/                # Combined: careful + freeze
+    ship-unfreeze/             # Remove directory lock
+  templates/                   # Project files created on first run
+    CLAUDE.md                  # Product config, founder profile, stack
+    TASKS.md                   # Task board
+    DECISIONS.md               # Decision log
+    CONTEXT.md                 # Project context
+    LEARNINGS.md               # Team memory
+    team-rules.md              # Agent rules, personas, coaching
 ```
 
-**CLAUDE.md** is yours — edit freely, never overwritten. **LEARNINGS.md** and **DESIGN.md** are yours too — the team writes to them but updates never overwrite your content. **team-rules.md** is the framework's — auto-synced on update.
+When installed as a plugin, Ship Framework lives outside your project. Your project gets the template files (CLAUDE.md, TASKS.md, etc.) on first run. The framework's commands, skills, and references load automatically from the plugin.
+
+---
+
+## Updating
+
+**Plugin (Cowork or Claude Code):** Download the latest `ship-framework.plugin` from [releases](https://github.com/ismailkose/ship-framework/releases) and open it. It replaces the previous version. Your project files (CLAUDE.md, TASKS.md, DECISIONS.md, etc.) are never touched — only the framework's commands, skills, and references update.
+
+**Legacy (setup.sh):** Run `/ship-update` in Claude Code or `bash ship-update.sh` from your project root.
 
 ---
 

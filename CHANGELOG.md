@@ -6,6 +6,56 @@ To update an existing project, run `bash ship-update.sh` from your project root,
 
 ---
 
+## 5.0.0 — Plugin-Native Architecture, Auto-Routing, E2E Quality Validation
+
+### Plugin Distribution
+- **Ship Framework is now a plugin.** Install via `.plugin` file in Cowork or Claude Code. No more `setup.sh` copy-paste into every project — one install, works everywhere.
+- **134 files, 532KB compressed** — 21 commands, 20 skills, 85 reference files, 6 project templates, all in one package.
+- **Portable paths** — All internal references use `${CLAUDE_PLUGIN_ROOT}` so the plugin works from any install location.
+
+### Auto-Routing
+- **No commands required.** The `ship-router` skill detects intent from natural language and engages the right command automatically. "Build me a login screen" triggers Dev. "Something broke" triggers Bug. "Ship it" triggers Cap.
+- **Intent map covers all 21 commands** — planning, building, reviewing, fixing, launching, design, monetization, safety, and project management intents all route correctly.
+- **Direct commands still work.** `/ship-plan`, `/ship-build`, etc. are available when you want explicit control. Auto-routing and direct commands work side by side.
+
+### E2E Quality Validation
+- **All 7 core commands validated at 93-100%** — ship-plan, ship-review, ship-build, ship-team, ship-fix, ship-launch, ship-think all pass quality benchmarks.
+- **Before/after comparison** — Slimmed v5 commands produce equivalent quality to verbose v4 originals across 150+ quality markers.
+- **Marker calibration** — Quality markers widened to catch natural language variation (run-to-run AI wording differences, scenario-dependent behaviors).
+- **Test tooling** — HTML comparison tool, CLI scoring script, .md file upload workflow for repeatable quality benchmarking.
+
+### Command Refinements
+- **ship-plan** — Reference Gate receipt format made explicit (REFERENCES LOADED with filename list).
+- **ship-review** — Added cross-reference instruction: checks LEARNINGS.md patterns and DECISIONS.md design direction against every file in the diff before agents begin.
+
+---
+
+## 2026.04.11b — Agent Architecture, Command Slimming, Test Bench
+
+### Agent Architecture (Phase 7)
+- **5 independent review agents** — Crit, Pol, Eye, Test, and Adversarial each have their own SKILL.md with model assignments. Crit and Adversarial run on opus, Pol and Test on sonnet, Eye on haiku. Each agent loads its full persona, voice, and instructions from `.claude/skills/ship/agents/[name]/SKILL.md`.
+- **Roles vs Agents split** — Vi, Arc, Dev, and Cap remain as roles (shared conversation context, can argue/debate). Crit, Pol, Eye, Test, and Adversarial become agents (separate context windows, independent findings). This preserves the Vi/Arc debate in `/ship-plan` while giving reviewers isolation.
+- **Agent container SKILL.md** — Root `agents/SKILL.md` documents the full roster with model assignments and which commands call which agents.
+
+### Command Slimming (Phase 6)
+- **38% total line reduction** — Commands went from 4,170 to 2,594 total lines. All 8 target commands are now under 200 lines.
+- **ship-review** (626→190): Full Crit/Pol/Eye/Test/Adversarial persona definitions replaced with agent call table. Kept workflow script, scoring, and output format.
+- **ship-plan** (560→167): Vi and Arc sections condensed, Pol and Adversarial replaced with agent calls.
+- **ship-launch** (389→181): Cap's voice trimmed, all 9 phases kept but condensed.
+- **ship-design** (322→193): 6-phase structure kept, verbose examples removed.
+- **ship-variants** (327→140): 5-step workflow kept, HTML code blocks and examples removed.
+- **ship-team** (304→188): Orchestration and routing kept, persona re-definitions removed.
+- **ship-fix** (258→153): 5-step debug process kept, verbose examples trimmed.
+- **ship-html** (215→181): Reference Gate block removed (hook handles it), Smart Flag collapsed.
+- **team-rules.md** (738→520): Per-command persona summaries replaced with compact Team Roster table, Per-Persona Strengths replaced with pointer to agent SKILL.md files.
+
+### Test Bench
+- **3-layer validation system** — Layer 1: structural integrity (automated, 142 tests). Layer 2: quality scanning (semi-automated, checks saved command output against rubrics). Layer 3: scenario rubrics (manual comparison, 66-point plan rubric, 82-point review rubric).
+- **Mock project fixture** — FocusFlow iOS app with 16 intentional bugs across code crashes, design slop, accessibility gaps, and process violations. Used for benchmarking review quality.
+- **All 142 structural tests pass** — Command frontmatter, skill files, reference paths, hook scripts, size budgets, team-rules structure, cross-references, agent readiness, duplicate content detection.
+
+---
+
 ## 2026.04.11 — Smarter Commands, Auto-Detection, Reference Gate, Session Awareness, Reference Restructure
 
 ### Smarter Commands
