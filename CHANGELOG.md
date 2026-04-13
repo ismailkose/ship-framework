@@ -6,7 +6,7 @@ To update an existing project, run `bash ship-update.sh` from your project root,
 
 ---
 
-## 5.0.0 — Plugin-Native Architecture, Auto-Routing, E2E Quality Validation
+## 2026.04.12 — Plugin-Native Architecture, Auto-Routing, E2E Quality Validation
 
 ### Plugin Distribution
 - **Ship Framework is now a plugin.** Install via `.plugin` file in Cowork or Claude Code. No more `setup.sh` copy-paste into every project — one install, works everywhere.

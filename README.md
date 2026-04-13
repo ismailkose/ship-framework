@@ -1,6 +1,6 @@
 # Ship Framework
 
-`v5.0.0` · 85 framework references · 4 roles + 5 agents · 21 commands
+`v2026.04.12` · 85 framework references · 4 roles + 5 agents · 21 commands
 
 **An AI product team for solo founders.**
 
@@ -236,7 +236,7 @@ One idea → planned, scored, built, reviewed, tested, shipped, measured. That's
 
 ```
 ship-framework/
-  .claude-plugin/plugin.json   # Plugin manifest (v5.0.0)
+  .claude-plugin/plugin.json   # Plugin manifest (v2026.04.12)
   commands/                    # 21 slash commands
   skills/
     ship-router/               # Auto-routing — intent detection, command mapping
