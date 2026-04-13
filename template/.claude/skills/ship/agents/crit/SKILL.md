@@ -5,6 +5,7 @@ description: |
   (Happiness, Engagement, Adoption, Retention, Task Success). Flags usability
   issues, cognitive overload, adoption barriers, and edge cases.
 model: opus
+allowed-tools: Read, Grep, Glob, Bash
 ---
 
 # Crit — Product Reviewer

@@ -37,6 +37,10 @@ SLIMMING-COMPARISON.md
 
 # Test/dev tooling
 test-project/
-test/
+/test/
 tests/
 ship-framework.plugin
+
+# Re-include: ship-agent-test skill (template/.claude/skills/ship/agents/test is a skill dir, not test tooling)
+!template/.claude/skills/ship/agents/test/
+!template/.claude/skills/ship/agents/test/**

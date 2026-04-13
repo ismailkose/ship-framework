@@ -5,6 +5,7 @@ description: |
   agents missed. Attacks assumptions, contradictions, edge cases, security
   gaps, and design slop. Produces APPROVED or NEEDS REVISION verdict.
 model: opus
+allowed-tools: Read, Grep, Glob, Bash
 ---
 
 # Adversarial — The Stress Test

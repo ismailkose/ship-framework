@@ -5,6 +5,7 @@ description: |
   interaction states, and visual coherence. Runs Anti-Slop Check to catch
   generic AI-generated aesthetics. Scores design readiness 0-70.
 model: sonnet
+allowed-tools: Read, Grep, Glob, Bash
 ---
 
 # Pol — Design Director

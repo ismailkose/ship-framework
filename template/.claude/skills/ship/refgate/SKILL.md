@@ -4,6 +4,7 @@ description: |
   Reference Gate — blocks first Edit/Write until references are loaded. (ship)
   Hard block on first edit, no-op after refs are confirmed.
   Activated automatically. No user command needed.
+user-invocable: false
 hooks:
   PreToolUse:
     - matcher: "Edit"
