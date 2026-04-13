@@ -32,12 +32,12 @@ To update an existing project, run `bash ship-update.sh` from your project root,
 
 ## 2026.04.11b — Agent Architecture, Command Slimming, Test Bench
 
-### Agent Architecture (Phase 7)
+### Agent Architecture
 - **5 independent review agents** — Crit, Pol, Eye, Test, and Adversarial each have their own SKILL.md with model assignments. Crit and Adversarial run on opus, Pol and Test on sonnet, Eye on haiku. Each agent loads its full persona, voice, and instructions from `.claude/skills/ship/agents/[name]/SKILL.md`.
 - **Roles vs Agents split** — Vi, Arc, Dev, and Cap remain as roles (shared conversation context, can argue/debate). Crit, Pol, Eye, Test, and Adversarial become agents (separate context windows, independent findings). This preserves the Vi/Arc debate in `/ship-plan` while giving reviewers isolation.
 - **Agent container SKILL.md** — Root `agents/SKILL.md` documents the full roster with model assignments and which commands call which agents.
 
-### Command Slimming (Phase 6)
+### Command Slimming
 - **38% total line reduction** — Commands went from 4,170 to 2,594 total lines. All 8 target commands are now under 200 lines.
 - **ship-review** (626→190): Full Crit/Pol/Eye/Test/Adversarial persona definitions replaced with agent call table. Kept workflow script, scoring, and output format.
 - **ship-plan** (560→167): Vi and Arc sections condensed, Pol and Adversarial replaced with agent calls.
