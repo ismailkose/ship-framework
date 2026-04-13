@@ -6,13 +6,16 @@ To update an existing project, run `bash ship-update.sh` from your project root,
 
 ---
 
-## 2026.04.13a — Agent Safety Hardening
+## 2026.04.14 — Agent Safety Hardening
 
 ### Review agents are now read-only
 - **`allowed-tools: Read, Grep, Glob, Bash` added to Crit, Pol, Test, and Adversarial.** Review agents can no longer Edit or Write files — they audit, they don't mutate. Eye already had this restriction; now all five review roles are consistently scoped. Prevents a reviewer from "fixing" something during the review pass and muddying the diff under review.
 
 ### Internal skills hidden from user invocation
 - **`user-invocable: false` added to `ship-refgate` and `ship-sessionstart`.** These are hook-only skills (PreToolUse and SessionStart). They fire automatically and were never meant to be invoked directly from the skill picker. `ship-router` intentionally left user-invocable to preserve its always-on auto-activation behavior.
+
+### Gitignore fix
+- **Overbroad `test/` rule fixed.** The `ship-agent-test` skill's template directory (`template/.claude/skills/ship/agents/test/`) was being silently excluded by a generic `test/` gitignore rule. Scoped the rule to root-level `/test/` and added an explicit include for the skill directory. The Test agent's template source is now properly tracked in git for the first time.
 
 ### Plugin
 - **Plugin zip rebuilt** with the new frontmatter.
