@@ -6,6 +6,55 @@ To update an existing project, run `bash ship-update.sh` from your project root,
 
 ---
 
+## 2026.04.13 — iOS 26 Refresh + Lightweight Mode
+
+### iOS Performance Audit
+- **New reference: `swiftui-performance.md`.** Full SwiftUI performance audit workflow — symptom classification, 6 code smell patterns with fix examples (invalidation storms, unstable ForEach identity, heavy body computation, main-thread image decode, layout thrash, animation cost), diagnostic workflow, and review integration. Dev uses it during build, Crit uses it during review.
+- **Crit now flags iOS performance red flags.** When reviewing iOS diffs that touch list views, scroll views, or frequently-updated views, Crit loads the 5 perf red flags from Section 4 automatically.
+
+### Swift 6.2/6.3 Concurrency
+- **`Task.immediateDetached` added to swiftui-core.md.** Immediate start + no actor inheritance — the missing variant alongside existing `Task.immediate` coverage.
+- **Isolated conformances pattern added.** Shows the correct `extension Foo: @MainActor SomeProtocol` syntax vs the common compiler error from nonisolated conformance accessing MainActor state.
+
+### Lightweight Mode
+- **Trivial tasks skip ceremony.** Router Rule 7: if the request is obviously small (~5 lines) with clear intent — rename a variable, fix a typo, adjust padding — the framework skips reference gate, scope declaration, and blast radius check. Just makes the change and commits. If unsure, routes normally.
+
+### Plugin
+- **Plugin zip rebuilt** with all iOS 26 refresh changes, Code Anti-Slop, and lightweight mode synced.
+
+---
+
+## 2026.04.12c — .ship Core Pilot
+
+### New Features
+- **Managed `.ship` core manifest.** Ship templates now include `template/.ship/framework.yaml`, a runtime-neutral internal manifest that defines the pilot core loop for `think`, `plan`, `build`, and `review`.
+- **Renderer + drift check for maintainers.** Added `scripts/render_ship_core.py` with `--write` and `--check` so the generated blocks in `AGENTS.md`, `CLAUDE.md`, `team-rules.md`, and the four pilot command files stay in sync with the manifest.
+
+### Installer and Update Flow
+- **`setup.sh` now installs `.ship/framework.yaml`.** Fresh installs create the managed internal core alongside `CLAUDE.md`, `AGENTS.md`, and the rest of the Ship files.
+- **`ship-update.sh` now backfills `.ship/framework.yaml`.** Existing projects get the pilot manifest on update, and Ship only refreshes it automatically when the file is still Ship-managed.
+
+### Architecture
+- **Pilot generation only touches the core loop.** `think`, `plan`, `build`, and `review` now share generated reference-loading and status blocks, while the rest of the framework stays handwritten until the pilot proves out.
+
+---
+
+## 2026.04.12b — Dual Runtime for Codex
+
+### New Features
+- **Codex is now a first-class Ship runtime.** Ship-generated projects now include a managed `AGENTS.md` bridge so Codex can use the same framework, context, and memory files as Claude without duplicating instructions.
+- **`CLAUDE.md` stays canonical.** Claude and Codex now share one user-owned source of truth for product context, founder preferences, stack, and custom routing.
+
+### Installer and Update Flow
+- **`setup.sh` now creates `AGENTS.md`.** Fresh installs generate the managed Codex bridge alongside `CLAUDE.md`, `.claude/team-rules.md`, and the rest of the Ship files.
+- **`ship-update.sh` now backfills and refreshes `AGENTS.md`.** Existing projects get the Codex bridge on update. If a project already has a non-Ship `AGENTS.md`, Ship leaves it untouched and prints a warning instead of overwriting it.
+
+### Documentation
+- **README and cheatsheet now describe Ship as dual-runtime.** Codex is no longer documented only as an optional sidecar.
+- **`/ship-codex` is clarified.** It remains the Claude-side "get a Codex second opinion" path, while `AGENTS.md` is now the primary way to use Ship inside Codex itself.
+
+---
+
 ## 2026.04.12a — Code Anti-Slop
 
 ### Code Quality Gate

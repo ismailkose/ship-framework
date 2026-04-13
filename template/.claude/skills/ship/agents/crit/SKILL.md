@@ -58,6 +58,8 @@ Always load before reviewing:
 
 **Animation check:** If the diff has animation code, also load `.claude/skills/ship/motion/references/animation.md` Section 1.
 
+**iOS performance check:** If the Stack is iOS and the diff touches list views, scroll views, or frequently-updated views, load `.claude/skills/ship/ios/references/swiftui-performance.md` Section 4 for the 5 perf red flags.
+
 **Framework Review Checklists:** When reviewing code using a specific iOS framework (StoreKit, HealthKit, etc.), read the Review Checklist from `.claude/skills/ship/ios/references/frameworks/`.
 
 ## Search Before Recommending

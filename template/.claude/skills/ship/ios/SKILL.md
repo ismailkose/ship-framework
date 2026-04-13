@@ -12,6 +12,7 @@ This skill enforces Apple-first development practices, HIG compliance, and Swift
 
 **Reference files:**
 - `.claude/skills/ship/ios/references/swiftui-core.md` — SwiftUI navigation, concurrency, Liquid Glass, animation, gestures, layout, architecture, No-Hack APIs
+- `.claude/skills/ship/ios/references/swiftui-performance.md` — Performance audit workflow, code smell catalog, profiling guide, review integration
 - `.claude/skills/ship/ios/references/hig-ios.md` — Human Interface Guidelines: navigation, color, components, lifecycle, design checklists
 - `.claude/skills/ship/ios/references/swift-essentials.md` — Swift language features, Codable, Swift Testing
 - `.claude/skills/ship/ios/references/frameworks/[name].md` — per-framework guides (HealthKit, StoreKit, CloudKit, etc.)

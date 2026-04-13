@@ -577,6 +577,27 @@ Starts executing synchronously on the current actor before any suspension point.
 Task.immediate {
   await handleUserInput()  // begins without delay
 }
+
+// Task.immediateDetached — immediate start + no actor inheritance
+Task.immediateDetached {
+  await heavyProcessing()  // starts now, runs on concurrent pool
+}
+```
+
+**Isolated Conformances (Swift 6.2+):**
+
+When a `@MainActor` type conforms to a protocol, scope the conformance to the actor:
+
+```swift
+// WRONG — compiler error: nonisolated conformance but accesses MainActor state
+@MainActor class Foo: SomeProtocol {
+  func protocolMethod() { /* accesses main-actor state */ }
+}
+
+// CORRECT — isolated conformance
+extension Foo: @MainActor SomeProtocol {
+  func protocolMethod() { /* safely accesses main-actor state */ }
+}
 ```
 
 ### Isolated Conformances
@@ -3491,8 +3512,10 @@ VStack { /* content */ }
 
 > **When to read:** Dev reads when optimizing SwiftUI performance.
 > Crit reads when reviewing for performance issues.
-> For design-level performance decisions (perceived speed, skeleton screens, optimistic UI),
-> see `shared/ux-principles.md` Section 3. This section covers SwiftUI-specific profiling.
+> For the full diagnostic workflow, code smell catalog, and profiling guide,
+> see `.claude/skills/ship/ios/references/swiftui-performance.md`.
+> For design-level performance (perceived speed, skeleton screens, optimistic UI),
+> see `shared/ux-principles.md` Section 3. This section covers quick patterns.
 
 ### Diagnostic Workflow
 
