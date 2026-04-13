@@ -6,47 +6,24 @@ To update an existing project, run `bash ship-update.sh` from your project root,
 
 ---
 
-## 2026.04.12 — Plugin-Native Architecture, Auto-Routing, E2E Quality Validation
+## 2026.04.12 — Plugin + Auto-Routing
 
-### Plugin Distribution
-- **Ship Framework is now a plugin.** Install via `.plugin` file in Cowork or Claude Code. No more `setup.sh` copy-paste into every project — one install, works everywhere.
-- **134 files, 532KB compressed** — 21 commands, 20 skills, 85 reference files, 6 project templates, all in one package.
-- **Portable paths** — All internal references use `${CLAUDE_PLUGIN_ROOT}` so the plugin works from any install location.
+### Install as a Plugin
+- **Ship Framework is now a plugin.** Download `ship-framework.plugin` from the [releases page](https://github.com/ismailkose/ship-framework/releases) and open it in Cowork, or use `claude plugin add` in Claude Code. No more `setup.sh` into every project — one install, works everywhere.
+- **Legacy still works.** `setup.sh` and `/ship-update` are still supported for existing projects.
 
-### Auto-Routing
-- **No commands required.** The `ship-router` skill detects intent from natural language and engages the right command automatically. "Build me a login screen" triggers Dev. "Something broke" triggers Bug. "Ship it" triggers Cap.
-- **Intent map covers all 21 commands** — planning, building, reviewing, fixing, launching, design, monetization, safety, and project management intents all route correctly.
-- **Direct commands still work.** `/ship-plan`, `/ship-build`, etc. are available when you want explicit control. Auto-routing and direct commands work side by side.
+### Auto-Routing — No Commands Needed
+- **Just describe what you want.** "Build me a login screen" triggers Dev. "Something broke" triggers Bug. "Ship it" triggers Cap. The router detects intent and engages the right agent automatically.
+- **Covers all 21 commands** — planning, building, reviewing, fixing, launching, design, monetization, safety, and project management all route from natural language.
+- **Direct commands still work.** `/ship-plan`, `/ship-build`, etc. are there when you want explicit control.
 
-### Command Refinements
-- **ship-plan** — Reference Gate receipt format made explicit (REFERENCES LOADED with filename list).
-- **ship-review** — Added cross-reference instruction: checks LEARNINGS.md patterns and DECISIONS.md design direction against every file in the diff before agents begin.
+### Agentic Architecture
+- **5 independent review agents** — Crit, Pol, Eye, Test, and Adversarial now run in separate context windows with their own model assignments. Crit and Adversarial on opus, Pol and Test on sonnet, Eye on haiku. Each agent has independent findings that can't be influenced by the others — no groupthink.
+- **Roles stay conversational** — Vi, Arc, Dev, Cap, Biz, Bug, and Retro still share the main conversation. Vi and Arc argue in `/ship-plan`, Dev builds in `/ship-build`. The debate stays, the reviews get independent.
+- **Review quality improved** — `/ship-review` now cross-references LEARNINGS.md patterns and DECISIONS.md design direction against every file in the diff before agents begin. Known issues from past sessions get caught automatically.
 
----
-
-## 2026.04.11b — Agent Architecture, Command Slimming, Test Bench
-
-### Agent Architecture
-- **5 independent review agents** — Crit, Pol, Eye, Test, and Adversarial each have their own SKILL.md with model assignments. Crit and Adversarial run on opus, Pol and Test on sonnet, Eye on haiku. Each agent loads its full persona, voice, and instructions from `.claude/skills/ship/agents/[name]/SKILL.md`.
-- **Roles vs Agents split** — Vi, Arc, Dev, and Cap remain as roles (shared conversation context, can argue/debate). Crit, Pol, Eye, Test, and Adversarial become agents (separate context windows, independent findings). This preserves the Vi/Arc debate in `/ship-plan` while giving reviewers isolation.
-- **Agent container SKILL.md** — Root `agents/SKILL.md` documents the full roster with model assignments and which commands call which agents.
-
-### Command Slimming
-- **38% total line reduction** — Commands went from 4,170 to 2,594 total lines. All 8 target commands are now under 200 lines.
-- **ship-review** (626→190): Full Crit/Pol/Eye/Test/Adversarial persona definitions replaced with agent call table. Kept workflow script, scoring, and output format.
-- **ship-plan** (560→167): Vi and Arc sections condensed, Pol and Adversarial replaced with agent calls.
-- **ship-launch** (389→181): Cap's voice trimmed, all 9 phases kept but condensed.
-- **ship-design** (322→193): 6-phase structure kept, verbose examples removed.
-- **ship-variants** (327→140): 5-step workflow kept, HTML code blocks and examples removed.
-- **ship-team** (304→188): Orchestration and routing kept, persona re-definitions removed.
-- **ship-fix** (258→153): 5-step debug process kept, verbose examples trimmed.
-- **ship-html** (215→181): Reference Gate block removed (hook handles it), Smart Flag collapsed.
-- **team-rules.md** (738→520): Per-command persona summaries replaced with compact Team Roster table, Per-Persona Strengths replaced with pointer to agent SKILL.md files.
-
-### Test Bench
-- **3-layer validation system** — Layer 1: structural integrity (automated, 142 tests). Layer 2: quality scanning (semi-automated, checks saved command output against rubrics). Layer 3: scenario rubrics (manual comparison, 66-point plan rubric, 82-point review rubric).
-- **Mock project fixture** — FocusFlow iOS app with 16 intentional bugs across code crashes, design slop, accessibility gaps, and process violations. Used for benchmarking review quality.
-- **All 142 structural tests pass** — Command frontmatter, skill files, reference paths, hook scripts, size budgets, team-rules structure, cross-references, agent readiness, duplicate content detection.
+### Faster, Lighter Commands
+- **38% smaller commands, same quality.** All commands slimmed to under 200 lines. Agent personas moved to their own SKILL.md files instead of being duplicated in every command. Less prompt weight, same output quality — validated across all 7 core commands.
 
 ---
 
