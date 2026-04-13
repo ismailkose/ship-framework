@@ -18,12 +18,6 @@ To update an existing project, run `bash ship-update.sh` from your project root,
 - **Intent map covers all 21 commands** — planning, building, reviewing, fixing, launching, design, monetization, safety, and project management intents all route correctly.
 - **Direct commands still work.** `/ship-plan`, `/ship-build`, etc. are available when you want explicit control. Auto-routing and direct commands work side by side.
 
-### E2E Quality Validation
-- **All 7 core commands validated at 100%** — ship-plan, ship-review, ship-build, ship-team, ship-fix, ship-launch, ship-think all pass quality benchmarks.
-- **Before/after comparison** — Slimmed v5 commands produce equivalent quality to verbose v4 originals across 150+ quality markers.
-- **Marker calibration** — Quality markers widened to catch natural language variation (run-to-run AI wording differences, scenario-dependent behaviors).
-- **Test tooling** — HTML comparison tool, CLI scoring script, .md file upload workflow for repeatable quality benchmarking.
-
 ### Command Refinements
 - **ship-plan** — Reference Gate receipt format made explicit (REFERENCES LOADED with filename list).
 - **ship-review** — Added cross-reference instruction: checks LEARNINGS.md patterns and DECISIONS.md design direction against every file in the diff before agents begin.
