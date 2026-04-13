@@ -1,14 +1,22 @@
 # Ship Framework — Cheatsheet
 
+`v2026.04.12` · Auto-routing enabled
+
 ---
 
 ## Start Here
 
+Just say what you want. No commands needed.
+
 ```
-/ship-team [anything you want]
+Build me a login screen
+Something broke [paste error]
+Is this worth building?
+Review this
+Ship it
 ```
 
-Routes everything. You don't need to remember any other command.
+Ship auto-detects your intent and routes to the right specialist. You can still use `/ship-*` commands directly when you want more control.
 
 ---
 
@@ -17,9 +25,9 @@ Routes everything. You don't need to remember any other command.
 | Command | Who | One-liner |
 |---------|-----|-----------|
 | `/ship-think` | Vi | Validate the idea first. Six forcing questions that kill bad ideas early. |
-| `/ship-plan` | Vi + Pol + Arc | Plan the product, score design readiness, architect the code. Battle-tested plan. |
+| `/ship-plan` | Vi + Pol + Arc | Plan the product, score design readiness, architect the code. They argue, you decide. |
 | `/ship-build` | Dev | Build one feature. Scope enforcement, atomic commits. |
-| `/ship-review` | Crit + Pol + Eye + Test | The quality gate. UX, design, visual QA, tests, health score. |
+| `/ship-review` | Crit + Pol + Eye + Test | The quality gate. UX, design, visual QA, tests, health score 0-100. |
 | `/ship-launch` | Cap | Deploy + measurement plan. |
 
 ---
@@ -198,19 +206,15 @@ Stack: android (Jetpack Compose, Material 3)
 
 ---
 
-## Skills + References
+## Architecture
 
-Skills are thin routers (~60-80 lines). They tell personas WHEN to read WHICH reference. References are the brain (200-700+ lines) — deep reasoning, correct/incorrect examples, anti-patterns.
+**Auto-routing:** The router skill detects your intent from natural language and maps it to the right command. No prefix needed.
 
-**Framework skills:** ux, web, components, motion, ios, android + safety hooks. Auto-loaded per command.
+**Skills + References:** Skills are thin routers (~60-80 lines) that tell personas WHEN to read WHICH reference. References are the brain (200-700+ lines) — deep reasoning, correct/incorrect examples, anti-patterns. 85 reference files total.
 
-**References (shared):** ux-principles, typography-color, interaction-design, spatial-design, copy-clarity, hardening-guide, forms-feedback, navigation, layout-responsive, touch-interaction, dark-mode, design-quality, design-research, components, animation (4 files)
+**5 Independent Agents:** Crit, Pol, Eye, Test, Adversarial — run in separate context windows during `/ship-review`.
 
-**References (web):** react-patterns, web-accessibility, web-performance
-
-**References (ios):** swiftui-core, hig-ios, swift-essentials, 61 framework guides (core: swiftdata, storekit, networking, cloudkit, coreml; gaming: gamekit, spritekit, scenekit, tabletopkit; common: avkit, pdfkit, cryptokit, financekit; specialized: accessorysetupkit, dockkit, sensorkit, browserenginekit, appmigrationkit, cryptotokenkit + 47 others)
-
-**Yours:** Skills in `.claude/skills/your-skills/`. References in `references/`. Wire in CLAUDE.md. Ship auto-detects new skills.
+**Your skills:** Add to `.claude/skills/your-skills/` and wire in CLAUDE.md. Ship auto-detects new skills.
 
 ### Priority Gates — What Blocks Shipping
 
