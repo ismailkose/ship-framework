@@ -8,6 +8,8 @@
 
 set -euo pipefail
 
+echo "SESSION_START_FIRED $(date)" >> /tmp/session-start-debug.log
+
 # ── Read project metadata from CLAUDE.md ──────────────────────────────────────
 
 CLAUDE_MD="CLAUDE.md"
@@ -30,17 +32,20 @@ VERSION=$(grep -o 'Ship Framework v[^ ]*' "$CLAUDE_MD" 2>/dev/null | head -1 | s
 
 OPEN_TASKS=0
 if [ -f "TASKS.md" ]; then
-  OPEN_TASKS=$(grep -c '^\- \[ \]' "TASKS.md" 2>/dev/null || echo 0)
+  OPEN_TASKS=$(grep -c '^\- \[ \]' "TASKS.md" 2>/dev/null | head -1 || true)
+  OPEN_TASKS=${OPEN_TASKS:-0}
 fi
 
 DECISIONS=0
 if [ -f "DECISIONS.md" ]; then
-  DECISIONS=$(grep -c '^## ' "DECISIONS.md" 2>/dev/null || echo 0)
+  DECISIONS=$(grep -c '^## ' "DECISIONS.md" 2>/dev/null | head -1 || true)
+  DECISIONS=${DECISIONS:-0}
 fi
 
 LEARNINGS=0
 if [ -f "LEARNINGS.md" ]; then
-  LEARNINGS=$(grep -c '^## \|^- ' "LEARNINGS.md" 2>/dev/null || echo 0)
+  LEARNINGS=$(grep -c '^- ' "LEARNINGS.md" 2>/dev/null | head -1 || true)
+  LEARNINGS=${LEARNINGS:-0}
 fi
 
 # ── Clean stale refgate state from previous sessions ──────────────────────────
@@ -104,7 +109,8 @@ if [ -f "$PDC_FILE" ] || [ -f "$DESIGN_FILE" ]; then
   echo "  /ship-design   — create or evolve design system"
   echo "  /ship-variants — explore options with comparison"
   if [ -f "$PDC_FILE" ]; then
-    SECTIONS=$(grep -c '^  [a-z]' "$PDC_FILE" 2>/dev/null || echo 0)
+    SECTIONS=$(grep -c '^  [a-z]' "$PDC_FILE" 2>/dev/null | head -1 || true)
+    SECTIONS=${SECTIONS:-0}
     echo "  PDC: $SECTIONS sections defined"
   elif [ -f "$DESIGN_FILE" ]; then
     echo "  Tip: DESIGN.md exists but no PDC.md. Run /ship-design init."
@@ -113,6 +119,11 @@ if [ -f "$PDC_FILE" ] || [ -f "$DESIGN_FILE" ]; then
     echo "  Taste: captured"
   else
     echo "  Taste: not yet — /ship-variants --taste"
+  fi
+  # Preview state
+  PREVIEW_HTML="design/preview/index.html"
+  if [ -f "$PREVIEW_HTML" ]; then
+    echo "  Preview: $PREVIEW_HTML"
   fi
 fi
 

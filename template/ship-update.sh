@@ -441,7 +441,9 @@ if [ -f "$SETTINGS_FILE" ]; then
 import json
 with open('$SETTINGS_FILE') as f:
     data = json.load(f)
-data.setdefault('hooks', {})['PreToolUse'] = [
+hooks = data.setdefault('hooks', {})
+hooks['SessionStart'] = [{'hooks': [{'type': 'command', 'command': 'bash .claude/skills/ship/sessionstart/bin/session-start.sh', 'timeout': 5000}]}]
+hooks['PreToolUse'] = [
     {'matcher': 'Edit', 'hooks': [{'type': 'command', 'command': 'bash .claude/skills/ship/refgate/bin/check-refgate.sh'}]},
     {'matcher': 'Write', 'hooks': [{'type': 'command', 'command': 'bash .claude/skills/ship/refgate/bin/check-refgate.sh'}]}
 ]
@@ -454,6 +456,17 @@ else
   cat > "$SETTINGS_FILE" << 'HOOKS_EOF'
 {
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/skills/ship/sessionstart/bin/session-start.sh",
+            "timeout": 5000
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Edit",
@@ -467,7 +480,7 @@ else
   }
 }
 HOOKS_EOF
-  echo -e "${GREEN}✓${RESET} Created .claude/settings.json (hooks: refgate)"
+  echo -e "${GREEN}✓${RESET} Created .claude/settings.json (hooks: refgate, sessionstart)"
 fi
 
 # ─── Step 5b: Always clean stale v3 commands ────────────────────────────────

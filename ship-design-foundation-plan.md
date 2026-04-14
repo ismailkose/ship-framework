@@ -206,9 +206,11 @@ Section templates define the skeleton for each design dimension. They are used i
 
 The key insight: asking "what's your taste?" produces generic answers. Showing examples and asking people to react produces real taste. **Visual experience is nearly impossible to reflect in prose**, so every taste module that can be visual, must be.
 
-**Two modes:**
+**Two modes — ask the user which one:**
 
-#### Quick Taste (~5 minutes, default for new projects)
+When taste extraction starts, ask: *"Two options for capturing your design taste: (1) Quick — ~5 minutes, 10 examples, enough to start building (recommended). (2) Comprehensive — ~30 minutes, 50 examples across all dimensions, produces a high-confidence taste profile. Which do you prefer?"*
+
+#### Quick Taste (~5 minutes)
 
 For founders who want to start building, not spend 30 minutes rating examples.
 
@@ -217,7 +219,7 @@ For founders who want to start building, not spend 30 minutes rating examples.
 3. Synthesize a minimal TASTE.md with 3–5 preference signals, marked `confidence: low (quick-taste)`.
 4. Print: "Quick taste captured. Run `/ship-variants --taste-deep` for the full session when you're ready."
 
-#### Deep Taste (~30–45 minutes, via `--taste-deep`)
+#### Comprehensive Taste (~30–45 minutes)
 
 A structured session across all dimensions. 50 examples total.
 
@@ -1029,21 +1031,34 @@ Five existing files to modify. No new files created — all changes are upgrades
 
 **Value:** Discoverability and introspection without creating a single new command. The hard-block forcing function creates real adoption pressure for PDC.md.
 
-**Slice 2 — Dynamic motion docs (~3–4 days)**
+**Slice 2 — Design preview (~4–5 days)**
 
-6. Extend `/ship-design` to generate `design/preview/motion.html` as the live reference preview.
-7. Add `motion-tune.html` with live sliders that write back to `motion.md` (or DESIGN.md#motion).
-8. Generate native fidelity playground from motion section (stack-dependent: `MotionLab.swift` for iOS, `motion-lab.tsx` for Web).
+`/ship-design --preview` generates two preview layers from DESIGN.md — one cross-platform, one native-fidelity:
+
+6. **HTML preview** — `design/preview/index.html`. Single-file, no build. Covers all dimensions: color swatches, typography specimens, spacing scale, border radius, component examples, and CSS-approximated motion demos. If preview exists, opens it. If not, creates it first. Offered at end of `/ship-design init` and `/ship-design --audit`. Shown in session footer when present.
+7. **Native preview** (platform-specific) — one consolidated file per stack:
+   - iOS: `DesignPreview.swift` with `#Preview` sections:
+     - `#Preview("Colors")` — all palette tokens as swatches
+     - `#Preview("Typography")` — type scale with real fonts at real sizes
+     - `#Preview("Spacing")` — spacing scale visualized
+     - `#Preview("Components")` — key components in all states
+     - `#Preview("Motion")` — every named primitive, tap to play real springs
+   - Web: `design-preview.tsx` with equivalent sections
+   - Android: `DesignPreview.kt` with `@Preview` composables
+   One file, one place to scroll through. Not separate files per dimension.
+8. **Motion tune surface** — `design/preview/motion-tune.html` with live sliders that write back to `motion.md` (or DESIGN.md#motion). This is the interactive tuning layer on top of the read-only previews.
 9. Enforce named-primitive tagging in `ship-motion` skill (hard-block raw springs without a tag).
 
-This closes the 2-minute motion tune loop (§5.4) directly. Value: animation mismatches fixable in minutes, not in rebuild cycles.
+Session footer shows both layers: `Preview: design/preview/index.html | Xcode: DesignPreview.swift`
+
+HTML preview is the approximation for reviewing the *system*. Native preview is the fidelity layer for reviewing the *feel*. Motion tune is the adjustment layer for changing values live.
 
 **Slice 3 — Taste extraction + pattern library seed (~3–4 days)**
 
-10. Quick Taste mode as default in `/ship-variants --taste` (~5 min, 10 examples).
-11. Deep Taste mode via `--taste-deep` (30–45 min, 50 examples).
-12. Seed Common Pattern Library with motion-only (10 categories, 3–4 variants each, ~40 total).
-13. TASTE.md generation with confidence marker.
+11. Taste extraction in `/ship-variants --taste` — asks user to choose Quick (~5 min, recommended) or Comprehensive (~30 min).
+12. Comprehensive mode: 50 examples across all dimensions (motion, layout, type, copy, color).
+13. Seed Common Pattern Library with motion-only (10 categories, 3–4 variants each, ~40 total).
+14. TASTE.md generation with confidence marker.
 
 **Deferred (Phase 2+):**
 
