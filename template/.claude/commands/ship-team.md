@@ -140,6 +140,17 @@ Never ask founder which agent to use — read their request and pick the flow:
 - **"Let's make this"** → /ship-plan (quick) → /ship-build → what to test next
 - **"Design this"** → /ship-design → research competitors → propose direction → preview → document to DESIGN.md
 - **"Show design options"** → /ship-variants → 3 theory-backed variants with comparison board
+- **"Set up design" / "create design system"** → /ship-design init
+
+**Design & feel** (qualitative requests — route to design, not /ship-build):
+- **"Make this feel [adjective]"** → /ship-variants (3 options optimized for the feel)
+- **"The timing is off" / "animation feels [word]"** → /ship-design --motion (load motion section, tune)
+- **"Colors feel [adjective]" / "palette needs work"** → /ship-design --tokens (color focus)
+- **"This doesn't match the vibe"** → /ship-variants --refine (compare against TASTE.md)
+- **"Inspired by [product]"** → /ship-design import (fetch reference system, compare)
+- **"Make this more/less [quality]"** → /ship-variants --quick (2 variants: current + adjusted)
+- **"Typography feels off" / "text hierarchy"** → /ship-design --tokens (typography focus)
+- **Disambiguation:** If request has feel-words (feel, vibe, inspired, aesthetic) AND no problem-words (bug, error, broken, crash), route to design. If both present, route to /ship-fix and let Dev load design refs.
 
 **Review, test, quality:**
 - **"Review this"** → /ship-review (full quality gate: Crit + Pol + Eye + Test + Adversarial)

@@ -1,8 +1,10 @@
 ---
 name: ship-refgate
 description: |
-  Reference Gate — blocks first Edit/Write until references are loaded. (ship)
-  Hard block on first edit, no-op after refs are confirmed.
+  Reference Gate — dimension-aware design gate. (ship)
+  Classifies edits by dimension (ui/motion/copy/logic), hard-blocks
+  when PDC.md is missing, and gates per-dimension until the relevant
+  design section has been read. No gate for logic/test files.
   Activated automatically. No user command needed.
 user-invocable: false
 hooks:
@@ -19,44 +21,65 @@ hooks:
           statusMessage: "Checking reference gate..."
 ---
 
-# Reference Gate — First-Edit Protection
+# Reference Gate — Dimension-Aware Design Protection
 
-This skill enforces Rule 25 (Reference Gate) as a real PreToolUse hook. It blocks the first Edit or Write operation in a session if references haven't been loaded yet.
+This skill enforces Rule 25 (Reference Gate) as a real PreToolUse hook. It classifies edits by design dimension and ensures the relevant design context has been loaded before allowing changes.
 
 ## How It Works
 
-Hard block on the first edit, no-op after that.
+1. **Classify** — extract file path from the pending edit, classify into a dimension:
+   - `ui` — views, screens, components, pages, styles
+   - `motion` — animation, transition, motion files
+   - `copy` — localization, i18n, string resources
+   - `logic` — models, services, utils, API (no design gate)
+   - `none` — tests (no design gate)
+2. **Check PDC** — for design dimensions (`ui`, `motion`, `copy`):
+   - PDC.md missing → **hard block** with message to run `/ship-design init`
+   - PDC.md exists → check if the relevant section has been read this session
+3. **Per-dimension gating** — each dimension has its own lifecycle marker. Reading the motion section doesn't satisfy the UI gate, and vice versa.
+4. **Backward compat** — framework references (`.refgate-loaded`) must still be loaded before any edit.
 
-1. Session starts — no state files exist
-2. Agent tries first Edit/Write → hook checks for `.claude/.refgate-loaded`
-3. If missing → **hard block** with message to load references first
-4. Agent loads references → command prints `REFERENCES LOADED` receipt → creates `.claude/.refgate-loaded`
-5. Agent tries edit again → hook sees `.refgate-loaded`, creates `.refgate-passed`, allows edit
-6. All subsequent edits → hook sees `.refgate-passed` → instant allow (no-op)
+## Dimension Classification
+
+| Signal | Dimension | Gate? |
+|---|---|---|
+| `*/views/*`, `*/components/*`, `*/pages/*`, `*.css` | `ui` | Yes |
+| `*animation*`, `*motion*`, `*transition*` | `motion` | Yes |
+| `*/Localizable*`, `*/i18n/*`, `*/locales/*` | `copy` | Yes |
+| `*/models/*`, `*/services/*`, `*/utils/*`, `*/lib/*` | `logic` | No |
+| `*/test*`, `*.test.*`, `*.spec.*` | `none` | No |
+| Unknown paths | `ui` (safe default) | Yes |
+
+## The Forcing Function
+
+When PDC.md does not exist and an edit touches a design dimension, the gate **hard-blocks** with a message to run `/ship-design init`. This creates natural adoption pressure — the system degrades visibly without a design contract. Logic-only edits still work, so a project without PDC.md functions for non-UI work.
 
 ## State Files
 
 | File | Created by | Meaning |
 |---|---|---|
-| `.claude/.refgate-loaded` | Ship commands (after printing REFERENCES LOADED receipt) | References have been read this session |
-| `.claude/.refgate-passed` | This hook (after first allowed edit) | Gate passed, no more checks needed |
+| `.claude/.refgate-loaded` | Ship commands (after REFERENCES LOADED receipt) | Framework references loaded this session |
+| `.claude/.refgate-dim-ui` | Ship commands (after reading UI design section) | UI design section read this session |
+| `.claude/.refgate-dim-motion` | Ship commands (after reading motion section) | Motion section read this session |
+| `.claude/.refgate-dim-copy` | Ship commands (after reading copy section) | Copy section read this session |
 
-## How References Get Marked as Loaded
+## How Design Sections Get Marked as Read
 
-Ship commands already print a `REFERENCES LOADED:` receipt. To wire this into the hook, commands should also create the state file:
+When Ship commands read a design section (e.g., `/ship-build` reads the motion section from PDC.md), they create the dimension marker:
 
 ```bash
-touch .claude/.refgate-loaded
+touch .claude/.refgate-dim-motion
 ```
 
-This happens inside the command workflow — after the agent reads the relevant reference files and prints the receipt.
+This mirrors how `touch .claude/.refgate-loaded` works for framework references.
 
 ## Session Cleanup
 
-Both state files are cleaned automatically at session start by the `ship-sessionstart` hook. If they persist between sessions (e.g., on older versions without the session start hook), the gate won't fire — but that's acceptable since a new session means a new context window where references need re-reading anyway.
+All state files (`.refgate-loaded` and `.refgate-dim-*`) are cleaned at session start by `ship-sessionstart`. Each new session starts with a clean gate — design sections must be re-read.
 
 ## Compatibility
 
 - Works alongside freeze and careful hooks — they all run independently on PreToolUse
 - Does NOT interfere with Read, Grep, Glob, Bash — only blocks Edit and Write
-- Fails open: if the state check errors, the script exits before reaching the deny block
+- Fails open: if path extraction fails or the script errors, the edit is allowed
+- Path-based classification is intentionally heuristic — false positives cost one design doc read (never harmful)

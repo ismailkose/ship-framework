@@ -38,6 +38,8 @@ Available flags:
 - `--tokens` — Generate or update design token file only
 - `--research` — Competitor research phase only
 - `--mockup` — AI mockup generation via GPT Image API (requires OPENAI_API_KEY)
+- `--init` — Scaffold DESIGN.md + PDC.md (+ optional TASTE.md). If DESIGN.md already exists, generate PDC.md only.
+- `split <section>` — Extract a section from DESIGN.md into `design/<section>.md`, update PDC.md pointer.
 
 ---
 
@@ -170,15 +172,64 @@ Write `DESIGN.md` as the authoritative design system file for team reference:
 
 Also update LEARNINGS.md under "## Design Preferences" with decisions and rationale for future reference.
 
+### Phase 6b: PDC Generation
+
+After writing DESIGN.md, generate `PDC.md` — the Project Design Contract manifest:
+
+1. Parse the headings in the just-written DESIGN.md
+2. For each heading matching a known section (overview, colors, typography, components, motion, voice-tone, do-dont), add a `sections:` entry pointing to `DESIGN.md#<anchor>`
+3. Read CLAUDE.md for the `Stack:` field to set `platform:`
+4. If TASTE.md does not exist, set `taste: missing`
+5. Write PDC.md to the project root
+6. Create dimension-specific refgate markers for all sections just written:
+   ```bash
+   touch .claude/.refgate-dim-ui .claude/.refgate-dim-motion .claude/.refgate-dim-copy
+   ```
+
+**PDC.md format:**
+```yaml
+# PDC.md — Project Design Contract
+schema_version: 1
+platform: <from CLAUDE.md Stack>
+
+sections:
+  overview:    DESIGN.md#overview
+  colors:      DESIGN.md#colors
+  typography:  DESIGN.md#typography
+  components:  DESIGN.md#components
+  donts:       DESIGN.md#dos-and-donts
+
+taste: TASTE.md   # or "missing"
+```
+
+### --init Behavior
+
+If `--init` flag is given:
+- **DESIGN.md does not exist:** Run the full 6-phase process above, then Phase 6b.
+- **DESIGN.md already exists:** Skip to Phase 6b only — generate PDC.md from existing DESIGN.md headings.
+- **PDC.md already exists:** Show current PDC state, ask what to update.
+- After PDC generation, prompt: "Run `/ship-variants --taste` to capture your design preferences?"
+
+### split <section> Behavior
+
+If `split <section>` is given (e.g., `/ship-design split motion`):
+1. Find the section heading in DESIGN.md matching `<section>` (case-insensitive)
+2. Extract all content from that heading to the next heading of same or higher level
+3. Create `design/` directory if it doesn't exist
+4. Write extracted content to `design/<section>.md`
+5. Replace the section in DESIGN.md with: `## Motion\n\nSee [motion.md](design/motion.md)`
+6. Update PDC.md to point to the new file: `motion: design/motion.md`
+
 ---
 
 ## Connections to Other Commands
 
-- `/ship-design` creates `DESIGN.md`
+- `/ship-design` creates `DESIGN.md` + `PDC.md`
 - `/ship-plan` reads `DESIGN.md` for aesthetic direction
 - `/ship-build` reads `DESIGN.md` for implementation tokens
 - `/ship-review` validates against `DESIGN.md`
 - `/ship-variants` uses `DESIGN.md` as baseline
+- `ship-refgate` reads `PDC.md` to gate edits by design dimension
 
 ---
 
