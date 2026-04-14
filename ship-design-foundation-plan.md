@@ -1060,6 +1060,11 @@ HTML preview is the approximation for reviewing the *system*. Native preview is 
 13. Seed Common Pattern Library with motion-only (10 categories, 3–4 variants each, ~40 total).
 14. TASTE.md generation with confidence marker.
 
+**Open — needs iteration:**
+
+- **Preview quality (Slice 2 follow-up):** HTML preview generates but output quality needs work. Spec is written (world-class layout, 10 sections, sidebar nav, Tailwind/Radix quality bar) but Claude's output doesn't match the spec yet. Native `DesignPreview.swift` generation also needs dogfooding — wasn't generated in first test (Stack field was missing). Iterate until preview output matches the spec.
+- **Fix broken Ship hooks:** Freeze, careful, and guard hooks all have the old `permissionDecision` format (silently ignored by Claude Code) and aren't registered in settings.json. Need `hookSpecificOutput` wrapper + settings.json registration.
+
 **Deferred (Phase 2+):**
 
 - Unified Documentation Hub — static v1 only (§4.12)
