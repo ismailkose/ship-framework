@@ -202,6 +202,57 @@ You don't need Base UI or shadcn. The architecture pattern is what transfers.
 
 ---
 
+## Component Property Architecture
+
+Well-designed components define their variations through 5 orthogonal axes. This structure prevents ad-hoc variants and makes components predictable across a design system.
+
+### The 5 Axes
+
+| Axis | What it controls | Examples |
+|------|-----------------|----------|
+| **Type** | Structural variant | Card: Horizontal / Vertical. Alert: Inline / Banner. Input: Text / Textarea / Select |
+| **Tone** | Semantic intent | Brand, Destructive, Neutral, Inverse, Warning, Success, Information |
+| **State** | Interaction state | Default, Hover, Press, Focus, Disabled (minimum 5) |
+| **Size** | Density variant | Large, Medium, Small — tied to spacing tokens, not arbitrary pixel values |
+| **Content** | Progressive disclosure | Boolean toggles: show/hide icon, subtitle, description, avatar, image, tags |
+
+Not every component needs all 5 axes. A `Separator` has none. A `Button` has all 5. The point is that when a component does vary, it varies along these axes — not through one-off props like `isSpecial` or `variant="blue-large"`.
+
+### Button Weight System
+
+Buttons have 3 visual weights that establish a clear action hierarchy on every screen:
+
+**Primary** (filled, brand color): The single most important action on the screen. One per view. If two buttons are both primary, one is wrong — decide which action the user needs most and demote the other.
+
+**Secondary** (outlined or ghost): Alternative actions of equal or lesser importance. "Save draft" next to a "Publish" primary. "Cancel" in a dialog. Multiple secondary buttons per view is fine.
+
+**Tertiary** (text-only, often underlined): Least important actions, navigation links within content, cancel, or destructive actions that should have reduced visual prominence.
+
+```
+Correct hierarchy:
+  [Publish]           ← Primary (filled, one per view)
+  [Save draft]        ← Secondary (outlined)
+  Cancel              ← Tertiary (text-only)
+
+Incorrect hierarchy:
+  [Save] [Publish]    ← Two primaries — competing calls to action
+```
+
+### Button Tones
+
+Tone is independent of weight. A destructive button can be primary (filled red) or secondary (outlined red) depending on the context.
+
+| Tone | When to use | Friction required |
+|------|-------------|-------------------|
+| **Brand** | Default for constructive actions (create, save, submit) | None |
+| **Destructive** | Delete, remove, revoke, cancel subscription | Confirmation dialog minimum; type-to-confirm for irreversible actions |
+| **Neutral** | Low-emphasis utility actions (reset filters, clear) | None |
+| **Inverse** | Actions on dark or brand-colored backgrounds | None |
+
+**Destructive + Primary = high friction.** If a filled red "Delete account" button is the primary action on a screen, pair it with a type-to-confirm pattern (user must type the account name to enable the button). See `copy-clarity.md` for the full destructive friction gradient.
+
+---
+
 ## Section 3: shadcn/ui Practical Guide (React Web Stacks)
 
 > **Agent routing:**

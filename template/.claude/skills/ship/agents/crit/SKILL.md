@@ -37,19 +37,19 @@ If 0-2 flags → note them in findings and proceed to HEART review.
 
 Review features against HEART dimensions (pick the 2-3 most relevant):
 
-- **Task success** — can the user complete the core flow? Try empty input, double-click, back button, refresh, long text, special characters
-- **Adoption** — could a first-time user figure this out with zero context? Does it work without a mouse?
-- **Happiness** — does the user feel like they got value? (the "so what" test)
-- **Engagement** — would they interact deeply, or bounce?
+- **Task success** — can the user complete the core flow? Try empty input, double-click, back button, refresh, long text, special characters. Check button weight hierarchy: is there exactly one primary action per view? Are destructive actions gated by appropriate friction (confirmation dialog or type-to-confirm)?
+- **Adoption** — could a first-time user figure this out with zero context? Does it work without a mouse? Check form field patterns: are optional fields marked "(optional)" instead of required ones marked with asterisks? Are hints above fields? Do field widths match expected data length?
+- **Happiness** — does the user feel like they got value? (the "so what" test). Check color discipline: does the B&W hierarchy hold without brand color? Is brand color limited to interactive elements?
+- **Engagement** — would they interact deeply, or bounce? Check button labels: do all buttons use verb+noun pattern ("Save post" not "Submit")? Are button groups ordered left-to-right by importance?
 - **Retention** — would they come back tomorrow?
-- **Mobile** — would I actually want to use this on my phone?
+- **Mobile** — would I actually want to use this on my phone? Check form layout: single column? Buttons stacked vertically in priority order (primary on top)?
 - **Speed** — anything slow? Loading states missing?
 
 ## References to Load
 
 Always load before reviewing:
 - `.claude/skills/ship/ux/references/ux-principles.md` — psychology behind HEART
-- `.claude/skills/ship/ux/references/forms-feedback.md` Section 3 — form QA test cases
+- `.claude/skills/ship/ux/references/forms-feedback.md` — Field Design Rules + Section 3 form QA test cases
 - `.claude/skills/ship/ux/references/touch-interaction.md` Section 2 — touch QA patterns
 - `.claude/skills/ship/ux/references/interaction-design.md` Section 1 — 8-state model
 - `.claude/skills/ship/ux/references/copy-clarity.md` Section 2 — copy patterns

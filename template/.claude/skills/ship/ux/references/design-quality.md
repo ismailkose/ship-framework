@@ -563,6 +563,65 @@ See `dark-mode.md` for the full dark mode reference. Key rules:
 
 ---
 
+### Pattern: Multiple Primary Buttons
+
+**What it looks like:**
+- Two or more filled, brand-colored buttons visible in the same view
+- "Save" and "Publish" both rendered as primary buttons
+- Competing calls to action with equal visual weight
+- User hesitates because there's no clear "main thing to do"
+
+**Why it happens:**
+AI treats every important action as primary. If both "Save" and "Publish" matter, both get the primary style.
+
+**The fix:**
+One primary button per view — the single most important action. Everything else is secondary (outlined) or tertiary (text-only). If two actions feel equally important, decide which one the user needs most often and make that primary.
+
+**Correct example:** "Publish" is primary (filled brand color). "Save draft" is secondary (outlined). "Cancel" is tertiary (text-only).
+
+**Incorrect example:** "Save" and "Publish" both filled blue. User has two equal-weight choices and no clear path forward.
+
+---
+
+### Pattern: Full-Width Inputs for Short Data
+
+**What it looks like:**
+- Zip code, CVC, phone number, or date fields stretched to full container width
+- A 3-digit field in a 600px-wide input
+- Short data swimming in empty space
+
+**Why it happens:**
+AI applies the same input width to all fields. Full-width is the default, and short-data fields don't get special treatment.
+
+**The fix:**
+Match input width to expected data length. Zip code → quarter width. Phone → half width. CVC → quarter width. Name, email, address → full width. The field shape should signal what kind of data goes in it.
+
+**Correct example:** Name and email inputs are full-width. Below them, city (half-width), state (quarter), and zip (quarter) sit on the same row.
+
+**Incorrect example:** Every field — including zip code and CVC — is full container width, creating a visual mismatch between field size and expected input.
+
+---
+
+### Pattern: Mixed Text/Button Alignment
+
+**What it looks like:**
+- Content is left-aligned but action buttons are right-aligned
+- Center-aligned text blocks in an otherwise left-aligned layout
+- Button groups that float to the right while the form they belong to is left-aligned
+- Inconsistent alignment between headings, body text, and CTAs
+
+**Why it happens:**
+AI places buttons on the right because modal dialogs traditionally right-align confirm/cancel. This leaks into forms, cards, and page sections where left-alignment is correct.
+
+**The fix:**
+Left-align both text and buttons by default. Button groups flow left-to-right in order of importance: primary action leftmost, secondary next, tertiary/cancel rightmost. On mobile, stack buttons vertically in the same priority order (primary on top). Exception: single-field search forms can place the submit button to the right of the input.
+
+**Correct example:** Left-aligned form with "Save changes" (primary) and "Cancel" (tertiary) left-aligned below the last field, primary leftmost.
+
+**Incorrect example:** Left-aligned form, but "Save" and "Cancel" float to the far right, disconnected from the fields they act on.
+
+---
+
 ## Section 3: Cross-Page Consistency Audit
 
 ### Why Consistency Matters Beyond Aesthetics
