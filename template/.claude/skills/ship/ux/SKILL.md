@@ -29,7 +29,8 @@ This skill routes personas to the right design knowledge at the right time. The 
 | MANDATORY | Reduced Motion | `prefers-reduced-motion` respected — see motion skill | motion SKILL.md |
 | HIGH | Layout | Mobile-first, consistent spacing, no horizontal scroll | layout-responsive.md |
 | HIGH | Typography | 16px min body, 1.5 line-height, semantic tokens | typography-color.md Section 1 |
-| HIGH | Forms | Visible labels, inline errors, empty states, destructive confirmation | forms-feedback.md |
+| HIGH | Buttons | Single primary per view, 3-weight hierarchy (primary/secondary/tertiary), verb+noun labels | components.md, copy-clarity.md |
+| HIGH | Forms | Visible labels, inline errors, empty states, destructive confirmation, optional marking, hints above fields, field width matching, radio < 5 options | forms-feedback.md |
 | HIGH | Navigation | Predictable back, deep linking, ≤5 bottom nav | navigation.md |
 | HIGH | Style | Consistent style, one primary CTA/screen, state clarity | typography-color.md Section 3 |
 | MEDIUM | Dark Mode | Semantic tokens, test both themes, desaturate for dark | dark-mode.md |

@@ -66,9 +66,40 @@ Correct:
   "Download report"    → specific action
 ```
 
+**Verb + noun pattern always.** Every button label should include the verb (action) and the noun (object): "Save post", "Delete account", "Export report", "Send invitation." Never just "Save", "Delete", or "Submit" — the noun tells the user what they're acting on without needing surrounding context. The only exception is when the object is completely unambiguous from the UI (a single-field form with one obvious action).
+
 **Destructive buttons** get extra specificity: "Delete" becomes "Delete this project." Users should never wonder "delete what?"
 
 **Confirmation dialogs** match the action: if the dialog says "Delete this project?", the confirm button says "Delete project" (not "Yes" or "OK").
+
+**Button group ordering.** Left-to-right = most important to least important. Primary action leftmost, secondary next, tertiary/cancel rightmost. On mobile, stack vertically in the same priority order (primary on top). This follows natural reading direction and Fitts's Law — the most important action is closest to where the user's attention already is.
+
+### Destructive Action Friction
+
+Not all destructive actions need the same friction. Match the confirmation pattern to the severity:
+
+**Reversible + low impact** (archive, hide, mark as read): No confirmation needed. Use a secondary or tertiary button. Offer undo via toast: "Archived. [Undo]".
+
+**Reversible + moderate impact** (bulk edit, status change, remove from list): Confirmation dialog with a descriptive button. "Archive 12 items" not "OK". The button label names the action and the count.
+
+**Irreversible + high impact** (delete account, purge data, revoke access): Type-to-confirm pattern. Require the user to type the resource name (e.g., "my-project") before the confirm button enables. This is the one case where a disabled button is correct — it's intentional friction, not a usability gap.
+
+```
+Low friction (archive):
+  [Archive]  ← secondary button, no dialog
+  → Toast: "Conversation archived. [Undo]"
+
+Medium friction (bulk delete):
+  Dialog: "Delete 12 items?"
+  Body: "These items will be moved to trash for 30 days."
+  [Cancel]  [Delete 12 items]  ← destructive primary
+
+High friction (delete account):
+  Dialog: "Delete your account?"
+  Body: "This permanently removes all data. Type 'delete my account' to confirm."
+  Input: [                    ]
+  [Cancel]  [Delete account]  ← disabled until input matches
+```
 
 ### Error Messages: What Happened + What To Do
 

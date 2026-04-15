@@ -4,6 +4,7 @@ description: |
   SessionStart hook — loads project context when a Claude Code session begins. (ship)
   Sets SHIP_STACK, SHIP_VERSION, SHIP_PRODUCT env vars.
   Cleans stale refgate state. Prints project status.
+user-invocable: false
 hooks:
   SessionStart:
     - matcher: "*"

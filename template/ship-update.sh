@@ -431,7 +431,59 @@ else
   echo -e "${GREEN}✓${RESET} Synced ($TOTAL_UPDATED updated, $TOTAL_SKIPPED protected)"
 fi
 
-# ─── Step 5a: Always clean stale v3 commands ────────────────────────────────
+# ─── Step 5a: Register hooks in settings.json ────────────────────────────────
+# SKILL.md defines hook intent, but Claude Code only executes hooks from settings.json.
+
+SETTINGS_FILE="$PROJECT_DIR/.claude/settings.json"
+if [ -f "$SETTINGS_FILE" ]; then
+  if ! grep -q '"PreToolUse"' "$SETTINGS_FILE" 2>/dev/null; then
+    python3 -c "
+import json
+with open('$SETTINGS_FILE') as f:
+    data = json.load(f)
+hooks = data.setdefault('hooks', {})
+hooks['SessionStart'] = [{'hooks': [{'type': 'command', 'command': 'bash .claude/skills/ship/sessionstart/bin/session-start.sh', 'timeout': 5000}]}]
+hooks['PreToolUse'] = [
+    {'matcher': 'Edit', 'hooks': [{'type': 'command', 'command': 'bash .claude/skills/ship/refgate/bin/check-refgate.sh'}]},
+    {'matcher': 'Write', 'hooks': [{'type': 'command', 'command': 'bash .claude/skills/ship/refgate/bin/check-refgate.sh'}]}
+]
+with open('$SETTINGS_FILE', 'w') as f:
+    json.dump(data, f, indent=2)
+    f.write('\n')
+" 2>/dev/null && echo -e "${GREEN}✓${RESET} Registered hooks in settings.json (refgate)"
+  fi
+else
+  cat > "$SETTINGS_FILE" << 'HOOKS_EOF'
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/skills/ship/sessionstart/bin/session-start.sh",
+            "timeout": 5000
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit",
+        "hooks": [{"type": "command", "command": "bash .claude/skills/ship/refgate/bin/check-refgate.sh"}]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [{"type": "command", "command": "bash .claude/skills/ship/refgate/bin/check-refgate.sh"}]
+      }
+    ]
+  }
+}
+HOOKS_EOF
+  echo -e "${GREEN}✓${RESET} Created .claude/settings.json (hooks: refgate, sessionstart)"
+fi
+
+# ─── Step 5b: Always clean stale v3 commands ────────────────────────────────
 # Runs every update, not just during migration. Catches projects that updated
 # from intermediate versions before the v3→v4 migration code existed.
 

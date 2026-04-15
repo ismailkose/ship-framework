@@ -158,6 +158,76 @@ if [ -f "$TEMPLATE_DIR/.claude/skills/README.md" ]; then
   cp "$TEMPLATE_DIR/.claude/skills/README.md" "$TARGET_DIR/.claude/skills/README.md"
 fi
 
+# ─── Register hooks in settings.json ─────────────────────────────────────────
+# SKILL.md frontmatter defines hook intent, but Claude Code only executes hooks
+# registered in .claude/settings.json. This writes the hook config.
+
+SETTINGS_FILE="$TARGET_DIR/.claude/settings.json"
+if [ -f "$SETTINGS_FILE" ]; then
+  # settings.json exists — merge hooks if not already present
+  if ! grep -q '"PreToolUse"' "$SETTINGS_FILE" 2>/dev/null; then
+    # No hooks yet — add them. Use python for safe JSON merge.
+    python3 -c "
+import json, sys
+with open('$SETTINGS_FILE') as f:
+    data = json.load(f)
+hooks = data.setdefault('hooks', {})
+hooks['SessionStart'] = [{'hooks': [{'type': 'command', 'command': 'bash .claude/skills/ship/sessionstart/bin/session-start.sh', 'timeout': 5000}]}]
+hooks['PreToolUse'] = [
+    {'matcher': 'Edit', 'hooks': [{'type': 'command', 'command': 'bash .claude/skills/ship/refgate/bin/check-refgate.sh'}]},
+    {'matcher': 'Write', 'hooks': [{'type': 'command', 'command': 'bash .claude/skills/ship/refgate/bin/check-refgate.sh'}]}
+]
+with open('$SETTINGS_FILE', 'w') as f:
+    json.dump(data, f, indent=2)
+    f.write('\n')
+" 2>/dev/null && echo -e "${GREEN}✓${RESET} Registered hooks in .claude/settings.json (refgate)" || {
+      echo -e "${YELLOW}⚠${RESET} Could not merge hooks into existing settings.json — add manually"
+    }
+  else
+    echo -e "${DIM}  Hooks already registered in settings.json${RESET}"
+  fi
+else
+  # No settings.json — create it with hooks
+  cat > "$SETTINGS_FILE" << 'HOOKS_EOF'
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/skills/ship/sessionstart/bin/session-start.sh",
+            "timeout": 5000
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/skills/ship/refgate/bin/check-refgate.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/skills/ship/refgate/bin/check-refgate.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
+HOOKS_EOF
+  echo -e "${GREEN}✓${RESET} Created .claude/settings.json (hooks: refgate)"
+fi
+
 # ─── References ──────────────────────────────────────────────────────────────
 # Framework references now live inside skill directories (.claude/skills/ship/*/references/)
 # and are already copied by the cp -r above. The root references/ directory is for user content.

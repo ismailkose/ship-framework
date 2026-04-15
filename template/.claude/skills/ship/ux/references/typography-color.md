@@ -681,6 +681,23 @@ becomes `#7FA8C2` in dark mode — same hue, lower saturation.
 }
 ```
 
+### Color Application Discipline
+
+Color should amplify hierarchy and signal interactivity — not create hierarchy from scratch. If your layout doesn't communicate what's important without brand color, the structure is weak.
+
+**B&W-first workflow.** Build and evaluate the interface in greyscale before introducing any brand color. If the visual hierarchy is clear in B&W (headings prominent, body readable, actions discoverable, spacing communicating grouping), color will enhance it. If the hierarchy collapses without color, fix the structure first — larger headings, more contrast, better spacing, clearer grouping.
+
+**Brand color → interactive elements only.** Apply your brand color to links, buttons, active tabs, selected states, and focus indicators. Never on headings, decorative backgrounds, static badges, or non-interactive elements. This preserves the signal: "brand color = something I can interact with." When headings, backgrounds, and buttons are all the same blue, blue stops meaning anything.
+
+**Transparent color strategy.** For hover fills, focus rings, disabled backgrounds, surface tints, and selection highlights, use `rgba()`/`hsla()` with a hue-tinted base rather than neutral grey. A hover state built from `rgba(0, 20, 120, 0.04)` (navy-tinted) creates a more cohesive feel than `rgba(0, 0, 0, 0.04)` (neutral grey), because it inherits the palette's color temperature. Apply this to:
+- Hover/pressed fills on buttons and rows
+- Focus ring fills behind outlines
+- Disabled element backgrounds
+- Surface tints for raised/lowered areas
+- Selection and highlight backgrounds
+
+**APCA contrast (WCAG 3 draft).** WCAG 2.1 AA (4.5:1 for text, 3:1 for UI) remains the baseline requirement. For more accurate perceptual contrast — especially in dark mode interfaces where WCAG 2.1 can overestimate contrast on dark backgrounds — evaluate with APCA (Accessible Perceptual Contrast Algorithm). APCA accounts for spatial frequency and polarity (light-on-dark reads differently than dark-on-light). Use it as a supplementary check, not a replacement for WCAG AA compliance.
+
 ---
 
 ## Section 3: Style Selection & Audit

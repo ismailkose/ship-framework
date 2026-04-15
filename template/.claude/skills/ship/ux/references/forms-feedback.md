@@ -179,6 +179,53 @@ Use spinners for lightweight, quick operations (< 1 second). Use skeletons for d
 
 ---
 
+## Field Design Rules
+
+These rules apply regardless of visual style. They reduce form friction and prevent common field-level mistakes.
+
+### Mark Optional Fields, Not Required
+
+Most fields in a form should be required — that's why they're there. Mark the exceptions with an "(optional)" suffix on the label. Don't use asterisks (*) for required fields: users miss them, they add visual noise, and they shift the burden to the majority case.
+
+**Correct:** "Company name (optional)" — the rare field gets marked.
+**Incorrect:** "Email *", "Password *", "Name *" — every field has an asterisk, training users to ignore them.
+
+### Hints Above Fields, Not Below
+
+Help text (hints, format examples, constraints) belongs between the label and the input field. Below the field it competes with error messages and is less likely to be read before the user starts typing.
+
+**Correct:** Label → "Must be at least 8 characters" → Input field → [error appears here on validation]
+**Incorrect:** Label → Input field → "Must be at least 8 characters" (user already typed before seeing this)
+
+### Match Field Width to Data Length
+
+Short data gets short fields. A full-width input for a 5-digit zip code signals wrong expectations and looks broken. Match the field width to the expected input length:
+- **Full width:** Names, emails, addresses, URLs, descriptions
+- **Half width:** City, phone number
+- **Quarter width:** Zip/postal code, CVC, state abbreviation, age
+
+When in doubt, err toward shorter. A user entering a zip code into a narrow field feels right. A user entering a zip code into a field that could hold a paragraph feels wrong.
+
+### Radio Buttons Over Dropdowns (< 5 Options)
+
+When a selection has fewer than 5 options, use radio buttons instead of a dropdown. Radio buttons show all options at once — no extra click to reveal them, faster visual scanning, and better for screen readers. Reserve dropdowns for 5+ options or when vertical space is genuinely constrained.
+
+**Correct:** Payment method: ○ Credit card ○ PayPal ○ Bank transfer (3 options, all visible)
+**Incorrect:** Payment method: [Select payment method ▾] (hides 3 options behind a click)
+
+### Single-Column Form Layout
+
+Stack fields vertically in a single column. Multi-column forms break the natural top-to-bottom scanning flow and cause field-skipping errors — users miss the right column or fill fields in the wrong order. The only exception is closely related short fields on the same line (city + state + zip).
+
+### Avoid Disabled Submit Buttons
+
+Disabled submit buttons provide no feedback on what's missing, aren't keyboard accessible, and confuse users who don't know what to fix. Instead:
+- **Keep the button enabled** and validate on submit with clear, specific error messages on each invalid field.
+- **Use progressive disclosure** to hide actions that aren't available yet (reveal the submit button when prerequisites are met).
+- **Exception:** Type-to-confirm patterns for irreversible destructive actions (delete account) can disable the confirm button until the input matches — this is intentional friction, not a usability gap.
+
+---
+
 ## Section 3: QA Patterns
 
 ### Submit with Empty Required Fields

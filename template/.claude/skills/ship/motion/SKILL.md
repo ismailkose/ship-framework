@@ -40,16 +40,28 @@ This skill routes personas to motion knowledge. Deep rules, timing standards, an
 
 **Hard limits:** Never >500ms. Enter >400ms = sluggish. Exit <100ms = jarring.
 
+## Named Primitive Enforcement
+
+If the project has a design contract (DESIGN.md with a motion section, or `design/motion.md`):
+
+- **Every animation must reference a named primitive** by comment tag (e.g., `// motion: gentleEnter` in Swift, `/* motion: gentleEnter */` in CSS).
+- **Raw animation values without a primitive tag are blocked.** If Dev writes `.animation(.spring(response: 0.38, damping: 0.85))` without a `// motion: <name>` comment, flag it.
+- **New primitives require `/ship-design evolve`** — don't invent unnamed animations inline. Either use an existing primitive or propose a new one.
+- If no design contract exists, fall back to the timing reference table above (no primitive enforcement).
+
+Check `touch .claude/.refgate-dim-motion` after reading the motion section so the design gate allows motion-related edits.
+
 ## For Building (/ship-build)
 
 When Dev builds animations:
 
-1. **Motion budget** — read `.claude/skills/ship/motion/references/animation.md` Section 1. Is there room for this animation?
-2. **Timing + easing** — use the table above. Read Section 3 for detailed rules.
-3. **Reduced motion** — MANDATORY. Read Section 2 for implementation per platform.
-4. **Performance** — read `.claude/skills/ship/motion/references/animation-performance.md` Section 1. Transform/opacity only.
-5. **CSS implementation** — read `.claude/skills/ship/motion/references/animation-css.md` for transforms, transitions, keyframes.
-6. **Framer Motion** — if using, read `.claude/skills/ship/motion/references/animation-framer-motion.md`.
+1. **Named primitive check** — if DESIGN.md has a motion section, every new animation must reference a named primitive. Tag it with a comment: `// motion: <primitiveName>`.
+2. **Motion budget** — read `.claude/skills/ship/motion/references/animation.md` Section 1. Is there room for this animation?
+3. **Timing + easing** — use the table above. Read Section 3 for detailed rules.
+4. **Reduced motion** — MANDATORY. Read Section 2 for implementation per platform.
+5. **Performance** — read `.claude/skills/ship/motion/references/animation-performance.md` Section 1. Transform/opacity only.
+6. **CSS implementation** — read `.claude/skills/ship/motion/references/animation-css.md` for transforms, transitions, keyframes.
+7. **Framer Motion** — if using, read `.claude/skills/ship/motion/references/animation-framer-motion.md`.
 
 ## For Review (/ship-review)
 
