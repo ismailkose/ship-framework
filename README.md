@@ -1,12 +1,12 @@
 # Ship Framework
 
-`v2026.04.12` · 85 framework references · 4 roles + 5 agents · 21 commands
-
 **An AI product team for one-person teams.**
+
+**The design-led product team that learns your taste and ships native apps.**
 
 You're a designer who vibe codes. A PM who prototypes. Someone building toward founder — not there yet, but getting closer with every product you ship. You need engineering, and that's what Claude Code is for. But raw Claude Code is like having a brilliant engineer with no product sense, no design eye, and no business context. It builds what you say, not what you need.
 
-This framework gives Claude structure. It turns one AI into a team of opinionated specialists — 4 roles that argue in your conversation and 5 independent agents that review in separate context windows. They challenge each other, catch problems early, and keep you shipping. You're the founder. They report to you.
+This framework gives Claude structure. It turns one AI into a team of opinionated specialists — 4 roles that argue in your conversation and 5 independent agents that review in separate context windows. They challenge each other, catch problems early, and keep you shipping. You're the founder. They report to you. And because the team carries memory across sessions and gates quality at every step, you don't hit the three-month wall — the point where AI-built codebases collapse under their own undocumented decisions and drifting design.
 
 ```
 I want to build a habit tracker for creative professionals
@@ -75,7 +75,7 @@ You don't need to learn these — auto-routing handles it. But when you want to 
 
 | Command | Who | What happens |
 |:---|:---|:---|
-| **ship-design** | Pol + Eye | Create a design system from scratch. Research competitors, propose tokens, preview mockups (AI or HTML), write DESIGN.md. |
+| **ship-design** | Pol + Eye | Plant the design seed: brand conversation → `design-model.yaml` tokens (light + dark) + first registered components + a living preview. The system then grows during build. |
 | **ship-variants** | Pol | Generate 3 theory-backed design options. HTML comparison board + AI mockups. Learns your taste over time. |
 | **ship-html** | Dev + Pol | Production-quality responsive HTML. No framework, proper text reflow. |
 
@@ -119,6 +119,24 @@ You don't need to learn these — auto-routing handles it. But when you want to 
 Every command auto-detects the right mode from context. The team reads your diff size, file types, project state, and prior outputs — then picks the appropriate flag automatically. You'll see what it chose. Explicit flags always override.
 
 **AI Mockups:** Set `OPENAI_API_KEY` and `/ship-variants` and `/ship-design` auto-generate high-fidelity AI mockups via GPT Image API alongside the HTML comparison boards.
+
+---
+
+## Your Design System Grows As You Build
+
+Most AI design tools generate a complete design system upfront — forty components you didn't ask for, documented before a single screen exists. Ship does the opposite.
+
+`/ship-design` plants a **seed**: a brand conversation becomes `design-model.yaml` — real tokens (color ramps, type scale, radius, platform-neutral motion springs), light *and* dark mode from day one — plus your first components registered in `design/components.yaml`, and a living preview that mirrors them.
+
+Then the system grows while you build. Before every UI element, the team silently checks the registry:
+
+- **Exists?** → reused. No drift, no fork.
+- **New reusable primitive?** → built against your tokens, registered, documented — then used.
+- **One-off layout?** → composed locally, deliberately kept *out* of the system.
+
+No ceremony — the only time you're asked is a genuine promotion decision. The documentation regenerates from the registry, so it always shows the system you actually have, not the one you planned. And because tokens are structured data, they emit per platform: `Theme.swift` for SwiftUI first, CSS variables, Tailwind, and Compose from the same file.
+
+The result: after ten screens you don't have ten screens — you have a design system that ten screens proved.
 
 ---
 
