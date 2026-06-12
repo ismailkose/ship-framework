@@ -1,0 +1,61 @@
+# design-model.yaml — TEMPLATE
+# Copy, fill every TODO, delete instructional comments when done.
+# Schema reference: .claude/skills/ship/design/references/design-model-schema.md
+# Rule of the file: hex and raw values live ONLY under `primitives`.
+#                   `semantic` references primitives by dot-path.
+#                   Components (design/components.yaml) reference semantic only.
+
+schema_version: 1
+
+modes: [light, dark]
+# Dark mode is the default expectation. To ship light-only, change to `modes: [light]`
+# AND add a "Dark mode exception" note with reasoning to DESIGN.md.
+
+brand:
+  name: TODO            # working name is fine
+  feel: [TODO, TODO, TODO]   # 3-5 adjectives; Eye validates previews against these
+  references: []        # optional: "Cash App (roundness)" — name WHAT you borrow
+
+primitives:
+  color:
+    # At least one neutral ramp + one accent ramp. Name ramps by what they ARE
+    # (paper, ink, night, brand) not by role (that's semantic's job).
+    TODO-neutral: { 50: "TODO", 900: "TODO" }
+    TODO-accent:  { 500: "TODO" }
+  type:
+    family: TODO        # one family; a second needs a documented reason
+    scale:
+      body: TODO        # px — required
+      title: TODO       # px — at least one display size required
+  radius:
+    control: TODO       # px — required
+    card: TODO          # px — required
+  spacing:
+    unit: 4             # px — everything derives from multiples of this
+  motion:
+    # Platform-neutral physics, named by character — emitters translate per platform.
+    springs:
+      gentle: { response: 0.5, damping: 0.9 }
+      snappy: { response: 0.3, damping: 0.8 }
+    durations: {}
+
+semantic:
+  # All six keys REQUIRED. Values are dot-paths into primitives
+  # (color shorthand allowed: `paper.50` = primitives.color.paper.50).
+  background: TODO
+  surface:    TODO
+  text:       TODO
+  muted:      TODO
+  hairline:   TODO
+  action:     TODO
+  # Free extension below (e.g. pnl.gain, pnl.loss):
+
+semantic_dark:
+  # REQUIRED while `dark` is in modes. Same six keys. Don't just invert —
+  # desaturate accents, lift surfaces, keep contrast WCAG-valid in both modes.
+  background: TODO
+  surface:    TODO
+  text:       TODO
+  muted:      TODO
+  hairline:   TODO
+  action:     TODO

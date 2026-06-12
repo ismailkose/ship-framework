@@ -15,6 +15,7 @@ You are running the /ship-design command. Pol leads the process, Eye validates t
 **Load references (mandatory):** Before Phase 1, load Ship references and print receipt:
 - Typography, Color, Spacing, Components, Motion, Layout
 - Design-research, Design-quality, Dark-mode, Copy-clarity
+- **Design-model schema** (`.claude/skills/ship/design/references/design-model-schema.md`) — required before writing or reading `design-model.yaml` / `design/components.yaml`
 - Platform-specific: If web, load accessibility and performance refs. If iOS, load HIG and SwiftUI refs.
 
 Print receipt with `✓` marks and run: `touch .claude/.refgate-loaded`
@@ -34,10 +35,10 @@ Print receipt with `✓` marks and run: `touch .claude/.refgate-loaded`
 
 Available flags:
 - `--audit` — Audit existing design system against Ship references
-- `--tokens` — Generate or update design token file only
+- `--tokens` — Generate or update `design-model.yaml` (the machine token registry). Print notice: "`--tokens` now manages design-model.yaml."
 - `--research` — Competitor research phase only
 - `--mockup` — AI mockup generation via GPT Image API (requires OPENAI_API_KEY)
-- `--init` — Scaffold DESIGN.md + PDC.md (+ optional TASTE.md). If DESIGN.md already exists, generate PDC.md only.
+- `--init` — Scaffold DESIGN.md + design-model.yaml + design/components.yaml + PDC.md (+ optional TASTE.md). If DESIGN.md already exists, generate the registry + PDC.md from it.
 - `--preview` — Generate or open design system preview (HTML + native). See Preview section below.
 - `split <section>` — Extract a section from DESIGN.md into `design/<section>.md`, update PDC.md pointer.
 
@@ -143,9 +144,9 @@ For each section founder selects:
 - Mobile viewport rendering and touch target sizing
 - AI quality assessment (flag slop patterns or incoherence)
 
-### Phase 6: Documentation
+### Phase 6a: Documentation — DESIGN.md (prose layer)
 
-Write `DESIGN.md` as the authoritative design system file for team reference:
+Write `DESIGN.md` as the prose design file: rationale, voice & tone, do/don't, SAFE/RISK decisions. Values (hex, scales, spacing) live in `design-model.yaml` (Phase 6b) — prose explains *why*, the YAML holds *what*. Never duplicate values across the two.
 
 ```markdown
 # Design System — [Product Name]
@@ -172,9 +173,34 @@ Write `DESIGN.md` as the authoritative design system file for team reference:
 
 Also update LEARNINGS.md under "## Design Preferences" with decisions and rationale for future reference.
 
-### Phase 6b: PDC Generation
+### Phase 6b: design-model.yaml (machine layer)
 
-After writing DESIGN.md, generate `PDC.md` — the Project Design Contract manifest:
+Write the token registry. This is the file `/ship-build`, previews, and platform emitters read — the single source of truth for design values.
+
+1. Load `design-model-schema.md` + `design-model-template.yaml` from `.claude/skills/ship/design/references/`
+2. Fill the template from Phase 3 decisions: primitives (color ramps, type scale, radius, spacing, motion springs), then semantic + semantic_dark layers
+3. Dark mode is required by default (`modes: [light, dark]`). Light-only needs explicit `modes: [light]` + a documented "Dark mode exception" in DESIGN.md
+4. Motion is platform-neutral: springs named by character (gentle/snappy) with response/damping. Never write platform-specific motion values
+5. Run the schema's validation rules (semantic paths resolve, no hex outside primitives, required keys in both modes)
+6. Write `design-model.yaml` to project root and print a token receipt:
+
+```
+✓ design-model.yaml — 3 ramps · 4 type sizes · 2 radii · 2 springs · 6+2 semantic (light+dark)
+```
+
+### Phase 6c: Seed design/components.yaml
+
+Register the starting primitives — the components the validated scope clearly demands:
+
+1. From the Phase 3 component decisions, identify reusable primitives (test: *would a second screen plausibly want this?*)
+2. Register what the scope demands — no numeric cap, but **speculative registration is banned** (no component without a planned screen that needs it)
+3. Each entry references **semantic tokens only** (no hex, no primitive paths)
+4. If design runs before any code exists, set the planned source path + `planned: true`; the first build session realizes it
+5. Write `design/components.yaml` (create `design/` if needed)
+
+### Phase 6d: PDC Generation (v2)
+
+After the registry is written, generate `PDC.md` — the Project Design Contract manifest:
 
 1. Parse the headings in the just-written DESIGN.md
 2. For each heading matching a known section (overview, colors, typography, components, motion, voice-tone, do-dont), add a `sections:` entry pointing to `DESIGN.md#<anchor>`
@@ -189,10 +215,13 @@ After writing DESIGN.md, generate `PDC.md` — the Project Design Contract manif
 **PDC.md format:**
 ```yaml
 # PDC.md — Project Design Contract
-schema_version: 1
+schema_version: 2
 platform: <from CLAUDE.md Stack>
 
-sections:
+design_model: design-model.yaml        # the token registry (machine layer)
+components:   design/components.yaml   # the component manifest
+
+sections:                              # prose pointers (unchanged from v1)
   overview:    DESIGN.md#overview
   colors:      DESIGN.md#colors
   typography:  DESIGN.md#typography
@@ -202,12 +231,14 @@ sections:
 taste: TASTE.md   # or "missing"
 ```
 
+**Backward compatibility:** PDC v1 files (no `design_model:` key) keep working exactly as before — no forced migration. `--init` offers the upgrade.
+
 ### --init Behavior
 
 If `--init` flag is given:
-- **DESIGN.md does not exist:** Run the full 6-phase process above, then Phase 6b.
-- **DESIGN.md already exists:** Skip to Phase 6b only — generate PDC.md from existing DESIGN.md headings.
-- **PDC.md already exists:** Show current PDC state, ask what to update.
+- **DESIGN.md does not exist:** Run the full process above (Phases 1-5, then 6a-6d).
+- **DESIGN.md exists, design-model.yaml doesn't:** Offer: "Extract design-model.yaml from your DESIGN.md? (~2 min)" — on yes, run Phases 6b-6d from the existing prose; on no, generate PDC v1 from headings only (legacy behavior).
+- **PDC.md already exists:** Show current PDC state (note v1 vs v2), ask what to update.
 - After PDC generation, prompt: "Run `/ship-variants --taste` to capture your design preferences?"
 - Then prompt: "Run `/ship-design --preview` to generate a visual preview of your design system?"
 
@@ -236,6 +267,8 @@ If preview files already exist, check what changed in DESIGN.md since last gener
 **Step 1: HTML preview — `design/preview/index.html`**
 
 Single-file, no build, self-contained. Create `design/preview/` directory if needed.
+
+**Registry sourcing:** if PDC.md has a `design_model:` key, ALL token values (CSS custom properties, swatches, scales, springs) come from `design-model.yaml` — never re-derived from DESIGN.md prose. The preview is the registry's mirror: add footer line "This page mirrors design-model.yaml + design/components.yaml — regenerate after registry changes."
 
 **Layout:**
 - Sticky left sidebar with section navigation (anchored links, highlights active section on scroll)
@@ -266,6 +299,8 @@ Single-file, no build, self-contained. Create `design/preview/` directory if nee
 7. **Motion** — each named primitive as an interactive card. Click/hover to play the CSS-approximated animation. Shows: name, character tag (snappy/gentle/etc.), duration, easing curve visualized as a bezier path. Note: "CSS approximation — open native preview for exact feel."
 
 8. **Components** — key components in all states (default, hover, pressed, disabled, loading, error) using real tokens. Mobile viewport (375px frame). Include: buttons, inputs, cards, chat bubbles (if app has chat), list rows.
+
+8b. **System components** (when `design/components.yaml` exists) — one card per registered component: name, doc line, semantic tokens consumed, source file, state badge (`planned` / realized). This section IS the living component library — it must mirror the manifest exactly, neither inventing nor omitting entries.
 
 9. **Voice & Tone** — tone slider positions rendered visually (formal↔casual, etc.). Example copy for each register. Do/Don't copy pairs.
 
@@ -374,10 +409,10 @@ This is the interactive tuning layer on top of the read-only previews. The HTML 
 
 ## Connections to Other Commands
 
-- `/ship-design` creates `DESIGN.md` + `PDC.md`
+- `/ship-design` creates `DESIGN.md` + `design-model.yaml` + `design/components.yaml` + `PDC.md`
 - `/ship-plan` reads `DESIGN.md` for aesthetic direction
-- `/ship-build` reads `DESIGN.md` for implementation tokens
-- `/ship-review` validates against `DESIGN.md`
+- `/ship-build` consults `design-model.yaml` + `design/components.yaml` before every UI element — the silent system-first loop (reuse on hit; register primitives on miss; one-offs stay local)
+- `/ship-review` validates against `DESIGN.md` and the registry
 - `/ship-variants` uses `DESIGN.md` as baseline
 - `ship-refgate` reads `PDC.md` to gate edits by design dimension
 
