@@ -1,0 +1,237 @@
+{
+  "managed_by": "Ship Framework",
+  "schema_version": 1,
+  "canonical_context_file": "CLAUDE.md",
+  "shared_memory_files": [
+    "TASKS.md",
+    "DECISIONS.md",
+    "CONTEXT.md",
+    "LEARNINGS.md"
+  ],
+  "runtimes": {
+    "claude": {
+      "label": "Claude / Cowork",
+      "adapter": "CLAUDE.md",
+      "supports_literal_commands": true
+    },
+    "codex": {
+      "label": "Codex",
+      "adapter": "AGENTS.md",
+      "supports_literal_commands": false
+    }
+  },
+  "policies": {
+    "reference_gate": {
+      "enabled": true,
+      "receipt_label": "REFERENCES LOADED:",
+      "marker_file": ".claude/.refgate-loaded"
+    },
+    "shared_context_switching": {
+      "enabled": true,
+      "guidance": "If a user switches between Claude and Codex mid-project, continue from the same shared context instead of re-planning from scratch."
+    }
+  },
+  "reference_groups": {
+    "shared_project_context": {
+      "label": "Shared project context",
+      "items": [
+        "CLAUDE.md",
+        ".claude/team-rules.md",
+        "DECISIONS.md",
+        "CONTEXT.md",
+        "LEARNINGS.md",
+        "TASKS.md"
+      ]
+    },
+    "idea_validation_foundations": {
+      "label": "Idea validation foundations",
+      "items": [
+        ".claude/skills/ship/ux/references/ux-principles.md",
+        ".claude/skills/ship/ux/references/design-research.md",
+        ".claude/skills/ship/ux/references/interaction-design.md",
+        ".claude/skills/ship/ux/references/copy-clarity.md"
+      ]
+    },
+    "planning_foundations": {
+      "label": "Planning foundations",
+      "items": [
+        ".claude/skills/ship/ux/references/ux-principles.md",
+        ".claude/skills/ship/components/references/components.md",
+        ".claude/skills/ship/motion/references/animation.md",
+        ".claude/skills/ship/ux/references/typography-color.md",
+        ".claude/skills/ship/ux/references/layout-responsive.md",
+        ".claude/skills/ship/ux/references/spatial-design.md",
+        ".claude/skills/ship/ux/references/interaction-design.md",
+        ".claude/skills/ship/ux/references/navigation.md"
+      ]
+    },
+    "build_foundations": {
+      "label": "Build foundations",
+      "items": [
+        ".claude/skills/ship/ux/references/ux-principles.md",
+        ".claude/skills/ship/components/references/components.md",
+        ".claude/skills/ship/motion/references/animation.md",
+        ".claude/skills/ship/ux/references/interaction-design.md",
+        ".claude/skills/ship/ux/references/layout-responsive.md",
+        ".claude/skills/ship/ux/references/spatial-design.md",
+        ".claude/skills/ship/ux/references/forms-feedback.md",
+        ".claude/skills/ship/ux/references/typography-color.md",
+        ".claude/skills/ship/ux/references/navigation.md",
+        ".claude/skills/ship/ux/references/copy-clarity.md",
+        ".claude/skills/ship/hardening/references/hardening-guide.md"
+      ]
+    },
+    "review_foundations": {
+      "label": "Review foundations",
+      "items": [
+        ".claude/skills/ship/ux/references/ux-principles.md",
+        ".claude/skills/ship/ux/references/design-quality.md",
+        ".claude/skills/ship/components/references/components.md",
+        ".claude/skills/ship/motion/references/animation.md",
+        ".claude/skills/ship/ux/references/interaction-design.md",
+        ".claude/skills/ship/ux/references/layout-responsive.md",
+        ".claude/skills/ship/ux/references/typography-color.md",
+        ".claude/skills/ship/hardening/references/hardening-guide.md"
+      ]
+    },
+    "platform_stack_core": {
+      "label": "Platform stack core (match the Stack field in CLAUDE.md)",
+      "items": [
+        "iOS -> .claude/skills/ship/ios/references/swiftui-core.md + .claude/skills/ship/ios/references/hig-ios.md + .claude/skills/ship/ios/references/swift-essentials.md",
+        "Web -> .claude/skills/ship/web/references/react-patterns.md + .claude/skills/ship/web/references/web-accessibility.md + .claude/skills/ship/web/references/web-performance.md",
+        "Android -> .claude/skills/ship/android/references/ when content exists"
+      ]
+    }
+  },
+  "workflows": [
+    {
+      "id": "think",
+      "command_name": "/ship-think",
+      "runtime_label": "Idea validation workflow",
+      "purpose": "Validate the idea before planning so the team is solving a real problem for a real person.",
+      "lead_roles": [
+        "Vi"
+      ],
+      "input_files": [
+        "CLAUDE.md",
+        "DECISIONS.md",
+        "CONTEXT.md",
+        "LEARNINGS.md"
+      ],
+      "output_files": [
+        "DECISIONS.md"
+      ],
+      "status_values": [
+        "VALIDATED",
+        "PIVOT_SUGGESTED",
+        "PAUSE"
+      ],
+      "reference_groups": [
+        "shared_project_context",
+        "idea_validation_foundations",
+        "platform_stack_core"
+      ],
+      "handoff_text": "[If VALIDATED]: Idea validated. Run /ship-plan to start planning.\\n[If PIVOT_SUGGESTED]: Consider the tighter framing and re-run /ship-think or move into /ship-plan if you are convinced.\\n[If PAUSE]: Not ready for planning yet. Gather the missing evidence, then come back."
+    },
+    {
+      "id": "plan",
+      "command_name": "/ship-plan",
+      "runtime_label": "Planning workflow",
+      "purpose": "Turn the idea into a product brief, architecture, and build order the team can execute.",
+      "lead_roles": [
+        "Vi",
+        "Arc",
+        "Pol",
+        "Adversarial"
+      ],
+      "input_files": [
+        "CLAUDE.md",
+        "DECISIONS.md",
+        "LEARNINGS.md"
+      ],
+      "output_files": [
+        "TASKS.md",
+        "DECISIONS.md",
+        "CONTEXT.md"
+      ],
+      "status_values": [
+        "APPROVED",
+        "NEEDS_REVISION",
+        "BLOCKED"
+      ],
+      "reference_groups": [
+        "shared_project_context",
+        "planning_foundations",
+        "platform_stack_core"
+      ],
+      "handoff_text": "[If APPROVED]: Plan approved. Start with /ship-build to begin the first feature.\\n[If NEEDS_REVISION]: Revise the flagged sections and run the stress test again.\\n[If BLOCKED]: Waiting on founder input before the plan can graduate."
+    },
+    {
+      "id": "build",
+      "command_name": "/ship-build",
+      "runtime_label": "Implementation workflow",
+      "purpose": "Build one planned feature at a time with tight scope control, tests, and verification.",
+      "lead_roles": [
+        "Dev"
+      ],
+      "input_files": [
+        "CLAUDE.md",
+        "TASKS.md",
+        "DECISIONS.md",
+        "LEARNINGS.md"
+      ],
+      "output_files": [
+        "TASKS.md",
+        "DECISIONS.md",
+        "code"
+      ],
+      "status_values": [
+        "DONE",
+        "DONE_WITH_CONCERNS",
+        "BLOCKED",
+        "NEEDS_CONTEXT"
+      ],
+      "reference_groups": [
+        "shared_project_context",
+        "build_foundations",
+        "platform_stack_core"
+      ],
+      "handoff_text": "[If DONE]: Feature done and verified. Say /ship-build for the next feature or /ship-review for feedback.\\n[If DONE_WITH_CONCERNS]: Feature shipped with concerns called out clearly in the handoff.\\n[If BLOCKED]: Work stopped because a concrete blocker needs founder input or missing infrastructure.\\n[If NEEDS_CONTEXT]: More context is required before safe implementation can continue.\\n[If /ship-review was previously run]: Note that code has changed since the last review and the review is now stale."
+    },
+    {
+      "id": "review",
+      "command_name": "/ship-review",
+      "runtime_label": "Quality workflow",
+      "purpose": "Run the full quality gate across product, design, visual QA, testing, and adversarial review.",
+      "lead_roles": [
+        "Crit",
+        "Pol",
+        "Eye",
+        "Test",
+        "Adversarial"
+      ],
+      "input_files": [
+        "CLAUDE.md",
+        "DECISIONS.md",
+        "LEARNINGS.md",
+        "TASKS.md"
+      ],
+      "output_files": [
+        "TASKS.md",
+        "review findings"
+      ],
+      "status_values": [
+        "DONE",
+        "DONE_WITH_CONCERNS",
+        "BLOCKED",
+        "NEEDS_CONTEXT"
+      ],
+      "reference_groups": [
+        "shared_project_context",
+        "review_foundations",
+        "platform_stack_core"
+      ],
+      "handoff_text": "[If DONE]: Quality pass complete. Ready for /ship-launch when no blocking issues remain.\\n[If DONE_WITH_CONCERNS]: Review completed with non-blocking concerns added to TASKS.md.\\n[If BLOCKED]: The quality gate could not finish because a required environment, artifact, or diff was missing.\\n[If NEEDS_CONTEXT]: More context is required before the review can finish confidently."
+    }
+  ]
+}

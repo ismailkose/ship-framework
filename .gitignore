@@ -22,7 +22,10 @@ node_modules/
 # Temp
 tmp/
 
-# Internal planning docs
+# Internal planning docs (live docs in docs/, retired in archive/ — both local-only;
+# the public story lives in README.md)
+docs/
+archive/
 PLAN-*.md
 ANALYSIS-*.md
 TRADING-DESK-PLAN.md
@@ -34,6 +37,9 @@ website-rebuild-prompt.md
 # Internal dev/test tools
 E2E-QUALITY-COMPARE*.html
 SLIMMING-COMPARISON.md
+
+# Local Claude session state (template/.claude stays tracked — this is root-level only)
+/.claude/
 
 # Test/dev tooling
 test-project/
