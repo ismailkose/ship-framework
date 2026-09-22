@@ -33,6 +33,8 @@ claude plugin add ./ship-framework/ship-framework.plugin
 
 Ship works in Codex through a generated `AGENTS.md` bridge. If a project has been bootstrapped with `setup.sh` or refreshed with `ship-update.sh`, open it in Codex and Ship will route Codex back through the same `CLAUDE.md`, `.claude/team-rules.md`, and shared memory files.
 
+Codex needs the `setup.sh` install: the bridge points Codex at references inside the project (`.claude/skills/ship/`), which a plugin-only install doesn't have.
+
 ### Legacy (setup.sh)
 
 The classic `setup.sh` method still works for projects that prefer the template-copy approach:
@@ -290,7 +292,7 @@ ship-framework/
     team-rules.md              # Agent rules, personas, coaching
 ```
 
-When installed as a plugin, Ship Framework lives outside your project. Your project gets the template files (`CLAUDE.md`, `AGENTS.md`, `.ship/framework.yaml`, `TASKS.md`, etc.) on first run. The framework's commands, skills, and references load automatically from the plugin.
+When installed as a plugin, Ship Framework lives outside your project. Your project gets the template files (`CLAUDE.md`, `TASKS.md`, etc.) on first run. For Codex support, use the `setup.sh` install, which also adds `AGENTS.md` and `.ship/framework.yaml`. The framework's commands, skills, and references load automatically from the plugin.
 
 ---
 

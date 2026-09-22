@@ -1,6 +1,6 @@
 # Ship Framework — Cheatsheet
 
-`v2026.04.12c` · Auto-routing enabled
+`v2026.04.12` · Auto-routing enabled
 
 ---
 

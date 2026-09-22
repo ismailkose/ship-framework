@@ -111,6 +111,22 @@ PATH="$STUB:$PATH" bash "$ROOT/setup.sh" "$P" >/dev/null 2>&1
 PATH="$STUB:$PATH" bash "$ROOT/setup.sh" "$P" >/dev/null 2>&1
 [ "$(count_hook "$S" PreToolUse check-refgate.sh)" = "2" ] && ok "re-running setup does not duplicate hooks" || bad "re-running setup does not duplicate hooks"
 
+# ── Codex bridge ─────────────────────────────────────────────────────────
+echo "Codex bridge"
+python3 "$ROOT/scripts/render_ship_core.py" --check >/dev/null 2>&1 \
+  && ok "generated Ship core blocks in sync with framework.yaml" \
+  || bad "generated blocks drifted — run: python3 scripts/render_ship_core.py --write"
+P="$TMP/fresh"
+if [ -f "$P/AGENTS.md" ] && grep -q "Managed by Ship Framework" "$P/AGENTS.md" && ! grep -q "__VERSION__" "$P/AGENTS.md"; then
+  ok "fresh install creates AGENTS.md with version filled in"
+else
+  bad "fresh install creates AGENTS.md with version filled in"
+fi
+[ -f "$P/.ship/framework.yaml" ] && ok "fresh install creates .ship/framework.yaml" || bad "fresh install creates .ship/framework.yaml"
+P="$TMP/own-agents"; mkdir -p "$P" && echo "# My own agent rules" > "$P/AGENTS.md"
+PATH="$STUB:$PATH" bash "$ROOT/setup.sh" "$P" >/dev/null 2>&1
+[ "$(cat "$P/AGENTS.md")" = "# My own agent rules" ] && ok "user's own AGENTS.md left untouched" || bad "user's own AGENTS.md left untouched"
+
 # ── Plugin build ─────────────────────────────────────────────────────────
 echo "Plugin build"
 B="$TMP/build"; mkdir -p "$B"
