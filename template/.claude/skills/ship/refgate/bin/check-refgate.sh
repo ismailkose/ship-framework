@@ -36,7 +36,7 @@ allow() {
 INPUT=$(cat)
 echo "--- $(date) ---" >> "$DEBUG_LOG"
 
-FILE_PATH=$(echo "$INPUT" | grep -o '"file_path"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed 's/.*"file_path"[[:space:]]*:[[:space:]]*"//' | sed 's/"$//')
+FILE_PATH=$(echo "$INPUT" | grep -o '"file_path"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed 's/.*"file_path"[[:space:]]*:[[:space:]]*"//' | sed 's/"$//' || true)
 echo "FILE_PATH: $FILE_PATH" >> "$DEBUG_LOG"
 
 # If we can't extract a file path, allow (fail open)
@@ -48,7 +48,7 @@ fi
 # These are the files the gate enforces — don't block their creation.
 
 case "$FILE_PATH" in
-  */DESIGN.md|*/PDC.md|*/TASTE.md|*/design/*.md|*/.claude/*|*/LEARNINGS.md|*/DECISIONS.md|*/TASKS.md|*/CONTEXT.md|*/CLAUDE.md|*/AGENTS.md)
+  */DESIGN.md|*/PDC.md|*/TASTE.md|*/design/*.md|*/design-model.yaml|*/design/*.yaml|*/design/*.yml|*/.claude/*|*/LEARNINGS.md|*/DECISIONS.md|*/TASKS.md|*/CONTEXT.md|*/CLAUDE.md|*/AGENTS.md)
     allow
     ;;
 esac

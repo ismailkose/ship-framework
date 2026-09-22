@@ -432,26 +432,42 @@ else
 fi
 
 # ─── Step 5a: Register hooks in settings.json ────────────────────────────────
-# SKILL.md defines hook intent, but Claude Code only executes hooks from settings.json.
+# SKILL.md frontmatter hooks only register once that skill is invoked; always-on hooks live in settings.json.
 
 SETTINGS_FILE="$PROJECT_DIR/.claude/settings.json"
 if [ -f "$SETTINGS_FILE" ]; then
-  if ! grep -q '"PreToolUse"' "$SETTINGS_FILE" 2>/dev/null; then
-    python3 -c "
+  # Add any missing Ship hooks alongside existing ones (idempotent, never replaces).
+  ADDED=$(python3 -c "
 import json
-with open('$SETTINGS_FILE') as f:
+path = '$SETTINGS_FILE'
+with open(path) as f:
     data = json.load(f)
 hooks = data.setdefault('hooks', {})
-hooks['SessionStart'] = [{'hooks': [{'type': 'command', 'command': 'bash .claude/skills/ship/sessionstart/bin/session-start.sh', 'timeout': 5000}]}]
-hooks['PreToolUse'] = [
-    {'matcher': 'Edit', 'hooks': [{'type': 'command', 'command': 'bash .claude/skills/ship/refgate/bin/check-refgate.sh'}]},
-    {'matcher': 'Write', 'hooks': [{'type': 'command', 'command': 'bash .claude/skills/ship/refgate/bin/check-refgate.sh'}]}
+refgate = 'bash .claude/skills/ship/refgate/bin/check-refgate.sh'
+wanted = [
+    ('SessionStart', None, {'type': 'command', 'command': 'bash .claude/skills/ship/sessionstart/bin/session-start.sh', 'timeout': 5000}),
+    ('PreToolUse', 'Edit', {'type': 'command', 'command': refgate}),
+    ('PreToolUse', 'Write', {'type': 'command', 'command': refgate}),
 ]
-with open('$SETTINGS_FILE', 'w') as f:
-    json.dump(data, f, indent=2)
-    f.write('\n')
-" 2>/dev/null && echo -e "${GREEN}✓${RESET} Registered hooks in settings.json (refgate)"
-  fi
+added = 0
+for event, matcher, hook in wanted:
+    entries = hooks.setdefault(event, [])
+    present = any(h.get('command') == hook['command'] and e.get('matcher') == matcher
+                  for e in entries for h in e.get('hooks', []))
+    if not present:
+        entries.append({'matcher': matcher, 'hooks': [hook]} if matcher else {'hooks': [hook]})
+        added += 1
+if added:
+    with open(path, 'w') as f:
+        json.dump(data, f, indent=2)
+        f.write('\\n')
+print(added)
+" 2>/dev/null) || ADDED="error"
+  case "$ADDED" in
+    error) echo -e "${YELLOW}⚠${RESET} Could not merge hooks into settings.json — add manually" ;;
+    0)     ;;
+    *)     echo -e "${GREEN}✓${RESET} Registered hooks in settings.json (refgate, sessionstart)" ;;
+  esac
 else
   cat > "$SETTINGS_FILE" << 'HOOKS_EOF'
 {

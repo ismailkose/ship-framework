@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Ship Framework — freeze hook
 # Enforces directory-scoped edit restriction.
-# Returns JSON: {} (allow) or {"permissionDecision":"deny","message":"..."} (block)
+# Returns JSON: {} (allow) or
+#   {"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"..."}} (block)
 #
 # Input: JSON on stdin with shape {"tool_input": {"file_path": "..."}}
 # State: .claude/.freeze-path contains the allowed directory (one line)
@@ -69,5 +70,5 @@ else
   # Outside boundary — deny
   FREEZE_DIR=$(basename "$RESOLVED_FREEZE")
   FILE_NAME=$(basename "$RESOLVED_FILE")
-  echo "{\"permissionDecision\":\"deny\",\"message\":\"Freeze active: edits locked to $FREEZE_DIR/. Cannot edit $FILE_NAME — it's outside the boundary. Use /ship-unfreeze to remove the restriction.\"}"
+  echo "{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Freeze active: edits locked to $FREEZE_DIR/. Cannot edit $FILE_NAME — it's outside the boundary. Use /ship-unfreeze to remove the restriction.\"}}"
 fi

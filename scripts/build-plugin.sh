@@ -7,7 +7,7 @@
 #
 # Transform spec (reverse-engineered from the v5.0.0 plugin, 2026-06-11):
 #   1. commands/   ← template/.claude/commands/*.md
-#        + inject `disable-model-invocation: true` into frontmatter
+#        + inject `disable-model-invocation: true` into frontmatter (if absent)
 #        + path rewrite (see below)
 #   2. skills/ship-<name>/ ← template/.claude/skills/ship/<name>/
 #        + same path rewrite in all .md files
@@ -19,6 +19,7 @@
 # Path rewrites (project-relative → plugin-root-relative):
 #   .claude/skills/ship/<name>/  →  ${CLAUDE_PLUGIN_ROOT}/skills/ship-<name>/
 #   .claude/team-rules.md        →  ${CLAUDE_PLUGIN_ROOT}/templates/team-rules.md
+#   ${CLAUDE_SKILL_DIR}/../<name>/  →  ${CLAUDE_SKILL_DIR}/../ship-<name>/  (sibling skills)
 #   (all other .claude/ paths — refgate markers, your-skills — stay project-local)
 #
 # Usage: bash scripts/build-plugin.sh
@@ -47,7 +48,7 @@ done
 
 # Portable in-place rewrite (BSD + GNU)
 rewrite() {
-  perl -pi -e 's#\.claude/skills/ship/([a-z][a-z-]*)/#\${CLAUDE_PLUGIN_ROOT}/skills/ship-$1/#g; s#\.claude/skills/ship/#\${CLAUDE_PLUGIN_ROOT}/skills/#g; s#\.claude/team-rules\.md#\${CLAUDE_PLUGIN_ROOT}/templates/team-rules.md#g' "$1"
+  perl -pi -e 's#\$\{CLAUDE_SKILL_DIR\}/\.\./([a-z][a-z-]*)/#\${CLAUDE_SKILL_DIR}/../ship-$1/#g; s#\.claude/skills/ship/([a-z][a-z-]*)/#\${CLAUDE_PLUGIN_ROOT}/skills/ship-$1/#g; s#\.claude/skills/ship/#\${CLAUDE_PLUGIN_ROOT}/skills/#g; s#\.claude/team-rules\.md#\${CLAUDE_PLUGIN_ROOT}/templates/team-rules.md#g' "$1"
 }
 
 # ── 1. Static assets ─────────────────────────────────────────────────────
@@ -61,8 +62,12 @@ CMD_COUNT=0
 for f in "$T/.claude/commands/ship-"*.md; do
   name="$(basename "$f")"
   head -1 "$f" | grep -q '^---$' || fail "$name: expected frontmatter on line 1"
-  { head -1 "$f"; echo "disable-model-invocation: true"; tail -n +2 "$f"; } \
-    > "$STAGE/commands/$name"
+  if sed -n '2,/^---$/p' "$f" | grep -q '^disable-model-invocation:'; then
+    cp "$f" "$STAGE/commands/$name"
+  else
+    { head -1 "$f"; echo "disable-model-invocation: true"; tail -n +2 "$f"; } \
+      > "$STAGE/commands/$name"
+  fi
   rewrite "$STAGE/commands/$name"
   CMD_COUNT=$((CMD_COUNT+1))
 done

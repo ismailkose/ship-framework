@@ -42,6 +42,6 @@ The `check-freeze.sh` script:
 2. If no freeze is active, allows all edits
 3. If frozen, resolves the target file path and checks if it's inside the boundary
 4. Inside boundary → `{}` (allow)
-5. Outside boundary → `{"permissionDecision": "deny", "message": "..."}` (hard block)
+5. Outside boundary → `{"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "deny", "permissionDecisionReason": "..."}}` (hard block)
 
 Path resolution is POSIX-portable (works on macOS and Linux). Symlinks are resolved.

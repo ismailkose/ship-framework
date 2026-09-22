@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Ship Framework — careful hook
 # Intercepts Bash tool calls and warns on destructive commands.
-# Returns JSON: {} (allow) or {"permissionDecision":"ask","message":"..."} (warn)
+# Returns JSON: {} (allow) or
+#   {"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"ask","permissionDecisionReason":"..."}} (warn)
 #
 # Input: JSON on stdin with shape {"tool_input": {"command": "..."}}
 
@@ -47,7 +48,7 @@ warn() {
   local msg="$1"
   # Escape quotes for JSON
   msg=$(echo "$msg" | sed 's/"/\\"/g')
-  echo "{\"permissionDecision\":\"ask\",\"message\":\"$msg\"}"
+  echo "{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"ask\",\"permissionDecisionReason\":\"$msg\"}}"
   exit 0
 }
 

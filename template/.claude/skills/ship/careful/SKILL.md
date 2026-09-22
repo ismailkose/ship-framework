@@ -40,4 +40,4 @@ These directories are safe to `rm -rf` without warning:
 
 The `check-careful.sh` script reads the Bash tool input from stdin (JSON), extracts the command, pattern-matches against the destructive list, and returns:
 - `{}` — allow (safe command or safe exception)
-- `{"permissionDecision": "ask", "message": "⚠️ Destructive: [pattern]. Approve?"}` — warn user
+- `{"hookSpecificOutput": {"hookEventName": "PreToolUse", "permissionDecision": "ask", "permissionDecisionReason": "Destructive: [pattern]. Approve?"}}` — warn user
