@@ -3,6 +3,9 @@
 **Authoritative reference for Ship's machine-checkable design registry.** Load this file
 before writing or reading `design-model.yaml` or `design/components.yaml`.
 
+Tooling: `python3 .claude/skills/ship/design/bin/design_model.py validate` checks every rule
+below; `emit-swiftui --out <path>/Theme.swift` generates the iOS theme from the tokens.
+
 The registry is two files with different write cadences:
 
 | File | Holds | Changes |
@@ -122,7 +125,7 @@ here; they stay local to their screen.
 
 - **Seed** (`/ship-design`): register what the validated scope demands — no numeric
   cap, but speculative registration (components no planned screen needs) is banned.
-- **Build loop** (`/ship-build`, Slice 2): silent registry check per UI element;
+- **Build loop** (`/ship-build`): silent registry check per UI element;
   hit → reuse, miss → primitive registers on first use, one-off composes locally,
   rule-of-three promotion is the only user prompt.
 

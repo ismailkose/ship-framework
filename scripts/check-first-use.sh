@@ -127,6 +127,70 @@ P="$TMP/own-agents"; mkdir -p "$P" && echo "# My own agent rules" > "$P/AGENTS.m
 PATH="$STUB:$PATH" bash "$ROOT/setup.sh" "$P" >/dev/null 2>&1
 [ "$(cat "$P/AGENTS.md")" = "# My own agent rules" ] && ok "user's own AGENTS.md left untouched" || bad "user's own AGENTS.md left untouched"
 
+# ── Design registry ──────────────────────────────────────────────────────
+echo "Design registry"
+DM="$SKILLS/design/bin/design_model.py"
+P="$TMP/tempo"; mkdir -p "$P/design" "$P/UI" && touch "$P/UI/PrimaryButton.swift"
+cat > "$P/design-model.yaml" <<'YAML'
+schema_version: 1
+modes: [light, dark]
+brand:
+  name: Tempo
+  feel: [calm, warm, precise]
+primitives:
+  color:
+    paper: { 50: "#FAF9F6", 100: "#F3F1EC", 200: "#E8E5DF" }   # comment after flow map
+    ink:   { 900: "#1C1A17", 400: "#8A867C" }
+    night: { 900: "#161512", 800: "#211F1B", 300: "#B5B0A6" }
+    brand: { 500: "#E0633C", 300: "#EE9A7E" }
+  type:   { family: Inter, scale: { caption: 13, body: 17, title: 22, display: 28 } }
+  radius: { control: 10, card: 18 }
+  spacing: { unit: 4 }
+  motion:
+    springs:
+      gentle: { response: 0.5, damping: 0.9 }
+    durations: { fade: 200 }
+semantic:
+  background: paper.50
+  surface:    paper.100
+  text:       ink.900
+  muted:      ink.400
+  hairline:   paper.200
+  action:     brand.500
+semantic_dark:
+  background: night.900
+  surface:    night.800
+  text:       paper.50
+  muted:      night.300
+  hairline:   night.800
+  action:     brand.300
+YAML
+cat > "$P/design/components.yaml" <<'YAML'
+schema_version: 1
+components:
+  - name: PrimaryButton
+    file: UI/PrimaryButton.swift
+    tokens: [action, radius.control, type.body]
+    doc: >
+      The one loud element per screen.
+    added: 2026-06-11
+YAML
+python3 "$DM" validate --root "$P" >/dev/null 2>&1 && ok "valid registry passes" || bad "valid registry passes" "$(python3 "$DM" validate --root "$P" 2>&1)"
+python3 "$DM" emit-swiftui --root "$P" --out UI/Theme.swift >/dev/null 2>&1 && [ -f "$P/UI/Theme.swift" ] \
+  && ok "emit-swiftui writes Theme.swift" || bad "emit-swiftui writes Theme.swift"
+if xcrun -sdk iphonesimulator --show-sdk-path >/dev/null 2>&1; then
+  xcrun -sdk iphonesimulator swiftc -typecheck -target arm64-apple-ios17.0-simulator "$P/UI/Theme.swift" >/dev/null 2>&1 \
+    && ok "Theme.swift type-checks against the iOS SDK" || bad "Theme.swift type-checks against the iOS SDK"
+else
+  echo "  - skipped Swift type-check (no iOS SDK)"
+fi
+printf '  - name: StatCard\n    file: UI/StatCard.swift\n    tokens: [brand.500]\n' >> "$P/design/components.yaml"
+OUT="$(python3 "$DM" validate --root "$P" 2>&1)"
+[ $? -ne 0 ] && echo "$OUT" | grep -q "color primitive" && echo "$OUT" | grep -q "not found" \
+  && ok "component using a raw primitive / missing file is rejected" || bad "component using a raw primitive / missing file is rejected" "$OUT"
+P="$TMP/unfilled"; mkdir -p "$P" && cp "$SKILLS/design/references/design-model-template.yaml" "$P/design-model.yaml"
+python3 "$DM" validate --root "$P" >/dev/null 2>&1 && bad "unfilled template is rejected" || ok "unfilled template is rejected"
+
 # ── Plugin build ─────────────────────────────────────────────────────────
 echo "Plugin build"
 B="$TMP/build"; mkdir -p "$B"
@@ -157,6 +221,12 @@ for entries in d['hooks'].values():
                 if not os.path.isfile(os.path.join(root,p)): print(p)
 " "$X" 2>&1)
   [ -f "$X/hooks/hooks.json" ] && [ -z "$MISSING" ] && ok "plugin hooks.json registers existing scripts" || bad "plugin hooks.json" "${MISSING:-missing}"
+  MISSING=""
+  for ref in $(grep -oh '${CLAUDE_PLUGIN_ROOT}/[A-Za-z0-9_./-]*\.\(py\|sh\)' "$X"/commands/*.md "$X"/skills/*/SKILL.md | sort -u); do
+    rel="${ref#\$\{CLAUDE_PLUGIN_ROOT\}/}"
+    [ -f "$X/$rel" ] || MISSING="$MISSING $rel"
+  done
+  [ -z "$MISSING" ] && ok "scripts referenced by plugin commands exist" || bad "missing scripts:$MISSING"
   grep -q "__VERSION__" "$X/templates/CLAUDE.md" && bad "plugin CLAUDE.md template has version filled in" || ok "plugin CLAUDE.md template has version filled in"
 
   # First-run bootstrap (plugin installs have no setup.sh)

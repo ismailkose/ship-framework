@@ -181,12 +181,14 @@ Write the token registry. This is the file `/ship-build`, previews, and platform
 2. Fill the template from Phase 3 decisions: primitives (color ramps, type scale, radius, spacing, motion springs), then semantic + semantic_dark layers
 3. Dark mode is required by default (`modes: [light, dark]`). Light-only needs explicit `modes: [light]` + a documented "Dark mode exception" in DESIGN.md
 4. Motion is platform-neutral: springs named by character (gentle/snappy) with response/damping. Never write platform-specific motion values
-5. Run the schema's validation rules (semantic paths resolve, no hex outside primitives, required keys in both modes)
-6. Write `design-model.yaml` to project root and print a token receipt:
+5. Write `design-model.yaml` to project root, then validate it: `python3 .claude/skills/ship/design/bin/design_model.py validate`. Fix every error before continuing (it checks the schema's rules: semantic paths resolve, no hex outside primitives, required keys in both modes, no leftover TODOs)
+6. Print a token receipt:
 
 ```
 ✓ design-model.yaml — 3 ramps · 4 type sizes · 2 radii · 2 springs · 6+2 semantic (light+dark)
 ```
+
+7. **iOS stack → emit the theme:** `python3 .claude/skills/ship/design/bin/design_model.py emit-swiftui --out <app source folder>/Theme.swift`. `Theme.swift` is generated — never hand-edit it. To change a value, change `design-model.yaml` and re-emit. (Web and Android emitters don't exist yet; there, translate tokens by hand into CSS variables / Compose theme.)
 
 ### Phase 6c: Seed design/components.yaml
 
@@ -196,7 +198,7 @@ Register the starting primitives — the components the validated scope clearly 
 2. Register what the scope demands — no numeric cap, but **speculative registration is banned** (no component without a planned screen that needs it)
 3. Each entry references **semantic tokens only** (no hex, no primitive paths)
 4. If design runs before any code exists, set the planned source path + `planned: true`; the first build session realizes it
-5. Write `design/components.yaml` (create `design/` if needed)
+5. Write `design/components.yaml` (create `design/` if needed), then re-run `python3 .claude/skills/ship/design/bin/design_model.py validate`
 
 ### Phase 6d: PDC Generation (v2)
 
@@ -376,7 +378,7 @@ import SwiftUI
 }
 ```
 
-The file must **compile**. Use actual `Brand.*` colors, actual font names, actual spacing values from Theme.swift. Read Theme.swift to get the real token references — don't guess values.
+The file must **compile**. Use the generated tokens — `Theme.Colors.*`, `Theme.Typography.*`, `Theme.Radius.*`, `Theme.Spacing.x(n)`, `Theme.Motion.*` — read Theme.swift for the real names; don't guess values or hardcode them.
 
 **Web → `design/preview/design-preview.tsx`** (or `.html` if no React)
 **Android → `design/preview/DesignPreview.kt`** with `@Preview` composables.

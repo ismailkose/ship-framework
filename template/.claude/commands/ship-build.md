@@ -127,6 +127,15 @@ When building forms, read `.claude/skills/ship/ux/references/forms-feedback.md` 
 
 When building UI components, follow Arc's component architecture spec. Read `.claude/skills/ship/components/references/components.md` — use the project's design system first, reach for headless primitives to fill gaps, never rebuild accessible behavior from scratch. Before building any UI, verify the component layer is installed (e.g., check for `components.json` — if missing and the stack specifies shadcn/ui, run the setup from `.claude/skills/ship/components/references/components.md` Section 2 first). Check `references/design-system.md` if it exists (project-specific tokens and rules override framework defaults).
 
+**Design registry loop (when `design-model.yaml` exists):** for every UI element, before writing it:
+
+1. **Check the system** — read `design/components.yaml`. Silent: don't announce the lookup.
+2. **Hit → reuse** the registered component as-is. If it doesn't fit, that's a design decision for the founder, not a fork.
+3. **Miss → classify.** Reusable primitive (button, input, field, badge, card, list row, nav element — *would a second screen plausibly want it?*) → build it against tokens only (`Theme.*` on iOS; no raw hex, sizes, or springs) and add an entry to `design/components.yaml` (name, file, semantic tokens, one-line doc, added date). One-off composition (this screen's layout) → compose locally from registered pieces; don't register it. Unsure → keep it local; the third time the same local pattern appears, ask the founder once: "Promote X to the design system?"
+4. **Validate** after any registry or token change: `python3 .claude/skills/ship/design/bin/design_model.py validate`. If `design-model.yaml` changed on iOS, re-emit with `emit-swiftui` instead of editing `Theme.swift`.
+
+End the build receipt with one line: `Design system: reused PrimaryButton · registered StatCard`.
+
 **Shadcn MCP check:** If the stack includes shadcn/ui, check if the Shadcn UI MCP is connected (try `list_components`). If connected — use it: `get_component_metadata` to check props before customizing, `get_component_demo` for usage patterns, `apply_theme` for theme presets. See `.claude/skills/ship/components/references/components.md` Section 3.87 for full routing. If NOT connected — suggest once: "💡 The Shadcn UI MCP gives me live component source, demos, and 42 theme presets. Want me to help you set it up?" Then continue with the static reference file. Don't ask again in the same session.
 
 When implementing typography or color tokens, read `.claude/skills/ship/ux/references/typography-color.md` — type scale reasoning, font pairing, semantic color tokens. Never hardcode raw values.
