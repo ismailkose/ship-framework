@@ -35,13 +35,14 @@ expect() {
 
 # run_hook <script> <cwd> <stdin json>  → sets OUT, CODE
 run_hook() {
-  OUT="$(cd "$2" && printf '%s' "$3" | bash "$1" 2>/dev/null)"
+  OUT="$(cd "$2" && printf '%s' "$3" | CLAUDE_PROJECT_DIR= bash "$1" 2>/dev/null)"
   CODE=$?
 }
 
 # ── Refgate: fresh /ship-design seed flow ────────────────────────────────
 echo "Refgate"
-P="$TMP/seed"; mkdir -p "$P/.claude" && touch "$P/DESIGN.md"   # Phase 6a done, no PDC.md yet
+ship_project() { mkdir -p "$1/.claude" && printf '# App\n\n## Ship Framework\n' > "$1/CLAUDE.md"; }
+P="$TMP/seed"; ship_project "$P" && touch "$P/DESIGN.md"   # Phase 6a done, no PDC.md yet
 for f in design-model.yaml design/components.yaml design/components.yml PDC.md; do
   run_hook "$REFGATE" "$P" "{\"tool_input\":{\"file_path\":\"$P/$f\"}}"
   expect "seed file allowed before PDC.md: $f" allow "$OUT" "$CODE"
@@ -52,6 +53,11 @@ run_hook "$REFGATE" "$P" "{\"tool_input\":{\"file_path\":\"$P/src/services/api.t
 expect "logic edit allowed without PDC.md" allow "$OUT" "$CODE"
 run_hook "$REFGATE" "$P" '{}'
 expect "missing file_path fails open" allow "$OUT" "$CODE"
+P="$TMP/not-ship"; mkdir -p "$P" && printf '# Some other project\n' > "$P/CLAUDE.md"
+run_hook "$REFGATE" "$P" "{\"tool_input\":{\"file_path\":\"$P/src/views/Home.tsx\"}}"
+expect "non-Ship project is never gated" allow "$OUT" "$CODE"
+OUT="$(cd "$P" && CLAUDE_PROJECT_DIR= bash "$SKILLS/sessionstart/bin/session-start.sh" 2>&1)"
+[ -z "$OUT" ] && ok "session-start silent in non-Ship project" || bad "session-start silent in non-Ship project" "$OUT"
 
 # ── Careful ──────────────────────────────────────────────────────────────
 echo "Careful"
@@ -124,6 +130,17 @@ if bash "$B/scripts/build-plugin.sh" >/dev/null 2>&1 && [ -f "$B/ship-framework.
     [ -f "$X/skills/$rel" ] || BROKEN="$BROKEN $rel"
   done
   [ -z "$BROKEN" ] && ok "sibling-skill hook scripts resolve in plugin layout" || bad "unresolved hook scripts:$BROKEN"
+  MISSING=$(python3 -c "
+import json,os,re,sys
+root=sys.argv[1]
+d=json.load(open(os.path.join(root,'hooks/hooks.json')))
+for entries in d['hooks'].values():
+    for e in entries:
+        for h in e['hooks']:
+            for p in re.findall(r'\\$\\{CLAUDE_PLUGIN_ROOT\\}/([^\" ]+)', h['command']):
+                if not os.path.isfile(os.path.join(root,p)): print(p)
+" "$X" 2>&1)
+  [ -f "$X/hooks/hooks.json" ] && [ -z "$MISSING" ] && ok "plugin hooks.json registers existing scripts" || bad "plugin hooks.json" "${MISSING:-missing}"
 else
   bad "plugin builds"
 fi

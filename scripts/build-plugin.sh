@@ -15,6 +15,8 @@
 #   4. templates/  ← template/{CLAUDE,TASKS,DECISIONS,CONTEXT,LEARNINGS}.md
 #                    + template/.claude/team-rules.md
 #   5. .claude-plugin/plugin.json + README.md ← scripts/plugin-assets/
+#   6. hooks/hooks.json ← scripts/plugin-assets/hooks/ (always-on refgate + sessionstart;
+#      both scripts no-op outside Ship projects)
 #
 # Path rewrites (project-relative → plugin-root-relative):
 #   .claude/skills/ship/<name>/  →  ${CLAUDE_PLUGIN_ROOT}/skills/ship-<name>/
@@ -40,6 +42,7 @@ fail() { echo "build-plugin: $1" >&2; exit 1; }
 [ -d "$T/.claude/skills/ship" ]   || fail "missing $T/.claude/skills/ship"
 [ -f "$ASSETS/plugin.json" ]      || fail "missing $ASSETS/plugin.json"
 [ -f "$ASSETS/README.md" ]        || fail "missing $ASSETS/README.md"
+[ -f "$ASSETS/hooks/hooks.json" ] || fail "missing $ASSETS/hooks/hooks.json"
 [ -f "$ASSETS/skills/ship-router/SKILL.md" ] || fail "missing router skill asset"
 for f in CLAUDE.md TASKS.md DECISIONS.md CONTEXT.md LEARNINGS.md; do
   [ -f "$T/$f" ] || fail "missing $T/$f"
@@ -55,6 +58,8 @@ rewrite() {
 mkdir -p "$STAGE/.claude-plugin"
 cp "$ASSETS/plugin.json" "$STAGE/.claude-plugin/plugin.json"
 cp "$ASSETS/README.md" "$STAGE/README.md"
+mkdir -p "$STAGE/hooks"
+cp "$ASSETS/hooks/hooks.json" "$STAGE/hooks/hooks.json"
 
 # ── 2. Commands ──────────────────────────────────────────────────────────
 mkdir -p "$STAGE/commands"

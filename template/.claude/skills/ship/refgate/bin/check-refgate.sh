@@ -12,6 +12,15 @@
 
 set -euo pipefail
 
+cd "${CLAUDE_PROJECT_DIR:-.}"
+
+# Only gate Ship projects — the plugin registers this hook in every project.
+# Same detection as setup.sh.
+if ! grep -q "## /team\|## Ship Framework\|ship-framework" CLAUDE.md 2>/dev/null; then
+  echo '{}'
+  exit 0
+fi
+
 REFS_LOADED=".claude/.refgate-loaded"
 PDC_FILE="PDC.md"
 DEBUG_LOG="/tmp/refgate-debug.log"

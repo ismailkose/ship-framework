@@ -8,16 +8,19 @@
 
 set -euo pipefail
 
-echo "SESSION_START_FIRED $(date)" >> /tmp/session-start-debug.log
-
-# ── Read project metadata from CLAUDE.md ──────────────────────────────────────
+cd "${CLAUDE_PROJECT_DIR:-.}"
 
 CLAUDE_MD="CLAUDE.md"
 
-if [ ! -f "$CLAUDE_MD" ]; then
-  echo "Ship Framework: No CLAUDE.md found. Run setup.sh first."
+# Stay silent outside Ship projects — the plugin registers this hook in every
+# project. Same detection as setup.sh.
+if ! grep -q "## /team\|## Ship Framework\|ship-framework" "$CLAUDE_MD" 2>/dev/null; then
   exit 0
 fi
+
+echo "SESSION_START_FIRED $(date)" >> /tmp/session-start-debug.log
+
+# ── Read project metadata from CLAUDE.md ──────────────────────────────────────
 
 # Stack (e.g., "web", "ios", "android", "cross-platform")
 STACK=$(grep -m1 "^Stack:" "$CLAUDE_MD" 2>/dev/null | sed 's/^Stack:[[:space:]]*//' | xargs 2>/dev/null || true)
