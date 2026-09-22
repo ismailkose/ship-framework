@@ -39,22 +39,46 @@ Before starting, load the relevant Ship skills:
 
 Read the Stack field in CLAUDE.md. If empty, ask: "What are you building?" and recommend/set the appropriate stack (web, ios, or android) in CLAUDE.md before proceeding.
 
----
+<!-- BEGIN:ship-generated:command-plan-load-references -->
+## Load References
 
-## References Before Planning
+Before moving into this workflow, load the reference groups below:
 
-Always load: ux-principles, components, animation, typography-color, navigation, layout-responsive, spatial-design, interaction-design. Platform-specific: load refs matching Stack field (ios, web, or android).
+- **Shared project context**
+  - `CLAUDE.md`
+  - `.claude/team-rules.md`
+  - `DECISIONS.md`
+  - `CONTEXT.md`
+  - `LEARNINGS.md`
+  - `TASKS.md`
+- **Planning foundations**
+  - `.claude/skills/ship/ux/references/ux-principles.md`
+  - `.claude/skills/ship/components/references/components.md`
+  - `.claude/skills/ship/motion/references/animation.md`
+  - `.claude/skills/ship/ux/references/typography-color.md`
+  - `.claude/skills/ship/ux/references/layout-responsive.md`
+  - `.claude/skills/ship/ux/references/spatial-design.md`
+  - `.claude/skills/ship/ux/references/interaction-design.md`
+  - `.claude/skills/ship/ux/references/navigation.md`
+- **Platform stack core (match the Stack field in CLAUDE.md)**
+  - `iOS -> .claude/skills/ship/ios/references/swiftui-core.md + .claude/skills/ship/ios/references/hig-ios.md + .claude/skills/ship/ios/references/swift-essentials.md`
+  - `Web -> .claude/skills/ship/web/references/react-patterns.md + .claude/skills/ship/web/references/web-accessibility.md + .claude/skills/ship/web/references/web-performance.md`
+  - `Android -> .claude/skills/ship/android/references/ when content exists`
 
 ## Reference Gate
 
-**STOP.** Before producing any plan, print a receipt of every reference you loaded:
-```
+**STOP.** Before continuing, print a receipt of every reference you loaded:
+
+```text
 REFERENCES LOADED:
 - [filename] ✓
 - [filename] ✓
 ```
+
 Then run: `touch .claude/.refgate-loaded`
-Do NOT proceed to Vi until this receipt is printed. Skipping references creates rework.
+
+Do not proceed until the receipt is printed and the marker file exists.
+<!-- END:ship-generated:command-plan-load-references -->
 
 ---
 
@@ -155,27 +179,25 @@ After Adversarial APPROVED verdict, write aesthetic direction to DECISIONS.md wi
 
 ---
 
-## Handoff
-
-```
-STATUS: [APPROVED / NEEDS_REVISION / BLOCKED]
-[If APPROVED]: Plan approved. Start with /ship-build to begin the first feature.
-[If NEEDS_REVISION]: Revising [specific items]. Running adversarial again.
-[If BLOCKED]: Waiting on founder input for [specific questions].
-```
-
 Save the plan to TASKS.md — each build order item becomes a task.
 Log architecture decisions to DECISIONS.md.
 Write project learnings to CONTEXT.md.
 
----
+<!-- BEGIN:ship-generated:command-plan-status-footer -->
+## Handoff / Status
 
-## Completion Status
+```text
+STATUS: [APPROVED / NEEDS_REVISION / BLOCKED]
+[If APPROVED]: Plan approved. Start with /ship-build to begin the first feature.
+[If NEEDS_REVISION]: Revise the flagged sections and run the stress test again.
+[If BLOCKED]: Waiting on founder input before the plan can graduate.
+```
 
-End your output with one of:
-- `STATUS: DONE` — completed successfully
-- `STATUS: DONE_WITH_CONCERNS` — completed, but [list concerns]
-- `STATUS: BLOCKED` — cannot proceed: [what's needed]
-- `STATUS: NEEDS_CONTEXT` — missing: [what information]
+## Workflow Status Values
+
+- `APPROVED`
+- `NEEDS_REVISION`
+- `BLOCKED`
+<!-- END:ship-generated:command-plan-status-footer -->
 
 User's request: $ARGUMENTS

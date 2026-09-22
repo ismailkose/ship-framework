@@ -9,6 +9,8 @@
 #   - Moves references to platform subdirectories
 #   - Creates skills directory
 #   - Adds The Founder section placeholder to CLAUDE.md
+#   - Creates or refreshes managed AGENTS.md for Codex
+#   - Creates or refreshes managed .ship/framework.yaml for the pilot core
 #
 # Usage:
 #   bash ship-update.sh                          # updates current project
@@ -46,6 +48,75 @@ sedi() {
   fi
 }
 
+render_template_with_version() {
+  local src="$1"
+  local dst="$2"
+
+  cp "$src" "$dst"
+  sedi "s|__VERSION__|${VERSION}|g" "$dst"
+}
+
+is_ship_managed_agents() {
+  local path="$1"
+  [ -f "$path" ] || return 1
+  grep -q "Managed by Ship Framework" "$path" 2>/dev/null
+}
+
+is_ship_managed_core_manifest() {
+  local path="$1"
+  [ -f "$path" ] || return 1
+  grep -q '"managed_by": "Ship Framework"' "$path" 2>/dev/null
+}
+
+sync_managed_agents() {
+  local target="$PROJECT_DIR/AGENTS.md"
+
+  if [ ! -f "$TEMPLATE_DIR/AGENTS.md" ]; then
+    return
+  fi
+
+  if [ ! -f "$target" ]; then
+    render_template_with_version "$TEMPLATE_DIR/AGENTS.md" "$target"
+    echo -e "${GREEN}✓${RESET} Created AGENTS.md (managed Codex bridge)"
+    return
+  fi
+
+  if is_ship_managed_agents "$target"; then
+    render_template_with_version "$TEMPLATE_DIR/AGENTS.md" "$target"
+    echo -e "${GREEN}✓${RESET} Refreshed AGENTS.md (managed Codex bridge)"
+    return
+  fi
+
+  echo -e "${YELLOW}⚠${RESET}  Found existing AGENTS.md (not from Ship Framework)."
+  echo -e "${DIM}  Left it untouched. Ship will keep using CLAUDE.md as the source of truth.${RESET}"
+}
+
+sync_managed_ship_core() {
+  local target_dir="$PROJECT_DIR/.ship"
+  local target="$target_dir/framework.yaml"
+
+  if [ ! -f "$TEMPLATE_DIR/.ship/framework.yaml" ]; then
+    return
+  fi
+
+  mkdir -p "$target_dir"
+
+  if [ ! -f "$target" ]; then
+    cp "$TEMPLATE_DIR/.ship/framework.yaml" "$target"
+    echo -e "${GREEN}✓${RESET} Created .ship/framework.yaml (managed Ship core manifest)"
+    return
+  fi
+
+  if is_ship_managed_core_manifest "$target"; then
+    cp "$TEMPLATE_DIR/.ship/framework.yaml" "$target"
+    echo -e "${GREEN}✓${RESET} Refreshed .ship/framework.yaml (managed Ship core manifest)"
+    return
+  fi
+
+  echo -e "${YELLOW}⚠${RESET}  Found existing .ship/framework.yaml (not from Ship Framework)."
+  echo -e "${DIM}  Left it untouched so your internal core manifest stays yours.${RESET}"
+}
+
 # ─── Step 1: Verify this is a Ship Framework project ─────────────────────────
 
 if [ ! -f "$PROJECT_DIR/CLAUDE.md" ] || [ ! -d "$PROJECT_DIR/.claude/commands" ]; then
@@ -56,7 +127,7 @@ if [ ! -f "$PROJECT_DIR/CLAUDE.md" ] || [ ! -d "$PROJECT_DIR/.claude/commands" ]
 fi
 
 # macOS-compatible: BSD grep doesn't support -P (Perl regex), use sed instead
-CURRENT_VERSION=$(sed -n 's/.*Ship Framework.*v\([0-9.]*\).*/\1/p' "$PROJECT_DIR/CLAUDE.md" 2>/dev/null | head -1)
+CURRENT_VERSION=$(sed -n 's/.*Ship Framework.*v\([0-9A-Za-z.]*\).*/\1/p' "$PROJECT_DIR/CLAUDE.md" 2>/dev/null | head -1)
 CURRENT_VERSION="${CURRENT_VERSION:-unknown}"
 
 echo ""
@@ -107,6 +178,8 @@ if [ "$CURRENT_VERSION" = "$VERSION" ]; then
   if [ $SKILLS_SYNCED -gt 0 ]; then
     echo -e "${GREEN}✓${RESET} Verified $SKILLS_SYNCED commands mirrored as skills"
   fi
+  sync_managed_agents
+  sync_managed_ship_core
   echo -e "${GREEN}✓${RESET} Already up to date."
   echo ""
   exit 0
@@ -125,6 +198,8 @@ fi
 # These are NEVER overwritten — they contain user customizations.
 
 PROTECTED_FILES=(
+  "AGENTS.md"
+  ".ship/framework.yaml"
   "CLAUDE.md"
   "TASKS.md"
   "DECISIONS.md"
@@ -618,7 +693,15 @@ for root_file in DECISIONS.md CONTEXT.md TASKS.md LEARNINGS.md; do
   fi
 done
 
-# ─── Step 8: Update version stamp in CLAUDE.md ───────────────────────────────
+# ─── Step 8: Sync managed AGENTS.md ──────────────────────────────────────────
+
+sync_managed_agents
+
+# ─── Step 8a: Sync managed Ship core manifest ────────────────────────────────
+
+sync_managed_ship_core
+
+# ─── Step 9: Update version stamp in CLAUDE.md ───────────────────────────────
 
 if grep -q "Ship Framework" "$PROJECT_DIR/CLAUDE.md"; then
   # Replace the entire footer line to avoid partial-match corruption
@@ -632,7 +715,7 @@ else
   echo -e "${GREEN}✓${RESET} Added version stamp to CLAUDE.md"
 fi
 
-# ─── Step 9: Update self (this script) ────────────────────────────────────────
+# ─── Step 10: Update self (this script) ───────────────────────────────────────
 
 if [ -f "$TEMPLATE_DIR/ship-update.sh" ]; then
   cp "$TEMPLATE_DIR/ship-update.sh" "$PROJECT_DIR/ship-update.sh"
@@ -661,7 +744,7 @@ for i in "$@"; do
   prev_arg="$i"
 done
 
-# ─── Step 10: Show migration warnings ───────────────────────────────────────
+# ─── Step 11: Show migration warnings ───────────────────────────────────────
 
 if [ -n "$MIGRATION_WARNINGS" ]; then
   echo ""
@@ -688,7 +771,7 @@ fi
 echo ""
 echo -e "${BOLD}${ORANGE}Updated!${RESET} v${CURRENT_VERSION} → v${VERSION}"
 echo ""
-echo -e "${DIM}Your CLAUDE.md content, TASKS.md, DECISIONS.md, CONTEXT.md, and LEARNINGS.md are untouched.${RESET}"
+echo -e "${DIM}Your CLAUDE.md content, TASKS.md, DECISIONS.md, CONTEXT.md, and LEARNINGS.md are untouched. AGENTS.md and .ship/framework.yaml refresh only when Ship manages them.${RESET}"
 if [ "$V3_MIGRATION" = true ]; then
   echo ""
   echo -e "${BOLD}v4 changes to know about:${RESET}"
@@ -697,8 +780,9 @@ if [ "$V3_MIGRATION" = true ]; then
   echo "  • New safety commands: /ship-careful, /ship-freeze, /ship-guard"
   echo "  • Fill in The Founder section in CLAUDE.md — it shapes how the team talks to you"
   echo ""
-  echo -e "${BOLD}Next step:${RESET} Open Claude Code and type:"
+  echo -e "${BOLD}Next step:${RESET} Continue in your preferred runtime:"
   echo ""
-  echo -e "  ${BOLD}/ship-team continue${RESET}"
+  echo -e "  ${BOLD}Claude Code:${RESET} /ship-team continue"
+  echo -e "  ${BOLD}Codex:${RESET} open the project and ask Ship to continue from the shared context"
 fi
 echo ""

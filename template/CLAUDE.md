@@ -65,29 +65,45 @@ Copy `.env.example` to `.env.local` and fill in your keys.
 **Rules, personas, and workflows:** `.claude/team-rules.md`
 That file is managed by Ship Framework — don't edit it. This file is yours.
 
+**Codex bridge:** `AGENTS.md`
+That file is managed by Ship Framework too. Codex reads it first, then comes back here. Keep all real project context in this file, not in `AGENTS.md`.
+
 **⚠ Reference Gate (always enforced — with or without slash commands):**
 Before writing ANY code, generating ANY design, or making ANY technical recommendation, you MUST read the relevant references from `.claude/skills/ship/*/references/`. This is not optional. Print a `REFERENCES LOADED:` receipt and run `touch .claude/.refgate-loaded` before proceeding. See Rule 25 in team-rules.md. If you skip references to "move faster," the review will catch it and flag it as `REF_SKIP` — a preventable mistake.
 
-**Commands:**
+**Core Loop:**
+
+<!-- BEGIN:ship-generated:claude-core-loop-table -->
+| Command | What it does |
+|---|---|
+| `/ship-think` | Validate the idea before planning so the team is solving a real problem for a real person. |
+| `/ship-plan` | Turn the idea into a product brief, architecture, and build order the team can execute. |
+| `/ship-build` | Build one planned feature at a time with tight scope control, tests, and verification. |
+| `/ship-review` | Run the full quality gate across product, design, visual QA, testing, and adversarial review. |
+<!-- END:ship-generated:claude-core-loop-table -->
+
+**Additional Commands:**
 
 | Command | What it does |
 |---|---|
-| `/ship-plan` | Vi + Arc + Adversarial argue → battle-tested plan |
-| `/ship-build` | Dev builds one feature at a time |
-| `/ship-review` | Crit + Pol + Eye + Adversarial → quality verdict |
-| `/ship-qa` | Test runs and writes tests, health score |
+| `/ship-review --test` | Test runs and writes tests, health score |
 | `/ship-launch` | Cap's release checklist → deploy |
 | `/ship-fix` | Bug debugs systematically |
 | `/ship-money` | Biz figures out monetization |
 | `/ship-browse` | Visual QA (Eye only, screenshot mode) |
 | `/ship-team` | Orchestrator — delegates to the right agents |
 | `/ship-retro` | Weekly retrospective with data |
-| `/ship-codex` | Cross-model verification via Codex (optional) |
+| `/ship-codex` | Claude-side Codex second opinion (optional) |
 | `/ship-careful` | Destructive command warnings (rm -rf, DROP TABLE, etc.) |
 | `/ship-freeze` | Lock edits to a specific directory |
 | `/ship-guard` | Both: destructive warnings + directory lock |
 | `/ship-unfreeze` | Remove directory edit lock |
 | `/ship-update` | Update Ship Framework to latest |
+
+<!-- BEGIN:ship-generated:claude-runtime-note -->
+In Codex, these command names are still the workflow vocabulary, but `AGENTS.md` maps the pilot core loop to natural-language workflows instead of literal slash commands.
+If a user switches between Claude and Codex mid-project, continue from the same shared context instead of re-planning from scratch.
+<!-- END:ship-generated:claude-runtime-note -->
 
 **Skills:** `.claude/skills/ship/` (framework defaults) and `.claude/skills/your-skills/` (yours).
 Ship skills load automatically per command. Your skills activate based on wiring below.

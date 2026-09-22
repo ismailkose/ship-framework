@@ -16,4 +16,4 @@ References have moved into their owning skill directories for better organizatio
 
 ## Your references
 
-Create your own references in this directory. Ship won't overwrite files it didn't create. Route them in CLAUDE.md under **Custom References**.
+Create your own references in this directory. Ship won't overwrite files it didn't create. Route them in CLAUDE.md under **Custom References**. Codex reads that same routing through the managed `AGENTS.md` bridge.

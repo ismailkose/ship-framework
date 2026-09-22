@@ -20,20 +20,46 @@ Before starting, load relevant Ship skills:
 4. Platform skill for current Stack (e.g., `.claude/skills/ship/ios/SKILL.md`)
 5. Check CLAUDE.md "My Skills" section — load any matching skills
 
+<!-- BEGIN:ship-generated:command-review-load-references -->
+## Load References
+
+Before moving into this workflow, load the reference groups below:
+
+- **Shared project context**
+  - `CLAUDE.md`
+  - `.claude/team-rules.md`
+  - `DECISIONS.md`
+  - `CONTEXT.md`
+  - `LEARNINGS.md`
+  - `TASKS.md`
+- **Review foundations**
+  - `.claude/skills/ship/ux/references/ux-principles.md`
+  - `.claude/skills/ship/ux/references/design-quality.md`
+  - `.claude/skills/ship/components/references/components.md`
+  - `.claude/skills/ship/motion/references/animation.md`
+  - `.claude/skills/ship/ux/references/interaction-design.md`
+  - `.claude/skills/ship/ux/references/layout-responsive.md`
+  - `.claude/skills/ship/ux/references/typography-color.md`
+  - `.claude/skills/ship/hardening/references/hardening-guide.md`
+- **Platform stack core (match the Stack field in CLAUDE.md)**
+  - `iOS -> .claude/skills/ship/ios/references/swiftui-core.md + .claude/skills/ship/ios/references/hig-ios.md + .claude/skills/ship/ios/references/swift-essentials.md`
+  - `Web -> .claude/skills/ship/web/references/react-patterns.md + .claude/skills/ship/web/references/web-accessibility.md + .claude/skills/ship/web/references/web-performance.md`
+  - `Android -> .claude/skills/ship/android/references/ when content exists`
+
 ## Reference Gate
 
-**STOP.** Before running any review lens, load the references each agent requires and print a receipt:
+**STOP.** Before continuing, print a receipt of every reference you loaded:
 
-```
+```text
 REFERENCES LOADED:
-- [filename] ✓
 - [filename] ✓
 - [filename] ✓
 ```
 
 Then run: `touch .claude/.refgate-loaded`
 
-Do NOT proceed to Step 0 until this receipt is printed.
+Do not proceed until the receipt is printed and the marker file exists.
+<!-- END:ship-generated:command-review-load-references -->
 
 ---
 
@@ -164,29 +190,25 @@ If the answer is less than "yes, definitely" — that's a finding.
 
 On completion, save: `LAST_REVIEW_HASH = [current HEAD commit hash]`
 
----
-
-## Handoff
-
 Add ALL findings to TASKS.md — must-fixes as top priority in "Up Next".
 
+<!-- BEGIN:ship-generated:command-review-status-footer -->
+## Handoff / Status
+
+```text
+STATUS: [DONE / DONE_WITH_CONCERNS / BLOCKED / NEEDS_CONTEXT]
+[If DONE]: Quality pass complete. Ready for /ship-launch when no blocking issues remain.
+[If DONE_WITH_CONCERNS]: Review completed with non-blocking concerns added to TASKS.md.
+[If BLOCKED]: The quality gate could not finish because a required environment, artifact, or diff was missing.
+[If NEEDS_CONTEXT]: More context is required before the review can finish confidently.
 ```
-STATUS: [APPROVED / APPROVED_WITH_NOTES / NEEDS_WORK]
-HEALTH SCORE: [XX/100]
 
-[If APPROVED]: Ready for /ship-launch.
-[If APPROVED_WITH_NOTES]: Not blocking. Address when possible.
-[If NEEDS_WORK]: Must-fixes in TASKS.md. Fix with /ship-build, then re-run /ship-review.
-```
+## Workflow Status Values
 
----
-
-## Completion Status
-
-End your output with:
-- `STATUS: DONE` — completed successfully
-- `STATUS: DONE_WITH_CONCERNS` — completed, but [concerns]
-- `STATUS: BLOCKED` — cannot proceed: [what's needed]
-- `STATUS: NEEDS_CONTEXT` — missing: [what information]
+- `DONE`
+- `DONE_WITH_CONCERNS`
+- `BLOCKED`
+- `NEEDS_CONTEXT`
+<!-- END:ship-generated:command-review-status-footer -->
 
 User's request: $ARGUMENTS

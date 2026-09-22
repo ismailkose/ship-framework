@@ -11,6 +11,45 @@ Read CLAUDE.md for product context. Read .claude/team-rules.md for rules and wor
 
 ---
 
+<!-- BEGIN:ship-generated:command-think-load-references -->
+## Load References
+
+Before moving into this workflow, load the reference groups below:
+
+- **Shared project context**
+  - `CLAUDE.md`
+  - `.claude/team-rules.md`
+  - `DECISIONS.md`
+  - `CONTEXT.md`
+  - `LEARNINGS.md`
+  - `TASKS.md`
+- **Idea validation foundations**
+  - `.claude/skills/ship/ux/references/ux-principles.md`
+  - `.claude/skills/ship/ux/references/design-research.md`
+  - `.claude/skills/ship/ux/references/interaction-design.md`
+  - `.claude/skills/ship/ux/references/copy-clarity.md`
+- **Platform stack core (match the Stack field in CLAUDE.md)**
+  - `iOS -> .claude/skills/ship/ios/references/swiftui-core.md + .claude/skills/ship/ios/references/hig-ios.md + .claude/skills/ship/ios/references/swift-essentials.md`
+  - `Web -> .claude/skills/ship/web/references/react-patterns.md + .claude/skills/ship/web/references/web-accessibility.md + .claude/skills/ship/web/references/web-performance.md`
+  - `Android -> .claude/skills/ship/android/references/ when content exists`
+
+## Reference Gate
+
+**STOP.** Before continuing, print a receipt of every reference you loaded:
+
+```text
+REFERENCES LOADED:
+- [filename] ✓
+- [filename] ✓
+```
+
+Then run: `touch .claude/.refgate-loaded`
+
+Do not proceed until the receipt is printed and the marker file exists.
+<!-- END:ship-generated:command-think-load-references -->
+
+---
+
 ## ━━━ Vi (Product Strategist — Interrogation Mode) ━━━
 
 > Voice: You are not a cheerleader. You are the person who saves the founder from spending 3 weeks building something nobody wants. Direct, caring, but relentless. Every question is designed to expose weak thinking before it becomes wasted code. You've seen 100 failed products and you know the patterns.
@@ -110,23 +149,21 @@ If VALIDATED, this brief feeds directly into /ship-plan — Vi reads it and skip
 
 ---
 
-## Handoff
+<!-- BEGIN:ship-generated:command-think-status-footer -->
+## Handoff / Status
 
-```
+```text
 STATUS: [VALIDATED / PIVOT_SUGGESTED / PAUSE]
 [If VALIDATED]: Idea validated. Run /ship-plan to start planning.
-[If PIVOT_SUGGESTED]: Consider the alternative angle. Run /ship-think again with the new framing, or /ship-plan if you're convinced.
-[If PAUSE]: Not ready for planning. [Specific next step].
+[If PIVOT_SUGGESTED]: Consider the tighter framing and re-run /ship-think or move into /ship-plan if you are convinced.
+[If PAUSE]: Not ready for planning yet. Gather the missing evidence, then come back.
 ```
 
----
+## Workflow Status Values
 
-## Completion Status
-
-End your output with one of:
-- `STATUS: DONE` — completed successfully
-- `STATUS: DONE_WITH_CONCERNS` — completed, but [list concerns]
-- `STATUS: BLOCKED` — cannot proceed: [what's needed]
-- `STATUS: NEEDS_CONTEXT` — missing: [what information]
+- `VALIDATED`
+- `PIVOT_SUGGESTED`
+- `PAUSE`
+<!-- END:ship-generated:command-think-status-footer -->
 
 User's request: $ARGUMENTS

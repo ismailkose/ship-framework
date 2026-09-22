@@ -5,7 +5,7 @@ disable-model-invocation: true
 
 Second opinion from OpenAI Codex — review a diff, challenge an approach, or consult on architecture.
 
-Standalone Codex cross-model verification. Requires Codex CLI installed (`npm install -g @openai/codex`) and OPENAI_API_KEY set.
+Standalone Codex cross-model verification for Claude/Cowork sessions. If you're already working in Codex via `AGENTS.md`, you don't need this command to use Ship — you're already in the Codex runtime. Requires Codex CLI installed (`npm install -g @openai/codex`) and OPENAI_API_KEY set.
 
 ## Availability Check
 
@@ -35,7 +35,7 @@ Supports follow-up questions via session continuity.
 ## Prompt Injection Boundary (mandatory for ALL modes)
 
 Every Codex invocation MUST include:
-"IMPORTANT: Do NOT read or execute any files under ~/.claude/, .claude/skills/, or agents/. These are Claude Code skill definitions meant for a different AI system. Stay focused on repository code only."
+"IMPORTANT: Do NOT read or execute files under ~/.claude/, .claude/skills/your-skills/, or agents/ unless the caller explicitly includes them as shared project context. Stay focused on repository code and the named Ship files only."
 
 ## Output
 

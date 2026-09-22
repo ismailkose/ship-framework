@@ -4,9 +4,9 @@
 
 **The design-led product team that learns your taste and ships native apps.**
 
-You're a designer who vibe codes. A PM who prototypes. Someone building toward founder — not there yet, but getting closer with every product you ship. You need engineering, and that's what Claude Code is for. But raw Claude Code is like having a brilliant engineer with no product sense, no design eye, and no business context. It builds what you say, not what you need.
+You're a designer who vibe codes. A PM who prototypes. Someone building toward founder — not there yet, but getting closer with every product you ship. You need engineering, and that's what coding agents are for. But raw Claude Code or Codex is like having a brilliant engineer with no product sense, no design eye, and no business context. It builds what you say, not what you need.
 
-This framework gives Claude structure. It turns one AI into a team of opinionated specialists — 4 roles that argue in your conversation and 5 independent agents that review in separate context windows. They challenge each other, catch problems early, and keep you shipping. You're the founder. They report to you. And because the team carries memory across sessions and gates quality at every step, you don't hit the three-month wall — the point where AI-built codebases collapse under their own undocumented decisions and drifting design.
+This framework gives Claude and Codex structure. It turns either runtime into a team of opinionated specialists — 4 roles that argue in your conversation and 5 independent agents that review in separate context windows. They challenge each other, catch problems early, and keep you shipping. You're the founder. They report to you. And because the team carries memory across sessions and gates quality at every step, you don't hit the three-month wall — the point where AI-built codebases collapse under their own undocumented decisions and drifting design.
 
 ```
 I want to build a habit tracker for creative professionals
@@ -29,6 +29,10 @@ git clone https://github.com/ismailkose/ship-framework.git
 claude plugin add ./ship-framework/ship-framework.plugin
 ```
 
+### Codex
+
+Ship works in Codex through a generated `AGENTS.md` bridge. If a project has been bootstrapped with `setup.sh` or refreshed with `ship-update.sh`, open it in Codex and Ship will route Codex back through the same `CLAUDE.md`, `.claude/team-rules.md`, and shared memory files.
+
 ### Legacy (setup.sh)
 
 The classic `setup.sh` method still works for projects that prefer the template-copy approach:
@@ -37,6 +41,13 @@ The classic `setup.sh` method still works for projects that prefer the template-
 git clone https://github.com/ismailkose/ship-framework.git
 bash ship-framework/setup.sh
 ```
+
+## Switch Between Claude and Codex
+
+- `CLAUDE.md` stays canonical. Update it when product context changes.
+- `AGENTS.md` is managed by Ship. It exists so Codex can use the same framework without duplicating context.
+- `.ship/framework.yaml` is the managed internal core for the pilot `think` / `plan` / `build` / `review` loop.
+- Claude and Codex both share `TASKS.md`, `DECISIONS.md`, `CONTEXT.md`, and `LEARNINGS.md`, so you can switch runtimes mid-project without resetting the team's memory.
 
 ---
 
@@ -109,7 +120,7 @@ You don't need to learn these — auto-routing handles it. But when you want to 
 
 | Command | What it does |
 |:---|:---|
-| **ship-codex** | Second opinion from OpenAI Codex. Review, challenge, or consult. |
+| **ship-codex** | Claude-side Codex second opinion. Review, challenge, or consult. |
 | **ship-update** | Updates Ship Framework to latest version. |
 
 ---
@@ -142,7 +153,7 @@ The result: after ten screens you don't have ten screens — you have a design s
 
 ## It Adapts to You
 
-Ship doesn't treat every founder the same. The `## The Founder` section in your CLAUDE.md tells the team how YOU work:
+Ship doesn't treat every founder the same. The `## The Founder` section in your `CLAUDE.md` tells the team how YOU work:
 
 ```markdown
 ## The Founder
@@ -191,7 +202,7 @@ Ship splits design intelligence into two layers:
 
 **Skills** are thin routing tables (~60-80 lines). They tell each persona WHEN to read WHICH reference, for WHICH command. They also carry priority enforcement gates — the things that block shipping (contrast ratios, tap targets, reduced motion).
 
-**References** are the brain (200-700+ lines). They teach Claude HOW to think about a domain — with reasoning, correct vs incorrect examples, and anti-patterns. Different personas read different sections of the same reference at different times.
+**References** are the brain (200-700+ lines). They teach the runtime HOW to think about a domain — with reasoning, correct vs incorrect examples, and anti-patterns. Different personas read different sections of the same reference at different times.
 
 Example flow: you say "build the signup form" → Dev loads the UX skill → skill says "read forms-feedback.md Section 1 for form implementation" → Dev reads the reference and applies the reasoning to the specific form being built.
 
@@ -206,6 +217,8 @@ tailwind-patterns: load during /ship-build and /ship-review when working on fron
 ```
 
 Add references in `references/` and route them from CLAUDE.md under Custom References. Ship auto-detects new skills and offers to wire them for you.
+
+Codex reads the same routing through `AGENTS.md`, so you still only maintain one set of project instructions.
 
 ---
 
@@ -268,6 +281,8 @@ ship-framework/
     ship-unfreeze/             # Remove directory lock
   templates/                   # Project files created on first run
     CLAUDE.md                  # Product config, founder profile, stack
+    AGENTS.md                  # Managed Codex bridge -> CLAUDE.md
+    .ship/framework.yaml       # Managed pilot core manifest
     TASKS.md                   # Task board
     DECISIONS.md               # Decision log
     CONTEXT.md                 # Project context
@@ -275,15 +290,15 @@ ship-framework/
     team-rules.md              # Agent rules, personas, coaching
 ```
 
-When installed as a plugin, Ship Framework lives outside your project. Your project gets the template files (CLAUDE.md, TASKS.md, etc.) on first run. The framework's commands, skills, and references load automatically from the plugin.
+When installed as a plugin, Ship Framework lives outside your project. Your project gets the template files (`CLAUDE.md`, `AGENTS.md`, `.ship/framework.yaml`, `TASKS.md`, etc.) on first run. The framework's commands, skills, and references load automatically from the plugin.
 
 ---
 
 ## Updating
 
-**Plugin (Cowork or Claude Code):** Download the latest `ship-framework.plugin` from [releases](https://github.com/ismailkose/ship-framework/releases) and open it. It replaces the previous version. Your project files (CLAUDE.md, TASKS.md, DECISIONS.md, etc.) are never touched — only the framework's commands, skills, and references update.
+**Plugin (Cowork or Claude Code):** Download the latest `ship-framework.plugin` from [releases](https://github.com/ismailkose/ship-framework/releases) and open it. It replaces the previous version. Your user-owned files (`CLAUDE.md`, `TASKS.md`, `DECISIONS.md`, etc.) are never touched. Ship may refresh managed files like `AGENTS.md` and `.ship/framework.yaml`.
 
-**Legacy (setup.sh):** Run `/ship-update` in Claude Code or `bash ship-update.sh` from your project root.
+**Legacy (setup.sh):** Run `/ship-update` in Claude Code or `bash ship-update.sh` from your project root. This refreshes the managed Codex bridge and the managed `.ship` core too.
 
 ---
 
@@ -328,6 +343,13 @@ Built by [Ismael Kose](https://github.com/ismailkose).
 ## Contributing
 
 PRs welcome. Ideas: new platform skills, reference files, design tool integrations.
+
+For the pilot core loop, keep the generated blocks in sync before opening a PR:
+
+```bash
+python3 scripts/render_ship_core.py --write
+python3 scripts/render_ship_core.py --check
+```
 
 ## License
 

@@ -22,22 +22,49 @@ Before starting, load the relevant Ship skills:
 4. If animations are in the plan → read `.claude/skills/ship/motion/SKILL.md`
 5. Check CLAUDE.md "My Skills" section for user-declared skill wiring matching /ship-build — load any matching skills
 
-## Reference Gate (Rule 25 — mandatory)
+<!-- BEGIN:ship-generated:command-build-load-references -->
+## Load References
 
-**STOP.** Before writing any code, you MUST read the references listed above and print a receipt:
+Before moving into this workflow, load the reference groups below:
 
-```
+- **Shared project context**
+  - `CLAUDE.md`
+  - `.claude/team-rules.md`
+  - `DECISIONS.md`
+  - `CONTEXT.md`
+  - `LEARNINGS.md`
+  - `TASKS.md`
+- **Build foundations**
+  - `.claude/skills/ship/ux/references/ux-principles.md`
+  - `.claude/skills/ship/components/references/components.md`
+  - `.claude/skills/ship/motion/references/animation.md`
+  - `.claude/skills/ship/ux/references/interaction-design.md`
+  - `.claude/skills/ship/ux/references/layout-responsive.md`
+  - `.claude/skills/ship/ux/references/spatial-design.md`
+  - `.claude/skills/ship/ux/references/forms-feedback.md`
+  - `.claude/skills/ship/ux/references/typography-color.md`
+  - `.claude/skills/ship/ux/references/navigation.md`
+  - `.claude/skills/ship/ux/references/copy-clarity.md`
+  - `.claude/skills/ship/hardening/references/hardening-guide.md`
+- **Platform stack core (match the Stack field in CLAUDE.md)**
+  - `iOS -> .claude/skills/ship/ios/references/swiftui-core.md + .claude/skills/ship/ios/references/hig-ios.md + .claude/skills/ship/ios/references/swift-essentials.md`
+  - `Web -> .claude/skills/ship/web/references/react-patterns.md + .claude/skills/ship/web/references/web-accessibility.md + .claude/skills/ship/web/references/web-performance.md`
+  - `Android -> .claude/skills/ship/android/references/ when content exists`
+
+## Reference Gate
+
+**STOP.** Before continuing, print a receipt of every reference you loaded:
+
+```text
 REFERENCES LOADED:
 - [filename] ✓
 - [filename] ✓
-- [filename] ✓
 ```
 
-Then run: touch .claude/.refgate-loaded
+Then run: `touch .claude/.refgate-loaded`
 
-**Framework Common Mistakes:** When building with a specific framework (StoreKit, HealthKit, CloudKit, etc.), Dev reads the Common Mistakes section from the matching file in `.claude/skills/ship/ios/references/frameworks/`. These are real patterns that cause real bugs.
-
-Do NOT proceed to Build Scope until this receipt is printed. Skipping references to move faster creates rework. This gate exists because it was violated and cost time (see LEARNINGS.md).
+Do not proceed until the receipt is printed and the marker file exists.
+<!-- END:ship-generated:command-build-load-references -->
 
 ---
 
@@ -84,7 +111,7 @@ Your rules:
 3. Move Ship Framework files back: `mv /tmp/sf-backup/* . && mv /tmp/sf-backup/.claude . && rm -rf /tmp/sf-backup`
 This preserves both the scaffolded project AND all Ship Framework files.
 
-**Reference Loading (Stack-Aware):**
+**Reference Deep Dives (when the build needs them):**
 Always load shared references: `.claude/skills/ship/ux/references/ux-principles.md`, `.claude/skills/ship/components/references/components.md`, `.claude/skills/ship/motion/references/animation.md`. Then load platform-specific references matching the declared Stack in CLAUDE.md:
 - **iOS** → `.claude/skills/ship/ios/references/swiftui-core.md`, `.claude/skills/ship/ios/references/hig-ios.md`, `.claude/skills/ship/ios/references/swift-essentials.md`, `.claude/skills/ship/ios/references/frameworks/[relevant].md`
 - **Web** → `.claude/skills/ship/web/references/react-patterns.md`, `.claude/skills/ship/web/references/web-accessibility.md`, `.claude/skills/ship/web/references/web-performance.md`
@@ -163,23 +190,26 @@ If you disagree with Arc's plan, flag it: "Arc suggested X but I think Y would b
 
 Reference what Arc planned in /ship-plan — don't start from scratch. Then read TASKS.md to pick up action items from /ship-review (Crit's must-fixes, Pol's punch list, Eye's visual bugs). Work through them in priority order.
 
-**Review Staleness:** If /ship-review has already been run on this codebase, note that your changes make the review stale. Include in your STATUS signal: "Code has changed since last /ship-review. Review is stale."
+**Review Staleness:** If /ship-review has already been run on this codebase, note that your changes make the review stale.
 
-End with:
+<!-- BEGIN:ship-generated:command-build-status-footer -->
+## Handoff / Status
+
+```text
+STATUS: [DONE / DONE_WITH_CONCERNS / BLOCKED / NEEDS_CONTEXT]
+[If DONE]: Feature done and verified. Say /ship-build for the next feature or /ship-review for feedback.
+[If DONE_WITH_CONCERNS]: Feature shipped with concerns called out clearly in the handoff.
+[If BLOCKED]: Work stopped because a concrete blocker needs founder input or missing infrastructure.
+[If NEEDS_CONTEXT]: More context is required before safe implementation can continue.
+[If /ship-review was previously run]: Note that code has changed since the last review and the review is now stale.
 ```
-STATUS: [DONE / DONE_WITH_CONCERNS / BLOCKED]
-[If review was previously run]: Note: Code has changed since last /ship-review. Review is stale.
-```
-"Feature done and committed. Here's what to test: [instructions]. Say /ship-build for the next one, or /ship-review for feedback."
 
----
+## Workflow Status Values
 
-## Completion Status
-
-End your output with one of:
-- `STATUS: DONE` — completed successfully
-- `STATUS: DONE_WITH_CONCERNS` — completed, but [list concerns]
-- `STATUS: BLOCKED` — cannot proceed: [what's needed]
-- `STATUS: NEEDS_CONTEXT` — missing: [what information]
+- `DONE`
+- `DONE_WITH_CONCERNS`
+- `BLOCKED`
+- `NEEDS_CONTEXT`
+<!-- END:ship-generated:command-build-status-footer -->
 
 User's request: $ARGUMENTS

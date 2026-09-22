@@ -1,6 +1,6 @@
 # Ship Framework — Cheatsheet
 
-`v2026.04.12` · Auto-routing enabled
+`v2026.04.12c` · Auto-routing enabled
 
 ---
 
@@ -17,6 +17,15 @@ Ship it
 ```
 
 Ship auto-detects your intent and routes to the right specialist. You can still use `/ship-*` commands directly when you want more control.
+
+## Runtime
+
+Claude Code and Codex both work with Ship now.
+
+- `CLAUDE.md` is the canonical project context.
+- `AGENTS.md` is the managed Codex bridge back to `CLAUDE.md`.
+- `.ship/framework.yaml` is the managed internal core manifest for the pilot loop.
+- In Codex, the `/ship-*` names are workflow labels, not literal commands.
 
 ---
 
@@ -69,7 +78,7 @@ Ship auto-detects your intent and routes to the right specialist. You can still 
 
 | Command | What |
 |---------|------|
-| `/ship-codex` | Second opinion from Codex (review / challenge / consult) |
+| `/ship-codex` | Claude-side Codex second opinion (review / challenge / consult) |
 | `/ship-update` | Update Ship Framework |
 
 ---
@@ -131,7 +140,9 @@ Auto-detected when `OPENAI_API_KEY` is set and the brief is a full page/screen. 
 
 | File | Purpose | Who writes |
 |------|---------|-----------|
-| `CLAUDE.md` | Product context, founder profile, stack | You |
+| `CLAUDE.md` | Canonical product context, founder profile, stack | You |
+| `AGENTS.md` | Managed Codex bridge -> `CLAUDE.md` | Ship |
+| `.ship/framework.yaml` | Managed pilot core manifest | Ship |
 | `TASKS.md` | Task backlog | All personas |
 | `DECISIONS.md` | Settled decisions | Vi, Arc, you |
 | `CONTEXT.md` | Session context | All personas |
@@ -196,7 +207,7 @@ Every command ends with a status — written like a teammate, not a log:
 
 ## Stack
 
-Declare in CLAUDE.md. Commands only load relevant references:
+Declare in CLAUDE.md. Commands only load relevant references, and Codex reads the same stack through `AGENTS.md`:
 
 ```
 Stack: web (Next.js, Tailwind, Vercel)
@@ -211,6 +222,8 @@ Stack: android (Jetpack Compose, Material 3)
 **Auto-routing:** The router skill detects your intent from natural language and maps it to the right command. No prefix needed.
 
 **Skills + References:** Skills are thin routers (~60-80 lines) that tell personas WHEN to read WHICH reference. References are the brain (200-700+ lines) — deep reasoning, correct/incorrect examples, anti-patterns. 85 reference files total.
+
+**Dual runtime:** Claude reads `CLAUDE.md` directly. Codex reads `AGENTS.md`, which points back to the same `CLAUDE.md` and Ship files.
 
 **5 Independent Agents:** Crit, Pol, Eye, Test, Adversarial — run in separate context windows during `/ship-review`.
 

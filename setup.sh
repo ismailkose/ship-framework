@@ -2,7 +2,8 @@
 
 # Ship Framework — Setup
 # Zero-prompt install. Copies files, installs Playwright. That's it.
-# All product context is gathered when you fill in CLAUDE.md.
+# Shared product context lives in CLAUDE.md. AGENTS.md is the managed Codex bridge.
+# .ship/framework.yaml is the managed internal core manifest for the pilot loop.
 #
 # Usage:
 #   bash ship-framework/setup.sh              # sets up in current directory
@@ -29,6 +30,71 @@ sedi() {
   else
     sed -i '' "$@"
   fi
+}
+
+render_template_with_version() {
+  local src="$1"
+  local dst="$2"
+
+  cp "$src" "$dst"
+  sedi "s|__VERSION__|${VERSION}|g" "$dst"
+}
+
+is_ship_managed_agents() {
+  local path="$1"
+  [ -f "$path" ] || return 1
+  grep -q "Managed by Ship Framework" "$path" 2>/dev/null
+}
+
+is_ship_managed_core_manifest() {
+  local path="$1"
+  [ -f "$path" ] || return 1
+  grep -q '"managed_by": "Ship Framework"' "$path" 2>/dev/null
+}
+
+sync_managed_agents() {
+  local target="$TARGET_DIR/AGENTS.md"
+
+  if [ ! -f "$target" ]; then
+    render_template_with_version "$TEMPLATE_DIR/AGENTS.md" "$target"
+    echo -e "${GREEN}✓${RESET} Created AGENTS.md (managed Codex bridge)"
+    return
+  fi
+
+  if is_ship_managed_agents "$target"; then
+    render_template_with_version "$TEMPLATE_DIR/AGENTS.md" "$target"
+    echo -e "${GREEN}✓${RESET} Refreshed AGENTS.md (managed Codex bridge)"
+    return
+  fi
+
+  echo -e "${YELLOW}⚠${RESET}  Found existing AGENTS.md (not from Ship Framework)."
+  echo -e "${DIM}  Left it untouched. Ship will keep using CLAUDE.md as the source of truth.${RESET}"
+}
+
+sync_managed_ship_core() {
+  local target_dir="$TARGET_DIR/.ship"
+  local target="$target_dir/framework.yaml"
+
+  if [ ! -f "$TEMPLATE_DIR/.ship/framework.yaml" ]; then
+    return
+  fi
+
+  mkdir -p "$target_dir"
+
+  if [ ! -f "$target" ]; then
+    cp "$TEMPLATE_DIR/.ship/framework.yaml" "$target"
+    echo -e "${GREEN}✓${RESET} Created .ship/framework.yaml (managed Ship core manifest)"
+    return
+  fi
+
+  if is_ship_managed_core_manifest "$target"; then
+    cp "$TEMPLATE_DIR/.ship/framework.yaml" "$target"
+    echo -e "${GREEN}✓${RESET} Refreshed .ship/framework.yaml (managed Ship core manifest)"
+    return
+  fi
+
+  echo -e "${YELLOW}⚠${RESET}  Found existing .ship/framework.yaml (not from Ship Framework)."
+  echo -e "${DIM}  Left it untouched so your internal core manifest stays yours.${RESET}"
 }
 
 echo ""
@@ -107,8 +173,7 @@ PYEOF
   echo -e "${GREEN}✓${RESET} Appended Ship Framework to existing CLAUDE.md"
 else
   # Fresh CLAUDE.md
-  cp "$TEMPLATE_DIR/CLAUDE.md" "$TARGET_DIR/CLAUDE.md"
-  sedi "s|__VERSION__|${VERSION}|g" "$TARGET_DIR/CLAUDE.md"
+  render_template_with_version "$TEMPLATE_DIR/CLAUDE.md" "$TARGET_DIR/CLAUDE.md"
   echo -e "${GREEN}✓${RESET} Created CLAUDE.md"
 fi
 
@@ -117,6 +182,16 @@ fi
 mkdir -p "$TARGET_DIR/.claude"
 cp "$TEMPLATE_DIR/.claude/team-rules.md" "$TARGET_DIR/.claude/team-rules.md"
 echo -e "${GREEN}✓${RESET} Created .claude/team-rules.md (agent definitions + rules)"
+
+# ─── Create managed Codex bridge ─────────────────────────────────────────────
+
+if [ -f "$TEMPLATE_DIR/AGENTS.md" ]; then
+  sync_managed_agents
+fi
+
+# ─── Create managed Ship core manifest ───────────────────────────────────────
+
+sync_managed_ship_core
 
 # ─── Copy slash commands as skills ───────────────────────────────────────────
 # Claude Code v2.1.88+ has a bug where .claude/commands/ aren't discovered.
@@ -283,7 +358,7 @@ fi
 if [ -f "$TEMPLATE_DIR/ship-update.sh" ]; then
   cp "$TEMPLATE_DIR/ship-update.sh" "$TARGET_DIR/ship-update.sh"
   chmod +x "$TARGET_DIR/ship-update.sh"
-  echo -e "${GREEN}✓${RESET} Created ship-update.sh (run /ship-update in Claude Code to update)"
+  echo -e "${GREEN}✓${RESET} Created ship-update.sh (run /ship-update in Claude Code or bash ship-update.sh to update)"
 fi
 
 # ─── Install Playwright ──────────────────────────────────────────────────────
@@ -314,10 +389,13 @@ echo "  1. Fill in CLAUDE.md:"
 echo "     • The Product — what you're building (2-3 sentences)"
 echo "     • The Founder — how you think and work (shapes how the team talks to you)"
 echo "     • Stack — your tech stack (determines which references load)"
+echo "     • AGENTS.md is managed by Ship for Codex — don't customize it directly"
+echo "     • .ship/framework.yaml is the internal managed core for Ship's pilot loop"
 echo ""
-echo "  2. Open Claude Code and type:"
+echo "  2. Start in either runtime:"
 echo ""
-echo -e "     ${BOLD}/ship-team I want to build [your idea]${RESET}"
+echo -e "     ${BOLD}Claude Code:${RESET} /ship-team I want to build [your idea]"
+echo -e "     ${BOLD}Codex:${RESET} open the project and describe the task naturally"
 echo ""
 echo -e "${DIM}Run /ship-update anytime to get the latest version.${RESET}"
 echo ""
