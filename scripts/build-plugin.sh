@@ -17,6 +17,8 @@
 #   5. .claude-plugin/plugin.json + README.md ← scripts/plugin-assets/
 #   6. hooks/hooks.json ← scripts/plugin-assets/hooks/ (always-on refgate + sessionstart;
 #      both scripts no-op outside Ship projects)
+#   7. bin/bootstrap-project.sh ← scripts/plugin-assets/bin/ (plugin first-run setup)
+#   templates/CLAUDE.md gets __VERSION__ filled from VERSION
 #
 # Path rewrites (project-relative → plugin-root-relative):
 #   .claude/skills/ship/<name>/  →  ${CLAUDE_PLUGIN_ROOT}/skills/ship-<name>/
@@ -43,6 +45,7 @@ fail() { echo "build-plugin: $1" >&2; exit 1; }
 [ -f "$ASSETS/plugin.json" ]      || fail "missing $ASSETS/plugin.json"
 [ -f "$ASSETS/README.md" ]        || fail "missing $ASSETS/README.md"
 [ -f "$ASSETS/hooks/hooks.json" ] || fail "missing $ASSETS/hooks/hooks.json"
+[ -f "$ASSETS/bin/bootstrap-project.sh" ] || fail "missing $ASSETS/bin/bootstrap-project.sh"
 [ -f "$ASSETS/skills/ship-router/SKILL.md" ] || fail "missing router skill asset"
 for f in CLAUDE.md TASKS.md DECISIONS.md CONTEXT.md LEARNINGS.md; do
   [ -f "$T/$f" ] || fail "missing $T/$f"
@@ -60,6 +63,8 @@ cp "$ASSETS/plugin.json" "$STAGE/.claude-plugin/plugin.json"
 cp "$ASSETS/README.md" "$STAGE/README.md"
 mkdir -p "$STAGE/hooks"
 cp "$ASSETS/hooks/hooks.json" "$STAGE/hooks/hooks.json"
+cp -R "$ASSETS/bin" "$STAGE/bin"
+chmod +x "$STAGE/bin/"*.sh
 
 # ── 2. Commands ──────────────────────────────────────────────────────────
 mkdir -p "$STAGE/commands"
@@ -98,6 +103,7 @@ for f in CLAUDE.md TASKS.md DECISIONS.md CONTEXT.md LEARNINGS.md; do
   cp "$T/$f" "$STAGE/templates/$f"
 done
 cp "$T/.claude/team-rules.md" "$STAGE/templates/team-rules.md"
+perl -pi -e "s/__VERSION__/$(cat "$ROOT/VERSION")/g" "$STAGE/templates/CLAUDE.md"
 
 # ── 5. Zip ───────────────────────────────────────────────────────────────
 # Build to temp, then overwrite in place (works even where unlink is restricted)

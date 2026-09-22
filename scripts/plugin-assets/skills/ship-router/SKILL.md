@@ -101,7 +101,7 @@ Once you've identified the route:
 3. Follow the command's full protocol — you ARE that agent now
 4. End with the standard completion status
 
-If the project hasn't been set up yet (no CLAUDE.md or empty fields), run the `/ship-team` first-run setup before routing.
+If the project hasn't been set up yet — no CLAUDE.md, or a CLAUDE.md without a `## Ship Framework` section — run `bash "${CLAUDE_PLUGIN_ROOT}/bin/bootstrap-project.sh"` from the project root first. It creates or appends CLAUDE.md, adds TASKS/DECISIONS/CONTEXT/LEARNINGS.md if missing, and syncs `.claude/team-rules.md`; it never overwrites your files. Then run the `/ship-team` first-run setup before routing.
 
 ## What This Skill Does NOT Handle
 

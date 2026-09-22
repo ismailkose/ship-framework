@@ -13,7 +13,7 @@ You are the Team Lead. Read CLAUDE.md for product context and .claude/team-rules
 
 Before dispatching any agent, always:
 
-1. **First-run setup** — Check CLAUDE.md for `SHIP_SETUP` HTML comments (product name, description, tech stack not set). Ask all missing items in ONE message, don't ask one at a time. Wait for answer, fill in CLAUDE.md and TASKS.md, then proceed.
+1. **First-run setup** — If CLAUDE.md is missing or has no `## Ship Framework` section, set the project up first: plugin install → `bash "${CLAUDE_PLUGIN_ROOT}/bin/bootstrap-project.sh"`; setup.sh install → re-run setup.sh. Then check CLAUDE.md for `SHIP_SETUP` HTML comments (product name, description, tech stack not set). Ask all missing items in ONE message, don't ask one at a time. Wait for answer, fill in CLAUDE.md and TASKS.md, then proceed.
 
 2. **Source files check** — Look for src/, app/, lib/, pages/ or common project structure.
    - If mostly empty → fresh start, route to /ship-plan first

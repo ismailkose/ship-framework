@@ -157,6 +157,28 @@ for entries in d['hooks'].values():
                 if not os.path.isfile(os.path.join(root,p)): print(p)
 " "$X" 2>&1)
   [ -f "$X/hooks/hooks.json" ] && [ -z "$MISSING" ] && ok "plugin hooks.json registers existing scripts" || bad "plugin hooks.json" "${MISSING:-missing}"
+  grep -q "__VERSION__" "$X/templates/CLAUDE.md" && bad "plugin CLAUDE.md template has version filled in" || ok "plugin CLAUDE.md template has version filled in"
+
+  # First-run bootstrap (plugin installs have no setup.sh)
+  BOOT="$X/bin/bootstrap-project.sh"
+  P="$TMP/plugin-empty"; mkdir -p "$P"
+  (cd "$P" && CLAUDE_PROJECT_DIR= bash "$BOOT" >/dev/null 2>&1)
+  if [ -f "$P/CLAUDE.md" ] && [ -f "$P/TASKS.md" ] && [ -f "$P/LEARNINGS.md" ] && [ -f "$P/.claude/team-rules.md" ]; then
+    ok "bootstrap sets up an empty project"
+  else
+    bad "bootstrap sets up an empty project" "$(ls -A "$P")"
+  fi
+  run_hook "$REFGATE" "$P" "{\"tool_input\":{\"file_path\":\"$P/src/views/Home.tsx\"}}"
+  expect "bootstrapped project is gated as a Ship project" deny "$OUT" "$CODE"
+
+  P="$TMP/plugin-own"; mkdir -p "$P" && printf '# My app\n\nMy own rules.\n' > "$P/CLAUDE.md" && echo "- [ ] my task" > "$P/TASKS.md"
+  (cd "$P" && CLAUDE_PROJECT_DIR= bash "$BOOT" >/dev/null 2>&1)
+  head -3 "$P/CLAUDE.md" | grep -q "My own rules." && grep -q "## Ship Framework" "$P/CLAUDE.md" \
+    && ok "bootstrap appends to an existing CLAUDE.md" || bad "bootstrap appends to an existing CLAUDE.md"
+  [ "$(cat "$P/TASKS.md")" = "- [ ] my task" ] && ok "bootstrap never overwrites memory files" || bad "bootstrap never overwrites memory files"
+  BEFORE="$(cat "$P/CLAUDE.md")"
+  (cd "$P" && CLAUDE_PROJECT_DIR= bash "$BOOT" >/dev/null 2>&1)
+  [ "$(cat "$P/CLAUDE.md")" = "$BEFORE" ] && ok "re-running bootstrap leaves CLAUDE.md alone" || bad "re-running bootstrap leaves CLAUDE.md alone"
 else
   bad "plugin builds"
 fi
