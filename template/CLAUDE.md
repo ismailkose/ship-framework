@@ -68,8 +68,9 @@ That file is managed by Ship Framework — don't edit it. This file is yours.
 **Codex bridge:** `AGENTS.md`
 That file is managed by Ship Framework too. Codex reads it first, then comes back here. Keep all real project context in this file, not in `AGENTS.md`.
 
-**⚠ Reference Gate (always enforced — with or without slash commands):**
-Before writing ANY code, generating ANY design, or making ANY technical recommendation, you MUST read the relevant references from `.claude/skills/ship/*/references/`. This is not optional. Print a `REFERENCES LOADED:` receipt and run `touch .claude/.refgate-loaded` before proceeding. See Rule 25 in team-rules.md. If you skip references to "move faster," the review will catch it and flag it as `REF_SKIP` — a preventable mistake.
+**References (on demand — Rule 25):** Before writing code, generating a design, or making a technical recommendation, load the references from `.claude/skills/ship/*/references/` that the change actually touches. Name them in one line of your handoff. Issues a reference would have prevented are flagged `REF_SKIP` in review.
+
+**Design gate (enforced by hook):** UI, motion, and copy edits need the design contract — `PDC.md`, which indexes `DESIGN.md`, `design-model.yaml`, and `design/components.yaml`.
 
 **Core Loop:**
 

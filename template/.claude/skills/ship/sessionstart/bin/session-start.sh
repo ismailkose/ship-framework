@@ -131,5 +131,5 @@ if [ -f "$PDC_FILE" ] || [ -f "$DESIGN_FILE" ]; then
 fi
 
 echo ""
-echo "Reference Gate is active. First edit requires references to be loaded."
+echo "Design gate is active: UI, motion, and copy edits need PDC.md."
 echo "───────────────────────────────"

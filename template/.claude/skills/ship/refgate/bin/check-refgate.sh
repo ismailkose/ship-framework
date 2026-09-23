@@ -21,7 +21,6 @@ if ! grep -q "## /team\|## Ship Framework\|ship-framework" CLAUDE.md 2>/dev/null
   exit 0
 fi
 
-REFS_LOADED=".claude/.refgate-loaded"
 PDC_FILE="PDC.md"
 DEBUG_LOG="/tmp/refgate-debug.log"
 
@@ -99,12 +98,6 @@ if [ ! -f "$PDC_FILE" ]; then
   else
     deny "Design Gate: No design contract found. Run /ship-design init to scaffold DESIGN.md + PDC.md. Without it, design consistency cannot be enforced."
   fi
-fi
-
-# ── Backward compat: framework references must be loaded ─────────────────────
-
-if [ ! -f "$REFS_LOADED" ]; then
-  deny "Reference Gate: Load references before editing. Run your /ship-* command first, or read the relevant references/ files."
 fi
 
 # ── Check if the relevant design section has been read this session ───────────

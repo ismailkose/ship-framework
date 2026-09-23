@@ -23,7 +23,7 @@ hooks:
 
 # Reference Gate — Dimension-Aware Design Protection
 
-This skill enforces Rule 25 (Reference Gate) as a real PreToolUse hook. It classifies edits by design dimension and ensures the relevant design context has been loaded before allowing changes.
+A PreToolUse hook that guards design edits. It classifies edits by design dimension and ensures the relevant design context has been read before allowing changes. (Framework references are loaded on demand — Rule 25 — and are not gated.)
 
 ## How It Works
 
@@ -37,7 +37,6 @@ This skill enforces Rule 25 (Reference Gate) as a real PreToolUse hook. It class
    - PDC.md missing → **hard block** with message to run `/ship-design init`
    - PDC.md exists → check if the relevant section has been read this session
 3. **Per-dimension gating** — each dimension has its own lifecycle marker. Reading the motion section doesn't satisfy the UI gate, and vice versa.
-4. **Backward compat** — framework references (`.refgate-loaded`) must still be loaded before any edit.
 
 ## Dimension Classification
 
@@ -58,7 +57,6 @@ When PDC.md does not exist and an edit touches a design dimension, the gate **ha
 
 | File | Created by | Meaning |
 |---|---|---|
-| `.claude/.refgate-loaded` | Ship commands (after REFERENCES LOADED receipt) | Framework references loaded this session |
 | `.claude/.refgate-dim-ui` | Ship commands (after reading UI design section) | UI design section read this session |
 | `.claude/.refgate-dim-motion` | Ship commands (after reading motion section) | Motion section read this session |
 | `.claude/.refgate-dim-copy` | Ship commands (after reading copy section) | Copy section read this session |
@@ -71,11 +69,10 @@ When Ship commands read a design section (e.g., `/ship-build` reads the motion s
 touch .claude/.refgate-dim-motion
 ```
 
-This mirrors how `touch .claude/.refgate-loaded` works for framework references.
 
 ## Session Cleanup
 
-All state files (`.refgate-loaded` and `.refgate-dim-*`) are cleaned at session start by `ship-sessionstart`. Each new session starts with a clean gate — design sections must be re-read.
+All state files (`.refgate-dim-*`) are cleaned at session start by `ship-sessionstart`. Each new session starts with a clean gate — design sections must be re-read.
 
 ## Compatibility
 

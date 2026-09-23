@@ -53,6 +53,9 @@ run_hook "$REFGATE" "$P" "{\"tool_input\":{\"file_path\":\"$P/src/services/api.t
 expect "logic edit allowed without PDC.md" allow "$OUT" "$CODE"
 run_hook "$REFGATE" "$P" '{}'
 expect "missing file_path fails open" allow "$OUT" "$CODE"
+printf 'design_model: design-model.yaml\n' > "$P/PDC.md"
+run_hook "$REFGATE" "$P" "{\"tool_input\":{\"file_path\":\"$P/src/views/Home.swift\"}}"
+expect "UI edit allowed once PDC.md exists — no reference receipt/marker needed" allow "$OUT" "$CODE"
 P="$TMP/not-ship"; mkdir -p "$P" && printf '# Some other project\n' > "$P/CLAUDE.md"
 run_hook "$REFGATE" "$P" "{\"tool_input\":{\"file_path\":\"$P/src/views/Home.tsx\"}}"
 expect "non-Ship project is never gated" allow "$OUT" "$CODE"
@@ -188,6 +191,11 @@ printf '  - name: StatCard\n    file: UI/StatCard.swift\n    tokens: [brand.500]
 OUT="$(python3 "$DM" validate --root "$P" 2>&1)"
 [ $? -ne 0 ] && echo "$OUT" | grep -q "color primitive" && echo "$OUT" | grep -q "not found" \
   && ok "component using a raw primitive / missing file is rejected" || bad "component using a raw primitive / missing file is rejected" "$OUT"
+sed -i '' '/name: StatCard/,$d' "$P/design/components.yaml"
+printf '    variants: [content, grouped]\n' >> "$P/design/components.yaml"
+python3 "$DM" validate --root "$P" >/dev/null 2>&1 && ok "component variants accepted" || bad "component variants accepted" "$(python3 "$DM" validate --root "$P" 2>&1)"
+printf '  - name: Badge\n    planned: true\n    tokens: [action]\n    variants: Big\n' >> "$P/design/components.yaml"
+python3 "$DM" validate --root "$P" 2>&1 | grep -q "variants must be" && ok "malformed variants rejected" || bad "malformed variants rejected"
 P="$TMP/unfilled"; mkdir -p "$P" && cp "$SKILLS/design/references/design-model-template.yaml" "$P/design-model.yaml"
 python3 "$DM" validate --root "$P" >/dev/null 2>&1 && bad "unfilled template is rejected" || ok "unfilled template is rejected"
 
@@ -282,6 +290,7 @@ for entries in d['hooks'].values():
                 if not os.path.isfile(os.path.join(root,p)): print(p)
 " "$X" 2>&1)
   [ -f "$X/hooks/hooks.json" ] && [ -z "$MISSING" ] && ok "plugin hooks.json registers existing scripts" || bad "plugin hooks.json" "${MISSING:-missing}"
+  grep -rq "refgate-loaded\|REFERENCES LOADED" "$X/commands" "$X/templates" && bad "plugin still asks for reference receipts/markers" || ok "no reference receipts/markers left in commands or templates"
   MISSING=""
   for ref in $(grep -oh '${CLAUDE_PLUGIN_ROOT}/[A-Za-z0-9_./-]*\.\(py\|sh\)' "$X"/commands/*.md "$X"/skills/*/SKILL.md | sort -u); do
     rel="${ref#\$\{CLAUDE_PLUGIN_ROOT\}/}"

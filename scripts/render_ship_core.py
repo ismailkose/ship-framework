@@ -74,9 +74,8 @@ def validate_manifest(data):
     reference_gate = policies.get("reference_gate")
     if not isinstance(reference_gate, dict) or not reference_gate.get("enabled"):
         fail("manifest policies.reference_gate.enabled must be true")
-    for key in ("receipt_label", "marker_file"):
-        if key not in reference_gate:
-            fail(f"manifest policies.reference_gate missing key: {key}")
+    if reference_gate.get("mode") != "on_demand":
+        fail("manifest policies.reference_gate.mode must be 'on_demand'")
 
     shared_context = policies.get("shared_context_switching")
     if not isinstance(shared_context, dict) or not shared_context.get("enabled"):
@@ -145,11 +144,11 @@ def render_reference_item(item):
 
 def render_reference_block(manifest, workflow_id):
     workflow = workflow_map(manifest)[workflow_id]
-    reference_gate = manifest["policies"]["reference_gate"]
     lines = [
-        "## Load References",
+        "## References",
         "",
-        "Before moving into this workflow, load the reference groups below:",
+        "Load what this change actually touches — open the specific files and sections you need,",
+        "not the whole list. A one-line change needs no references; a new screen needs the relevant ones.",
         "",
     ]
 
@@ -162,19 +161,8 @@ def render_reference_block(manifest, workflow_id):
     lines.extend(
         [
             "",
-            "## Reference Gate",
-            "",
-            "**STOP.** Before continuing, print a receipt of every reference you loaded:",
-            "",
-            "```text",
-            reference_gate["receipt_label"],
-            "- [filename] ✓",
-            "- [filename] ✓",
-            "```",
-            "",
-            f"Then run: `touch {reference_gate['marker_file']}`",
-            "",
-            "Do not proceed until the receipt is printed and the marker file exists.",
+            "Name the references you relied on in one line of your handoff. If review finds an issue",
+            "a listed reference would have prevented, it's flagged `REF_SKIP` (Rule 25).",
         ]
     )
 
@@ -221,19 +209,15 @@ def render_agents_startup_order(manifest):
 
 
 def render_agents_reference_gate(manifest):
-    gate = manifest["policies"]["reference_gate"]
     workflow_labels = ", ".join(
         format_codespan(workflow["command_name"]) for workflow in manifest["workflows"]
     )
     lines = [
-        f"Before running any pilot Ship workflow ({workflow_labels}), load the relevant Ship references from `.claude/skills/ship/*/references/`.",
+        f"For the pilot Ship workflows ({workflow_labels}), load the Ship references under `.claude/skills/ship/*/references/` that the change actually touches — on demand, not the whole list.",
         "",
-        "After loading them:",
+        "Name the references you relied on in one line of your handoff. Review flags issues a reference would have prevented as `REF_SKIP`.",
         "",
-        f"1. Print a `{gate['receipt_label']}` receipt listing what you read.",
-        f"2. Run `touch {gate['marker_file']}` before proceeding.",
-        "",
-        "This rule still applies in Codex even though the original framework was designed around Claude commands.",
+        "UI edits still need the project's design contract (`PDC.md` → `DESIGN.md`, `design-model.yaml`, `design/components.yaml`).",
     ]
     return "\n".join(lines)
 

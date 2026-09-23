@@ -23,8 +23,7 @@
   "policies": {
     "reference_gate": {
       "enabled": true,
-      "receipt_label": "REFERENCES LOADED:",
-      "marker_file": ".claude/.refgate-loaded"
+      "mode": "on_demand"
     },
     "shared_context_switching": {
       "enabled": true,

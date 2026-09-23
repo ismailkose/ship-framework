@@ -29,14 +29,11 @@ If `CLAUDE.md` and this file ever appear to disagree, follow `CLAUDE.md`. It is 
 ## Reference Gate
 
 <!-- BEGIN:ship-generated:agents-reference-gate -->
-Before running any pilot Ship workflow (`/ship-think`, `/ship-plan`, `/ship-build`, `/ship-review`), load the relevant Ship references from `.claude/skills/ship/*/references/`.
+For the pilot Ship workflows (`/ship-think`, `/ship-plan`, `/ship-build`, `/ship-review`), load the Ship references under `.claude/skills/ship/*/references/` that the change actually touches — on demand, not the whole list.
 
-After loading them:
+Name the references you relied on in one line of your handoff. Review flags issues a reference would have prevented as `REF_SKIP`.
 
-1. Print a `REFERENCES LOADED:` receipt listing what you read.
-2. Run `touch .claude/.refgate-loaded` before proceeding.
-
-This rule still applies in Codex even though the original framework was designed around Claude commands.
+UI edits still need the project's design contract (`PDC.md` → `DESIGN.md`, `design-model.yaml`, `design/components.yaml`).
 <!-- END:ship-generated:agents-reference-gate -->
 
 ## Runtime Mapping

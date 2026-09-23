@@ -23,7 +23,7 @@ This skill fires once when a Claude Code session begins in a Ship Framework proj
 
 1. **Reads CLAUDE.md** — extracts Stack, product name, and framework version
 2. **Counts project state** — open tasks (TASKS.md), decisions (DECISIONS.md), learnings (LEARNINGS.md)
-3. **Cleans refgate state** — removes `.claude/.refgate-loaded` and `.claude/.refgate-passed` from previous sessions so the Reference Gate fires fresh
+3. **Cleans refgate state** — removes design-gate markers (`.claude/.refgate-dim-*`) and legacy markers from previous sessions so the design gate fires fresh
 4. **Sets environment variables** — `SHIP_STACK`, `SHIP_VERSION`, `SHIP_PRODUCT` available to all subsequent hooks and scripts via `$CLAUDE_ENV_FILE`
 5. **Prints context** — status line shown to Claude as initial session context
 

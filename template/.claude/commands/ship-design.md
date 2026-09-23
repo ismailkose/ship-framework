@@ -12,13 +12,13 @@ You are running the /ship-design command. Pol leads the process, Eye validates t
 - LEARNINGS.md (design preferences from past sessions)
 - CONTEXT.md (project learnings, if it exists)
 
-**Load references (mandatory):** Before Phase 1, load Ship references and print receipt:
+**Load references (on demand, Rule 25):** before the phase that needs them:
 - Typography, Color, Spacing, Components, Motion, Layout
 - Design-research, Design-quality, Dark-mode, Copy-clarity
 - **Design-model schema** (`.claude/skills/ship/design/references/design-model-schema.md`) — required before writing or reading `design-model.yaml` / `design/components.yaml`
 - Platform-specific: If web, load accessibility and performance refs. If iOS, load HIG and SwiftUI refs.
 
-Print receipt with `✓` marks and run: `touch .claude/.refgate-loaded`
+Name the references you used in one line of the handoff.
 
 ---
 
@@ -211,7 +211,8 @@ After the registry is written, generate `PDC.md` — the Project Design Contract
 3. Read CLAUDE.md for the `Stack:` field to set `platform:`
 4. If TASTE.md does not exist, set `taste: missing`
 5. Write PDC.md to the project root
-6. Create dimension-specific refgate markers for all sections just written:
+6. Add the registry index to PDC.md — `design_model: design-model.yaml` and `components: design/components.yaml` — plus the exact validate / re-emit commands **with the tool path as it resolves in this install** (plugin installs live outside the project), so Theme.swift's "see PDC.md" header points somewhere real
+7. Create dimension-specific refgate markers for all sections just written:
    ```bash
    touch .claude/.refgate-dim-ui .claude/.refgate-dim-motion .claude/.refgate-dim-copy
    ```

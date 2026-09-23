@@ -23,9 +23,10 @@ Before starting, load the relevant Ship skills:
 5. Check CLAUDE.md "My Skills" section for user-declared skill wiring matching /ship-build — load any matching skills
 
 <!-- BEGIN:ship-generated:command-build-load-references -->
-## Load References
+## References
 
-Before moving into this workflow, load the reference groups below:
+Load what this change actually touches — open the specific files and sections you need,
+not the whole list. A one-line change needs no references; a new screen needs the relevant ones.
 
 - **Shared project context**
   - `CLAUDE.md`
@@ -51,19 +52,8 @@ Before moving into this workflow, load the reference groups below:
   - `Web -> .claude/skills/ship/web/references/react-patterns.md + .claude/skills/ship/web/references/web-accessibility.md + .claude/skills/ship/web/references/web-performance.md`
   - `Android -> .claude/skills/ship/android/references/ when content exists`
 
-## Reference Gate
-
-**STOP.** Before continuing, print a receipt of every reference you loaded:
-
-```text
-REFERENCES LOADED:
-- [filename] ✓
-- [filename] ✓
-```
-
-Then run: `touch .claude/.refgate-loaded`
-
-Do not proceed until the receipt is printed and the marker file exists.
+Name the references you relied on in one line of your handoff. If review finds an issue
+a listed reference would have prevented, it's flagged `REF_SKIP` (Rule 25).
 <!-- END:ship-generated:command-build-load-references -->
 
 ---
@@ -102,8 +92,9 @@ Your rules:
 3. Test first, code second (TDD) — write the failing test, then the code (see TDD Rules below)
 4. Explain every decision in one sentence: "I'm using X because Y"
 5. Commit after each working feature — atomic commits, one concern per commit (Rule 22). A feature + its tests = one commit. Unrelated fixes = separate commits.
-6. Verify before claiming done — run the test suite, show the output, THEN say "Feature done." Never say "should work" or "looks good" — show the passing tests. If tests don't exist yet, run the app and verify the feature manually with a screenshot or console output.
+6. Verify before claiming done — run the test suite, show the output, THEN say "Feature done." Never say "should work" or "looks good" — show the passing tests. If tests don't exist yet, run the app and verify the feature manually with a screenshot or console output. **UI work:** before/after screenshots of the affected screen, with data that exercises it (e.g. 30 days of entries for a 30-day chart — not the 4-day seed).
 7. If something breaks, say what happened in plain English before fixing
+8. **Fixing a reported bug or TASKS item: reproduce the symptom first.** Run the app with realistic data and look at the whole screen the report describes. Fix what the user sees, not the ticket's guess at the cause — reports are often written from memory. If it truly no longer reproduces, say so with the screenshot, and look for what's actually wrong nearby before closing it. Tick a TASKS item only with that evidence in the handoff.
 
 **Scaffolding rule:** The project directory already has Ship Framework files that must be preserved: CLAUDE.md, TASKS.md, CHEATSHEET.md, .claude/, references/. Scaffolding tools (create-next-app, create-vite, etc.) refuse non-empty directories. To handle this:
 1. Temporarily move Ship Framework files out: `mkdir /tmp/sf-backup && mv CLAUDE.md TASKS.md CHEATSHEET.md .claude references /tmp/sf-backup/`
@@ -123,6 +114,8 @@ When building layouts, read `.claude/skills/ship/ux/references/layout-responsive
 
 When building forms, read `.claude/skills/ship/ux/references/forms-feedback.md` Section 1 — labels, validation timing, progressive disclosure, multi-step patterns. Section 2 has feedback patterns (empty states, toasts, confirmation vs undo).
 
+**Generated Xcode projects (iOS):** if the repo has `project.yml` (XcodeGen) or a similar generator, the checked-in `.xcodeproj` may have drifted from it. Before regenerating to add a file, run the generator, then `git diff` the `.pbxproj`: restore anything that only lived in the Xcode project (signing team, custom build settings) and keep only the new file's entries. Never commit a regenerated project blind.
+
 **Framework Common Mistakes:** Every file in `.claude/skills/ship/ios/references/frameworks/` now includes a Common Mistakes section. When building with a specific framework, Dev reads the Common Mistakes from the matching framework reference BEFORE writing code — prevention is cheaper than debugging.
 
 When building UI components, follow Arc's component architecture spec. Read `.claude/skills/ship/components/references/components.md` — use the project's design system first, reach for headless primitives to fill gaps, never rebuild accessible behavior from scratch. Before building any UI, verify the component layer is installed (e.g., check for `components.json` — if missing and the stack specifies shadcn/ui, run the setup from `.claude/skills/ship/components/references/components.md` Section 2 first). Check `references/design-system.md` if it exists (project-specific tokens and rules override framework defaults).
@@ -131,7 +124,7 @@ When building UI components, follow Arc's component architecture spec. Read `.cl
 
 1. **Check the system** — read `design/components.yaml`. Silent: don't announce the lookup.
 2. **Hit → reuse** the registered component as-is. If it doesn't fit, that's a design decision for the founder, not a fork.
-3. **Miss → classify.** Reusable primitive (button, input, field, badge, card, list row, nav element — *would a second screen plausibly want it?*) → build it against tokens only (`Theme.*` on iOS; no raw hex, sizes, or springs) and add an entry to `design/components.yaml` (name, file, semantic tokens, one-line doc, added date). One-off composition (this screen's layout) → compose locally from registered pieces; don't register it. Unsure → keep it local; the third time the same local pattern appears, ask the founder once: "Promote X to the design system?"
+3. **Miss → classify.** Reusable primitive (button, input, field, badge, card, list row, nav element — *would a second screen plausibly want it?*) → build it against tokens only (`Theme.*` on iOS; no raw hex, sizes, or springs) and add an entry to `design/components.yaml` (name, file, semantic tokens, `variants` if it has styles like `.content`/`.grouped`, one-line doc, added date). One-off composition (this screen's layout) → compose locally from registered pieces; don't register it. Unsure → keep it local; the third time the same local pattern appears, ask the founder once: "Promote X to the design system?"
 4. **Validate** after any registry or token change: `python3 .claude/skills/ship/design/bin/design_model.py validate`. If `design-model.yaml` changed on iOS, re-emit with `emit-swiftui` instead of editing `Theme.swift`.
 
 End the build receipt with one line: `Design system: reused PrimaryButton · registered StatCard`.
@@ -197,7 +190,7 @@ If Arc didn't recommend a worktree, use normal feature branches. First time usin
 
 If you disagree with Arc's plan, flag it: "Arc suggested X but I think Y would be simpler because Z. Your call."
 
-Reference what Arc planned in /ship-plan — don't start from scratch. Then read TASKS.md to pick up action items from /ship-review (Crit's must-fixes, Pol's punch list, Eye's visual bugs). Work through them in priority order.
+Reference what Arc planned in /ship-plan — don't start from scratch. Then read TASKS.md to pick up action items from /ship-review (Crit's must-fixes, Pol's punch list, Eye's visual bugs). Work through them in priority order — reproducing each one first (rule 8).
 
 **Review Staleness:** If /ship-review has already been run on this codebase, note that your changes make the review stale.
 

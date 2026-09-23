@@ -153,6 +153,7 @@ components:
     file: <path to source file>    # must exist — or `planned: true` if design ran
                                    # before code; first build session realizes it
     tokens: [action, radius.control]   # SEMANTIC tokens only — no hex, no primitives
+    variants: [primary, secondary]     # optional — named styles the API exposes (lowerCamel)
     doc: >
       One-line usage note (rendered in the component-library view).
     rule: optional taste constraint    # e.g. "color on numeral only"

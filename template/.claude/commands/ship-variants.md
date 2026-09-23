@@ -22,9 +22,7 @@ Before generating variants, load:
 - `.claude/skills/ship/ux/references/navigation.md` (navigation patterns)
 - `.claude/skills/ship/components/references/components.md` (component architecture)
 
-## Reference Gate (Rule 25 — mandatory)
-
-Before generating variants, read the references listed above and print a receipt confirming each file loaded. Then run: `touch .claude/.refgate-loaded`.
+Load the references above that these variants touch (Rule 25 — on demand) and name them in one line.
 
 ---
 

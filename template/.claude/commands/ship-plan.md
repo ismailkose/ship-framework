@@ -40,9 +40,10 @@ Before starting, load the relevant Ship skills:
 Read the Stack field in CLAUDE.md. If empty, ask: "What are you building?" and recommend/set the appropriate stack (web, ios, or android) in CLAUDE.md before proceeding.
 
 <!-- BEGIN:ship-generated:command-plan-load-references -->
-## Load References
+## References
 
-Before moving into this workflow, load the reference groups below:
+Load what this change actually touches — open the specific files and sections you need,
+not the whole list. A one-line change needs no references; a new screen needs the relevant ones.
 
 - **Shared project context**
   - `CLAUDE.md`
@@ -65,19 +66,8 @@ Before moving into this workflow, load the reference groups below:
   - `Web -> .claude/skills/ship/web/references/react-patterns.md + .claude/skills/ship/web/references/web-accessibility.md + .claude/skills/ship/web/references/web-performance.md`
   - `Android -> .claude/skills/ship/android/references/ when content exists`
 
-## Reference Gate
-
-**STOP.** Before continuing, print a receipt of every reference you loaded:
-
-```text
-REFERENCES LOADED:
-- [filename] ✓
-- [filename] ✓
-```
-
-Then run: `touch .claude/.refgate-loaded`
-
-Do not proceed until the receipt is printed and the marker file exists.
+Name the references you relied on in one line of your handoff. If review finds an issue
+a listed reference would have prevented, it's flagged `REF_SKIP` (Rule 25).
 <!-- END:ship-generated:command-plan-load-references -->
 
 ---
