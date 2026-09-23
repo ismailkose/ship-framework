@@ -191,6 +191,67 @@ OUT="$(python3 "$DM" validate --root "$P" 2>&1)"
 P="$TMP/unfilled"; mkdir -p "$P" && cp "$SKILLS/design/references/design-model-template.yaml" "$P/design-model.yaml"
 python3 "$DM" validate --root "$P" >/dev/null 2>&1 && bad "unfilled template is rejected" || ok "unfilled template is rejected"
 
+P="$TMP/real-app"; mkdir -p "$P"
+cat > "$P/design-model.yaml" <<'YAML'
+schema_version: 1
+modes: [light, dark]
+brand: { name: Real, feel: [warm, sharp, grounded] }
+primitives:
+  color:
+    paper: { 0: "#FFFFFF", 50: "#F9F9F5" }
+    night: { 900: "#262524", 850: "#2E2D2B" }
+    veil:  { sand50: "#DFDED180", white06: "#FFFFFF0F" }
+    ember: { 500: "#D4692C", 400: "#E0844A" }
+  type:
+    families: { display: Gelasio, text: Geist }
+    dynamic_type: false
+    styles:
+      heroTitle: { family: display, weight: Bold, size: 34 }
+      body:      { family: text, weight: Regular, size: 17 }
+  radius: { md: 12 }
+  spacing: { unit: 4, scale: { sm: 8, md: 16 } }
+  motion:
+    springs: { default: { response: 0.35, damping: 0.85 } }
+    durations: { fade: { ms: 200, curve: easeOut } }
+semantic:
+  background: paper.50
+  surface: paper.0
+  text: system.primary
+  muted: system.secondary
+  hairline: system.separator
+  action: ember.500
+  bubble: { border: veil.sand50 }
+semantic_dark:
+  background: night.900
+  surface: night.850
+  text: system.primary
+  muted: system.secondary
+  hairline: system.separator
+  action: ember.400
+  bubble: { border: veil.white06 }
+emit:
+  swiftui:
+    namespaces: { colors: Brand, typography: Typo }
+    rename: { action: accent }
+YAML
+if python3 "$DM" emit-swiftui --root "$P" --out Theme.swift >/dev/null 2>&1; then
+  G="$P/Theme.swift"
+  grep -q "^enum Brand {" "$G" && grep -q "static let accent = Color(light: 0xD4692C, dark: 0xE0844A)" "$G" \
+    && grep -q "enum Bubble {" "$G" && grep -q 'static let text = Color.primary' "$G" \
+    && grep -q 'static let heroTitle: Font = .custom("Gelasio-Bold", size: 34)$' "$G" \
+    && grep -q 'static let `default` = Animation.spring' "$G" && grep -q 'Animation.easeOut(duration: 0.2)' "$G" \
+    && ok "real-app model emits existing names (namespaces, rename, groups, system colors, styles)" \
+    || bad "real-app model emits existing names" "$(cat "$G")"
+  if xcrun -sdk iphonesimulator --show-sdk-path >/dev/null 2>&1; then
+    xcrun -sdk iphonesimulator swiftc -typecheck -target arm64-apple-ios17.0-simulator "$G" >/dev/null 2>&1 \
+      && ok "real-app Theme.swift type-checks" || bad "real-app Theme.swift type-checks"
+  fi
+else
+  bad "real-app model validates" "$(python3 "$DM" validate --root "$P" 2>&1)"
+fi
+sed -i '' 's/text: system.primary/text: system.notAColor/' "$P/design-model.yaml"
+python3 "$DM" validate --root "$P" 2>&1 | grep -q "unknown system color" && ok "unknown system color is rejected" || bad "unknown system color is rejected"
+
 # ── Plugin build ─────────────────────────────────────────────────────────
 echo "Plugin build"
 B="$TMP/build"; mkdir -p "$B"

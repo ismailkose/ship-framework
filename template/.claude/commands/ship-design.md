@@ -177,6 +177,8 @@ Also update LEARNINGS.md under "## Design Preferences" with decisions and ration
 
 Write the token registry. This is the file `/ship-build`, previews, and platform emitters read — the single source of truth for design values.
 
+**Existing app with a hand-written theme?** Don't redesign it into the template's shape. Follow "Adopting an existing app" in `design-model-schema.md`: translate the current values as-is, set `emit.swiftui` to the names the views already use, emit to a scratch path, and diff every token against the old file before replacing it. Views should not change.
+
 1. Load `design-model-schema.md` + `design-model-template.yaml` from `.claude/skills/ship/design/references/`
 2. Fill the template from Phase 3 decisions: primitives (color ramps, type scale, radius, spacing, motion springs), then semantic + semantic_dark layers
 3. Dark mode is required by default (`modes: [light, dark]`). Light-only needs explicit `modes: [light]` + a documented "Dark mode exception" in DESIGN.md

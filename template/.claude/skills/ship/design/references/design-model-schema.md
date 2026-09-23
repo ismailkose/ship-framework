@@ -57,8 +57,8 @@ primitives:                     # ── LAYER 1: raw values. Hex/numbers ONLY h
     scale:
       <name>: <px>              # required: `body` + at least one display size
   radius:
-    control: <px>               # required
-    card: <px>                  # required
+    control: <px>               # recommended (at least one radius required)
+    card: <px>                  # recommended
     <name>: <px>                # free extension
   spacing:
     unit: <px>                  # everything derives from unit multiples
@@ -91,9 +91,51 @@ semantic_dark:                  # REQUIRED when `dark` ∈ modes (the default).
                                 # modes; Eye validates contrast in both.
 ```
 
+### Real-app extensions (all optional)
+
+Existing apps rarely fit the minimal form. These keep the registry honest about what the
+code actually does — use them instead of bending the app to the schema:
+
+```yaml
+primitives:
+  color:
+    veil: { sand50: "#DFDED180" }        # 8-digit hex = color with alpha
+  type:
+    families: { display: Gelasio, text: Geist }   # multi-font system (document why in DESIGN.md)
+    dynamic_type: false                  # default true; false = fixed sizes (match legacy code)
+    styles:                              # per-style font + weight + size (instead of `scale`)
+      heroTitle: { family: display, weight: Bold, size: 34 }   # font name = Gelasio-Bold
+      body:      { family: text, weight: Regular, size: 17 }
+      # `font: "Exact-PostScriptName"` overrides the family-weight convention
+  spacing:
+    unit: 4
+    scale: { xs: 4, sm: 8, md: 16 }      # named steps (identifiers can't start with a digit)
+  motion:
+    durations:
+      fade: { ms: 200, curve: easeOut }  # curve: linear | easeIn | easeOut | easeInOut
+
+semantic:
+  text:  system.primary                  # Apple adaptive colors — `system.<name>`
+  bubble: { fill: paper.250, border: veil.sand50 }   # groups → nested enums (Brand.Bubble.fill)
+
+emit:
+  swiftui:                               # keep the names an existing codebase already uses
+    namespaces: { colors: Brand, typography: Typo, radius: Radius, spacing: Spacing, motion: Motion }
+    rename: { action: accent }           # Ship role name → codebase name
+```
+
+Defaults when `emit` is absent: `Theme.Colors`, `Theme.Typography`, `Theme.Radius`,
+`Theme.Spacing`, `Theme.Motion`. Required semantic keys stay required — map them to
+`system.*` colors when the app uses Apple's.
+
+**Adopting an existing app:** translate DESIGN.md + the hand-written theme into the YAML,
+set `emit.swiftui` to the existing names, emit to a scratch path, and diff every token
+value against the old file before replacing it. Views should not need to change.
+
 ### Validation rules (check before every write)
 
-1. Every `semantic` / `semantic_dark` value resolves to an existing `primitives` path.
+1. Every `semantic` / `semantic_dark` value resolves to an existing `primitives` path
+   (or a known `system.<name>` color).
 2. No hex value appears outside `primitives`.
 3. `brand.feel` has 3-5 entries.
 4. All six required semantic keys present — in both modes unless `modes: [light]`.
