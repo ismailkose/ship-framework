@@ -6,6 +6,42 @@ To update an existing project, run `bash ship-update.sh` from your project root,
 
 ---
 
+## 2026.09.22 — A Design System That Grows, Codex Support, Less Ceremony
+
+Everything since 2026.04.14, tested end-to-end on a real iOS app (CoachEva) before release.
+
+### Your design system, as data
+- **Design tokens live in `design-model.yaml`; reusable components are listed in `design/components.yaml`.** `/ship-design` plants the seed; `PDC.md` indexes both. Values live in the YAML, the reasoning stays in `DESIGN.md`.
+- **Theme.swift is generated, not hand-written.** One command checks every rule (colors resolve, no stray hex, light + dark complete, components only use tokens) and another writes the SwiftUI theme — colors, type, radius, spacing, and motion springs. Change the YAML, re-generate; never edit the theme by hand.
+- **The system grows while you build.** `/ship-build` checks the registry before every UI element: reuse what exists, register a genuinely reusable piece the first time it's built, keep one-off layouts local. The third time a local pattern repeats, you get one "promote this?" question. Each build ends with a line like `Design system: reused PrimaryButton · registered StatCard`.
+- **Works with an app you already have.** Two-font type systems, Apple's system colors, grouped tokens, colors with transparency, and — most importantly — the names your views already use (e.g. `Brand`, `Typo`). Adopting it on CoachEva changed zero views and matched all 33 existing tokens exactly.
+- **Design gate.** UI, motion, and copy edits need the design contract (`PDC.md`) — the gate is dimension-aware, so logic and test edits are never blocked.
+- **Design previews (early) and motion discipline.** `/ship-design --preview` builds an HTML preview plus a native `DesignPreview.swift` for iOS; animations must use a named motion primitive.
+
+### Less ceremony, more evidence
+- **References on demand.** No more "read the whole list, print a receipt, create a marker file" before every edit. Load what the change touches and name it in one line of the handoff. Review still flags anything a reference would have prevented (`REF_SKIP`).
+- **Reproduce first.** When fixing a reported bug or a task, `/ship-build` now reproduces the symptom with realistic data and fixes what users actually see — not the ticket's guess at the cause. A task only gets ticked with evidence; UI work needs before/after screenshots.
+- **Generated Xcode projects.** `/ship-build` now warns to check the project-file diff after regenerating with XcodeGen, so settings like your signing team don't silently disappear.
+
+### Codex support
+- **Ship works in Codex through a managed `AGENTS.md` bridge.** `CLAUDE.md` stays the source of truth; Claude and Codex share the same `TASKS.md`, `DECISIONS.md`, `CONTEXT.md`, and `LEARNINGS.md`, so you can switch mid-project without re-planning. Needs the `setup.sh` install (Codex reads references from the project).
+
+### Better design rules (Practical UI)
+- **Structural rules that improve any visual direction:** a 3-weight button system, form rules (hints above fields, single-column layouts, no disabled submit buttons), brand color on interactive elements only, and new AI-slop checks for Pol (multiple primary buttons, full-width short data, mixed alignment).
+
+### Fixes
+- **`/ship-careful` and `/ship-freeze` actually block now.** Their warnings used a format Claude Code ignores.
+- **`/ship-guard` works in plugin installs** (it pointed at scripts that didn't exist in the plugin layout).
+- **`/ship-design` can finish on a fresh project** — the design gate used to block the very token files it was creating.
+- **Plugin installs get the always-on hooks** (design gate + session start). Both stay silent in projects that don't use Ship.
+- **Plugin first run creates your project files** (`CLAUDE.md`, `TASKS.md`, …) instead of assuming they exist.
+- **`setup.sh` / `/ship-update` no longer skip Ship's hooks** when you already have other hooks, and no longer overwrite your own session-start hooks.
+
+### Plugin
+- **Version 5.1.0.** Download `ship-framework.plugin` from the release and open it — it replaces the previous version. Your project files are never touched.
+
+---
+
 ## 2026.04.14 — Agent Safety Hardening
 
 ### Review agents are now read-only

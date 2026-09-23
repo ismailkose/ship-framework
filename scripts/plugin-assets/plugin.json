@@ -1,6 +1,6 @@
 {
   "name": "ship-framework",
-  "version": "5.0.0",
+  "version": "5.1.0",
   "description": "Ship Framework — an AI product team for one-person teams. Auto-routes natural language to the right agent: plan, build, review, fix, launch. 21 commands, 5 specialist agents, design + code references for iOS, Web, and Android.",
   "author": {
     "name": "Ismail Kose"

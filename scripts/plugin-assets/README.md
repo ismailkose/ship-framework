@@ -79,4 +79,4 @@ Ship bundles design and development references for three stacks:
 
 ## Version
 
-Ship Framework v5.0.0
+Ship Framework v5.1.0 (2026.09.22)

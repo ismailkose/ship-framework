@@ -115,7 +115,7 @@ You don't need to learn these — auto-routing handles it. But when you want to 
 
 | Hook | When | What it does |
 |:---|:---|:---|
-| **Reference Gate** | First Edit/Write | Blocks coding until references are loaded. Passes after first successful edit. |
+| **Design Gate** | Edit/Write on UI, motion, or copy files | Blocks design edits until the project has a design contract (`PDC.md`). Logic and test edits are never blocked. Silent outside Ship projects. |
 | **Session Start** | Session opens | Loads your Stack, product name, version, task count. Cleans stale state. |
 
 ### ⚡ Optional
@@ -263,7 +263,7 @@ One idea → planned, scored, built, reviewed, tested, shipped, measured. That's
 
 ```
 ship-framework/
-  .claude-plugin/plugin.json   # Plugin manifest (v2026.04.12)
+  .claude-plugin/plugin.json   # Plugin manifest (v5.1.0 · 2026.09.22)
   commands/                    # 21 slash commands
   skills/
     ship-router/               # Auto-routing — intent detection, command mapping
@@ -272,19 +272,20 @@ ship-framework/
     ship-motion/               # 4 animation references (CSS, Framer Motion, timing)
     ship-components/           # Component catalog, three-layer model
     ship-hardening/            # Error boundaries, edge cases, pre-launch checklist
-    ship-ios/                  # 64 references: SwiftUI, HIG, Swift essentials, 61 frameworks
+    ship-ios/                  # 65 references: SwiftUI, HIG, Swift essentials, frameworks
     ship-web/                  # 3 references: React patterns, accessibility, performance
     ship-android/              # Jetpack Compose, Material 3
-    ship-refgate/              # Reference Gate — blocks coding until refs loaded
+    ship-design/               # Design registry: schema, validator, SwiftUI theme generator
+    ship-refgate/              # Design Gate — UI edits need PDC.md
     ship-sessionstart/         # Session Start — loads project context automatically
     ship-careful/              # Destructive command warnings
     ship-freeze/               # Directory edit lock
     ship-guard/                # Combined: careful + freeze
     ship-unfreeze/             # Remove directory lock
+  hooks/hooks.json             # Always-on hooks: design gate + session start
+  bin/bootstrap-project.sh     # First run: creates your project files
   templates/                   # Project files created on first run
     CLAUDE.md                  # Product config, founder profile, stack
-    AGENTS.md                  # Managed Codex bridge -> CLAUDE.md
-    .ship/framework.yaml       # Managed pilot core manifest
     TASKS.md                   # Task board
     DECISIONS.md               # Decision log
     CONTEXT.md                 # Project context

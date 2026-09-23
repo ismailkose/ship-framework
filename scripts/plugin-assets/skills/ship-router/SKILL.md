@@ -90,7 +90,7 @@ Read the user's message and match intent to the right command. Never ask "which 
 
 6. **"Continue" always → /ship-team.** Reads TASKS.md and picks up the next task.
 
-7. **Trivial tasks skip ceremony.** If the request is obviously small (~5 lines or less) with clear intent — rename a variable, fix a typo, adjust a padding value, change a color, update a string — skip the full command protocol. No reference gate, no scope declaration, no blast radius check. Just make the change, verify it works (run tests or show output), and commit. Still follow the project's style and conventions from CLAUDE.md. If you're unsure whether it's trivial, it's not — route normally.
+7. **Trivial tasks skip ceremony.** If the request is obviously small (~5 lines or less) with clear intent — rename a variable, fix a typo, adjust a padding value, change a color, update a string — skip the full command protocol. No reference loading, no scope declaration, no blast radius check. Just make the change, verify it works (run tests or show output), and commit. Still follow the project's style and conventions from CLAUDE.md. If you're unsure whether it's trivial, it's not — route normally.
 
 ## Execution
 
