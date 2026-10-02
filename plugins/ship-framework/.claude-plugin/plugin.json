@@ -1,0 +1,24 @@
+{
+  "name": "ship-framework",
+  "version": "6.0.0",
+  "description": "Ship Framework: an AI product team for one-person teams. Workflows for think, plan, build, review, fix, and launch. Start with /ship-framework:shipmate and say what you need, or name a stage. Design registry and taste carried from plan to review; design and code references for iOS, Web, and Android.",
+  "author": {
+    "name": "Ismail Kose"
+  },
+  "keywords": [
+    "product",
+    "design",
+    "development",
+    "shipping",
+    "solo-founder",
+    "agents",
+    "review",
+    "planning",
+    "ios",
+    "web",
+    "android"
+  ],
+  "homepage": "https://github.com/ismailkose/ship-framework",
+  "license": "MIT",
+  "repository": "https://github.com/ismailkose/ship-framework"
+}

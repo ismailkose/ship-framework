@@ -2,7 +2,157 @@
 
 All notable changes to Ship Framework are documented here. Versions use date-based format (`YYYY.MM.DD`).
 
-To update an existing project, run `bash ship-update.sh` from your project root, or type `/ship-update` in Claude Code.
+To update an existing project, run `bash ship-update.sh` from your project root, or type `/shipmate update` in Claude Code.
+
+---
+
+## 2026.10.01: One Command, Plain Replies, Reviews That Find What's Missing (plugin 6.0.0)
+
+The journey is the same (setup, think, design, plan, build, review, launch, retro), but you start
+every step with one command, Ship picks the step from your project and your words, and it tells you
+where things stand in plain words.
+
+### One command: `/shipmate`
+- **Say what you need after `/shipmate`** ("the login crashes", "make onboarding feel warmer",
+  "ship it"), or nothing to pick up where you left off. Ship reads the project first (setup, stack,
+  design system, your changes, tasks, the last review), picks the stage, and says in one line what
+  it's doing and how to redirect it. It asks only when two readings lead to different work or a
+  step is hard to undo, and it chains stages (build, then review). `/shipmate help` shows example
+  requests; `/shipmate status` says where things stand.
+- **The 21 `/ship-*` commands are now its stages**, with no aliases: `/ship-fix` is `/shipmate fix`,
+  and `/ship-team` is `/shipmate` itself. Start with a stage to steer it (`/shipmate plan …`,
+  `/shipmate review --full`). The plugin menu shows `/ship-framework:shipmate`; plain `/shipmate`
+  works too. Updating a project install removes the old command files (edited copies are backed up
+  first) and lists what it removed.
+- **Plain requests reach Ship too.** In our test of 20 requests, the plugin's router started Ship for
+  all 10 product requests and stayed out of the 10 others.
+- **Plain replies.** Every step ends in plain words: done; done, with one thing to know; waiting on
+  you; or one thing needed, with a line on what was checked and what wasn't. Ship's own
+  bookkeeping (what it read and applied) goes to its record, not your reply.
+
+### Finds what's missing, not only what's wrong
+- **A care review (preview, on request).** "Feels generic", "what's missing" or "make it feel cared
+  for" runs one: a proposed point of view (you pick between concrete versions; it never asks for
+  adjectives), what to keep, at most three gaps ranked by what they cost your users, each with
+  evidence, a fix and a way to check it, optional ideas, and what wasn't checked. No scores. Nothing
+  changes until you pick a gap, and it never counts as the review launch needs.
+- **Designs that don't look like everyone else's.** The design stage starts from your real material
+  (your photos and words) or clearly labelled stand-ins, names the look AI tends to give your kind
+  of product, offers directions from your audience's world, and checks the result with a blind look:
+  with every word scrambled, can a stranger still tell what it is? Approved screens are kept in
+  `design/approved/`.
+- **Learning from people.** Think gives you the questions to ask (about the last time it happened,
+  never "would you use it?") and records your riskiest belief with a pass line set before you look.
+  A choice that's cheap to undo gets two small versions to try instead of more debate. Money counts
+  who actually pays. On a first release, launch asks three strangers for a five-second look. Retro
+  hears your users (themes, people counted, the biggest barrier first) and asks for one small thing
+  that bothered you that week, to fix.
+- **AI features keep about ten saved real cases**, run before and after every prompt or model change.
+  One that can't pass them yet is switched off, not deleted, and tried again on the next model.
+- **A new feature starts inside the screen where it's used**, and gets its own tab once people go
+  there often.
+
+### Help people decide, never trick them
+- **The moments people judge a product by** (a first run, an empty state, a paywall or pricing
+  page, a cancel flow, reminders, a long wait) follow how people actually decide, each idea applied
+  where it matters. Ship never builds fake urgency or scarcity, misleading decoy prices, guilt-trip
+  declines, hidden costs or hard cancels, and review blocks them. Cancelling is as easy as joining.
+- **A balance check for what's in between.** A real countdown, one offer when someone cancels, the
+  yearly plan preselected: five questions (is it true, clear before yes, free to say no, easy to
+  undo, would they thank you) tell a fair pattern from a trick. A pattern close to the line is your
+  call: Ship records it with its guardrails and watches refunds and early cancels beside sales.
+- **More of the design books, as checks.** The design check now catches faint field borders, action,
+  success and warning colours that are too faint on any background, dark surfaces that don't lift,
+  and a missing line height (new projects start at 1.5). A copy check reads your app's own words
+  for dashes, "click here", vague errors and the like.
+- **Forms follow GOV.UK's patterns** for dates, names, addresses, passwords and email, and long
+  entry gets one question per screen and a page to check answers. Reviews name the heuristic or
+  principle behind a finding.
+
+### Ship alone is enough
+- **Nothing else to install.** Ship's own guides cover SwiftUI and Swift, React and Next.js, shadcn,
+  motion, UX and accessibility in its own words, checked against the platform docs and SDKs. Ship
+  never asks you to install another skill; if you've installed one yourself, it points out where
+  that skill is wrong.
+- **One command answers "what should I read before this?"** `knowledge.py route` lists your
+  product's own decisions first, then the platform docs (including Xcode 27's bundled Apple
+  guidance) and Ship's guides for the job. Every stage's knowledge section comes from the same map.
+- **Motion that feels right:** exits ease out, taps don't bounce, and Reduce Motion crossfades instead
+  of switching motion off, with SwiftUI and web recipes and review standards.
+- **Every guide was audited.** 6,288 lines of UX guidance became about 1,500 that match WCAG 2.2;
+  about 27,000 lines of iOS references became 17 guides of about 5,000 lines, checked against the
+  iOS 27 SDK. Wrong facts were corrected, and text that couldn't be redistributed was removed.
+- **Web and iOS checks.** The web design system checks text contrast and chart colours, and flags
+  clickable `div`s. iOS launch checks cover tracking, the privacy manifest, subscription links and
+  the App Store's upload minimums. Android got fixes only.
+- **One order of precedence everywhere:** platform requirements and accessibility first, then your
+  product's decisions, your preferences, platform guidance, expert advice, Ship's defaults, and
+  guesses last. An upstream update never silently redesigns your product.
+
+### Your decisions and design system carry through
+- **Adopt the app you already have.** `/shipmate design adopt` ("adopt my design system") drafts
+  `design-model.yaml` and the component list from your code, keeping your names; your views don't
+  change. A shadcn project keeps its own files.
+- **A registry hit has to fit.** Before building a UI element, `/shipmate build` asks the registry for
+  a component that suits the role and variant, not just one with a matching name, and adds a new
+  variant without interrupting you when it only uses your tokens.
+- **Themes for four platforms:** SwiftUI, CSS variables, Tailwind v4 and Jetpack Compose, each checked
+  by its compiler. Generated files refuse to overwrite hand-written or hand-edited code. New default
+  output path: `design/generated/` (set `emit.<platform>.out` to keep your own).
+- **See it on a real screen.** The design seed renders a sample screen to PNG from the generated theme.
+- **Ship remembers your taste.** When you approve, reject or correct something, it's recorded with
+  your words in `design/taste.yaml` (this product), and becomes a cross-product preference in
+  `~/.ship/taste.yaml` only when you say so. A fresh session applies it; a guess never overrides it.
+
+### Reviews that actually review
+- **Five reviewers run as separate subagents** (Claude): product review, design review, the visual
+  check and tests in parallel, unable to see each other; then a second look challenges all of them
+  and hunts for misses. Depth scales with risk, so a copy tweak doesn't get five reviewers.
+- **Evidence, not scores.** No health or readiness numbers: each finding cites a file and line, a
+  screenshot, or a command's output. Duplicates are merged; disagreements are shown, not dropped.
+- **Launch knows if the review is stale or incomplete.** Each review records a fingerprint of exactly
+  what it reviewed and whether every reviewer it selected finished on that snapshot. A missing,
+  skipped or failed reviewer is never a clear review. `/shipmate launch` runs the review gate (fresh,
+  complete, no open blockers) and gates on evidence (tests, verified flows), not a coverage number.
+- **The review sees only your change.** Files git doesn't track that aren't your product (Claude
+  Code's local settings, a saved patch, a log) are left out of what's reviewed, and the review
+  says which.
+- **The visual check says what it couldn't check.** A state it can't reach in two tries (say, an
+  on-screen keyboard the simulator won't show) is marked not checked, never passed.
+- Reviewers run at an explicit effort (Opus reviewers medium, Sonnet reviewers high) instead of
+  whatever your session uses; each record shows what was requested and what was observed.
+- In Codex, reviews run in one context and say so ("not independent").
+
+### Install and update
+- **Install from the marketplace:** `/plugin marketplace add ismailkose/ship-framework`, then
+  `/plugin install ship-framework@ship-framework`. Updates arrive with `claude plugin update`.
+- **Updates never overwrite your files.** Ship knows which files are yours; if you edited one of
+  Ship's, your copy is backed up to `.ship/backups/` first. Retired files are cleaned up. `--dry-run`
+  shows what would change. Blocks other tools keep in `AGENTS.md` (Next.js, for example) survive.
+- **Missing optional tools never fail setup.** Ship says what's reduced and how to add it.
+- Without a `CLAUDE.md`, Ship takes your product's name from `AGENTS.md` or the app project.
+- `CAPABILITIES.md` says plainly what works in Claude, in Codex, and per install route.
+
+### Less friction
+- **Leaner.** Ship's core rules (`.claude/team-rules.md`) went from 529 lines to under 100, and one
+  request loads at most 400 lines of instructions. Session start is one line, plus notes only when
+  they matter. Ship speaks in plain roles (product lead, builder, design review), and a small fix
+  stays small even in shared code: one line names every screen or caller it reaches, and each one
+  is checked.
+- **The design gate no longer locks you out of an existing app.** It only stops new UI files before a
+  design contract exists (pointing you at `/shipmate design`), protects generated themes from hand
+  edits, and no longer asks for reading receipts or writes a debug log to `/tmp`.
+- **Think asks only what isn't known; Plan is light or full; Retro keeps your corrections.**
+- `qa` is now `review --test`. careful, freeze, guard and unfreeze are stages; their skills are hidden
+  hook holders, so there are no duplicate entries.
+
+### Removed
+- The 21 `/ship-*` commands and their skill mirrors (now stages of `/shipmate`).
+- Suggestions to install other skills: Ship's own guides cover what they did.
+- The `ship-agents` skill (replaced by real reviewer agents), the 61 iOS framework files, the
+  `swiftui-core.md` and `swift-essentials.md` references, the Framer Motion and CSS animation
+  tutorials, `typography-color.md`, `touch-interaction.md` and `spatial-design.md` (merged),
+  `--add-framework`, health scores, and the 60% coverage hard stop.
 
 ---
 

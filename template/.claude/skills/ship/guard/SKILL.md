@@ -1,8 +1,10 @@
 ---
 name: ship-guard
 description: |
-  Combined safety: destructive command warnings + directory-scoped edit restriction. (ship)
-  Activate with /ship-guard [path].
+  Hook holder for /shipmate guard: destructive-command warnings + directory-scoped edit (ship)
+  restriction. Invoked by /shipmate guard (invoking it registers the hooks for the session); not a
+  user command.
+user-invocable: false
 hooks:
   PreToolUse:
     - matcher: "Bash"
@@ -28,9 +30,9 @@ Activates both destructive command warnings (careful) and directory-scoped edit 
 
 ## Usage
 
-`/ship-guard src/auth/` — enables careful warnings AND locks edits to `src/auth/`
+`/shipmate guard src/auth/` — enables careful warnings AND locks edits to `src/auth/`
 
-This is equivalent to running `/ship-careful` and `/ship-freeze src/auth/` together.
+This is equivalent to running `/shipmate careful` and `/shipmate freeze src/auth/` together.
 
 See `careful/SKILL.md` for what destructive commands are caught.
 See `freeze/SKILL.md` for how directory restriction works.

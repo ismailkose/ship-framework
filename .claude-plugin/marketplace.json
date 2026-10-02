@@ -1,0 +1,33 @@
+{
+  "$schema": "https://code.claude.com/schemas/marketplace.json",
+  "name": "ship-framework",
+  "description": "Ship Framework: a design-led AI product team for one-person teams.",
+  "owner": {
+    "name": "Ismail Kose",
+    "url": "https://github.com/ismailkose"
+  },
+  "plugins": [
+    {
+      "name": "ship-framework",
+      "source": "./plugins/ship-framework",
+      "description": "An AI product team for one-person teams: plan, build, review, and ship with design taste enforced. Start with /shipmate and say what you need, or name a stage.",
+      "version": "6.0.0",
+      "author": {
+        "name": "Ismail Kose"
+      },
+      "homepage": "https://github.com/ismailkose/ship-framework",
+      "repository": "https://github.com/ismailkose/ship-framework",
+      "license": "MIT",
+      "category": "development",
+      "keywords": [
+        "product",
+        "design",
+        "ios",
+        "web",
+        "android",
+        "review",
+        "planning"
+      ]
+    }
+  ]
+}

@@ -1,356 +1,180 @@
-# Design Research & System Creation Reference
+<!-- ship-reference
+id: ux-design-research
+kind: ship-default
+sources: .claude/skills/ship/design/references/design-model-schema.md (Ship contract); design-md-spec@9bf8eae (google-labs-code/design.md, Apache-2.0 — section headings and lint, via /shipmate design); books-and-sites (Jon Yablonski, Laws of UX — Jakob's law); impeccable@9d715cc (ideas only, Ship's words: naming the rut, candidates from the audience's world, dealing by lot, the direction contract, colour strategy; pbakaus/impeccable, Apache-2.0); taste-skill@ce26fc2 (ideas only: the second default look models reach for; leonxlnx/taste-skill, MIT); lennys-talks-2026 (Katie Dill: specific vs probable); the founder's review 2026-09-28 (real material first; the gibberish test)
+reviewed: 2026-09-28
+-->
 
-> From "I have nothing" to "I have a design system." This reference teaches how to research, decide, and document design direction.
->
-> **Agent routing:**
-> - **Vi** → Sections 1–2 (product vision shapes design direction)
-> - **Pol** → Sections 1–3 (Pol drives the design system creation)
-> - **Arc** → Section 3 (design system affects architecture decisions)
-> - **Dev** → Section 3 (design tokens guide implementation)
-> - **Pol** → Section 2 (design decisions should be justified, not arbitrary)
+# Design Research & Direction
+
+Labels: REQ / PLATFORM / EXPERT / SHIP (see `accessibility.md`). Used in the think and design
+stages (§2 before every new direction); §3 says where decisions land.
+
+**Where decisions are written (Ship's registry — never elsewhere):**
+
+| File | Holds | Never holds |
+|---|---|---|
+| `DESIGN.md` | Prose: intent, principles, `brand.feel` rationale, voice & tone, do/don't, SAFE/RISK decisions and *why* | Hex values, sizes, spacing numbers, token tables |
+| `design-model.yaml` | Tokens as data: color primitives (hex lives only here) → semantic roles, type, radius, spacing, motion, modes | Rationale prose |
+| `design/components.yaml` | The component manifest: name, file, semantic tokens used, variants, rule | Page-specific compositions |
+| `PDC.md` | The index the design gate reads — points at the three above | Content of its own |
+
+Schema and validation: `.claude/skills/ship/design/references/design-model-schema.md`;
+`/shipmate design --init` scaffolds all four; `--tokens` edits `design-model.yaml`.
 
 ---
 
-## Section 1: Competitive Design Research
+## 1. Competitive research (Vi, Pol)
 
-### Why Research Competitors
+**Purpose:** learn the conventions users already expect in this category (Jakob's law) and find
+where competitors are weak — not to copy their look.
 
-Competitive analysis is not about copying. It's about understanding the *conventions your users already expect* and finding opportunities where competitors are weak. Users bring expectations from the category they know—a project management app should feel organized, a social app should feel social. Breaking conventions has a cost.
+- **3–5 products** (SHIP): fewer misses category norms, more adds little. Include one
+  best-in-class product from outside the category for craft reference.
+- **Use them, don't just screenshot:** onboarding, the primary task, an error, an empty state,
+  the phone experience, keyboard/VoiceOver basics, dark mode.
+- **Extract per product:** navigation model and depth; what's above the fold; gestures and
+  micro-interactions; type scale, palette use, spacing rhythm, radius; voice; where it's weak.
+- **Classify every finding:**
+  - **SAFE** — the category convention users rely on (keep it).
+  - **RISK** — a deliberate break that creates identity (needs a reason and confidence).
 
-### What to Extract
-
-When analyzing competitors, look for:
-
-- **Navigation patterns**: What's the industry standard? Is the nav top, side, or bottom? How deep does the hierarchy go? Most users prefer one tap from home to any major feature.
-- **Information hierarchy**: How do competitors prioritize content? What's above the fold? What requires scrolling? What's hidden in menus?
-- **Interaction patterns**: What gestures do users already know? Swipe to delete? Long-press to edit? Double-tap to favorite? These are learned behaviors—reuse them or explicitly break them with clear affordance.
-- **Visual language**: What's the expected aesthetic for this space? Banking needs to feel stable (blues, clean typography). Gaming can be playful (bold colors, dynamic layouts). A banking app that looks like TikTok will confuse users.
-- **Where they're weak**: Generic design, poor mobile experience, bad empty states, missing dark mode, slow interactions—these are your differentiation opportunities.
-
-### How to Analyze
-
-Don't just screenshot. *Use the product.* Go through the core flows:
-- Onboarding—how do they introduce new users?
-- Primary action—how easy is the main task?
-- Error states—what happens when something breaks?
-- Empty states—what do users see with no data?
-- Mobile experience—is it responsive or an afterthought?
-- Accessibility—can you navigate with keyboard? Is text readable?
-
-Take notes in context, not in a vacuum.
-
-### Sample Size
-
-**3–5 competitors is the sweet spot.**
-- Fewer than 3 gives too narrow a view (you might miss category norms).
-- More than 5 creates analysis paralysis (diminishing returns on insights).
-
-### What NOT to Do
-
-- Don't copy layouts. Don't adopt their color palette. Don't replicate their patterns blindly.
-- Do extract the *why* behind their choices, then make your own.
-
-### Competitor Analysis Template
+Template (keep in the research notes, not in `DESIGN.md`):
 
 ```markdown
-## Competitor: [Name]
-
-**Category:** [Type of product]
-**Target audience:** [Who uses this]
-**URL:** [Link]
-
-### Navigation
-- Primary nav location: [Top/Side/Bottom]
-- Depth: [How many taps to reach features]
-- Mobile behavior: [Changes? Adaptive?]
-
-### Information Hierarchy
-- Hero/above fold: [What's most prominent]
-- Secondary content: [What's visible below]
-- Hidden content: [Behind menus/progressive disclosure]
-
-### Interaction Patterns
-- Gestures: [Swipe, long-press, pinch, etc.]
-- Micro-interactions: [Loading states, confirmations]
-- Primary action affordance: [Button, FAB, etc.]
-
-### Visual Language
-- Color palette: [Primary colors, accents]
-- Typography: [Font families, scale]
-- Mood: [Professional, playful, minimal, dense]
-
-### Strengths
-- [Pattern we should understand]
-- [Pattern we should understand]
-
-### Weaknesses / Opportunities
-- [Gap in experience]
-- [Outdated pattern]
-- [Missing feature/state]
+## <Product> — <category>, <audience>
+Nav: <tab/sidebar/…>, depth <n taps to key features>
+Above the fold: <…>   Hidden: <…>
+Interaction: <gestures, feedback, primary-action affordance>
+Visual: type <scale feel>, color <how used>, spacing <rhythm>, radius <…>, voice <…>
+Strong: <patterns worth understanding>
+Weak / opportunity: <gaps: states, mobile, accessibility, dark mode, speed>
+SAFE: <…>   RISK candidates: <…>
 ```
 
----
+**Look at the best, for the bar and never the composition:** `inspiration.md` says where, per need,
+what you may open yourself, which sites only the founder can use, and what to ask them to bring back.
 
-## Section 2: Design Direction Decisions
+**Going deeper when it matters:** time the same journey (sign-up → first value) across
+competitors and count steps; plot everyone on a 2×2 of the two dimensions that matter most for
+this product (e.g. dense ↔ minimal, playful ↔ professional) and look for the open quadrant.
 
-### How Product Type Shapes Aesthetic
+## 2. Direction — from the product's world, not its category (Pol → founder)
 
-The product category *pre-loads* user expectations. Ignore them at your cost.
+Models give the probable answer, and so does anyone in a hurry. A direction has to come from what only
+this product has, and still say what the product is when every word is removed.
 
-**Finance/Banking** → Trust, stability
-- Blue (security), clean typography, generous whitespace, minimal decoration
-- Example: Stripe, Mercury
+**Material, when there is some.** The founder's photos (the thing, the place, the people), their words
+(a menu, a note to a customer, a review they loved) and artefacts (signage, packaging, receipts). A
+colour sampled from their photos and lettering taken from their own signs beat a palette picked for a
+feeling. Mockups never supply copy, prices, reviews or product shots.
 
-**Health/Wellness** → Calm, approachable
-- Soft colors (greens, warm neutrals), rounded corners, breathing space, nature imagery
-- Example: Calm, Headspace
+**When there's none** (most solo builders: no photos, no logo, not a designer), the direction still
+comes from the product, not from a template:
+- from what the product does and the audience's world (candidates below), rendered in code: type,
+  colour fields, shape, layout, and the product's own interface or data as the hero;
+- stand-ins authored at full fidelity where the concept needs them: sample content, an illustrative
+  image if an image tool is available, a diagram or notation drawn from the audience's world. Mark each
+  `SAMPLE:` in a code comment and list it in `TASKS.md`. Never an empty "photo here" box, a random stock
+  photo, or clip art assembled from SVG shapes;
+- claims are never invented: prices, customers, ratings, reviews, numbers, awards. Leave them out or ask;
+- a drawn stand-in reads as the thing at a glance: the silhouette everyone knows (a scored loaf, not a
+  cross-section, which can pass for a dumpling). One unmistakable cue of the subject is a convention
+  to keep (SAFE); the identity lives in how everything else departs (RISK).
 
-**Productivity/SaaS** → Efficient, professional
-- Neutral palette with accent, dense information architecture, clear hierarchy
-- Example: Notion, Slack
+Don't ask designer questions. Show two rendered concepts and let the founder point.
 
-**Creative tools** → Expressive, bold
-- Wider color palette, dynamic layouts, strong typography, animation
-- Example: Figma, Adobe
+**Name the obvious versions before proposing**, one line each:
+- what this category always ships (a restaurant: a full-bleed food photo, a centred serif name, "Book a
+  table");
+- its predictable opposite: the category plus "not generic";
+- the AI default look, the handful of looks generated products share whatever the subject: for warm
+  or handmade things a cream background, brown-black text, a terracotta or brass button and a fancy,
+  often italic, serif; for tech a near-black page with one neon colour and a glow; for "editorial"
+  thin rules and tiny capital labels. Treat the first palette that comes to mind as already spent.
 
-**Social/Entertainment** → Energetic, engaging
-- Bright colors, visual-heavy, animation-forward, fast feedback
-- Example: TikTok, Discord
+A ban list with fixed replacements only makes the next default. The test is whether someone could guess
+the look from the category alone, or from the category plus "not generic". `design_model.py sameness`
+flags the colour-and-type side of it in the registry.
 
-**Developer tools** → Precise, technical
-- Monospace fonts, dark themes, high information density, minimal decoration
-- Example: GitHub, VS Code
+**Candidates from the audience's world.** List 5–7 concrete things the audience knows by heart:
+objects, places, rituals, and their graphic traditions (a menu board, a train ticket, a field guide, a
+scoreboard, a seed packet). Give each one line on how it could carry the one thing we'll be best at.
+Span at least three material families (paper and print, tools and hardware, signs and places, screens
+and notation…); when most land in one, you stopped at the most obvious artefact. Ask what the product
+would be as a physical object, and what its world looked like before the web. Then look at the
+best of the kind (`inspiration.md`) to set the bar, not to pick the concept.
 
-### How Audience Shapes Decisions
+**Deal, don't rank.** Your ranking drifts to the probable, so the two concepts to render are picked by
+lot (seed S2). Add your own pick when it differs, with an honest line on how familiar it is, and keep
+the plain category standard as a quiet door: if the founder takes it, build it at full craft, without
+irony. A candidate that can't carry the product's truth is replaced before the deal, never rescued by it.
 
-**Consumer vs enterprise:**
-- Consumer: Simpler, more visual, fewer options, onboarding-forward
-- Enterprise: Denser layouts, more configuration, power-user features
+**The concept's contract**, in plain words (about 100 words; DESIGN.md › Direction once picked):
+- *The idea:* the one idea, grown from the point of view's "one thing we'll be best at", and the usual
+  arrangement for this kind of product it refuses.
+- *The look:* colour strategy first — restrained (neutrals plus one accent), committed (one colour
+  carries 30–60% of the surface), full (three or four named roles) or drenched (the surface is the
+  colour) — then the palette; faces chosen like objects from that world (a subject association such as
+  books → serif is not a reason); shape, density, texture. Recognisable with every word removed.
+- *First screen:* what sits where and at what size, where the primary action is, what it proves. If
+  someone saw only this screen, what would they describe an hour later? A mood means it hasn't committed.
+- *The special touch:* the one moment only this product has, used once rather than scattered.
+- *The risk:* what could go wrong, said plainly.
 
-**Technical vs non-technical:**
-- Technical users tolerate complexity—expose power features
-- Non-technical users need progressive disclosure—hide advanced options, offer templates
+Light or dark leads by the scene (who, where, in what light), never by category; both modes still
+ship. If a line of the contract reads like a mood, the direction isn't decided yet.
 
-**Frequency of use:**
-- Daily tools need efficiency (keyboard shortcuts, keyboard-first nav)
-- Occasional tools need discoverability (visual guides, help panels)
+**How loud, by surface.** What the visitor came to do sets how much the concept shows. A landing page,
+onboarding or a paywall persuades: the concept leads. An app's working screens operate: the task,
+states and platform conventions lead, and the concept lives in precise details (a colour's job, one
+typeface moment, the special touch). Help and docs are read: comprehension first. A portfolio or gallery
+lets the work lead. Decide per surface, not per product.
 
-**Age range (accessibility, familiarity):**
-- Older users need larger text, higher contrast
-- Younger users expect smooth animations, fast interactions
-- Don't stereotype—but accessibility needs genuinely differ
+**Build it committed.** On web, every control speaks the concept's vocabulary (a stock component left
+in its default look is a lapse); on native, system controls stay and the brand lives in the open layer
+(`.claude/skills/ship/ios/references/hig-ios.md` §10). The first screen proves the thing rather than claiming it; one decisive real
+photo beats five weak ones. Then the blind look (seed S6): the words garbled, two reviewers who weren't
+told the product say what it sells and who it's for (one guess is noisy). A wrong subject ("a coffee
+roaster", "a dumpling bar") means the subject's cue isn't clear yet: fix that first, with a clearer
+drawing or a real photo. Before the first launch, three real people take the same test (launch Phase 4).
 
-### Brand Personality Exercise
+Also:
+- **References:** name what each admired product lends — "Things (restraint)" → `brand.references`.
+- **Audience shapes density and disclosure:** frequent or expert use → density and shortcuts;
+  occasional or novice use → progressive disclosure and guidance. Older or low-vision audiences →
+  larger default type and higher contrast (the REQ floor applies to everyone).
+- **Coherence:** every choice (type, colour energy, radius, density, motion character, voice) serves
+  the same idea; contradictions go back to the founder as a choice.
+- **Feel words** are optional and only ever the founder's (`brand.feel`), never invented to fill a field.
 
-Pick 3–5 adjectives that describe how the product should *feel*:
+Each direction choice is recorded: tokens in the YAML, the reason in `DESIGN.md` (Direction, SAFE /
+RISK), cross-cutting product decisions in `DECISIONS.md`.
 
-Examples:
-- Notion: *powerful, flexible, collaborative*
-- Apple: *simple, premium, intuitive*
-- Slack: *friendly, efficient, trustworthy*
-- GitHub: *transparent, developer-first, open*
-
-Every design decision should reinforce these adjectives. If one of your adjectives is "professional," playful animations that bounce and wiggle are a contradiction. If you're "simple," a dense feature-packed interface violates the promise.
-
----
-
-## Section 3: Design System Creation
-
-### What Goes in DESIGN.md
-
-Your project's design source of truth. This file should be filled *before* building any UI.
-
-```markdown
-# DESIGN.md
-
-## Brand Personality
-[3–5 adjectives]. How does this product feel?
-
-## Color Tokens
-### Base Palette
-- **Primary**: [Value + hex + usage]
-- **Secondary**: [Value + hex + usage]
-- **Surface**: [Value + hex + usage]
-- **Error**: [Value + hex + usage]
-- **Success**: [Value + hex + usage]
-- **Warning**: [Value + hex + usage]
-
-### On-Variants (Text/content colors)
-- **On Primary**: [Contrast-safe text on primary]
-- **On Secondary**: [Contrast-safe text on secondary]
-- **On Surface**: [Default text color]
-
-## Typography
-- **Font families**: [Sans-serif, serif, mono + use case]
-- **Type scale**: [12px, 14px, 16px, 18px, 24px, 32px—justify the scale]
-- **Weight assignments**:
-  - Regular (400): Body text, labels
-  - Medium (500): Emphasis, secondary headings
-  - Bold (700): Headings, CTA labels
-
-## Spacing
-- **Base unit**: [8px or 4px?—be consistent]
-- **Scale**: [8, 12, 16, 24, 32, 48, 64...]
-- **Usage**: Padding, margin, gaps—all use tokens
-
-## Border Radius
-- **Sharp** (0–2px): Utilitarian, technical
-- **Rounded** (6–8px): Approachable, friendly
-- **Pill** (9999px): Special emphasis, badges
-
-## Shadows & Elevation
-- **Level 1** (subtle): Hover states
-- **Level 2** (medium): Modals, popovers
-- **Level 3** (prominent): Important overlays, tooltips
-
-## Component Rules
-- **Library source**: [shadcn/ui, custom, Material Design]
-- **Naming convention**: [button-primary, Button/Primary]
-- **Overrides allowed**: [Yes—explain limits. No—explain why.]
-- **Custom components**: [List unique-to-product components]
-
-## Do/Don't
-- DO: [Reinforce brand personality]
-- DON'T: [Violate personality or accessibility]
-```
-
-### Make Decisions That Cohere
-
-Every design choice reinforces the brand personality:
-
-**If you're "minimal":**
-- Shadows should be subtle (don't use Level 3 elevation for routine elements)
-- Palette should be restrained (don't add 10 accent colors)
-- Typography should be clean (avoid decorative fonts)
-- Spacing should breathe (don't cram content)
-
-**If you're "expressive":**
-- Use a wider color palette
-- Animations should be present and energetic
-- Typography can be bold
-- Spacing can be tighter (more visual density is OK)
-
-### Coherence Validation Checklist
-
-After defining your system, audit it:
-
-- ✓ Does the color palette match the typography personality?
-- ✓ Does spacing feel right for the information density?
-- ✓ Do border radii match the brand (sharp = technical, rounded = friendly)?
-- ✓ Do shadows support the visual hierarchy without creating visual noise?
-- ✓ Can all colors meet WCAG AA contrast ratios for text?
-- ✓ Are spacing increments consistent (no random 13px or 37px values)?
-
-### When to Create DESIGN.md
-
-**BEFORE building any UI.** If you build first and document later, the system documents inconsistency. You'll be retrofitting design decisions instead of building from a vision.
-
-### How Design Tokens Flow to Code
+## 3. From decision to registry (Arc, Dev)
 
 ```
-DESIGN.md
-  ↓
-CSS Custom Properties (web) / Swift Constants (iOS) / Compose Theme (Android)
-  ↓
-Components reference tokens (never hardcoded values)
-  ↓
-Product UI consumes components
+DESIGN.md (why)            design-model.yaml (what)          design/components.yaml
+feel, voice, do/don't  ──►  primitives → semantic roles  ──►  components use semantic roles only
+                                   │
+                                   └─► emitters: Theme.swift (iOS), CSS variables (web), Compose theme
 ```
 
-Example:
-```css
-/* DESIGN.md says primary = #0066FF */
-/* tokens.css */
-:root {
-  --color-primary: #0066FF;
-  --color-on-primary: #FFFFFF;
-}
+- Tokens are defined **before** UI is built; a missing token is added to the registry, never
+  improvised in a component.
+- Changing a brand color = one registry edit + `design_model.py validate` + re-emit; views don't change.
+- `DESIGN.md` may *name* a role ("the action color is reserved for primary actions") but never
+  restates its value — duplicate values drift.
 
-/* Button.tsx */
-export function Button() {
-  return <button style={{ backgroundColor: 'var(--color-primary)' }} />;
-}
-```
+## 4. Auditing an existing product (adopt, don't restart)
 
-If you change the primary color in DESIGN.md, update tokens.css *once*, and the change cascades everywhere.
-
----
-
-## Section 4: Design Audit Methodology
-
-### When to Run a Design Audit
-
-Run a design audit when:
-- Inheriting an existing codebase with no documented design system
-- Design has evolved organically over months without cleanup
-- Multiple designers/developers have contributed without coordination
-- Users report "it feels inconsistent" but can't say why
-- Before a major redesign or rebrand
-
-### The Audit Process
-
-**Step 1: Inventory** — Screenshot every unique screen. Organize by flow (onboarding, core, settings, error states). Count: how many screens total? How many have unique layouts?
-
-**Step 2: Extract** — For each screen, document:
-- Colors used (exact hex/OKLCH values — use DevTools color picker)
-- Font sizes, weights, and families
-- Spacing values (padding, margins, gaps)
-- Border radii
-- Shadow values
-- Icon style and source
-
-**Step 3: Cluster** — Group similar values. You'll typically find:
-- 5-12 different grays where 3-4 are needed
-- 8-15 font sizes where 5-7 are needed
-- Random spacing values (13px, 17px, 22px) instead of a scale
-- 3-4 slightly different border radii
-
-**Step 4: Consolidate** — Map clusters to tokens:
-- "These 5 blues are all trying to be the primary color → consolidate to 1 primary + 2 variants"
-- "These 8 font sizes map to a 1.25 ratio scale with 2 outliers → adopt the scale, fix the outliers"
-- "Spacing is random → adopt 8px base, snap everything"
-
-**Step 5: Document** — Fill DESIGN.md with consolidated decisions. This is now the source of truth.
-
-### Competitive Analysis: Depth Framework
-
-Beyond the basic template in Section 1, deep competitive analysis asks:
-
-**Flow comparison:** Map the same user journey (signup → first value) across 3 competitors. Time each step. Count taps. Identify where competitors add friction vs where they're smooth.
-
-**Design system extraction:** For each competitor, identify:
-- Their type scale (measure headings, body, captions)
-- Their color system (primary, secondary, semantic colors)
-- Their spacing rhythm (consistent multiples or random?)
-- Their component vocabulary (cards, lists, tables — what patterns do they repeat?)
-
-**Differentiation map:** Create a 2x2 matrix with your key differentiators:
-
-```
-                  Information-dense ←→ Minimal
-                        ↑
-                    Professional
-Competitor A: [•]                    Competitor B: [•]
-
-                                     You: [★]
-
-                      Playful
-Competitor C: [•]
-                        ↓
-```
-
-Place each competitor and yourself. The open quadrants are your differentiation opportunities.
-
----
-
-## Quick Start: Fill This In First
-
-1. **Competitive research**: Pick 3 competitors, spend 30 min each, fill the template in Section 1
-2. **Deep analysis**: Run flow comparison and design system extraction (Section 4)
-3. **Differentiation map**: Plot competitors on 2x2 matrix, find open space
-4. **Brand personality**: Write 3–5 adjectives
-5. **Product type**: Identify your category (finance, health, social, etc.)
-6. **Audience**: Who are you building for?
-7. **DESIGN.md**: Fill the template in Section 3 with your decisions
-8. **Coherence check**: Run the validation checklist
-9. **Build**: Now you can build — every component has a system to reference
+When a codebase has no registry or an inconsistent one:
+1. **Inventory** every unique screen by flow (onboarding, core, settings, errors, empty).
+2. **Extract** the values actually used: colors, sizes/weights/families, spacing, radii, shadows,
+   icon sets (DevTools, Xcode view debugger, grep for literals).
+3. **Cluster** near-duplicates (typically many grays and font sizes where a few are meant).
+4. **Consolidate** clusters into registry primitives and semantic roles; note outliers as fixes.
+5. **Adopt:** write `design-model.yaml` with `emit.swiftui` names matching the existing theme so
+   views don't change, register existing reusable components in `design/components.yaml`, move
+   rationale into `DESIGN.md`, then `/shipmate design --init` generates `PDC.md`. Diff emitted tokens
+   against the old theme before replacing it (schema: "Adopting an existing app").

@@ -2,88 +2,109 @@
 name: ship-ux
 description: |
   UX design intelligence — routing to design references. (ship)
-  Loaded by /ship-plan, /ship-build, /ship-review, /ship-qa, /ship-team.
+  Use when a UI decision needs UX guidance; knowledge routing names the reference to open.
+user-invocable: false
 ---
 
-# UX Design Intelligence Skill
+# UX — routing and road signs
 
-This skill routes personas to the right design knowledge at the right time. The deep rules, reasoning, and examples live in reference files.
+Open only the reference the decision needs. Every reference is on demand.
 
-**Reference files:**
-- `.claude/skills/ship/ux/references/ux-principles.md` — Cognitive psychology: Hick's, Miller's, Fitts's, Peak-End, Goal Gradient, Doherty, HEART framework
-- `.claude/skills/ship/ux/references/typography-color.md` — Type scale, font pairing, semantic color tokens, contrast, dark mode color strategy
-- `.claude/skills/ship/ux/references/forms-feedback.md` — Input patterns, validation, error handling, empty states, toasts, confirmations, progressive disclosure
-- `.claude/skills/ship/ux/references/navigation.md` — Nav architecture, bottom nav, back behavior, deep linking, adaptive patterns, URL state
-- `.claude/skills/ship/ux/references/layout-responsive.md` — Mobile-first, breakpoints, spacing scale, viewport, z-index, safe areas
-- `.claude/skills/ship/ux/references/touch-interaction.md` — Tap targets, gesture handling, press feedback, haptics, safe areas, platform gestures
-- `.claude/skills/ship/ux/references/dark-mode.md` — Theming strategy, semantic tokens, elevation, contrast in both themes, system preference
-- `.claude/skills/ship/ux/references/design-quality.md` — First impression assessment, AI slop detection, cross-page consistency, visual coherence
-- `.claude/skills/ship/ux/references/design-research.md` — Competitive design research, design direction decisions, design system creation (DESIGN.md)
+## 1. Check the project's registry first
 
-## Priority Enforcement — What Blocks Shipping
+Before any generic guidance, read what the product already decided:
+`PDC.md` (index) → `DESIGN.md` (intent, feel words, voice, do/don't) → `design-model.yaml`
+(tokens: color, type, spacing, radius, motion, modes) → `design/components.yaml` (what exists)
+→ `DECISIONS.md`. **Registry decisions win over everything in these references** except
+accessibility requirements. A needed value that isn't in the registry is a registry change
+(`/shipmate design --tokens`), never an inline literal. Schema:
+`.claude/skills/ship/design/references/design-model-schema.md`.
 
-| Priority | Domain | Gate | Reference |
-|---|---|---|---|
-| CRITICAL | Accessibility | Contrast 4.5:1, keyboard nav, aria-labels, semantic HTML | ux-principles.md Section 5 |
-| CRITICAL | Touch | ≥44pt/48dp/44px targets, 8px spacing, press feedback <100ms | touch-interaction.md Section 1 |
-| MANDATORY | Reduced Motion | `prefers-reduced-motion` respected — see motion skill | motion SKILL.md |
-| HIGH | Layout | Mobile-first, consistent spacing, no horizontal scroll | layout-responsive.md |
-| HIGH | Typography | 16px min body, 1.5 line-height, semantic tokens | typography-color.md Section 1 |
-| HIGH | Buttons | Single primary per view, 3-weight hierarchy (primary/secondary/tertiary), verb+noun labels | components.md, copy-clarity.md |
-| HIGH | Forms | Visible labels, inline errors, empty states, destructive confirmation, optional marking, hints above fields, field width matching, radio < 5 options | forms-feedback.md |
-| HIGH | Navigation | Predictable back, deep linking, ≤5 bottom nav | navigation.md |
-| HIGH | Style | Consistent style, one primary CTA/screen, state clarity | typography-color.md Section 3 |
-| MEDIUM | Dark Mode | Semantic tokens, test both themes, desaturate for dark | dark-mode.md |
-| LOW | Charts | Accessible colors, legends, responsive, empty states | ux-principles.md Section 6 |
+## 2. Precedence (one order everywhere)
 
-## For Planning (/ship-plan, /ship-team)
+1. Platform requirements & accessibility (WCAG 2.2 AA, App Review, Reduce Motion)
+2. Explicit product decisions (registry, `DECISIONS.md`, product taste)
+3. Founder preferences
+4. Platform design guidance (Apple HIG, Material 3)
+5. Expert sources (Practical UI, Laws of UX, GOV.UK, Nielsen, Butterick, Saffer, Albers …)
+6. Ship defaults
+7. Agent inferences — surface for confirmation, never override 1–6
 
-When Vi defines the product or Arc plans screens:
+References tag their rules: **REQ** (1) · **PLATFORM** (4) · **EXPERT** (5) · **SHIP** (6).
 
-1. **Design research** — read `.claude/skills/ship/ux/references/design-research.md` Sections 1-2 for competitive analysis and design direction decisions.
-2. **Design system** — read `.claude/skills/ship/ux/references/design-research.md` Section 3 for creating DESIGN.md (color tokens, typography, spacing, component rules).
-3. **Cognitive principles** — read `.claude/skills/ship/ux/references/ux-principles.md` Sections 1-4 for decision architecture, information display, interaction patterns, experience shaping.
-4. **Navigation architecture** — read `.claude/skills/ship/ux/references/navigation.md` Section 1 for pattern selection based on screen count and hierarchy depth.
-5. **Layout strategy** — read `.claude/skills/ship/ux/references/layout-responsive.md` Section 1 for mobile-first planning and breakpoint decisions.
-6. **Typography & color** — read `.claude/skills/ship/ux/references/typography-color.md` Sections 1-2 for type scale and color palette decisions.
+## 3. Which reference for which decision
 
-## For Building (/ship-build)
+All paths are under `.claude/skills/ship/ux/references/`.
 
-When Dev builds UI:
+| Deciding… | Open |
+|---|---|
+| Contrast, target size, focus, keyboard, screen readers, text scaling, drag alternatives, login/auth rules — what's required vs recommended | `accessibility.md` |
+| How many options/actions on a screen, primary action, thumb reach, onboarding, feedback weight, inclusion, branding | `ux-principles.md` |
+| Type scale, fonts, Dynamic Type / rem, line length, weights, font loading | `typography.md` |
+| Palette, token roles, OKLCH / P3, brand-color usage, contrast pairs, CVD, elevation | `color.md` |
+| Dark mode values, depth in dark, theme switching, flash prevention | `dark-mode.md` |
+| Breakpoints, size classes, spacing scale, density, safe areas, z-index, radius scale | `layout-responsive.md` |
+| Interaction states, press feedback, haptics, hover, gestures, swipe actions | `interaction-design.md` |
+| Fields, validation, multi-step flows, toasts, empty/loading/disabled states | `forms-feedback.md` |
+| Tab bar vs sidebar, back behaviour, deep links, state restoration | `navigation.md` |
+| Button labels and order, errors, empty-state text, confirmations, voice, AI copy slop | `copy-clarity.md` |
+| First run and empty states, paywalls and pricing pages, cancel flows, reminders and streaks, reviews and counts, long waits, honest persuasion | `psychology.md` |
+| Competitor research, feel words, direction, where decisions are written, adopting an existing app | `design-research.md` |
+| Review taste: first impression, AI slop patterns, consistency, coherence | `design-quality.md` |
+| Components, layers, variants, button weights | `.claude/skills/ship/components/` |
+| Animation timing, easing, springs, Reduce Motion values | `.claude/skills/ship/motion/` (authority: motion) |
+| Web implementation (ARIA, React forms, CSS) · iOS implementation (SwiftUI, HIG) | web skill · ios skill |
 
-1. **Touch & interaction** — read `.claude/skills/ship/ux/references/touch-interaction.md` for tap targets, press feedback, gesture handling on every interactive element.
-2. **Forms** — read `.claude/skills/ship/ux/references/forms-feedback.md` for input implementation, validation, error states, empty states.
-3. **Layout** — read `.claude/skills/ship/ux/references/layout-responsive.md` Section 2 for spacing, viewport handling, responsive patterns.
-4. **Typography** — read `.claude/skills/ship/ux/references/typography-color.md` Section 1 for type scale implementation, token compliance.
-5. **Dark mode** — read `.claude/skills/ship/ux/references/dark-mode.md` for theme implementation. Use semantic tokens only.
+## 4. Blocks shipping
 
-## For Review (/ship-review)
+| Gate | Rule | Reference |
+|---|---|---|
+| REQ contrast | Text 4.5:1 (large 3:1); UI parts and focus rings 3:1 — every mode and state | `accessibility.md` §1, §4 |
+| REQ operable | Keyboard reachable, visible focus, not obscured; actions on release | `accessibility.md` §1 |
+| REQ targets | ≥ 24×24 CSS px (AA); Ship: 44 pt iOS / 48 dp Android / 44 px touch web | `accessibility.md` §1, §3 |
+| REQ alternatives | Every gesture and drag has a single-pointer, non-drag alternative | `interaction-design.md` §5 |
+| REQ text scaling | Dynamic Type / font scale / 200% zoom and 320 px reflow without loss | `typography.md` §1, `layout-responsive.md` §5 |
+| REQ forms | Visible labels, autocomplete, errors in text next to the field, paste allowed | `forms-feedback.md` §1–2 |
+| REQ motion | Reduce Motion / `prefers-reduced-motion` honoured | motion skill |
+| Registry | No literal colors/sizes/spacing; reusable components registered | `color.md` §2, components skill |
+| SHIP | One primary action per view; all component states designed; empty/loading/error screens exist; both themes pass | `ux-principles.md` §1, `interaction-design.md` §1, `forms-feedback.md` §4, `dark-mode.md` |
 
-When Crit, Pol, or Eye review:
+## 5. By phase
 
-1. **First impression** — read `.claude/skills/ship/ux/references/design-quality.md` Section 1. Step back, feel the whole before auditing parts.
-2. **AI slop check** — read `.claude/skills/ship/ux/references/design-quality.md` Section 2. Flag generic heroes, card sameness, decoration over meaning, spacing off-grid.
-3. **Cross-page consistency** — read `.claude/skills/ship/ux/references/design-quality.md` Section 3. Same component = same everywhere.
-4. **Visual coherence** — read `.claude/skills/ship/ux/references/design-quality.md` Section 4. Does everything feel like one product?
-5. **Accessibility audit** — read `.claude/skills/ship/ux/references/ux-principles.md` Section 5 for full accessibility checklist.
-6. **Touch audit** — read `.claude/skills/ship/ux/references/touch-interaction.md` Section 1 for tap target and interaction verification.
-7. **Typography & color audit** — read `.claude/skills/ship/ux/references/typography-color.md` Section 3 for token compliance, contrast, hierarchy.
-8. **Navigation audit** — read `.claude/skills/ship/ux/references/navigation.md` Section 2 for consistency, state preservation, deep link verification.
-9. **Form audit** — read `.claude/skills/ship/ux/references/forms-feedback.md` Section 2 for label visibility, error placement, empty states.
+**Plan (/shipmate plan, /shipmate — Vi, Arc, Pol):** `design-research.md` (direction, registry
+landing spots) → `ux-principles.md` §1 (screen content) → `navigation.md` §1 (pattern) →
+`layout-responsive.md` §1 (size classes, widths). New or changed tokens go to the registry
+before build starts.
 
-## For QA (/ship-qa)
+**Build (/shipmate build — Dev):** registry check first (§1). Then per element: states
+(`interaction-design.md` §1), fields (`forms-feedback.md`), type and color via tokens only,
+dark mode values from `semantic_dark`, words (`copy-clarity.md` §2). Name the references you
+opened in the handoff.
 
-When Test verifies:
+**Review (/shipmate review — Pol, Eye, Crit):** `design-quality.md` flow: first impression → pre-pass
+tools → slop scan → consistency → coherence. Web pre-pass:
+the web scan (`python3 .claude/skills/ship/web/bin/scan.py <files|URL>`, exit 2 = findings) and the web
+interface checklist, fetched at review time; both run as the web skill describes.
+Accessibility REQ rows are blockers regardless of taste.
 
-1. **Mobile test** — test at 375px width minimum. Read `.claude/skills/ship/ux/references/layout-responsive.md` Section 3.
-2. **Touch test** — tap targets on mobile viewport, rapid interaction. Read `.claude/skills/ship/ux/references/touch-interaction.md` Section 2.
-3. **Accessibility test** — keyboard nav through entire flow, screen reader on primary actions, contrast check. Read `.claude/skills/ship/ux/references/ux-principles.md` Section 5.
-4. **Form test** — submit empty required fields, invalid data, rapid submit, paste into all fields. Read `.claude/skills/ship/ux/references/forms-feedback.md` Section 3.
-5. **Dark mode test** — every screen in both themes, contrast passes in both. Read `.claude/skills/ship/ux/references/dark-mode.md` Section 2.
-6. **Edge cases** — empty states, error states, loading states, long text overflow.
+**QA (/shipmate review --test — Test):** the QA checklists at the end of `accessibility.md`,
+`forms-feedback.md`, `navigation.md`, `layout-responsive.md`, `dark-mode.md`,
+`interaction-design.md`. Minimums: keyboard walk, screen-reader pass on the primary flow,
+largest text size, 320 px, both themes, rapid-tap, empty/error states.
 
-## See Also
+## 6. Road signs (apply without opening a reference)
 
-- **Web skill** — web-specific accessibility, React form implementation, web performance, dark mode CSS
-- **Motion skill** — animation timing, motion budget, reduced motion implementation
-- **Components skill** — three-layer model, composition patterns, design tokens
+- One filled primary action per view; the action colour only on interactive things (a field colour
+  may own regions on a persuading surface).
+- Every interactive element: default, pressed, focus, disabled (+ loading/error where it can happen).
+- Show a pressed state on touch-down; never wait on the network to acknowledge input.
+- Labels above fields, hints before the input, errors below it; never disable submit to mean "incomplete".
+- Wrap, don't truncate; tabular figures for changing numbers.
+- Spacing and radius from the registry scale; inside-group gaps tighter than between-group gaps.
+- System back and edge gestures always work; state survives Back.
+- Specific verbs on buttons; errors say what happened and how to fix it; no "we" in system messages.
+- The word people scan for comes first: in headings, labels, links, buttons and messages.
+- Help people decide, never trick them: no fake urgency or scarcity, decoy tiers, guilt-trip
+  declines, hidden costs or hard cancels; what's close to the line is the founder's call, run
+  through the balance check (`psychology.md` §7).
+- Test light + dark, largest text, smallest width before calling UI done.

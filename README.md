@@ -1,359 +1,267 @@
 # Ship Framework
 
-**An AI product team for one-person teams.**
+**An AI product team for one-person teams.** You bring the idea and the taste. Ship gives Claude Code
+and Codex a product lead, a builder and five independent reviewers, and they remember what you decided.
 
-**The design-led product team that learns your taste and ships native apps.**
+[![Release](https://img.shields.io/github/v/release/ismailkose/ship-framework?label=release)](https://github.com/ismailkose/ship-framework/releases)
+[![License](https://img.shields.io/github/license/ismailkose/ship-framework)](LICENSE)
+![Works with Claude Code and Codex](https://img.shields.io/badge/works%20with-Claude%20Code%20%C2%B7%20Codex-6e40c9)
 
-You're a designer who vibe codes. A PM who prototypes. Someone building toward founder — not there yet, but getting closer with every product you ship. You need engineering, and that's what coding agents are for. But raw Claude Code or Codex is like having a brilliant engineer with no product sense, no design eye, and no business context. It builds what you say, not what you need.
+> **You:** `/shipmate add dark mode`\
+> **Ship:** Plan first (it touches every screen), then build and review.\
+> **Product lead:** Your users work evenings. Follow the system setting, or a toggle?\
+> **You:** Follow the system.\
+> **Builder:** Built on your design system: reused Card and ListRow, extended Chart.\
+> **Visual check:** Contrast passes. One focus ring is 2.4:1 in dark (`Settings.swift:88`).\
+> **You:** Fix it, then ship it.\
+> **Release lead:** Review gate passed. Shipped.
 
-This framework gives Claude and Codex structure. It turns either runtime into a team of opinionated specialists — 4 roles that argue in your conversation and 5 independent agents that review in separate context windows. They challenge each other, catch problems early, and keep you shipping. You're the founder. They report to you. And because the team carries memory across sessions and gates quality at every step, you don't hit the three-month wall — the point where AI-built codebases collapse under their own undocumented decisions and drifting design.
+*An illustrated session.* One command: Ship reads your project, says in one line what it's about
+to do, asks only what it doesn't already know, and walks the work with you. You make the calls.
 
-```
-I want to build a habit tracker for creative professionals
-```
+## What you get
 
-That's it. No commands needed. The team detects your intent and takes over — plans the product, architects the code, builds it, reviews the quality, tests everything, and ships it. You make the calls. They do the work.
+Claude Code and Codex can already write your app. Ship makes them work like a product team:
 
----
+- **Your decisions, kept.** Not in your head or old chats: decisions, design tokens, components and
+  your taste live in files every session reads, so new code doesn't drift.
+- **Reviewers who didn't write the code.** Up to five, unable to see each other. Every finding cites
+  a file and line, a screenshot or test output, and launch waits for a clean review.
+- **The craft at the right step.** Guides for forms, first runs, paywalls, motion and accessibility
+  load where they matter, not only when you think to ask.
+- **One command, sized to the job.** `/shipmate the login crashes`, `/shipmate make onboarding feel
+  warmer`, `/shipmate ship it`. A copy fix stays small; a risky change gets planned and fully reviewed.
+- **A team that pushes back.** The product lead asks who told you they need this. Review says
+  "shippable, move on" when you're polishing. Retro notices three sessions on animation and none on
+  payments.
+- **Honest by default.** No fake urgency, guilt-trip buttons or hard cancels, and review blocks them.
+  What's close to the line is your call, with guardrails.
+- **What's missing, not only what's wrong** *(preview)*. Say "this feels generic" and Ship proposes
+  a point of view and the three gaps that cost your users most.
 
 ## Install
 
-### Cowork (Desktop App)
+**Claude Code**
 
-Download `ship-framework.plugin` from the [latest release](https://github.com/ismailkose/ship-framework/releases) and open it. Cowork installs it automatically.
+```
+/plugin marketplace add ismailkose/ship-framework
+/plugin install ship-framework@ship-framework
+```
 
-### Claude Code (CLI)
+**Codex, or Ship's files inside your repo**
 
 ```bash
 git clone https://github.com/ismailkose/ship-framework.git
-claude plugin add ./ship-framework/ship-framework.plugin
+bash ship-framework/setup.sh my-app        # --dry-run shows what would change
 ```
 
-### Codex
+**Your first request**
 
-Ship works in Codex through a generated `AGENTS.md` bridge. If a project has been bootstrapped with `setup.sh` or refreshed with `ship-update.sh`, open it in Codex and Ship will route Codex back through the same `CLAUDE.md`, `.claude/team-rules.md`, and shared memory files.
+- **Claude Code:** type `/shipmate` and what you need (the menu lists it as
+  `/ship-framework:shipmate`). An app you already have: `/shipmate adopt my design system`. A new
+  idea: `/shipmate new idea: a booking app for my barbershop`.
+- **Codex:** describe the task in plain words ("adopt my design system"); `AGENTS.md` maps it to
+  the same steps.
 
-Codex needs the `setup.sh` install: the bridge points Codex at references inside the project (`.claude/skills/ship/`), which a plugin-only install doesn't have.
+As a plugin, Ship keeps its files out of your project:
+it adds `CLAUDE.md` and its memory files only when you say yes, and never overwrites yours. Other
+routes (Cowork, the `.plugin` file) and what differs between Claude and Codex are in
+[CAPABILITIES.md](CAPABILITIES.md).
 
-### Legacy (setup.sh)
+> [!NOTE]
+> **Coming from 5.1?** The 21 `/ship-*` commands are now stages of `/shipmate`: `/ship-fix` is
+> `/shipmate fix`, `/ship-team` is `/shipmate`. Details under **Updating** below.
 
-The classic `setup.sh` method still works for projects that prefer the template-copy approach:
+## How it works
 
-```bash
-git clone https://github.com/ismailkose/ship-framework.git
-bash ship-framework/setup.sh
+```mermaid
+flowchart LR
+  S[Setup] --> T[Think] --> D[Design] --> P[Plan] --> B[Build] --> R[Review] --> L[Launch] --> Rt[Retro]
+  Rt -. next round .-> T
 ```
 
-## Switch Between Claude and Codex
+You don't walk this by hand. Ship picks where a request starts and how deep each step goes: a copy
+fix goes straight to build and a quick check, a new product walks the whole path. Small fixes stay
+small, and risky changes get the full review.
 
-- `CLAUDE.md` stays canonical. Update it when product context changes.
-- `AGENTS.md` is managed by Ship. It exists so Codex can use the same framework without duplicating context.
-- `.ship/framework.yaml` is the managed internal core for the pilot `think` / `plan` / `build` / `review` loop.
-- Claude and Codex both share `TASKS.md`, `DECISIONS.md`, `CONTEXT.md`, and `LEARNINGS.md`, so you can switch runtimes mid-project without resetting the team's memory.
+<details>
+<summary><b>Steering words and stages</b></summary>
 
----
-
-## How It Works — Auto-Routing
-
-Ship Framework v5 is **always-on**. No slash commands required. Just describe what you want in natural language and the router matches your intent to the right agent:
+Say what you need in your own words. Put a stage name first only to steer:
+`/shipmate review --full`, `/shipmate plan the sync feature`.
 
 ```
-Build me a login screen          → Dev builds it
-Something broke [paste error]    → Bug debugs it
-Is this worth building?          → Vi validates with forcing questions
-Review this                      → Full quality gate (Crit + Pol + Eye + Test)
-Ship it                          → Cap runs deploy checklist
-Continue                         → Picks up next task from your board
+/shipmate the app crashes when I rotate on the stats screen
+/shipmate                      # nothing after it: continue where you left off
+/shipmate help                 # example requests
+/shipmate status               # where things stand
 ```
 
-You can still use explicit `/ship-*` commands when you want more control. Auto-routing and direct commands work side by side.
-
----
-
-## All 21 Commands
-
-You don't need to learn these — auto-routing handles it. But when you want to call a specific specialist directly:
-
-### 🔄 The Core Loop — every feature goes through this
-
-| Command | Who | What happens |
+| Stage | Its job | Skip or shrink when |
 |:---|:---|:---|
-| **ship-think** | Vi | Validate the idea. Six forcing questions kill bad ideas before you invest time. |
-| **ship-plan** | Vi + Pol + Arc | Product brief + design readiness score + technical plan. They argue, you decide. |
-| **ship-build** | Dev | Builds one feature at a time. Scope enforcement, atomic commits. |
-| **ship-review** | Crit + Pol + Eye + Test | The quality gate. UX, design, visual QA, tests. Health score 0-100. |
-| **ship-launch** | Cap | Readiness check, deploy, measurement plan. |
+| Think | Clarify what's uncertain; ask only what isn't already known | The answers are known |
+| Design | Adopt an existing app's system, or plant a small seed, proven on a real screen | The change reuses what's registered |
+| Plan | Resolve real choices and risks, then a build order, light or full | One obvious approach, low risk |
+| Build | One feature, with the product's system and the right expertise; evidence it works | Never skipped |
+| Review | Check the actual outcome with isolated reviewers sized to the change | Never skipped; depth shrinks |
+| Launch | Fresh review, evidence-based gates, deploy, a check after deploy | No release intended |
+| Retro | Keep decisions, corrections and lessons for the next round | Short, not absent |
 
-### 🎨 Design Tools
+Also: `fix` (reproduces first, then investigates), `variants` (options on a comparison board; your
+pick is recorded as taste), `html` (a single-file prototype), `qa`, `browse`, `perf` (web speed gate),
+`codex` (a second opinion), `money` (pricing, then the integration), `careful` · `freeze` · `guard`
+· `unfreeze` (safety), `update`.
 
-| Command | Who | What happens |
-|:---|:---|:---|
-| **ship-design** | Pol + Eye | Plant the design seed: brand conversation → `design-model.yaml` tokens (light + dark) + first registered components + a living preview. The system then grows during build. |
-| **ship-variants** | Pol | Generate 3 theory-backed design options. HTML comparison board + AI mockups. Learns your taste over time. |
-| **ship-html** | Dev + Pol | Production-quality responsive HTML. No framework, proper text reflow. |
+Before any work Ship gets the facts (setup, stack, design system, your changes, tasks, the last
+review) and says in one line what it's doing and how to redirect it. It asks only when two readings
+lead to different work, a step is hard to undo, or a product or taste call has no recorded answer.
+Every session starts with one line: `Ship v… · Product · stack · 3 open task(s) · say what you need,
+or /shipmate.`
 
-### 🔧 When You Need It
+In the plugin, the menu shows `/ship-framework:shipmate`; plain `/shipmate` works too. Without the
+command, the plugin's router can still start Ship from a plain request: in our test of 20 requests,
+it started Ship for all 10 product requests and stayed out of the 10 others. With `OPENAI_API_KEY`
+set, design options can add image mockups, for direction only.
 
-| Command | Who | What happens |
-|:---|:---|:---|
-| **ship-fix** | Bug | Paste the error. Checks known patterns first, then systematic investigation. |
-| **ship-browse** | Eye | Visual QA with browser power. Headed mode, cookie import, perf snapshots. |
-| **ship-perf** | Eye + Test | Core Web Vitals benchmark. Before/after comparison. CI assertions. |
-| **ship-money** | Biz | Pricing strategy starting from willingness-to-pay. |
-| **ship-retro** | Retro | Reads git history. What actually happened, not what you think. |
+</details>
 
-### 🛡️ Safety Net — set once, runs in the background
+<details>
+<summary><b>Your design system, kept as data</b></summary>
 
-| Command | What it does |
-|:---|:---|
-| **ship-careful** | Warns before destructive commands (rm -rf, DROP TABLE, force push). |
-| **ship-freeze** | Locks edits to one directory. Nothing else gets touched. |
-| **ship-guard** | Both at once. |
-| **ship-unfreeze** | Removes the lock. |
+The design stage plants a **seed**: a short conversation becomes `design-model.yaml`, with real
+tokens (color, type scale, spacing, radius, motion springs) in light and dark from day one, plus
+your first components in `design/components.yaml`, rendered on a real screen. `DESIGN.md` keeps the
+intent in prose, including the product's point of view. Already have an app? `/shipmate design
+adopt` drafts both files from your code, keeps your names, and proves nothing moved.
 
-### 🔒 Automatic Hooks — no commands needed
+One `design-model.yaml` generates SwiftUI, CSS variables, Tailwind v4 and Jetpack Compose, plus
+previews. Generated files are never edited by hand: change the YAML and generate again.
 
-| Hook | When | What it does |
-|:---|:---|:---|
-| **Design Gate** | Edit/Write on UI, motion, or copy files | Blocks design edits until the project has a design contract (`PDC.md`). Logic and test edits are never blocked. Silent outside Ship projects. |
-| **Session Start** | Session opens | Loads your Stack, product name, version, task count. Cleans stale state. |
+Before every UI element the builder asks the registry: **reuse** it, **extend** it with a variant,
+register a **new** reusable piece, or keep a one-off layout local. New tokens or changed visuals are
+your call, as one question. After ten screens you don't have ten screens; you have a design system
+that ten screens proved.
 
-### ⚡ Optional
+**Taste, in your words.** When you approve, reject or correct a design choice, Ship records it in
+your words (`design/taste.yaml`, or `~/.ship/taste.yaml` for what holds across products), and agents
+check it before UI, copy or motion work. In Claude Code, the **design gate** stops a new UI, motion
+or copy file before the project has a design contract and points you to `/shipmate design`; fixes
+to existing files are never blocked.
 
-| Command | What it does |
-|:---|:---|
-| **ship-codex** | Claude-side Codex second opinion. Review, challenge, or consult. |
-| **ship-update** | Updates Ship Framework to latest version. |
+</details>
 
----
+<details>
+<summary><b>How review and launch decide</b></summary>
 
-## Smart Flags — No Flags Needed
+Product review, design review, the visual check (rendered screens only) and tests (it runs them)
+work in parallel and can't see each other. On risky changes a second look challenges every finding
+and hunts for misses. A copy tweak gets one or two reviewers; auth, payments or a release branch
+gets all five.
 
-Every command auto-detects the right mode from context. The team reads your diff size, file types, project state, and prior outputs — then picks the appropriate flag automatically. You'll see what it chose. Explicit flags always override.
+Each review records a fingerprint of exactly what it saw. Launch passes only when that review is
+still fresh, every selected reviewer actually finished, and no blocker is open. It gates on
+evidence, not on a coverage percentage: failing tests, changed flows with no test or recorded check,
+an invalid design registry, or a Core Web Vital rated "poor" on a main page.
 
-**AI Mockups:** Set `OPENAI_API_KEY` and `/ship-variants` and `/ship-design` auto-generate high-fidelity AI mockups via GPT Image API alongside the HTML comparison boards.
+</details>
 
----
+<details>
+<summary><b>The care review (preview)</b></summary>
 
-## Your Design System Grows As You Build
+"The booking flow feels generic", "what's missing?" or "make it feel cared for" starts a care pass.
+Three reviewers each take one real task through the product with their own lens, and the report
+gives:
 
-Most AI design tools generate a complete design system upfront — forty components you didn't ask for, documented before a single screen exists. Ship does the opposite.
+- **Point of view:** who it's for and the moment they're in. If you haven't set one, Ship proposes
+  it from the app, its copy and your README, and you confirm by picking between two concrete
+  versions, never by typing adjectives.
+- **Keep:** what already shows care, so nobody fixes it away.
+- **At most three gaps**, ranked by what they cost the user, each with evidence, a fix and a way to
+  check it.
+- **Optional ideas** and **what wasn't checked**.
 
-`/ship-design` plants a **seed**: a brand conversation becomes `design-model.yaml` — real tokens (color ramps, type scale, radius, platform-neutral motion springs), light *and* dark mode from day one — plus your first components registered in `design/components.yaml`, and a living preview that mirrors them.
+Nothing changes until you pick a gap. It's a preview, run on request: its evaluation on two sample
+apps passed on one and slipped once in four runs on the other, so Ship makes no measured claim yet.
 
-Then the system grows while you build. Before every UI element, the team silently checks the registry:
+</details>
 
-- **Exists?** → reused. No drift, no fork.
-- **New reusable primitive?** → built against your tokens, registered, documented — then used.
-- **One-off layout?** → composed locally, deliberately kept *out* of the system.
+<details>
+<summary><b>Where Ship's knowledge comes from</b></summary>
 
-No ceremony — the only time you're asked is a genuine promotion decision. The documentation regenerates from the registry, so it always shows the system you actually have, not the one you planned. And because tokens are structured data, they emit per platform: `Theme.swift` for SwiftUI first, CSS variables, Tailwind, and Compose from the same file.
+Each change is routed to the sources it needs, in one order: platform requirements and
+accessibility, then your product decisions, your preferences, platform guidance (HIG, Material),
+expert sources, Ship defaults, and last, agent guesses. An update can change the lower rungs; it
+never quietly redesigns your product.
 
-The result: after ten screens you don't have ten screens — you have a design system that ten screens proved.
+**Nothing else to install.** Ship's own references cover UX, motion, iOS, web, components,
+hardening, the design registry, taste and review, each checked against Apple's, Google's and the
+frameworks' docs and naming its sources. Declare your stack in `CLAUDE.md` and only the relevant
+ones load. A skill you install yourself still works, and Ship lists where it's known to be wrong.
+Motion follows Emil Kowalski's skills, ported under their MIT notice. Design and UX draw on the
+classic books, GOV.UK's patterns, Nielsen's heuristics and Growth.Design's psychology principles,
+in Ship's own words. Every source is in [CREDITS.md](CREDITS.md).
 
----
+</details>
 
-## It Adapts to You
+<details>
+<summary><b>It adapts to how you work</b></summary>
 
-Ship doesn't treat every founder the same. The `## The Founder` section in your `CLAUDE.md` tells the team how YOU work:
+The `## The Founder` section in your `CLAUDE.md` tells the team how you work:
 
 ```markdown
-## The Founder
-
 Background: Product designer
 Technical comfort: Can read code and review diffs. Not architecting from scratch.
 Decision style: One strong recommendation with clear reasoning.
 Communication: Short and direct. Show, don't explain.
-Taste: Craft-obsessed. If it feels off, it's not shipping.
-Context need: I need the "why" before I commit.
-Focus awareness: I can get deep into details that are already shippable.
 ```
 
-Dev stops over-explaining code to a designer who can read it. Crit leads with design quality, not code quality. Vi presents one strong recommendation instead of three options if that's how you decide. The team shapes itself to you.
+The builder stops over-explaining code you can read, review leads with design quality, and the
+product lead gives one recommendation instead of three options if that's how you decide.
 
----
+</details>
 
-## They Push Back
+<details>
+<summary><b>Claude and Codex in the same project</b></summary>
 
-These aren't assistants waiting for instructions. They're the best in their field and they act like it.
+`CLAUDE.md` is yours and canonical. `AGENTS.md` is Ship's bridge for Codex (if you already have your
+own, Ship writes its bridge to `.ship/AGENTS.ship.md`). Tasks, decisions, the design registry and
+taste are shared, so you can switch tools mid-project without planning again. Codex runs reviews in
+one context, labelled *not independent*; isolated reviewers, hooks and slash commands are
+Claude-only. In Codex, describe the task; `AGENTS.md` maps it to the same stages.
 
-**Vi** asks "who told you they need this?" when you're building on taste alone. **Crit** says "this is shippable, move on" when you're perfecting something that's already good enough — and shows you the three core flows that don't exist yet. **Dev** shows the 80% version when the 100% version costs a week. **Arc** scans your entire codebase before recommending anything. **Cap** pushes to ship. **Retro** reads your actual git history and says "you spent three sessions on animation and zero on the payment flow."
+</details>
 
-They respect your authority — you always make the final call. But they make sure you're deciding *informed*, not guessing.
+<details>
+<summary><b>Add your own skills</b></summary>
 
----
+Put your skills in `.claude/skills/your-skills/` and wire each with a plain line under **Skills:**
+in `CLAUDE.md`'s Ship section, for example `tailwind-patterns: load during build and review when
+working on frontend files`. When `/shipmate` finds one that isn't wired, it offers once to add the
+line. Your references go in `references/` under Custom References; they count as expert sources,
+below your product decisions.
 
-## Your Stack, Your References
+</details>
 
-Declare your stack once. Ship only loads what's relevant:
+<details>
+<summary><b>Updating, and coming from 5.1</b></summary>
 
-```markdown
-## Stack
-Stack: web (Next.js, Tailwind, Vercel)
-```
+**Plugin:** `claude plugin marketplace update ship-framework`, then
+`claude plugin update ship-framework@ship-framework` (or turn on auto-update for the marketplace in
+`/plugin` › Marketplaces), then restart or `/reload-plugins`.
 
-Web project? You get web references. iOS project? You get Apple HIG, SwiftUI patterns, and 61 framework guides. Android? Material 3 and Compose patterns. No irrelevant context cluttering your sessions.
+**Project install:** `/shipmate update` in Claude Code, or `bash ship-update.sh` from your project
+root (`--dry-run` to preview). Updates replace Ship's files and never yours; an edited copy of one
+of Ship's files is saved to `.ship/backups/` first.
 
-Platform skills also auto-activate by file type — touch a `.swift` file and iOS knowledge loads, edit a `.tsx` and web patterns activate. The Stack declaration and file detection work together so nothing gets missed.
+**From 5.1:** the 21 `/ship-*` commands are gone, with no aliases: they're stages of `/shipmate`
+now. Update the way you did before (`/ship-update`, `bash ship-update.sh`, or the plugin commands
+above); a project-install update removes the old command files and lists what it removed.
 
----
+</details>
 
-## Skills Route, References Teach
+## Learn more
 
-Ship splits design intelligence into two layers:
+[Cheatsheet](CHEATSHEET.md) · [What works where](CAPABILITIES.md) · [Changelog](CHANGELOG.md) · [Credits](CREDITS.md)
 
-**Skills** are thin routing tables (~60-80 lines). They tell each persona WHEN to read WHICH reference, for WHICH command. They also carry priority enforcement gates — the things that block shipping (contrast ratios, tap targets, reduced motion).
-
-**References** are the brain (200-700+ lines). They teach the runtime HOW to think about a domain — with reasoning, correct vs incorrect examples, and anti-patterns. Different personas read different sections of the same reference at different times.
-
-Example flow: you say "build the signup form" → Dev loads the UX skill → skill says "read forms-feedback.md Section 1 for form implementation" → Dev reads the reference and applies the reasoning to the specific form being built.
-
-Each skill owns its references — the UX skill has 12 reference files, motion has 4, iOS has 64 (including 61 framework guides), web has 3. Total: 85 deep reference files covering UX, typography, color, forms, navigation, layout, touch, dark mode, animation, components, design quality, hardening, and platform-specific patterns. All auto-loaded based on your declared stack. The team also learns your patterns over time — bug fixes write to LEARNINGS.md, design reviews record your taste preferences, and every session starts by reading what past sessions discovered.
-
-### Add Your Own
-
-Create skills in `.claude/skills/your-skills/` and wire them in CLAUDE.md:
-
-```
-tailwind-patterns: load during /ship-build and /ship-review when working on frontend files
-```
-
-Add references in `references/` and route them from CLAUDE.md under Custom References. Ship auto-detects new skills and offers to wire them for you.
-
-Codex reads the same routing through `AGENTS.md`, so you still only maintain one set of project instructions.
-
----
-
-## How It Actually Feels
-
-```
-You:       I want to add dark mode
-
-Vi:        Here's the job statement — users want to reduce eye strain
-           during evening sessions. Magic moment: the first time the
-           interface shifts and everything just feels right.
-
-Pol:       Design readiness score: 62/70. Information Architecture 9/10,
-           Interaction States 7/10 — we need to plan the toggle states.
-           AI Slop Risk 8/10 — the color strategy is intentional.
-
-Arc:       Two approaches. Minimal: CSS variables + system preference
-           detection, 2 hours. Clean: full theme engine with custom
-           palettes, 2 days. I'd go Minimal — ship it, see if users
-           want custom palettes.
-
-Dev:       Built it. CSS variables, prefers-color-scheme, toggle in
-           settings. 47 minutes. Atomic commit done.
-
-Crit:      Contrast ratios pass. Toggle is discoverable. One issue —
-           the chart colors don't adapt. Not blocking but worth fixing.
-
-Test:      12 tests written. All passing. Edge case covered: system
-           preference changes while app is open. Health score: 88/100.
-
-Cap:       ✓ DONE — Dark mode is live. Measuring: daily active users
-           after 6pm (baseline: 340). Check in one week.
-```
-
-One idea → planned, scored, built, reviewed, tested, shipped, measured. That's Ship.
-
----
-
-## Plugin Structure
-
-```
-ship-framework/
-  .claude-plugin/plugin.json   # Plugin manifest (v5.1.0 · 2026.09.22)
-  commands/                    # 21 slash commands
-  skills/
-    ship-router/               # Auto-routing — intent detection, command mapping
-    ship-agents/               # 5 review agents (Crit, Pol, Eye, Test, Adversarial)
-    ship-ux/                   # 12 UX references (principles, typography, forms, layout, etc.)
-    ship-motion/               # 4 animation references (CSS, Framer Motion, timing)
-    ship-components/           # Component catalog, three-layer model
-    ship-hardening/            # Error boundaries, edge cases, pre-launch checklist
-    ship-ios/                  # 65 references: SwiftUI, HIG, Swift essentials, frameworks
-    ship-web/                  # 3 references: React patterns, accessibility, performance
-    ship-android/              # Jetpack Compose, Material 3
-    ship-design/               # Design registry: schema, validator, SwiftUI theme generator
-    ship-refgate/              # Design Gate — UI edits need PDC.md
-    ship-sessionstart/         # Session Start — loads project context automatically
-    ship-careful/              # Destructive command warnings
-    ship-freeze/               # Directory edit lock
-    ship-guard/                # Combined: careful + freeze
-    ship-unfreeze/             # Remove directory lock
-  hooks/hooks.json             # Always-on hooks: design gate + session start
-  bin/bootstrap-project.sh     # First run: creates your project files
-  templates/                   # Project files created on first run
-    CLAUDE.md                  # Product config, founder profile, stack
-    TASKS.md                   # Task board
-    DECISIONS.md               # Decision log
-    CONTEXT.md                 # Project context
-    LEARNINGS.md               # Team memory
-    team-rules.md              # Agent rules, personas, coaching
-```
-
-When installed as a plugin, Ship Framework lives outside your project. Your project gets the template files (`CLAUDE.md`, `TASKS.md`, etc.) on first run. For Codex support, use the `setup.sh` install, which also adds `AGENTS.md` and `.ship/framework.yaml`. The framework's commands, skills, and references load automatically from the plugin.
-
----
-
-## Updating
-
-**Plugin (Cowork or Claude Code):** Download the latest `ship-framework.plugin` from [releases](https://github.com/ismailkose/ship-framework/releases) and open it. It replaces the previous version. Your user-owned files (`CLAUDE.md`, `TASKS.md`, `DECISIONS.md`, etc.) are never touched. Ship may refresh managed files like `AGENTS.md` and `.ship/framework.yaml`.
-
-**Legacy (setup.sh):** Run `/ship-update` in Claude Code or `bash ship-update.sh` from your project root. This refreshes the managed Codex bridge and the managed `.ship` core too.
-
----
-
-## Credits
-
-**Framework inspiration:**
-
-- [gstack](https://github.com/garrytan/gstack) by Garry Tan — the original AI team-in-terminal concept
-
-**iOS references:**
-
-- [swift-ios-skills](https://github.com/dpearson2699/swift-ios-skills) by dpearson2699 — SwiftUI patterns and iOS skill templates
-- [twostraws](https://github.com/twostraws) agent skills — Swift/iOS agent skill foundations
-- [xcode-26-system-prompts](https://github.com/artemnovichkov/xcode-26-system-prompts) by artemnovichkov — Xcode system prompt patterns
-- [swift-security-skill](https://github.com/ivan-magda/swift-security-skill) by ivan-magda — iOS security patterns
-- [swiftui-design-principles](https://github.com/arjitj2/swiftui-design-principles) by arjitj2 — SwiftUI design skill
-- [Skills](https://github.com/Dimillian/Skills) by Dimillian (Thomas Ricouard) — iOS agent skills collection
-- [iOS-Accessibility-Agent-Skill](https://github.com/dadederk/iOS-Accessibility-Agent-Skill) by dadederk — iOS accessibility patterns
-- [swift-architecture-skill](https://github.com/efremidze/swift-architecture-skill) by efremidze — Swift architecture patterns
-
-**UX & design references:**
-
-- [impeccable](https://github.com/pbakaus/impeccable) by Paul Bakaus — 8-state interaction model, AI slop patterns, design hardening
-- [stitch-skills](https://github.com/nicholasgriffintn/stitch-skills) by Google Labs — design system patterns, component architecture
-- [ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) by NextLevelBuilder — design intelligence, 161 color palettes, 57 font pairings, 99 UX guidelines, style selection
-- [Animations on the Web](https://animations.dev) by Emil Kowalski — motion design principles and timing
-- [userinterface.wiki](https://userinterface.wiki) by Raphael Salaja — UI component patterns and interaction design
-- [Laws of UX](https://lawsofux.com) by Jon Yablonski — UX heuristics and design psychology
-- [Microinteractions](https://www.oreilly.com/library/view/microinteractions/9781491945957/) by Dan Saffer — micro-interaction design patterns
-- [Butterick's Practical Typography](https://practicaltypography.com) — typographic standards, type scale reasoning
-- [Interaction of Color](https://yalebooks.yale.edu/book/9780300179354/interaction-of-color/) by Josef Albers — color theory foundations
-- [Space in Design Systems](https://medium.com/eightshapes-llc/space-in-design-systems-188bcbae0d62) by Nathan Curtis — spacing system methodology
-
-**Web & React references:**
-
-- [Vercel agent-skills](https://github.com/vercel-labs/agent-skills) — React best practices (65 rules), web design guidelines (100+ rules), composition patterns
-- [Web Interface Guidelines](https://github.com/vercel-labs/web-interface-guidelines) by Vercel — accessibility, forms, animation, typography, performance, dark mode, i18n
-- [Vercel v0 iOS engineering blog](https://v0.dev/blog) — chat UI patterns and interface architecture
-
-Built by [Ismael Kose](https://github.com/ismailkose).
-
-## Contributing
-
-PRs welcome. Ideas: new platform skills, reference files, design tool integrations.
-
-For the pilot core loop, keep the generated blocks in sync before opening a PR:
-
-```bash
-python3 scripts/render_ship_core.py --write
-python3 scripts/render_ship_core.py --check
-```
-
-## License
-
-MIT
+Built by [Ismael Kose](https://github.com/ismailkose). Issues and pull requests are welcome; Ship's
+checks run on our side. MIT license.

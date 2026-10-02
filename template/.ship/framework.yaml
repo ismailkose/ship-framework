@@ -30,84 +30,12 @@
       "guidance": "If a user switches between Claude and Codex mid-project, continue from the same shared context instead of re-planning from scratch."
     }
   },
-  "reference_groups": {
-    "shared_project_context": {
-      "label": "Shared project context",
-      "items": [
-        "CLAUDE.md",
-        ".claude/team-rules.md",
-        "DECISIONS.md",
-        "CONTEXT.md",
-        "LEARNINGS.md",
-        "TASKS.md"
-      ]
-    },
-    "idea_validation_foundations": {
-      "label": "Idea validation foundations",
-      "items": [
-        ".claude/skills/ship/ux/references/ux-principles.md",
-        ".claude/skills/ship/ux/references/design-research.md",
-        ".claude/skills/ship/ux/references/interaction-design.md",
-        ".claude/skills/ship/ux/references/copy-clarity.md"
-      ]
-    },
-    "planning_foundations": {
-      "label": "Planning foundations",
-      "items": [
-        ".claude/skills/ship/ux/references/ux-principles.md",
-        ".claude/skills/ship/components/references/components.md",
-        ".claude/skills/ship/motion/references/animation.md",
-        ".claude/skills/ship/ux/references/typography-color.md",
-        ".claude/skills/ship/ux/references/layout-responsive.md",
-        ".claude/skills/ship/ux/references/spatial-design.md",
-        ".claude/skills/ship/ux/references/interaction-design.md",
-        ".claude/skills/ship/ux/references/navigation.md"
-      ]
-    },
-    "build_foundations": {
-      "label": "Build foundations",
-      "items": [
-        ".claude/skills/ship/ux/references/ux-principles.md",
-        ".claude/skills/ship/components/references/components.md",
-        ".claude/skills/ship/motion/references/animation.md",
-        ".claude/skills/ship/ux/references/interaction-design.md",
-        ".claude/skills/ship/ux/references/layout-responsive.md",
-        ".claude/skills/ship/ux/references/spatial-design.md",
-        ".claude/skills/ship/ux/references/forms-feedback.md",
-        ".claude/skills/ship/ux/references/typography-color.md",
-        ".claude/skills/ship/ux/references/navigation.md",
-        ".claude/skills/ship/ux/references/copy-clarity.md",
-        ".claude/skills/ship/hardening/references/hardening-guide.md"
-      ]
-    },
-    "review_foundations": {
-      "label": "Review foundations",
-      "items": [
-        ".claude/skills/ship/ux/references/ux-principles.md",
-        ".claude/skills/ship/ux/references/design-quality.md",
-        ".claude/skills/ship/components/references/components.md",
-        ".claude/skills/ship/motion/references/animation.md",
-        ".claude/skills/ship/ux/references/interaction-design.md",
-        ".claude/skills/ship/ux/references/layout-responsive.md",
-        ".claude/skills/ship/ux/references/typography-color.md",
-        ".claude/skills/ship/hardening/references/hardening-guide.md"
-      ]
-    },
-    "platform_stack_core": {
-      "label": "Platform stack core (match the Stack field in CLAUDE.md)",
-      "items": [
-        "iOS -> .claude/skills/ship/ios/references/swiftui-core.md + .claude/skills/ship/ios/references/hig-ios.md + .claude/skills/ship/ios/references/swift-essentials.md",
-        "Web -> .claude/skills/ship/web/references/react-patterns.md + .claude/skills/ship/web/references/web-accessibility.md + .claude/skills/ship/web/references/web-performance.md",
-        "Android -> .claude/skills/ship/android/references/ when content exists"
-      ]
-    }
-  },
   "workflows": [
     {
       "id": "think",
-      "command_name": "/ship-think",
+      "command_name": "/shipmate think",
       "runtime_label": "Idea validation workflow",
-      "purpose": "Validate the idea before planning so the team is solving a real problem for a real person.",
+      "purpose": "Clarify consequential uncertainty about the idea — ask only what isn't already known.",
       "lead_roles": [
         "Vi"
       ],
@@ -125,18 +53,55 @@
         "PIVOT_SUGGESTED",
         "PAUSE"
       ],
-      "reference_groups": [
-        "shared_project_context",
-        "idea_validation_foundations",
-        "platform_stack_core"
+      "handoff_text": "`VALIDATED` — the idea is clear; the brief is in DECISIONS.md.\\n`PIVOT_SUGGESTED` — offer the tighter framing; think again only if the founder wants to.\\n`PAUSE` — not ready: name the missing evidence and how to get it.",
+      "next": [
+        "design",
+        "plan"
       ],
-      "handoff_text": "[If VALIDATED]: Idea validated. Run /ship-plan to start planning.\\n[If PIVOT_SUGGESTED]: Consider the tighter framing and re-run /ship-think or move into /ship-plan if you are convinced.\\n[If PAUSE]: Not ready for planning yet. Gather the missing evidence, then come back."
+      "next_note": "plan directly when a design system exists"
+    },
+    {
+      "id": "design",
+      "command_name": "/shipmate design",
+      "runtime_label": "Design seed workflow",
+      "purpose": "Establish or extend a visible, reusable direction — adopt an existing app's system or plant a small seed, proven on a real screen.",
+      "lead_roles": [
+        "Pol",
+        "Eye"
+      ],
+      "input_files": [
+        "CLAUDE.md",
+        "DECISIONS.md",
+        "DESIGN.md",
+        "design-model.yaml",
+        "design/components.yaml",
+        "design/taste.yaml"
+      ],
+      "output_files": [
+        "DESIGN.md",
+        "design-model.yaml",
+        "design/components.yaml",
+        "PDC.md",
+        "generated themes + previews"
+      ],
+      "status_values": [
+        "DONE",
+        "DONE_WITH_CONCERNS",
+        "BLOCKED",
+        "NEEDS_CONTEXT"
+      ],
+      "handoff_text": "`DONE` — direction set (seeded or adopted) and rendered on a real screen.\\n`DONE_WITH_CONCERNS` — direction set; open questions listed for the founder.\\n`BLOCKED` — waiting on a founder decision about direction.\\n`NEEDS_CONTEXT` — need brand input or access to the existing app's code.",
+      "next": [
+        "plan",
+        "build"
+      ],
+      "next_note": "whichever the request needs"
     },
     {
       "id": "plan",
-      "command_name": "/ship-plan",
+      "command_name": "/shipmate plan",
       "runtime_label": "Planning workflow",
-      "purpose": "Turn the idea into a product brief, architecture, and build order the team can execute.",
+      "purpose": "Resolve implementation choices and meaningful risks, then a build order — light or full depth.",
       "lead_roles": [
         "Vi",
         "Arc",
@@ -158,18 +123,17 @@
         "NEEDS_REVISION",
         "BLOCKED"
       ],
-      "reference_groups": [
-        "shared_project_context",
-        "planning_foundations",
-        "platform_stack_core"
+      "handoff_text": "`APPROVED` — plan approved; the build order is in TASKS.md.\\n`NEEDS_REVISION` — revise the flagged sections and stress-test again.\\n`BLOCKED` — waiting on founder input. Name each open decision (DECISIONS.md, `Status: pending`) and the build items that can start without it.",
+      "next": [
+        "build"
       ],
-      "handoff_text": "[If APPROVED]: Plan approved. Start with /ship-build to begin the first feature.\\n[If NEEDS_REVISION]: Revise the flagged sections and run the stress test again.\\n[If BLOCKED]: Waiting on founder input before the plan can graduate."
+      "next_note": "the first item in the build order"
     },
     {
       "id": "build",
-      "command_name": "/ship-build",
+      "command_name": "/shipmate build",
       "runtime_label": "Implementation workflow",
-      "purpose": "Build one planned feature at a time with tight scope control, tests, and verification.",
+      "purpose": "Build one feature with the product's system and relevant expertise; verify the outcome with evidence.",
       "lead_roles": [
         "Dev"
       ],
@@ -177,12 +141,15 @@
         "CLAUDE.md",
         "TASKS.md",
         "DECISIONS.md",
+        "design/components.yaml",
+        "design/taste.yaml",
         "LEARNINGS.md"
       ],
       "output_files": [
+        "code",
         "TASKS.md",
-        "DECISIONS.md",
-        "code"
+        "design/components.yaml",
+        "design/taste.yaml"
       ],
       "status_values": [
         "DONE",
@@ -190,18 +157,17 @@
         "BLOCKED",
         "NEEDS_CONTEXT"
       ],
-      "reference_groups": [
-        "shared_project_context",
-        "build_foundations",
-        "platform_stack_core"
+      "handoff_text": "`DONE` — feature done and verified.\\n`DONE_WITH_CONCERNS` — built, with the concerns said plainly to the founder.\\n`BLOCKED` — a concrete blocker needs founder input or missing infrastructure.\\n`NEEDS_CONTEXT` — more context is needed before a safe change.\\nReviewed before → the code changed since, so the last review is stale; say so.",
+      "next": [
+        "review"
       ],
-      "handoff_text": "[If DONE]: Feature done and verified. Say /ship-build for the next feature or /ship-review for feedback.\\n[If DONE_WITH_CONCERNS]: Feature shipped with concerns called out clearly in the handoff.\\n[If BLOCKED]: Work stopped because a concrete blocker needs founder input or missing infrastructure.\\n[If NEEDS_CONTEXT]: More context is required before safe implementation can continue.\\n[If /ship-review was previously run]: Note that code has changed since the last review and the review is now stale."
+      "next_note": "sized to the change, then the next build item"
     },
     {
       "id": "review",
-      "command_name": "/ship-review",
+      "command_name": "/shipmate review",
       "runtime_label": "Quality workflow",
-      "purpose": "Run the full quality gate across product, design, visual QA, testing, and adversarial review.",
+      "purpose": "Verify the actual outcome with isolated reviewers sized to the change's risk, and record what was reviewed.",
       "lead_roles": [
         "Crit",
         "Pol",
@@ -217,7 +183,8 @@
       ],
       "output_files": [
         "TASKS.md",
-        "review findings"
+        "review findings",
+        ".ship/reviews/<run>.json"
       ],
       "status_values": [
         "DONE",
@@ -225,12 +192,2900 @@
         "BLOCKED",
         "NEEDS_CONTEXT"
       ],
-      "reference_groups": [
-        "shared_project_context",
-        "review_foundations",
-        "platform_stack_core"
+      "handoff_text": "`DONE` — quality pass complete, nothing blocking.\\n`DONE_WITH_CONCERNS` — concerns added to TASKS.md.\\n`BLOCKED` — the review couldn't finish: a required environment, artifact or diff was missing.\\n`NEEDS_CONTEXT` — more context is needed to finish the review.",
+      "next": [
+        "launch"
       ],
-      "handoff_text": "[If DONE]: Quality pass complete. Ready for /ship-launch when no blocking issues remain.\\n[If DONE_WITH_CONCERNS]: Review completed with non-blocking concerns added to TASKS.md.\\n[If BLOCKED]: The quality gate could not finish because a required environment, artifact, or diff was missing.\\n[If NEEDS_CONTEXT]: More context is required before the review can finish confidently."
+      "next_note": "only when a release is intended and nothing blocks"
+    },
+    {
+      "id": "launch",
+      "command_name": "/shipmate launch",
+      "runtime_label": "Release workflow",
+      "purpose": "Verify delivery when a release is intended — fresh review, evidence-based gates, deploy, post-deploy check.",
+      "lead_roles": [
+        "Cap"
+      ],
+      "input_files": [
+        "CLAUDE.md",
+        "TASKS.md",
+        "DECISIONS.md",
+        ".ship/reviews/"
+      ],
+      "output_files": [
+        "TASKS.md",
+        "DECISIONS.md",
+        "CONTEXT.md",
+        "ship report"
+      ],
+      "status_values": [
+        "DONE",
+        "DONE_WITH_CONCERNS",
+        "BLOCKED",
+        "NEEDS_CONTEXT"
+      ],
+      "handoff_text": "`DONE` — live and verified; the measurement plan is filed.\\n`DONE_WITH_CONCERNS` — live, with the WARN rows and accepted risks listed.\\n`BLOCKED` — a FAIL gate or a stale review stands between you and release; the fix path is listed.\\n`NEEDS_CONTEXT` — need the deploy target, credentials, or a release decision.",
+      "next": [
+        "retro"
+      ],
+      "next_note": "when the measurement window closes"
+    },
+    {
+      "id": "retro",
+      "command_name": "/shipmate retro",
+      "runtime_label": "Retrospective workflow",
+      "purpose": "Preserve decisions, corrections, and lessons so the next cycle starts better.",
+      "lead_roles": [
+        "Retro"
+      ],
+      "input_files": [
+        "TASKS.md",
+        "DECISIONS.md",
+        "design/taste.yaml",
+        ".ship/reviews/",
+        "git history"
+      ],
+      "output_files": [
+        "CONTEXT.md",
+        "LEARNINGS.md",
+        "design/taste.yaml",
+        "TASKS.md"
+      ],
+      "status_values": [
+        "DONE",
+        "DONE_WITH_CONCERNS",
+        "BLOCKED",
+        "NEEDS_CONTEXT"
+      ],
+      "handoff_text": "`DONE` — retro filed; decisions and corrections captured for next time.\\n`DONE_WITH_CONCERNS` — retro filed; inferences await the founder's confirmation.\\n`BLOCKED` — can't read history (not a git repo?).\\n`NEEDS_CONTEXT` — need measurement results the founder has.",
+      "next": []
     }
-  ]
+  ],
+  "knowledge": {
+    "precedence": [
+      {
+        "rank": 1,
+        "id": "platform-requirement",
+        "label": "Platform requirements & accessibility"
+      },
+      {
+        "rank": 2,
+        "id": "product-decision",
+        "label": "Explicit product decisions"
+      },
+      {
+        "rank": 3,
+        "id": "founder-preference",
+        "label": "Founder preferences (context-matched)"
+      },
+      {
+        "rank": 4,
+        "id": "platform-guidance",
+        "label": "Platform design guidance (HIG, Material)"
+      },
+      {
+        "rank": 5,
+        "id": "expert",
+        "label": "Expert authority / expert sources"
+      },
+      {
+        "rank": 6,
+        "id": "ship-default",
+        "label": "Ship defaults"
+      },
+      {
+        "rank": 7,
+        "id": "inference",
+        "label": "Tentative agent inferences"
+      }
+    ],
+    "product_sources": [
+      {
+        "id": "decisions",
+        "label": "Product decisions",
+        "path": "DECISIONS.md"
+      },
+      {
+        "id": "design-model",
+        "label": "Design tokens (source of truth)",
+        "path": "design-model.yaml"
+      },
+      {
+        "id": "components",
+        "label": "Registered components",
+        "path": "design/components.yaml"
+      },
+      {
+        "id": "taste",
+        "label": "Taste for this context",
+        "path": "design/taste.yaml",
+        "command": "python3 .claude/skills/ship/taste/bin/taste.py query --platform {stack} --domain {taste_domain} --surface <screen>",
+        "requires": ".claude/skills/ship/taste/bin/taste.py"
+      },
+      {
+        "id": "design-prose",
+        "label": "Design intent (prose)",
+        "path": "DESIGN.md"
+      }
+    ],
+    "tools": [
+      {
+        "name": "xcodegen",
+        "check": "xcodegen",
+        "stacks": [
+          "ios"
+        ],
+        "purpose": "regenerate Xcode projects that use project.yml",
+        "install": "brew install xcodegen"
+      },
+      {
+        "name": "npx",
+        "check": "npx",
+        "stacks": [
+          "web"
+        ],
+        "purpose": "the web scan, skill installs, Tailwind CLI",
+        "install": "install Node.js (https://nodejs.org)"
+      },
+      {
+        "name": "codex",
+        "check": "codex",
+        "purpose": "optional cross-model second opinion (/shipmate codex)",
+        "install": "see https://developers.openai.com/codex"
+      }
+    ],
+    "domains": [
+      {
+        "id": "accessibility",
+        "label": "Accessibility (WCAG 2.2 AA + platform)",
+        "triggers": [
+          "accessibility",
+          "a11y",
+          "contrast",
+          "wcag",
+          "voiceover",
+          "talkback",
+          "screen reader",
+          "keyboard",
+          "focus",
+          "tap target",
+          "dynamic type",
+          "reduce motion",
+          "captcha",
+          "login"
+        ],
+        "globs": [
+          "*.tsx",
+          "*.jsx",
+          "*.swift",
+          "*.kt",
+          "*.css"
+        ],
+        "stacks": [
+          "ios",
+          "web",
+          "android"
+        ],
+        "ship_refs": {
+          "all": [
+            ".claude/skills/ship/ux/references/accessibility.md"
+          ],
+          "web": [
+            ".claude/skills/ship/web/references/web-accessibility.md"
+          ]
+        },
+        "points": [
+          {
+            "label": "WCAG 2.2",
+            "url": "https://www.w3.org/TR/WCAG22/"
+          },
+          {
+            "label": "ARIA APG",
+            "url": "https://www.w3.org/WAI/ARIA/apg/",
+            "stacks": [
+              "web"
+            ]
+          },
+          {
+            "label": "HIG Accessibility",
+            "url": "https://developer.apple.com/design/human-interface-guidelines/accessibility",
+            "stacks": [
+              "ios"
+            ]
+          }
+        ],
+        "consumers": [
+          "plan",
+          "build",
+          "review:eye",
+          "review:test",
+          "review:crit",
+          "launch"
+        ]
+      },
+      {
+        "id": "ux-foundations",
+        "label": "UX principles and platform patterns",
+        "triggers": [
+          "hick",
+          "fitts",
+          "cognitive load",
+          "onboarding",
+          "primary action",
+          "thumb",
+          "inclusion",
+          "branding",
+          "user flow"
+        ],
+        "globs": [],
+        "stacks": [
+          "ios",
+          "web",
+          "android"
+        ],
+        "ship_refs": {
+          "all": [
+            ".claude/skills/ship/ux/references/ux-principles.md"
+          ]
+        },
+        "points": [
+          {
+            "label": "Laws of UX",
+            "url": "https://lawsofux.com/",
+            "kind": "expert"
+          }
+        ],
+        "consumers": [
+          "think",
+          "plan",
+          "review:crit"
+        ]
+      },
+      {
+        "id": "typography",
+        "label": "Typography",
+        "triggers": [
+          "font",
+          "typeface",
+          "type scale",
+          "line height",
+          "dynamic type",
+          "text style",
+          "font loading",
+          "typography",
+          "zoom",
+          "text size",
+          "cut off",
+          "truncated"
+        ],
+        "globs": [
+          "*.css",
+          "Theme*.swift",
+          "design-model.yaml"
+        ],
+        "stacks": [
+          "ios",
+          "web",
+          "android"
+        ],
+        "ship_refs": {
+          "all": [
+            ".claude/skills/ship/ux/references/typography.md"
+          ]
+        },
+        "points": [
+          {
+            "label": "HIG Typography",
+            "url": "https://developer.apple.com/design/human-interface-guidelines/typography",
+            "stacks": [
+              "ios"
+            ]
+          },
+          {
+            "label": "M3 Typography",
+            "url": "https://m3.material.io/styles/typography",
+            "stacks": [
+              "android"
+            ]
+          }
+        ],
+        "consumers": [
+          "design",
+          "build",
+          "review:pol"
+        ],
+        "taste_domain": "type"
+      },
+      {
+        "id": "colour",
+        "label": "Colour and tokens",
+        "triggers": [
+          "color",
+          "colour",
+          "palette",
+          "oklch",
+          "p3",
+          "contrast",
+          "brand color",
+          "token"
+        ],
+        "globs": [
+          "design-model.yaml",
+          "*.css"
+        ],
+        "stacks": [
+          "ios",
+          "web",
+          "android"
+        ],
+        "ship_refs": {
+          "all": [
+            ".claude/skills/ship/ux/references/color.md"
+          ]
+        },
+        "points": [
+          {
+            "label": "CSS Color 4",
+            "url": "https://www.w3.org/TR/css-color-4/",
+            "stacks": [
+              "web"
+            ]
+          },
+          {
+            "label": "HIG Color",
+            "url": "https://developer.apple.com/design/human-interface-guidelines/color",
+            "stacks": [
+              "ios"
+            ]
+          }
+        ],
+        "consumers": [
+          "design",
+          "build",
+          "review:pol",
+          "review:eye"
+        ],
+        "taste_domain": "color"
+      },
+      {
+        "id": "dark-mode",
+        "label": "Dark mode and theming",
+        "triggers": [
+          "dark mode",
+          "theme",
+          "appearance",
+          "color scheme",
+          "light-dark"
+        ],
+        "globs": [
+          "design-model.yaml"
+        ],
+        "stacks": [
+          "ios",
+          "web",
+          "android"
+        ],
+        "ship_refs": {
+          "all": [
+            ".claude/skills/ship/ux/references/dark-mode.md"
+          ]
+        },
+        "points": [
+          {
+            "label": "HIG Dark Mode",
+            "url": "https://developer.apple.com/design/human-interface-guidelines/dark-mode",
+            "stacks": [
+              "ios"
+            ]
+          }
+        ],
+        "consumers": [
+          "design",
+          "build",
+          "review:eye",
+          "review:test"
+        ],
+        "taste_domain": "color",
+        "code": [
+          "prefers-color-scheme|colorScheme|\\bdark:|data-theme|userInterfaceStyle"
+        ]
+      },
+      {
+        "id": "layout-spacing",
+        "label": "Layout, spacing and responsive",
+        "triggers": [
+          "layout",
+          "spacing",
+          "grid",
+          "breakpoint",
+          "responsive",
+          "size class",
+          "safe area",
+          "density",
+          "z-index",
+          "radius",
+          "adapt",
+          "desktop",
+          "tablet",
+          "narrow screen",
+          "small screen"
+        ],
+        "globs": [],
+        "stacks": [
+          "ios",
+          "web",
+          "android"
+        ],
+        "ship_refs": {
+          "all": [
+            ".claude/skills/ship/ux/references/layout-responsive.md"
+          ]
+        },
+        "points": [
+          {
+            "label": "HIG Layout",
+            "url": "https://developer.apple.com/design/human-interface-guidelines/layout",
+            "stacks": [
+              "ios"
+            ]
+          },
+          {
+            "label": "M3 window size classes",
+            "url": "https://m3.material.io/foundations/layout/applying-layout/window-size-classes",
+            "stacks": [
+              "android"
+            ]
+          }
+        ],
+        "consumers": [
+          "design",
+          "plan",
+          "build",
+          "review:pol",
+          "review:test"
+        ],
+        "taste_domain": "layout"
+      },
+      {
+        "id": "interaction",
+        "label": "States, feedback, touch and gestures",
+        "triggers": [
+          "hover",
+          "focus state",
+          "pressed",
+          "loading state",
+          "gesture",
+          "swipe",
+          "drag",
+          "haptic",
+          "long press",
+          "touch",
+          "touchscreen",
+          "hover-only",
+          "tap",
+          "pointer"
+        ],
+        "globs": [],
+        "stacks": [
+          "ios",
+          "web",
+          "android"
+        ],
+        "ship_refs": {
+          "all": [
+            ".claude/skills/ship/ux/references/interaction-design.md"
+          ]
+        },
+        "points": [
+          {
+            "label": "HIG Gestures",
+            "url": "https://developer.apple.com/design/human-interface-guidelines/gestures",
+            "stacks": [
+              "ios"
+            ]
+          }
+        ],
+        "consumers": [
+          "build",
+          "review:pol",
+          "review:test"
+        ],
+        "taste_domain": "interaction"
+      },
+      {
+        "id": "forms-feedback",
+        "label": "Forms, validation, feedback states",
+        "triggers": [
+          "form",
+          "input",
+          "field",
+          "validation",
+          "error message",
+          "toast",
+          "empty state",
+          "skeleton",
+          "otp",
+          "password"
+        ],
+        "globs": [
+          "*Form.*",
+          "*FormView.*",
+          "*-form.*",
+          "*_form.*",
+          "form.*",
+          "forms/*",
+          "*/forms/*"
+        ],
+        "stacks": [
+          "ios",
+          "web",
+          "android"
+        ],
+        "ship_refs": {
+          "all": [
+            ".claude/skills/ship/ux/references/forms-feedback.md"
+          ]
+        },
+        "points": [
+          {
+            "label": "HTML autofill",
+            "url": "https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofill",
+            "stacks": [
+              "web"
+            ]
+          }
+        ],
+        "consumers": [
+          "build",
+          "review:crit",
+          "review:test"
+        ],
+        "code": [
+          "<form\\b|TextField\\(|SecureField\\(|useForm\\(|<FormField|onSubmit=|useActionState|toast\\("
+        ]
+      },
+      {
+        "id": "copy",
+        "label": "UX copy and voice",
+        "triggers": [
+          "copy",
+          "label",
+          "button text",
+          "error message",
+          "microcopy",
+          "voice",
+          "tone",
+          "wording"
+        ],
+        "globs": [
+          "*.strings",
+          "*.xcstrings"
+        ],
+        "stacks": [
+          "ios",
+          "web",
+          "android"
+        ],
+        "ship_refs": {
+          "all": [
+            ".claude/skills/ship/ux/references/copy-clarity.md"
+          ]
+        },
+        "points": [
+          {
+            "label": "HIG Writing",
+            "url": "https://developer.apple.com/design/human-interface-guidelines/writing",
+            "stacks": [
+              "ios"
+            ]
+          }
+        ],
+        "consumers": [
+          "think",
+          "build",
+          "review:pol",
+          "review:crit"
+        ],
+        "taste_domain": "copy"
+      },
+      {
+        "id": "product-psychology",
+        "label": "How people decide: first runs, pricing, cancelling, reminders (help, never trick)",
+        "triggers": [
+          "paywall",
+          "pricing page",
+          "pricing plan",
+          "pricing tier",
+          "pricing table",
+          "plans page",
+          "monthly or yearly",
+          "yearly plan",
+          "annual plan",
+          "subscription",
+          "subscribe button",
+          "subscribe screen",
+          "free trial",
+          "trial period",
+          "upgrade prompt",
+          "upgrade screen",
+          "upsell",
+          "downgrade",
+          "cancel subscription",
+          "cancellation",
+          "cancel flow",
+          "checkout page",
+          "checkout flow",
+          "checkout screen",
+          "onboarding",
+          "first run",
+          "first-run",
+          "on first launch",
+          "after install",
+          "welcome screen",
+          "empty state",
+          "progress bar",
+          "long wait",
+          "reminder",
+          "re-engagement",
+          "win back",
+          "streak",
+          "user retention",
+          "retention rate",
+          "churn",
+          "social proof",
+          "testimonial",
+          "rating prompt",
+          "review prompt",
+          "rate the app",
+          "referral",
+          "discount",
+          "coupon",
+          "limited offer",
+          "limited time",
+          "urgency",
+          "scarcity",
+          "loyalty",
+          "rewards",
+          "gamification",
+          "conversion rate",
+          "persuade",
+          "nudge",
+          "dark pattern"
+        ],
+        "unless": [
+          "crash on first launch",
+          "crashes on first launch",
+          "crashed on first launch",
+          "crashing on first launch",
+          "crash after install",
+          "crashes after install",
+          "crashed after install"
+        ],
+        "globs": [],
+        "stacks": [
+          "ios",
+          "web",
+          "android"
+        ],
+        "ship_refs": {
+          "all": [
+            ".claude/skills/ship/ux/references/psychology.md"
+          ]
+        },
+        "points": [
+          {
+            "label": "Growth.Design: cognitive biases and principles",
+            "url": "https://growth.design/psychology",
+            "kind": "expert"
+          }
+        ],
+        "consumers": [
+          "think",
+          "plan",
+          "build",
+          "retro",
+          "review:crit",
+          "review:pol"
+        ]
+      },
+      {
+        "id": "navigation",
+        "label": "Navigation and wayfinding",
+        "triggers": [
+          "navigation",
+          "tab bar",
+          "sidebar",
+          "back button",
+          "deep link",
+          "routing",
+          "url state"
+        ],
+        "globs": [
+          "*Navigation*",
+          "layout.tsx"
+        ],
+        "stacks": [
+          "ios",
+          "web",
+          "android"
+        ],
+        "ship_refs": {
+          "all": [
+            ".claude/skills/ship/ux/references/navigation.md"
+          ]
+        },
+        "points": [
+          {
+            "label": "HIG Tab bars",
+            "url": "https://developer.apple.com/design/human-interface-guidelines/tab-bars",
+            "stacks": [
+              "ios"
+            ]
+          }
+        ],
+        "consumers": [
+          "plan",
+          "build",
+          "review:test"
+        ]
+      },
+      {
+        "id": "design-review",
+        "label": "Design quality review (generic look, consistency, coherence)",
+        "triggers": [
+          "review design",
+          "ai slop",
+          "looks generic",
+          "polish",
+          "consistency",
+          "review this screen",
+          "review the screen",
+          "screen review"
+        ],
+        "globs": [],
+        "stacks": [
+          "ios",
+          "web",
+          "android"
+        ],
+        "ship_refs": {
+          "all": [
+            ".claude/skills/ship/ux/references/design-quality.md"
+          ]
+        },
+        "consumers": [
+          "review:pol",
+          "review:eye",
+          "review:crit"
+        ]
+      },
+      {
+        "id": "care",
+        "label": "Care — what the product is missing (point of view, anticipation, specificity, the whole journey)",
+        "triggers": [
+          "feels generic",
+          "feel generic",
+          "what's missing",
+          "whats missing",
+          "cared for",
+          "care pass",
+          "soulless",
+          "no soul",
+          "lifeless",
+          "feels bland",
+          "feels flat",
+          "point of view",
+          "like every other app",
+          "make it feel special"
+        ],
+        "globs": [],
+        "stacks": [
+          "ios",
+          "web",
+          "android"
+        ],
+        "ship_refs": {
+          "all": [
+            ".claude/skills/ship/review/references/care-lens.md"
+          ]
+        },
+        "consumers": [
+          "review:crit",
+          "review:pol",
+          "review:eye",
+          "design"
+        ]
+      },
+      {
+        "id": "design-direction",
+        "label": "Design research, direction and where to look for the best",
+        "triggers": [
+          "competitor",
+          "design direction",
+          "brand feel",
+          "brand",
+          "inspiration",
+          "moodboard",
+          "mood board",
+          "reference sites",
+          "examples to look at",
+          "look at examples"
+        ],
+        "globs": [
+          "DESIGN.md",
+          "PDC.md"
+        ],
+        "stacks": [
+          "ios",
+          "web",
+          "android"
+        ],
+        "ship_refs": {
+          "all": [
+            ".claude/skills/ship/ux/references/design-research.md",
+            ".claude/skills/ship/ux/references/inspiration.md"
+          ]
+        },
+        "consumers": [
+          "think",
+          "design"
+        ]
+      },
+      {
+        "id": "components",
+        "label": "Component architecture and registry",
+        "triggers": [
+          "component",
+          "primitive",
+          "shadcn",
+          "radix",
+          "base ui",
+          "variant",
+          "reusable"
+        ],
+        "globs": [
+          "design/components.yaml",
+          "components.json"
+        ],
+        "stacks": [
+          "ios",
+          "web",
+          "android"
+        ],
+        "ship_refs": {
+          "all": [
+            ".claude/skills/ship/components/references/components.md"
+          ],
+          "web": [
+            ".claude/skills/ship/components/references/shadcn.md"
+          ]
+        },
+        "points": [
+          {
+            "label": "shadcn/ui docs",
+            "url": "https://ui.shadcn.com/docs",
+            "stacks": [
+              "web"
+            ]
+          }
+        ],
+        "consumers": [
+          "design",
+          "plan",
+          "build",
+          "review:pol"
+        ],
+        "taste_domain": "layout",
+        "code": [
+          "components/ui/|from ['\\\"]@/components/ui|cva\\(|class-variance-authority"
+        ]
+      },
+      {
+        "id": "motion",
+        "label": "Motion & animation (Ship's motion authority)",
+        "triggers": [
+          "animate",
+          "animation",
+          "transition",
+          "motion",
+          "easing",
+          "spring",
+          "bounce",
+          "duration",
+          "withanimation",
+          "matchedgeometryeffect",
+          "framer motion",
+          "keyframes",
+          "stagger",
+          "hover effect",
+          "press feedback",
+          "sluggish",
+          "feels slow",
+          "feels heavy",
+          "smooth",
+          "snappy",
+          "dismiss",
+          "slide in",
+          "fade",
+          "appear",
+          "springy",
+          "bouncy",
+          "jumpy",
+          "wobble",
+          "wobbly",
+          "calm",
+          "gentle",
+          "gently",
+          "abrupt",
+          "feels off"
+        ],
+        "unless": [
+          "core motion",
+          "motion sensor",
+          "motion sensors",
+          "motion & fitness",
+          "motion and fitness",
+          "motion permission"
+        ],
+        "globs": [
+          "*Animation*",
+          "*Transition*"
+        ],
+        "stacks": [
+          "ios",
+          "web",
+          "android"
+        ],
+        "ship_refs": {
+          "all": [
+            ".claude/skills/ship/motion/SKILL.md",
+            ".claude/skills/ship/motion/references/animation.md"
+          ],
+          "ios": [
+            ".claude/skills/ship/motion/references/recipes-swiftui.md"
+          ],
+          "web": [
+            ".claude/skills/ship/motion/references/recipes-web.md"
+          ]
+        },
+        "points": [
+          {
+            "label": "Apple HIG Motion",
+            "url": "https://developer.apple.com/design/human-interface-guidelines/motion",
+            "stacks": [
+              "ios"
+            ]
+          },
+          {
+            "label": "Xcode 27 SwiftUI animations (@Animatable)",
+            "path": "/Applications/Xcode.app/Contents/PlugIns/IDEIntelligenceChat.framework/Versions/A/Resources/swiftui-specialist-ref-animations.md.packaged",
+            "stacks": [
+              "ios"
+            ]
+          },
+          {
+            "label": "Motion docs",
+            "url": "https://motion.dev/docs",
+            "stacks": [
+              "web"
+            ]
+          }
+        ],
+        "note": "Product motion tokens in design-model.yaml and founder decisions win over the authority's defaults; Reduce Motion and platform behaviour win over both.",
+        "consumers": [
+          "design",
+          "plan",
+          "build",
+          "review:pol"
+        ],
+        "taste_domain": "motion",
+        "code": [
+          "withAnimation|\\.animation\\(|\\.transition\\(|\\.spring\\(|scaleEffect|matchedGeometryEffect|PhaseAnimator|keyframeAnimator",
+          "\\btransition\\s*:|@keyframes|\\banimation\\s*:|cubic-bezier\\(|from ['\\\"](?:motion|framer-motion)|<motion\\.|useSpring|animate=\\{|\\.animate\\("
+        ]
+      },
+      {
+        "id": "motion-gestures",
+        "label": "Gestures, springs, interruption (fluid interfaces)",
+        "triggers": [
+          "drag",
+          "swipe",
+          "flick",
+          "gesture",
+          "draggesture",
+          "velocity",
+          "rubber band",
+          "snap points",
+          "sheet detents",
+          "drawer",
+          "swipe to dismiss",
+          "interruptible"
+        ],
+        "globs": [],
+        "stacks": [
+          "ios",
+          "web"
+        ],
+        "ship_refs": {
+          "all": [
+            ".claude/skills/ship/motion/references/fluid-interfaces.md"
+          ]
+        },
+        "consumers": [
+          "build",
+          "review:pol",
+          "review:crit"
+        ],
+        "taste_domain": "motion",
+        "code": [
+          "DragGesture|MagnifyGesture|onPanGesture|useDrag|onPointerMove|pointermove|drag=\\{|draggable"
+        ]
+      },
+      {
+        "id": "motion-accessibility",
+        "label": "Reduced motion, transparency, contrast",
+        "triggers": [
+          "reduce motion",
+          "prefers-reduced-motion",
+          "accessibilityreducemotion",
+          "vestibular",
+          "reduced transparency",
+          "cross-fade"
+        ],
+        "globs": [],
+        "stacks": [
+          "ios",
+          "web",
+          "android"
+        ],
+        "ship_refs": {
+          "all": [
+            ".claude/skills/ship/motion/references/reduced-motion.md"
+          ]
+        },
+        "points": [
+          {
+            "label": "HIG Accessibility › Motion",
+            "url": "https://developer.apple.com/design/human-interface-guidelines/accessibility",
+            "stacks": [
+              "ios"
+            ]
+          },
+          {
+            "label": "WCAG 2.2",
+            "url": "https://www.w3.org/TR/WCAG22/"
+          }
+        ],
+        "consumers": [
+          "build",
+          "review:pol",
+          "review:crit",
+          "review:test",
+          "launch"
+        ],
+        "taste_domain": "motion",
+        "code": [
+          "accessibilityReduceMotion|prefers-reduced-motion|useReducedMotion|reducedMotion="
+        ]
+      },
+      {
+        "id": "motion-review",
+        "label": "Motion review standards",
+        "triggers": [
+          "review animation",
+          "motion review",
+          "janky"
+        ],
+        "globs": [],
+        "stacks": [
+          "ios",
+          "web"
+        ],
+        "ship_refs": {
+          "all": [
+            ".claude/skills/ship/motion/references/review-standards.md"
+          ]
+        },
+        "consumers": [
+          "review:pol",
+          "review:crit",
+          "review:eye"
+        ]
+      },
+      {
+        "id": "motion-performance",
+        "label": "Animation performance",
+        "triggers": [
+          "dropped frames",
+          "hitch",
+          "will-change",
+          "60fps",
+          "120fps",
+          "jank",
+          "stutter",
+          "choppy",
+          "laggy animation"
+        ],
+        "globs": [],
+        "stacks": [
+          "ios",
+          "web"
+        ],
+        "ship_refs": {
+          "all": [
+            ".claude/skills/ship/motion/references/performance.md"
+          ]
+        },
+        "points": [
+          {
+            "label": "Xcode 27 SwiftUI environment/per-frame state",
+            "path": "/Applications/Xcode.app/Contents/PlugIns/IDEIntelligenceChat.framework/Versions/A/Resources/swiftui-specialist-ref-environment.md.packaged",
+            "stacks": [
+              "ios"
+            ]
+          }
+        ],
+        "consumers": [
+          "build",
+          "perf",
+          "review:eye"
+        ]
+      },
+      {
+        "id": "motion-audit",
+        "label": "Improve / audit animations, find opportunities, name effects",
+        "triggers": [
+          "improve the animations",
+          "audit the motion",
+          "make it feel better",
+          "what could animate",
+          "feel more alive",
+          "what's it called when",
+          "improve animation",
+          "polish the motion"
+        ],
+        "globs": [],
+        "stacks": [
+          "ios",
+          "web"
+        ],
+        "ship_refs": {
+          "all": [
+            ".claude/skills/ship/motion/references/audit-and-plans.md",
+            ".claude/skills/ship/motion/references/opportunities.md",
+            ".claude/skills/ship/motion/references/vocabulary.md"
+          ]
+        },
+        "consumers": [
+          "team",
+          "review"
+        ]
+      },
+      {
+        "id": "apple-design",
+        "label": "Apple materials, multimodal feedback, design principles",
+        "triggers": [
+          "liquid glass",
+          "material",
+          "translucency",
+          "haptics",
+          "sensoryfeedback",
+          "vibrancy",
+          "apple design",
+          "apple's design",
+          "design principles",
+          "feel native",
+          "human interface"
+        ],
+        "globs": [],
+        "stacks": [
+          "ios",
+          "web"
+        ],
+        "ship_refs": {
+          "all": [
+            ".claude/skills/ship/motion/references/apple-design.md"
+          ]
+        },
+        "points": [
+          {
+            "label": "Xcode 27 Liquid Glass (SwiftUI)",
+            "path": "/Applications/Xcode.app/Contents/PlugIns/IDEIntelligenceChat.framework/Versions/A/Resources/AdditionalDocumentation/SwiftUI-Implementing-Liquid-Glass-Design.md",
+            "stacks": [
+              "ios"
+            ]
+          }
+        ],
+        "consumers": [
+          "build",
+          "design",
+          "review:pol"
+        ],
+        "code": [
+          "\\.glassEffect|\\.background\\(\\.\\w*Material|sensoryFeedback|UIImpactFeedbackGenerator|backdrop-filter"
+        ]
+      },
+      {
+        "id": "ios-swiftui",
+        "label": "SwiftUI & iOS UI",
+        "triggers": [
+          "swiftui",
+          "@state",
+          "@observable",
+          "@binding",
+          "navigationstack",
+          "sheet",
+          "toolbar",
+          "tab bar",
+          "liquid glass",
+          "uikit",
+          "view",
+          "haptic",
+          "haptics",
+          "contrast",
+          "text size",
+          "dark mode",
+          "tap target",
+          "touch target",
+          "app icon",
+          "sf symbols",
+          "icon",
+          "multitasking",
+          "split screen",
+          "resizable",
+          "stage manager"
+        ],
+        "globs": [
+          "*.swift"
+        ],
+        "stacks": [
+          "ios"
+        ],
+        "ship_refs": {
+          "ios": [
+            ".claude/skills/ship/ios/SKILL.md",
+            ".claude/skills/ship/ios/references/swiftui-ship.md",
+            ".claude/skills/ship/ios/references/hig-ios.md"
+          ]
+        },
+        "depends": [
+          {
+            "skill": "swiftui-expert-skill",
+            "detect": [
+              "swiftui-expert-skill"
+            ],
+            "purpose": "optional depth: SwiftUI state, composition, lists, layout, navigation, Liquid Glass APIs, previews (AvdLee, MIT)",
+            "correction": "Its references name APIs the iOS 27 SDK doesn't have: navigationZoomTransition and navigationTransitionSource/Destination (use matchedTransitionSource + .navigationTransition(.zoom)), .sliderNeutralValue, a .concentric corner style, .endedWithDelete. @Previewable is iOS 17 and @Animatable iOS 13, not 18 and 26; ForEach over enumerated() needs iOS 26 (ios-27.md case 3)"
+          }
+        ],
+        "points": [
+          {
+            "label": "Xcode 27 SwiftUI guidance (bundled)",
+            "path": "$(xcode-select -p)/../PlugIns/IDEIntelligenceChat.framework/Versions/A/Resources/swiftui-whats-new-27.idechatprompttemplate"
+          },
+          {
+            "label": "SwiftUI docs",
+            "url": "https://developer.apple.com/documentation/swiftui"
+          }
+        ],
+        "consumers": [
+          "design",
+          "plan",
+          "build",
+          "review:pol",
+          "review:crit"
+        ]
+      },
+      {
+        "id": "ios-concurrency",
+        "label": "Swift Concurrency",
+        "triggers": [
+          "async",
+          "await",
+          "actor",
+          "sendable",
+          "mainactor",
+          "@concurrent",
+          "data race",
+          "swift 6",
+          "isolation",
+          "nonisolated"
+        ],
+        "globs": [],
+        "stacks": [
+          "ios"
+        ],
+        "ship_refs": {
+          "ios": [
+            ".claude/skills/ship/ios/references/ios-27.md",
+            ".claude/skills/ship/ios/references/swiftui-ship.md",
+            ".claude/skills/ship/ios/references/swift-practice.md"
+          ]
+        },
+        "depends": [
+          {
+            "skill": "swift-concurrency",
+            "detect": [
+              "swift-concurrency"
+            ],
+            "verify": "references/glossary.md",
+            "purpose": "optional depth: isolation, Sendable, tasks, actors, Swift 6 migration (AvdLee, MIT)",
+            "correction": "Its SKILL.md table says withTaskGroup cancels children on scope exit; a normal return waits and does not cancel — use cancelAll() for races/timeouts (swiftui-ship.md §5)"
+          }
+        ],
+        "points": [
+          {
+            "label": "Xcode concurrency notes (bundled, Swift 6.2 generation)",
+            "path": "$(xcode-select -p)/../PlugIns/IDEIntelligenceChat.framework/Versions/A/Resources/AdditionalDocumentation/Swift-Concurrency-Updates.md"
+          },
+          {
+            "label": "Swift book — Concurrency",
+            "url": "https://docs.swift.org/swift-book/documentation/the-swift-programming-language/concurrency/"
+          },
+          {
+            "label": "Swift 6 migration guide",
+            "url": "https://www.swift.org/migration/documentation/migrationguide/"
+          },
+          {
+            "label": "Swift release notes (6.4)",
+            "url": "https://www.swift.org/blog/swift-6.4-released/"
+          }
+        ],
+        "consumers": [
+          "build",
+          "review:crit",
+          "review:test"
+        ],
+        "code": [
+          "\\bTask\\s*\\{|\\bactor\\s+\\w|@MainActor|\\bSendable\\b|withTaskGroup|withCheckedContinuation|\\bawait\\s"
+        ]
+      },
+      {
+        "id": "ios-27",
+        "label": "iOS 27 / Xcode 27 / Swift 6.4 changes",
+        "triggers": [
+          "ios 27",
+          "xcode 27",
+          "swift 6.4",
+          "sdk 27",
+          "@available",
+          "availability",
+          "deprecated",
+          "deployment target",
+          "metrickit"
+        ],
+        "globs": [],
+        "stacks": [
+          "ios"
+        ],
+        "ship_refs": {
+          "ios": [
+            ".claude/skills/ship/ios/references/ios-27.md"
+          ]
+        },
+        "points": [
+          {
+            "label": "Xcode bundled Apple guidance",
+            "path": "$(xcode-select -p)/../PlugIns/IDEIntelligenceChat.framework/Versions/A/Resources/"
+          }
+        ],
+        "consumers": [
+          "plan",
+          "build",
+          "review:crit"
+        ]
+      },
+      {
+        "id": "ios-frameworks",
+        "label": "Apple frameworks",
+        "triggers": [
+          "storekit",
+          "healthkit",
+          "widgetkit",
+          "app intents",
+          "live activity",
+          "cloudkit",
+          "swiftdata",
+          "mapkit",
+          "foundation models",
+          "cryptokit",
+          "notifications",
+          "tipkit",
+          "alarmkit",
+          "weatherkit",
+          "core bluetooth"
+        ],
+        "globs": [],
+        "stacks": [
+          "ios"
+        ],
+        "ship_refs": {
+          "ios": [
+            ".claude/skills/ship/ios/references/frameworks.md"
+          ]
+        },
+        "depends": [
+          {
+            "skill": "swift-ios-skills (per framework)",
+            "detect": [
+              "storekit",
+              "healthkit",
+              "widgetkit",
+              "app-intents",
+              "swiftdata",
+              "cloudkit",
+              "activitykit",
+              "apple-on-device-ai"
+            ],
+            "purpose": "optional framework depth (PolyForm Perimeter: install and use, never copied into Ship)",
+            "correction": "Checked against the iOS 27 SDK: @Environment(\\.widgetLocation) doesn't exist; in a SwiftUI file write StoreKit.Transaction; @ModelActor alone doesn't move work off the main thread (data-sync.md); decoding after a URLSession call runs on the caller's actor under Xcode 27's defaults (swift-practice.md)"
+          }
+        ],
+        "points": [
+          {
+            "label": "Apple documentation",
+            "url": "https://developer.apple.com/documentation"
+          }
+        ],
+        "consumers": [
+          "plan",
+          "build",
+          "review:crit"
+        ]
+      },
+      {
+        "id": "ios-performance",
+        "label": "iOS performance",
+        "triggers": [
+          "hitch",
+          "hang",
+          "dropped frames",
+          "profile",
+          "instruments",
+          "trace",
+          "xctrace",
+          "scroll performance",
+          "memory leak",
+          "retain cycle",
+          "crash",
+          "logging",
+          "signpost",
+          "sanitizer"
+        ],
+        "globs": [
+          "*.trace"
+        ],
+        "stacks": [
+          "ios"
+        ],
+        "ship_refs": {
+          "ios": [
+            ".claude/skills/ship/ios/references/swiftui-performance.md"
+          ]
+        },
+        "depends": [
+          {
+            "skill": "swiftui-expert-skill",
+            "detect": [
+              "swiftui-expert-skill"
+            ],
+            "purpose": "record_trace.py / analyze_trace.py + performance references"
+          }
+        ],
+        "points": [
+          {
+            "label": "Improving your app's performance",
+            "url": "https://developer.apple.com/documentation/xcode/improving-your-app-s-performance"
+          }
+        ],
+        "consumers": [
+          "build",
+          "review:crit",
+          "perf"
+        ]
+      },
+      {
+        "id": "ios-chat-ui",
+        "label": "Chat / AI assistant screens (iOS)",
+        "triggers": [
+          "chat",
+          "message list",
+          "composer",
+          "streaming",
+          "assistant",
+          "conversation"
+        ],
+        "globs": [
+          "*Chat*.swift",
+          "*Message*.swift"
+        ],
+        "stacks": [
+          "ios"
+        ],
+        "ship_refs": {
+          "ios": [
+            ".claude/skills/ship/ios/references/chat-ui-swiftui.md"
+          ]
+        },
+        "points": [
+          {
+            "label": "ScrollPosition",
+            "url": "https://developer.apple.com/documentation/swiftui/scrollposition"
+          }
+        ],
+        "consumers": [
+          "build",
+          "review:pol"
+        ]
+      },
+      {
+        "id": "ios-app-store",
+        "label": "App Store readiness",
+        "triggers": [
+          "app store",
+          "app review",
+          "submission",
+          "rejection",
+          "privacy manifest",
+          "testflight",
+          "account deletion",
+          "sign in with apple"
+        ],
+        "globs": [
+          "PrivacyInfo.xcprivacy"
+        ],
+        "stacks": [
+          "ios"
+        ],
+        "ship_refs": {
+          "ios": [
+            ".claude/skills/ship/ios/references/frameworks.md",
+            ".claude/skills/ship/ios/references/commerce-identity.md"
+          ]
+        },
+        "points": [
+          {
+            "label": "App Review Guidelines",
+            "url": "https://developer.apple.com/app-store/review/guidelines/"
+          },
+          {
+            "label": "Privacy manifest files",
+            "url": "https://developer.apple.com/documentation/bundleresources/privacy-manifest-files"
+          }
+        ],
+        "consumers": [
+          "launch",
+          "review:crit"
+        ]
+      },
+      {
+        "id": "ios-swiftui-building",
+        "label": "Building SwiftUI screens (state, navigation, lists, forms, charts, accessibility, localization)",
+        "triggers": [
+          "list",
+          "form",
+          "text field",
+          "validation",
+          "navigation",
+          "navigate",
+          "sheet",
+          "popover",
+          "alert",
+          "search",
+          "pagination",
+          "infinite scroll",
+          "loading state",
+          "state",
+          "binding",
+          "environment",
+          "observable",
+          "layout",
+          "grid",
+          "split view",
+          "ipad layout",
+          "chart",
+          "graph",
+          "gesture",
+          "drag",
+          "liquid glass",
+          "glass effect",
+          "voiceover",
+          "accessibility label",
+          "dynamic type",
+          "localize",
+          "localization",
+          "string catalog",
+          "plural",
+          "right-to-left",
+          "preview",
+          "focus",
+          "keyboard",
+          "restore state",
+          "glass"
+        ],
+        "globs": [
+          "*View.swift",
+          "*Screen.swift"
+        ],
+        "stacks": [
+          "ios"
+        ],
+        "ship_refs": {
+          "ios": [
+            ".claude/skills/ship/ios/references/swiftui-building.md"
+          ]
+        },
+        "points": [
+          {
+            "label": "SwiftUI docs",
+            "url": "https://developer.apple.com/documentation/swiftui"
+          },
+          {
+            "label": "Swift Charts",
+            "url": "https://developer.apple.com/documentation/charts"
+          }
+        ],
+        "consumers": [
+          "plan",
+          "build",
+          "review:eye",
+          "review:crit",
+          "review:test"
+        ],
+        "code": [
+          "NavigationStack|NavigationSplitView|\\.sheet\\(|\\bList\\s*[({]|\\bForm\\s*\\{|\\.searchable|@FocusState|\\bChart\\s*[({]|\\.glassEffect|\\.accessibilityLabel|#Preview|@Bindable|@Environment\\("
+        ],
+        "note": "Ship baseline; an installed swiftui-expert-skill adds depth and outranks Ship defaults, never Apple facts."
+      },
+      {
+        "id": "ios-swift-practice",
+        "label": "Swift in practice — networking, JSON, errors, tests, concurrency patterns",
+        "triggers": [
+          "network",
+          "networking",
+          "api",
+          "api client",
+          "endpoint",
+          "http",
+          "json",
+          "decode",
+          "decoding",
+          "codable",
+          "retry",
+          "backoff",
+          "token refresh",
+          "refresh token",
+          "websocket",
+          "offline",
+          "connectivity",
+          "error handling",
+          "error message",
+          "swift testing",
+          "unit test",
+          "parameterized test",
+          "reentrancy",
+          "race condition",
+          "cancellation",
+          "task group",
+          "async stream",
+          "continuation",
+          "cancel",
+          "request",
+          "requests",
+          "concurrent",
+          "at the same time",
+          "freezing",
+          "freeze",
+          "frozen",
+          "unresponsive",
+          "main thread",
+          "off the main actor"
+        ],
+        "globs": [
+          "*APIClient*.swift",
+          "*Networking*.swift",
+          "*Tests.swift"
+        ],
+        "stacks": [
+          "ios"
+        ],
+        "ship_refs": {
+          "ios": [
+            ".claude/skills/ship/ios/references/swift-practice.md"
+          ]
+        },
+        "points": [
+          {
+            "label": "Swift book — Concurrency",
+            "url": "https://docs.swift.org/swift-book/documentation/the-swift-programming-language/concurrency/"
+          },
+          {
+            "label": "Swift Testing",
+            "url": "https://developer.apple.com/documentation/testing"
+          },
+          {
+            "label": "URLSession",
+            "url": "https://developer.apple.com/documentation/foundation/urlsession"
+          }
+        ],
+        "consumers": [
+          "plan",
+          "build",
+          "review:crit",
+          "review:test"
+        ],
+        "code": [
+          "URLSession|JSONDecoder|\\bCodable\\b|\\bDecodable\\b|@Test\\b|#expect|URLSessionWebSocketTask|NWPathMonitor|withChecked(Throwing)?Continuation|AsyncStream"
+        ]
+      },
+      {
+        "id": "ios-data-sync",
+        "label": "Data, persistence, and iCloud sync (iOS)",
+        "triggers": [
+          "sync",
+          "sync between devices",
+          "across devices",
+          "icloud",
+          "cloudkit",
+          "swiftdata",
+          "core data",
+          "persist",
+          "persistence",
+          "save data",
+          "store data",
+          "database",
+          "offline mode",
+          "migration",
+          "migrate",
+          "schema",
+          "backup",
+          "share a list",
+          "shared list",
+          "app group",
+          "import a file",
+          "file import",
+          "document",
+          "files app",
+          "key-value",
+          "user defaults",
+          "appstorage",
+          "save my",
+          "saved data",
+          "keep data",
+          "relaunch",
+          "existing data",
+          "data model",
+          "people share",
+          "collaborate",
+          "csv",
+          "import a csv",
+          "import data",
+          "spreadsheet"
+        ],
+        "globs": [
+          "*.xcdatamodeld",
+          "*Persistence*.swift",
+          "*Sync*.swift"
+        ],
+        "stacks": [
+          "ios"
+        ],
+        "ship_refs": {
+          "ios": [
+            ".claude/skills/ship/ios/references/data-sync.md"
+          ]
+        },
+        "points": [
+          {
+            "label": "SwiftData",
+            "url": "https://developer.apple.com/documentation/swiftdata"
+          },
+          {
+            "label": "CloudKit",
+            "url": "https://developer.apple.com/documentation/cloudkit"
+          },
+          {
+            "label": "CKSyncEngine",
+            "url": "https://developer.apple.com/documentation/cloudkit/cksyncengine"
+          }
+        ],
+        "consumers": [
+          "plan",
+          "build",
+          "review:crit",
+          "review:test"
+        ],
+        "code": [
+          "@Model\\b|ModelContainer|ModelContext|@Query\\b|NSPersistent(CloudKit)?Container|CKSyncEngine|CKRecord|CKContainer|NSUbiquitousKeyValueStore|\\.fileImporter"
+        ]
+      },
+      {
+        "id": "ios-commerce-identity",
+        "label": "Purchases, accounts, and trust (iOS)",
+        "triggers": [
+          "purchase",
+          "in-app purchase",
+          "iap",
+          "subscription",
+          "subscribe",
+          "paywall",
+          "restore purchases",
+          "premium",
+          "pro version",
+          "unlock",
+          "tip jar",
+          "storekit",
+          "apple pay",
+          "wallet",
+          "wallet pass",
+          "checkout",
+          "sign in",
+          "sign in with apple",
+          "login",
+          "log in",
+          "sign up",
+          "account",
+          "delete account",
+          "account deletion",
+          "passkey",
+          "password",
+          "face id",
+          "touch id",
+          "biometric",
+          "keychain",
+          "secret",
+          "encrypt",
+          "encryption",
+          "cryptokit",
+          "app attest",
+          "fraud",
+          "auth token",
+          "access token",
+          "login token",
+          "session token",
+          "logout",
+          "log out",
+          "sign out",
+          "signing out",
+          "credentials",
+          "saved credentials",
+          "userdefaults",
+          "access group",
+          "keychain sharing",
+          "revoke",
+          "secure enclave",
+          "signing key",
+          "private key"
+        ],
+        "unless": [
+          "git checkout"
+        ],
+        "globs": [
+          "*.storekit",
+          "*Paywall*.swift",
+          "*Purchase*.swift",
+          "*Keychain*.swift",
+          "*Auth*.swift"
+        ],
+        "stacks": [
+          "ios"
+        ],
+        "ship_refs": {
+          "ios": [
+            ".claude/skills/ship/ios/references/commerce-identity.md"
+          ]
+        },
+        "points": [
+          {
+            "label": "StoreKit",
+            "url": "https://developer.apple.com/documentation/storekit"
+          },
+          {
+            "label": "App Review Guidelines",
+            "url": "https://developer.apple.com/app-store/review/guidelines/"
+          },
+          {
+            "label": "Keychain services",
+            "url": "https://developer.apple.com/documentation/security/keychain-services"
+          }
+        ],
+        "consumers": [
+          "plan",
+          "build",
+          "review:crit",
+          "review:test",
+          "launch"
+        ],
+        "code": [
+          "import StoreKit|Product\\.products|Transaction\\.|SubscriptionStoreView|SignInWithAppleButton|ASAuthorization|LAContext|SecItem|import CryptoKit|DCAppAttestService|PKPaymentRequest|PayWithApplePayButton"
+        ]
+      },
+      {
+        "id": "ios-notifications-background",
+        "label": "Notifications, background work, Live Activities, alarms (iOS)",
+        "triggers": [
+          "notification",
+          "notifications",
+          "notify",
+          "push",
+          "push notification",
+          "remind",
+          "reminder",
+          "schedule a reminder",
+          "in the background",
+          "background refresh",
+          "background task",
+          "background upload",
+          "keep uploading",
+          "live activity",
+          "dynamic island",
+          "alarm",
+          "countdown timer",
+          "voip",
+          "incoming call",
+          "apns",
+          "badge"
+        ],
+        "globs": [
+          "*Notification*.swift",
+          "*LiveActivity*.swift",
+          "*.apns"
+        ],
+        "stacks": [
+          "ios"
+        ],
+        "ship_refs": {
+          "ios": [
+            ".claude/skills/ship/ios/references/notifications-background.md"
+          ]
+        },
+        "points": [
+          {
+            "label": "User Notifications",
+            "url": "https://developer.apple.com/documentation/usernotifications"
+          },
+          {
+            "label": "Background Tasks",
+            "url": "https://developer.apple.com/documentation/backgroundtasks"
+          },
+          {
+            "label": "ActivityKit",
+            "url": "https://developer.apple.com/documentation/activitykit"
+          }
+        ],
+        "consumers": [
+          "plan",
+          "build",
+          "review:crit",
+          "review:test"
+        ],
+        "code": [
+          "UNUserNotificationCenter|UNNotificationRequest|registerForRemoteNotifications|BGTaskScheduler|\\.backgroundTask\\(|import ActivityKit|AlarmManager|PKPushRegistry|CXProvider"
+        ]
+      },
+      {
+        "id": "ios-media",
+        "label": "Photos, camera, audio, video, speech, documents (iOS)",
+        "triggers": [
+          "photo",
+          "photos",
+          "import photos",
+          "photo picker",
+          "image picker",
+          "attach an image",
+          "camera",
+          "take a photo",
+          "scan",
+          "scanner",
+          "record audio",
+          "recording",
+          "voice memo",
+          "microphone",
+          "audio",
+          "music playback",
+          "podcast",
+          "background audio",
+          "video",
+          "video player",
+          "playback",
+          "picture in picture",
+          "transcribe",
+          "transcription",
+          "dictation",
+          "speech to text",
+          "pdf",
+          "drawing",
+          "apple pencil",
+          "game",
+          "3d",
+          "spritekit",
+          "realitykit",
+          "scenekit",
+          "game center",
+          "leaderboard",
+          "annotate",
+          "markup",
+          "annotation"
+        ],
+        "globs": [
+          "*Camera*.swift",
+          "*Photo*.swift",
+          "*Audio*.swift",
+          "*Player*.swift",
+          "*Recorder*.swift"
+        ],
+        "stacks": [
+          "ios"
+        ],
+        "ship_refs": {
+          "ios": [
+            ".claude/skills/ship/ios/references/media.md"
+          ]
+        },
+        "points": [
+          {
+            "label": "PhotosUI",
+            "url": "https://developer.apple.com/documentation/photosui"
+          },
+          {
+            "label": "AVAudioSession",
+            "url": "https://developer.apple.com/documentation/avfaudio/avaudiosession"
+          },
+          {
+            "label": "Speech",
+            "url": "https://developer.apple.com/documentation/speech"
+          }
+        ],
+        "consumers": [
+          "plan",
+          "build",
+          "review:crit",
+          "review:test"
+        ],
+        "code": [
+          "PhotosPicker|PHPhotoLibrary|AVCaptureSession|AVAudioSession|AVAudioRecorder|AVPlayer|VideoPlayer|SpeechAnalyzer|SFSpeechRecognizer|PDFView|PKCanvasView|SpriteView|RealityView|GKLocalPlayer"
+        ]
+      },
+      {
+        "id": "ios-system-integration",
+        "label": "Siri, Shortcuts, widgets, controls, links, tips, web views (iOS)",
+        "triggers": [
+          "widget",
+          "widgets",
+          "control center",
+          "lock screen",
+          "action button",
+          "siri",
+          "shortcut",
+          "shortcuts",
+          "spotlight",
+          "app intent",
+          "app intents",
+          "deep link",
+          "universal link",
+          "open from a link",
+          "url scheme",
+          "tip",
+          "tipkit",
+          "coach mark",
+          "app clip",
+          "shareplay",
+          "share extension",
+          "handoff",
+          "web view",
+          "webview",
+          "web page",
+          "oauth",
+          "help center",
+          "from a link",
+          "shared links",
+          "people share",
+          "teach",
+          "feature discovery",
+          "facetime",
+          "together",
+          "collaborative",
+          "group activity"
+        ],
+        "globs": [
+          "*Widget*.swift",
+          "*Intent*.swift",
+          "apple-app-site-association"
+        ],
+        "stacks": [
+          "ios"
+        ],
+        "ship_refs": {
+          "ios": [
+            ".claude/skills/ship/ios/references/system-integration.md"
+          ]
+        },
+        "points": [
+          {
+            "label": "App Intents",
+            "url": "https://developer.apple.com/documentation/appintents"
+          },
+          {
+            "label": "WidgetKit",
+            "url": "https://developer.apple.com/documentation/widgetkit"
+          },
+          {
+            "label": "Xcode 27 App Intents (bundled)",
+            "path": "$(xcode-select -p)/../PlugIns/IDEIntelligenceChat.framework/Versions/A/Resources/app-intents-specialist.idechatprompttemplate"
+          }
+        ],
+        "consumers": [
+          "plan",
+          "build",
+          "review:crit",
+          "review:test"
+        ],
+        "code": [
+          "AppIntent\\b|AppEntity|AppShortcutsProvider|WidgetConfiguration|TimelineProvider|ControlWidget|\\.onOpenURL|Tips\\.configure|GroupActivity|WebPage|ASWebAuthenticationSession"
+        ]
+      },
+      {
+        "id": "ios-device-data",
+        "label": "Location, Health, calendar, contacts, sensors, accessories (iOS)",
+        "triggers": [
+          "location",
+          "near me",
+          "nearby",
+          "gps",
+          "map",
+          "maps",
+          "directions",
+          "geofence",
+          "healthkit",
+          "health",
+          "steps",
+          "workout",
+          "heart rate",
+          "calendar",
+          "add to calendar",
+          "calendar event",
+          "reminders app",
+          "contacts",
+          "pedometer",
+          "accelerometer",
+          "weather",
+          "apple music",
+          "musickit",
+          "financekit",
+          "permission",
+          "permissions",
+          "sensorkit",
+          "research study",
+          "energykit",
+          "electricity",
+          "energy insights",
+          "grid forecast",
+          "permissionkit",
+          "parent approval",
+          "ask a parent",
+          "ask to",
+          "child account",
+          "declared age range",
+          "age range",
+          "apple card",
+          "apple cash",
+          "workouts",
+          "core motion",
+          "motion sensor",
+          "step count",
+          "weatherkit",
+          "forecast",
+          "eventkit",
+          "contactsui"
+        ],
+        "globs": [
+          "*Location*.swift",
+          "*Health*.swift",
+          "*Workout*.swift",
+          "*.gpx"
+        ],
+        "stacks": [
+          "ios"
+        ],
+        "ship_refs": {
+          "ios": [
+            ".claude/skills/ship/ios/references/device-data.md"
+          ]
+        },
+        "points": [
+          {
+            "label": "Core Location",
+            "url": "https://developer.apple.com/documentation/corelocation"
+          },
+          {
+            "label": "HealthKit privacy",
+            "url": "https://developer.apple.com/documentation/healthkit/protecting-user-privacy"
+          },
+          {
+            "label": "AccessorySetupKit",
+            "url": "https://developer.apple.com/documentation/accessorysetupkit"
+          }
+        ],
+        "consumers": [
+          "plan",
+          "build",
+          "review:crit",
+          "review:test"
+        ],
+        "code": [
+          "CLLocation|CLServiceSession|import MapKit|HKHealthStore|EKEventStore|CNContactStore|CMPedometer|CMMotionManager|WeatherService|MusicAuthorization|HKWorkoutSession|FinanceStore|SRReader|SRSensorReader|ElectricityGuidance|AskCenter|PermissionButton|AgeRangeService"
+        ]
+      },
+      {
+        "id": "ios-intelligence",
+        "label": "On-device intelligence — Foundation Models, Core ML, Vision, language (iOS)",
+        "triggers": [
+          "foundation models",
+          "on-device model",
+          "llm",
+          "language model",
+          "apple intelligence",
+          "ai",
+          "summarize",
+          "generate text",
+          "core ml",
+          "coreml",
+          "ml model",
+          "machine learning",
+          "vision",
+          "ocr",
+          "text recognition",
+          "read text",
+          "barcode",
+          "qr code",
+          "detect language",
+          "language detection",
+          "natural language",
+          "translate",
+          "translation",
+          "image playground",
+          "sentiment",
+          "read the text",
+          "text in a photo",
+          "text on a",
+          "receipt",
+          "classifier",
+          "custom model"
+        ],
+        "globs": [
+          "*.mlmodel",
+          "*.mlpackage"
+        ],
+        "stacks": [
+          "ios"
+        ],
+        "ship_refs": {
+          "ios": [
+            ".claude/skills/ship/ios/references/intelligence.md"
+          ]
+        },
+        "points": [
+          {
+            "label": "Foundation Models",
+            "url": "https://developer.apple.com/documentation/foundationmodels"
+          },
+          {
+            "label": "Xcode 27 Foundation Models notes (bundled)",
+            "path": "$(xcode-select -p)/../PlugIns/IDEIntelligenceChat.framework/Versions/A/Resources/AdditionalDocumentation/FoundationModels-Using-on-device-LLM-in-your-app.md"
+          }
+        ],
+        "consumers": [
+          "plan",
+          "build",
+          "review:crit",
+          "review:test"
+        ],
+        "code": [
+          "import FoundationModels|LanguageModelSession|@Generable|import CoreML|MLModel|import Vision|RecognizeTextRequest|VNRecognizeTextRequest|NLLanguageRecognizer|NLTagger|TranslationSession|\\.translationPresentation"
+        ]
+      },
+      {
+        "id": "ios-accessibility",
+        "label": "Assistive technologies on iOS — VoiceOver, Voice Control, Switch Control, Full Keyboard Access",
+        "triggers": [
+          "voice control",
+          "switch control",
+          "full keyboard access",
+          "keyboard access",
+          "keyboard navigation",
+          "hardware keyboard",
+          "keyboard shortcut",
+          "assistive",
+          "assistive technology",
+          "assistive technologies",
+          "accessibility action",
+          "accessibility actions",
+          "custom action",
+          "voiceover",
+          "screen reader",
+          "accessibility audit",
+          "accessibility review",
+          "input labels",
+          "large content viewer"
+        ],
+        "globs": [],
+        "stacks": [
+          "ios"
+        ],
+        "ship_refs": {
+          "ios": [
+            ".claude/skills/ship/ios/references/accessibility-ios.md"
+          ]
+        },
+        "points": [
+          {
+            "label": "Accessibility",
+            "url": "https://developer.apple.com/documentation/accessibility"
+          },
+          {
+            "label": "HIG Accessibility",
+            "url": "https://developer.apple.com/design/human-interface-guidelines/accessibility"
+          }
+        ],
+        "consumers": [
+          "plan",
+          "build",
+          "review:eye",
+          "review:crit",
+          "review:test",
+          "launch"
+        ],
+        "code": [
+          "accessibilityInputLabels|accessibilityUserInputLabels|accessibilityCustomActions|\\.accessibilityAction\\(|\\.focusable\\(|keyboardShortcut|performAccessibilityAudit|UIAccessibilityCustomAction"
+        ]
+      },
+      {
+        "id": "ios-accessories",
+        "label": "Accessories — Bluetooth LE, AccessorySetupKit, NFC, HomeKit/Matter, DockKit (iOS)",
+        "triggers": [
+          "bluetooth",
+          "ble",
+          "accessory",
+          "accessories",
+          "connect an accessory",
+          "pair",
+          "pairing",
+          "heart rate strap",
+          "heart-rate strap",
+          "heart rate monitor",
+          "peripheral",
+          "nfc",
+          "nfc tag",
+          "homekit",
+          "matter",
+          "smart home",
+          "dockkit",
+          "camera stand",
+          "gimbal",
+          "wi-fi aware",
+          "accessorysetupkit"
+        ],
+        "globs": [
+          "*Bluetooth*.swift",
+          "*Peripheral*.swift"
+        ],
+        "stacks": [
+          "ios"
+        ],
+        "ship_refs": {
+          "ios": [
+            ".claude/skills/ship/ios/references/accessories.md"
+          ]
+        },
+        "points": [
+          {
+            "label": "Core Bluetooth",
+            "url": "https://developer.apple.com/documentation/corebluetooth"
+          },
+          {
+            "label": "AccessorySetupKit",
+            "url": "https://developer.apple.com/documentation/accessorysetupkit"
+          },
+          {
+            "label": "DockKit",
+            "url": "https://developer.apple.com/documentation/dockkit"
+          }
+        ],
+        "consumers": [
+          "plan",
+          "build",
+          "review:crit",
+          "review:test"
+        ],
+        "code": [
+          "CBCentralManager|CBPeripheral|ASAccessorySession|NFCNDEFReaderSession|NFCTagReaderSession|HMHomeManager|MatterAddDeviceRequest|DockAccessoryManager"
+        ]
+      },
+      {
+        "id": "android-compose",
+        "label": "Android / Jetpack Compose",
+        "triggers": [
+          "compose",
+          "composable",
+          "material 3",
+          "kotlin",
+          "android",
+          "edge-to-edge",
+          "navigation 3",
+          "play store"
+        ],
+        "globs": [
+          "*.kt",
+          "*.kts"
+        ],
+        "stacks": [
+          "android"
+        ],
+        "ship_refs": {
+          "android": [
+            ".claude/skills/ship/android/SKILL.md"
+          ]
+        },
+        "depends": [],
+        "points": [
+          {
+            "label": "Compose docs",
+            "url": "https://developer.android.com/develop/ui/compose/documentation"
+          },
+          {
+            "label": "Material 3 in Compose",
+            "url": "https://developer.android.com/develop/ui/compose/designsystems/material3"
+          }
+        ],
+        "consumers": [
+          "plan",
+          "build",
+          "review:crit"
+        ]
+      },
+      {
+        "id": "web-react",
+        "label": "React & Next.js — current versions + Ship token/registry contract",
+        "triggers": [
+          "react",
+          "next.js",
+          "nextjs",
+          "server component",
+          "use client",
+          "server action",
+          "use cache",
+          "hydration",
+          "app router",
+          "proxy.ts",
+          "middleware"
+        ],
+        "globs": [
+          "*.tsx",
+          "*.jsx",
+          "next.config.*",
+          "proxy.ts",
+          "middleware.ts"
+        ],
+        "stacks": [
+          "web"
+        ],
+        "ship_refs": {
+          "web": [
+            ".claude/skills/ship/web/SKILL.md",
+            ".claude/skills/ship/web/references/react-patterns.md"
+          ]
+        },
+        "depends": [],
+        "points": [
+          {
+            "label": "Next.js docs for the installed version (16.2+)",
+            "path": "node_modules/next/dist/docs/"
+          },
+          {
+            "label": "Next.js docs index (Markdown)",
+            "url": "https://nextjs.org/docs/llms.txt"
+          },
+          {
+            "label": "React reference",
+            "url": "https://react.dev/reference/react"
+          }
+        ],
+        "consumers": [
+          "plan",
+          "build",
+          "review"
+        ],
+        "frameworks": [
+          "react",
+          "next"
+        ],
+        "framework_notes": {
+          "react": "React without Next.js, and no server rendering found: react-patterns.md §3–4 apply (tokens, registry, composition, review); §1–2 and the Server Component / Server Action / caching items in §4 are Next.js-only. §5 (hydration) applies only if the app server-renders — for a hydration error, find the SSR entry (hydrateRoot, renderToPipeableStream, an entry-server file, a React Router/Remix/Vike setup) before applying it.",
+          "react-ssr": "React with server rendering outside Next.js: react-patterns.md §3–5 apply — §5 hydration safety included; §1–2 and the Server Component / Server Action / caching items in §4 are Next.js conventions (use your framework's docs for its equivalents).",
+          "next": "Next.js: all of react-patterns.md applies; the installed docs in node_modules/next/dist/docs win over it for version details."
+        }
+      },
+      {
+        "id": "web-a11y",
+        "label": "Web accessibility — WCAG 2.2 AA on the web",
+        "triggers": [
+          "wcag",
+          "aria",
+          "screen reader",
+          "keyboard",
+          "focus",
+          "skip link"
+        ],
+        "globs": [
+          "*.tsx",
+          "*.jsx",
+          "*.html",
+          "*.vue",
+          "*.svelte",
+          "*.astro"
+        ],
+        "stacks": [
+          "web"
+        ],
+        "ship_refs": {
+          "web": [
+            ".claude/skills/ship/web/references/web-accessibility.md"
+          ]
+        },
+        "points": [
+          {
+            "label": "WCAG 2.2 Quick Reference",
+            "url": "https://www.w3.org/WAI/WCAG22/quickref/"
+          },
+          {
+            "label": "ARIA Authoring Practices patterns",
+            "url": "https://www.w3.org/WAI/ARIA/apg/patterns/"
+          }
+        ],
+        "consumers": [
+          "plan",
+          "build",
+          "review",
+          "launch"
+        ]
+      },
+      {
+        "id": "web-perf",
+        "label": "Web performance — Core Web Vitals gate",
+        "triggers": [
+          "core web vitals",
+          "lcp",
+          "inp",
+          "cls",
+          "slow page",
+          "bundle size",
+          "lighthouse",
+          "page speed",
+          "initial render",
+          "render blocking",
+          "blocking render"
+        ],
+        "globs": [
+          "next.config.*",
+          "vite.config.*"
+        ],
+        "stacks": [
+          "web"
+        ],
+        "ship_refs": {
+          "web": [
+            ".claude/skills/ship/web/references/web-performance.md"
+          ]
+        },
+        "points": [
+          {
+            "label": "web.dev Core Web Vitals",
+            "url": "https://web.dev/articles/vitals"
+          }
+        ],
+        "consumers": [
+          "plan",
+          "build",
+          "review",
+          "perf",
+          "launch"
+        ]
+      },
+      {
+        "id": "web-ui-review",
+        "label": "Web UI review tools (deterministic scan + fetched guidelines)",
+        "triggers": [
+          "review ui",
+          "audit design",
+          "polish",
+          "ai slop",
+          "ui review",
+          "review this screen",
+          "review the screen",
+          "screen review"
+        ],
+        "globs": [
+          "*.css",
+          "*.html",
+          "*.vue",
+          "*.svelte",
+          "*.astro"
+        ],
+        "stacks": [
+          "web"
+        ],
+        "ship_refs": {
+          "all": []
+        },
+        "calls": [
+          {
+            "tool": "web scan",
+            "command": "python3 .claude/skills/ship/web/bin/scan.py <changed UI files | dev-server URL>",
+            "when": "web review (Pol, Eye), the design stage's web proof and the build's UI self-check; exit 0 clean, 2 findings, 1 target not scanned, 3 unavailable",
+            "fallback": "note 'web scan: unavailable (<reason>)' and continue with Ship lists"
+          },
+          {
+            "tool": "web interface checklist",
+            "command": "python3 .claude/skills/ship/web/bin/checklist.py",
+            "when": "once per web review of UI code",
+            "fallback": "a local copy when offline, else Ship lists + 'checklist unavailable'"
+          }
+        ],
+        "note": "Procedure in .claude/skills/ship/web/SKILL.md (Review section).",
+        "consumers": [
+          "review",
+          "build"
+        ]
+      },
+      {
+        "id": "hardening",
+        "label": "Errors, edge cases, security, launch gate",
+        "triggers": [
+          "error handling",
+          "error boundary",
+          "edge case",
+          "empty state",
+          "offline",
+          "security",
+          "secrets",
+          "auth check",
+          "launch",
+          "ship it",
+          "deploy",
+          "session expiry",
+          "session expires",
+          "expired session",
+          "unsaved",
+          "losing edits",
+          "lose edits",
+          "another account",
+          "someone else's",
+          "authorization",
+          "access control",
+          "permission denied",
+          "before release",
+          "release build"
+        ],
+        "globs": [
+          "error.tsx",
+          "global-error.tsx",
+          "instrumentation.ts",
+          "actions.ts"
+        ],
+        "stacks": [
+          "web",
+          "ios",
+          "android"
+        ],
+        "ship_refs": {
+          "all": [
+            ".claude/skills/ship/hardening/references/hardening-guide.md"
+          ]
+        },
+        "points": [
+          {
+            "label": "OWASP Top 10:2025",
+            "url": "https://top10.owasp.org/2025"
+          },
+          {
+            "label": "App Review Guidelines (iOS)",
+            "url": "https://developer.apple.com/app-store/review/guidelines/",
+            "stacks": [
+              "ios"
+            ]
+          }
+        ],
+        "consumers": [
+          "build",
+          "review",
+          "launch"
+        ]
+      },
+      {
+        "id": "testing",
+        "label": "Testing — unit, UI, e2e",
+        "triggers": [
+          "test",
+          "tests",
+          "e2e",
+          "playwright",
+          "vitest",
+          "unit test",
+          "xctest",
+          "swift testing",
+          "xcuitest",
+          "flaky"
+        ],
+        "globs": [
+          "*.test.*",
+          "*.spec.*",
+          "*Tests.swift",
+          "playwright.config.*"
+        ],
+        "stacks": [
+          "web",
+          "ios",
+          "android"
+        ],
+        "ship_refs": {
+          "all": [
+            ".claude/skills/ship/hardening/references/hardening-guide.md"
+          ]
+        },
+        "points": [
+          {
+            "label": "Next.js testing guide",
+            "url": "https://nextjs.org/docs/app/guides/testing",
+            "stacks": [
+              "web"
+            ]
+          },
+          {
+            "label": "Playwright accessibility testing",
+            "url": "https://playwright.dev/docs/accessibility-testing",
+            "stacks": [
+              "web"
+            ]
+          },
+          {
+            "label": "Swift Testing",
+            "url": "https://developer.apple.com/documentation/testing",
+            "stacks": [
+              "ios"
+            ]
+          }
+        ],
+        "consumers": [
+          "build",
+          "review",
+          "launch"
+        ]
+      },
+      {
+        "id": "design-system",
+        "label": "Design registry — tokens, components, generated themes",
+        "triggers": [
+          "design system",
+          "design token",
+          "tokens",
+          "registry",
+          "components.yaml",
+          "design-model",
+          "theme.swift",
+          "adopt",
+          "emit"
+        ],
+        "globs": [
+          "design-model.yaml",
+          "design/components.yaml",
+          "PDC.md"
+        ],
+        "stacks": [
+          "ios",
+          "web",
+          "android"
+        ],
+        "ship_refs": {
+          "all": [
+            ".claude/skills/ship/design/references/design-model-schema.md"
+          ]
+        },
+        "note": "Tool: python3 .claude/skills/ship/design/bin/design_model.py (validate · match · extend · adopt · audit · emit · check · docs · render).",
+        "consumers": [
+          "design",
+          "plan",
+          "build",
+          "review:pol",
+          "launch"
+        ]
+      },
+      {
+        "id": "taste",
+        "label": "Taste — founder decisions and preferences",
+        "triggers": [
+          "taste",
+          "preference",
+          "founder said",
+          "correction",
+          "approved",
+          "rejected"
+        ],
+        "globs": [
+          "design/taste.yaml"
+        ],
+        "stacks": [
+          "ios",
+          "web",
+          "android"
+        ],
+        "ship_refs": {
+          "all": [
+            ".claude/skills/ship/taste/references/taste-schema.md"
+          ]
+        },
+        "note": "Tool: python3 .claude/skills/ship/taste/bin/taste.py (query before UI work; add when the founder approves, rejects, or corrects).",
+        "consumers": [
+          "think",
+          "design",
+          "build",
+          "review:pol",
+          "retro"
+        ]
+      },
+      {
+        "id": "review-process",
+        "label": "Review protocol — isolated reviewers, evidence, freshness",
+        "triggers": [
+          "review",
+          "code review",
+          "is this ready",
+          "check my changes",
+          "audit"
+        ],
+        "globs": [],
+        "stacks": [
+          "ios",
+          "web",
+          "android"
+        ],
+        "ship_refs": {
+          "all": [
+            ".claude/skills/ship/review/references/review-protocol.md"
+          ]
+        },
+        "note": "Tool: python3 .claude/skills/ship/review/bin/review.py (scope · validate · consolidate · freshness).",
+        "consumers": [
+          "plan",
+          "review",
+          "launch"
+        ]
+      }
+    ],
+    "framework_notes": {
+      "vue": "Vue/Nuxt: Ship has no Vue implementation reference — its shared UX, accessibility, motion and design-system guidance apply; for framework code use vuejs.org/guide (or nuxt.com/docs) at the installed version.",
+      "svelte": "Svelte/SvelteKit: Ship has no Svelte implementation reference — shared UX, accessibility, motion and design-system guidance apply; for framework code use svelte.dev/docs at the installed version.",
+      "astro": "Astro: shared UX, accessibility, motion and design-system guidance apply; framework code: docs.astro.build. React islands follow react-patterns.md §3–4.",
+      "react-native": "React Native/Expo: web references don't apply to native views; shared UX, accessibility and design-system guidance do. Framework code: reactnative.dev / docs.expo.dev."
+    }
+  }
 }

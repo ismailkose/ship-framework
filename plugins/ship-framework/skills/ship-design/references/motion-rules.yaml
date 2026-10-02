@@ -1,0 +1,66 @@
+# Motion lint table — the ONE place design_model.py reads motion warning rules and thresholds.
+# Values come from the Ship Framework repo's maintainers/audit/motion-defaults.yaml (2026-09-23;
+# expert source: the motion authority; platform source: SwiftUI Spring / HIG Reduce Motion).
+# To change a threshold, change it here — the code holds no copies.
+#
+# Every rule WARNS, never blocks or rewrites: a product decision outranks a Ship default. A token
+# records a deliberate exception with `allow: [<rule id>]`.
+#
+# Which tokens a rule looks at: a token's explicit `use:` tag when it has one (matched against
+# `uses` / `except_uses`); otherwise its name (case-insensitive regex `names` / `except_names`).
+schema_version: 1
+uses: [enter, exit, ui, press, move, page, momentum, progress, ambient, reduced]
+
+rules:
+  motion-easein:
+    applies: durations
+    ease_in: { x1_min: 0.3, y1_max: 0.1, x2_max: 0.7, y2_min: 0.9 }      # a cubic-bézier with this start is ease-in shaped
+    message: "ease-in makes UI feel sluggish — use easeOut for enter AND exit (easeInOut for on-screen movement)"
+  motion-overshoot-press:
+    applies: springs
+    names: "press|tap|button|toggle|switch|menu|popover|snappy|default|standard"
+    uses: [press, ui, enter, exit]
+    min_damping: 0.95
+    message: "overshoot on a plain tap/menu feels wrong — damping 1.0 (bounce 0); keep bounce for momentum/delight"
+  motion-bounce-range:
+    applies: springs
+    min_damping: 0.7
+    message: "bounce above 0.3 — keep it subtle (0.1–0.3), even for playful moments"
+  motion-damping-invalid:
+    applies: springs
+    max_damping: 1.0
+    message: "damping is SwiftUI dampingFraction in (0, 1] — overdamping isn't expressible across platforms"
+  motion-duration-ui:
+    applies: durations
+    max_ms: 300
+    except_names: "modal|drawer|sheet|toast|marketing|onboarding|celebrat|hero|reveal"
+    except_uses: [page, ambient, progress]
+    message: "UI animations stay under 300ms — 150–250ms for most UI"
+  motion-duration-max:
+    applies: durations
+    max_ms: 500
+    except_names: "marketing|onboarding|celebrat|hero|reveal|explain"
+    except_uses: [ambient, progress]
+    message: "over 500ms reads as sluggish even for modals and drawers"
+  motion-press-duration:
+    applies: durations
+    names: "press|tap"
+    uses: [press]
+    min_ms: 100
+    max_ms: 160
+    message: "press feedback is 100–160ms"
+  motion-linear-ui:
+    applies: durations
+    except_names: "progress|loader|spinner|marquee|hold|scrub"
+    except_uses: [progress, ambient]
+    message: "linear is for constant motion (progress, marquee, hold fill) — use easeOut for UI"
+  motion-stagger:
+    applies: stagger
+    min_ms: 30
+    max_ms: 80
+    message: "stagger 30–80ms between items"
+  motion-no-reduced-path:
+    applies: model
+    fade_names: "fade|opacity|crossfade|dissolve"
+    fade_uses: [reduced]
+    message: "define the reduced-motion swap (a short opacity fade) — reduced motion is gentler, not zero"

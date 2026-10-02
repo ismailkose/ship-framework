@@ -1,9 +1,11 @@
-# design-model.yaml — TEMPLATE
+# design-model.yaml — TEMPLATE (the seed for a new project)
 # Copy, fill every TODO, delete instructional comments when done.
-# Schema reference: .claude/skills/ship/design/references/design-model-schema.md
+# Schema + who owns what: .claude/skills/ship/design/references/design-model-schema.md
 # Rule of the file: hex and raw values live ONLY under `primitives`.
 #                   `semantic` references primitives by dot-path.
 #                   Components (design/components.yaml) reference semantic only.
+# Existing app? Don't fill this by hand — run `design_model.py adopt` for a draft that keeps
+# the app's names.
 
 schema_version: 1
 
@@ -13,7 +15,8 @@ modes: [light, dark]
 
 brand:
   name: TODO            # working name is fine
-  feel: [TODO, TODO, TODO]   # 3-5 adjectives; Eye validates previews against these
+  feel: []              # optional: the founder's own words (1-5) — never invented; the yardstick is
+                        # DESIGN.md › Point of view. feel_status: proposed | confirmed
   references: []        # optional: "Cash App (roundness)" — name WHAT you borrow
 
 primitives:
@@ -23,35 +26,60 @@ primitives:
     TODO-neutral: { 50: "TODO", 900: "TODO" }
     TODO-accent:  { 500: "TODO" }
   type:
-    family: TODO        # one family; a second needs a documented reason
+    family: TODO        # one family; a second needs a documented reason (then use families/styles)
+    # design: rounded   # optional, the system family only: rounded | serif | monospaced (SF Rounded,
+    #                   # New York, SF Mono; ui-rounded/ui-serif/ui-monospace on web) — a voice without a licensed font
+    # width: expanded   # optional, the system family only: condensed | compressed | expanded (Apple platforms)
+    system_text_styles: true   # system font at a standard size (17 body, 15 subheadline…) → a Dynamic Type text style
     scale:
-      body: TODO        # px — required
-      title: TODO       # px — at least one display size required
+      body: TODO        # pt/px — required
+      title: TODO       # at least one display size required
+    line_height: { body: 1.5 }   # reading text 1.4 to 1.6; add tighter ones for display sizes (about 1.2)
   radius:
-    control: TODO       # px — required
-    card: TODO          # px — required
+    control: TODO       # required
+    card: TODO          # required
   spacing:
-    unit: 4             # px — everything derives from multiples of this
+    unit: 4             # everything derives from multiples of this
   motion:
-    # Platform-neutral physics, named by character — emitters translate per platform.
+    # Platform-neutral, named by character. Defaults: the motion authority's (
+    # skills), recorded in the Ship Framework repo (maintainers/audit/motion-defaults.yaml).
+    # Warnings: Ship's design references/motion-rules.yaml.
     springs:
-      gentle: { response: 0.5, damping: 0.9 }
-      snappy: { response: 0.3, damping: 0.8 }
-    durations: {}
+      snappy:   { response: 0.3, damping: 1.0 }   # taps, toggles, menus, state changes (bounce 0)
+      gentle:   { response: 0.5, damping: 1.0 }   # large surfaces, panels
+      momentum: { response: 0.4, damping: 0.8, use: momentum }   # only after a flick / drag release
+    curves:                                        # named cubic-béziers; override built-ins by name
+      easeOut:   [0.23, 1, 0.32, 1]               # strong ease-out — enter AND exit
+      easeInOut: [0.77, 0, 0.175, 1]              # strong ease-in-out — moving on screen
+      drawer:    [0.32, 0.72, 0, 1]
+    durations:                                     # curve defaults to easeOut
+      press:   { ms: 160, curve: easeOut }        # press feedback (100–160)
+      popover: { ms: 200, curve: easeOut }        # dropdowns, menus
+      modal:   { ms: 250, curve: easeOut }        # centered modal + scrim
+      drawer:  { ms: 500, curve: drawer }         # drawer opened by tap
+      fade:    { ms: 200, curve: easeOut }        # opacity/colour — also the reduced-motion swap
+    stagger: { ms: 50, max_items: 8 }
 
 semantic:
   # All six keys REQUIRED. Values are dot-paths into primitives
-  # (color shorthand allowed: `paper.50` = primitives.color.paper.50).
+  # (color shorthand allowed: `paper.50` = primitives.color.paper.50) or `system.<name>`.
   background: TODO
   surface:    TODO
   text:       TODO
   muted:      TODO
   hairline:   TODO
   action:     TODO
-  # Free extension below (e.g. pnl.gain, pnl.loss):
+  # Free extension below (e.g. pnl.gain, pnl.loss). Recommended, with the same keys in semantic_dark:
+  # on_action: …   text and icons on the action colour (4.5:1 against it)
+  # focus: …       the focus ring (3:1 against the control and the background)
+  # error: …       error text and icons (4.5:1 against background and surface)
+  # success: …, warning: …   status text and icons (4.5:1 as text, 3:1 as icons)
+  # outline: …     field and checkbox borders (3:1 against background and surface); hairline stays
+  #                for dividers, which need no contrast
+  # chart: { 1: …, 2: … }   chart series, up to 5 (3:1 against background and surface)
 
 semantic_dark:
-  # REQUIRED while `dark` is in modes. Same six keys. Don't just invert —
+  # REQUIRED while `dark` is in modes. Same keys. Don't just invert —
   # desaturate accents, lift surfaces, keep contrast WCAG-valid in both modes.
   background: TODO
   surface:    TODO
@@ -59,3 +87,9 @@ semantic_dark:
   muted:      TODO
   hairline:   TODO
   action:     TODO
+
+# emit:                 # where generated files go (default: design/generated/…). Generated files
+#   swiftui: { out: App/Theme/Theme.swift }        # are never hand-edited; `design_model.py check`
+#   css:     { out: src/styles/tokens.css }        # fails when they're stale or edited.
+#   tailwind: { out: src/styles/tailwind-theme.css }
+#   compose: { out: app/src/main/java/…/ui/theme/Theme.kt, package: com.example.ui.theme }

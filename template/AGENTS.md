@@ -9,9 +9,22 @@
 This file makes Ship work in Codex without duplicating project context.
 
 - `CLAUDE.md` is the canonical, user-owned source of truth.
-- `.claude/team-rules.md` contains the shared Ship operating model.
+- `.claude/team-rules.md` holds Ship's core rules, shared by every stage.
 - `TASKS.md`, `DECISIONS.md`, `CONTEXT.md`, and `LEARNINGS.md` are shared memory for both Claude and Codex.
 - This file is only the bridge that tells Codex how to use those files together.
+- Ship's tools are stdlib Python and work the same in Codex: `knowledge.py` (which sources to
+  consult), `design_model.py` (the design registry), `taste.py` (the founder's taste),
+  `review.py` (review records).
+
+## What Codex can't do here (say so; don't pretend)
+
+- **No isolated reviewer subagents.** Ship's reviewers run in separate contexts in Claude. Here
+  they run one after another in this context — see *Reviews in Codex*.
+- **No enforced design gate.** The hook that blocks UI edits without `PDC.md` runs only in Claude.
+  Honour it yourself: before a UI, motion, or copy edit, read the `PDC.md` sections the edit
+  touches; if there's no `PDC.md`, do the Design stage first.
+- **No literal slash commands.** Follow `.claude/skills/shipmate/SKILL.md` for each request instead
+  (Runtime Mapping below); it names the stage file under `.claude/skills/shipmate/stages/` to read.
 
 ## Startup Order
 
@@ -29,9 +42,11 @@ If `CLAUDE.md` and this file ever appear to disagree, follow `CLAUDE.md`. It is 
 ## Reference Gate
 
 <!-- BEGIN:ship-generated:agents-reference-gate -->
-For the pilot Ship workflows (`/ship-think`, `/ship-plan`, `/ship-build`, `/ship-review`), load the Ship references under `.claude/skills/ship/*/references/` that the change actually touches — on demand, not the whole list.
+For the journey stages (`think`, `design`, `plan`, `build`, `review`, `launch`, `retro`), read the product's own decisions first, then only the references the change actually touches — on demand, not the whole list.
 
-Name the references you relied on in one line of your handoff. Review flags issues a reference would have prevented as `REF_SKIP`.
+Find them with `python3 .claude/skills/ship/knowledge/bin/knowledge.py route --text "<the task>" --changed --record` (sources in precedence order; the record lets review spot a missed reference).
+
+Record the references you relied on with `knowledge.py note` (for review, not the reply). Review flags issues a reference would have prevented as `REF_SKIP`.
 
 UI edits still need the project's design contract (`PDC.md` → `DESIGN.md`, `design-model.yaml`, `design/components.yaml`).
 <!-- END:ship-generated:agents-reference-gate -->
@@ -41,20 +56,22 @@ UI edits still need the project's design contract (`PDC.md` → `DESIGN.md`, `de
 <!-- BEGIN:ship-generated:agents-runtime-mapping -->
 Ship supports two primary runtimes:
 
-- **Claude / Cowork**: reads `CLAUDE.md` directly and can use literal `/ship-*` commands.
+- **Claude / Cowork**: reads `CLAUDE.md` directly and can use `/shipmate` (one command; stages such as `/shipmate build`).
 - **Codex**: reads `AGENTS.md` first, then uses the same shared Ship files.
 
-When you are in Codex, the `/ship-*` names in `CLAUDE.md` are workflow labels, not required literal commands.
+In Codex, handle each request the way `/shipmate` does: read `.claude/skills/shipmate/SKILL.md` and
+follow it, with the user's words as the request: it runs `ship.py start`, picks the stage, and
+points at the stage file to read. The stage names are the same vocabulary as in `CLAUDE.md`:
 
-Map the pilot core loop like this:
+- `think` — Clarify consequential uncertainty about the idea — ask only what isn't already known.
+- `design` — Establish or extend a visible, reusable direction — adopt an existing app's system or plant a small seed, proven on a real screen.
+- `plan` — Resolve implementation choices and meaningful risks, then a build order — light or full depth.
+- `build` — Build one feature with the product's system and relevant expertise; verify the outcome with evidence.
+- `review` — Verify the actual outcome with isolated reviewers sized to the change's risk, and record what was reviewed.
+- `launch` — Verify delivery when a release is intended — fresh review, evidence-based gates, deploy, post-deploy check.
+- `retro` — Preserve decisions, corrections, and lessons so the next cycle starts better.
 
-- `/ship-think` -> idea validation workflow (Validate the idea before planning so the team is solving a real problem for a real person.)
-- `/ship-plan` -> planning workflow (Turn the idea into a product brief, architecture, and build order the team can execute.)
-- `/ship-build` -> implementation workflow (Build one planned feature at a time with tight scope control, tests, and verification.)
-- `/ship-review` -> quality workflow (Run the full quality gate across product, design, visual QA, testing, and adversarial review.)
-
-Other `/ship-*` workflows remain documented in `CLAUDE.md`; only the pilot core loop is manifest-driven right now.
-Natural-language requests should still trigger the matching Ship workflow automatically.
+The entry's stage table lists the other stages (fix, variants, html, perf, money, and more).
 <!-- END:ship-generated:agents-runtime-mapping -->
 
 ## Switching Between Claude and Codex
@@ -63,5 +80,34 @@ Natural-language requests should still trigger the matching Ship workflow automa
 - Keep `CLAUDE.md` up to date. Do not maintain separate product context in `AGENTS.md`.
 - Keep using the same `TASKS.md`, `DECISIONS.md`, `CONTEXT.md`, `LEARNINGS.md`.
 - If a user switches between Claude and Codex mid-project, continue from the same shared context instead of re-planning from scratch.
-- `/ship-codex` is still useful inside Claude when Claude wants a Codex second opinion. When already running inside Codex, you do not need `/ship-codex` to use Ship.
+- In Claude, the `codex` stage asks Codex for a second opinion. Inside Codex you don't need it to use Ship.
 <!-- END:ship-generated:agents-switching -->
+
+## Knowledge, taste, and the registry in Codex
+
+- **Knowledge:** `python3 .claude/skills/ship/knowledge/bin/knowledge.py route --text "<the task>" --changed --record`
+  before a change that needs more than general knowledge — product decisions first, then
+  platform docs, Ship references, installed skills (`~/.codex/skills/`, plugin caches), with the
+  fallback when one is missing.
+- **Taste:** before UI, copy, or motion work,
+  `python3 .claude/skills/ship/taste/bin/taste.py query --surface <screen> --domain <domain>` —
+  follow APPLY lines, ask before ASK FIRST ones. When the founder approves, rejects, or corrects a
+  design choice, record it right away:
+  `python3 .claude/skills/ship/taste/bin/taste.py add --kind decision --source correction --topic <slug> --statement "…" --rationale "…" --quote "<their words>"`.
+- **Registry:** `python3 .claude/skills/ship/design/bin/design_model.py match --role <role>` before
+  building UI; after a registry change `validate`, `emit all`, `docs`. Files with Ship's "Generated by Ship"
+  header are never hand-edited.
+
+## Reviews in Codex
+
+Codex has no isolated reviewers, so a Ship review here is **single-context**:
+
+1. `python3 .claude/skills/ship/review/bin/review.py scope` (same flags as the review stage).
+2. For each selected reviewer, in turn: read `.claude/agents/ship-<name>.md`, apply it to the run
+   folder, save its JSON to `<run>/<name>.json`, and
+   `python3 .claude/skills/ship/review/bin/review.py validate <run>/<name>.json`.
+3. `python3 .claude/skills/ship/review/bin/review.py consolidate <run> --mode single-context`.
+
+The record and report open with **SINGLE-CONTEXT REVIEW — NOT INDEPENDENT**: later passes saw
+earlier ones, so agreement is one opinion, not several. Never call it an independent review.
+For an independent pass, run `/shipmate review` in Claude.

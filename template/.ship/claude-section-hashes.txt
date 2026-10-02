@@ -1,0 +1,11 @@
+# The Ship section's own wording (normalised: see guide_hash) in every past CLAUDE.md
+# template. An update replaces a project's section only when it matches one of these.
+# Regenerate (maintainers only): python3 scripts/ship-install.py record-hashes --source .
+aece3abd1de427dc7f84dca1a02154d6a5c73695 19a8dee 2026-03-30
+59af7c2a145c978dcae2c9d1e31e11e4263111e8 7218d0a 2026-04-06
+27a23341b2299b48e8c1b8d45d6cb52af7f74ecc 486f3a4 2026-04-11
+f2c96c4221dba87cae14cfd4038859d808f895db 6d12e88 2026-09-22
+6efd3c61ff66e47aea71ce47d0dc382ff37d6b31 08319b1 2026-09-23
+8ac2a62e4884af00b8bb7983a881c053c118d426 3a3f43a 2026-09-23
+e7598974799ed7f5b775263a12c6f09b1847953f 282e503 2026-09-27
+16154445daabab53eae219c053d2ac2627f2067d 0b7aeab 2026-09-27

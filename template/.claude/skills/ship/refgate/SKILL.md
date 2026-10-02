@@ -1,11 +1,9 @@
 ---
 name: ship-refgate
 description: |
-  Reference Gate — dimension-aware design gate. (ship)
-  Classifies edits by dimension (ui/motion/copy/logic), hard-blocks
-  when PDC.md is missing, and gates per-dimension until the relevant
-  design section has been read. No gate for logic/test files.
-  Activated automatically. No user command needed.
+  Design gate. (ship) In a Ship project without a design contract (PDC.md), creating a
+  new UI/motion/copy file is blocked with the on-ramp to /shipmate design. Edits to existing
+  files, logic, tests, and design files are never blocked. Activated automatically.
 user-invocable: false
 hooks:
   PreToolUse:
@@ -13,70 +11,50 @@ hooks:
       hooks:
         - type: command
           command: "bash ${CLAUDE_SKILL_DIR}/bin/check-refgate.sh"
-          statusMessage: "Checking reference gate..."
+          statusMessage: "Checking design gate..."
     - matcher: "Write"
       hooks:
         - type: command
           command: "bash ${CLAUDE_SKILL_DIR}/bin/check-refgate.sh"
-          statusMessage: "Checking reference gate..."
+          statusMessage: "Checking design gate..."
+  PostToolUse:
+    - matcher: "Bash"
+      hooks:
+        - type: command
+          command: "bash ${CLAUDE_SKILL_DIR}/bin/check-after-shell.sh"
 ---
 
-# Reference Gate — Dimension-Aware Design Protection
+# Design Gate
 
-A PreToolUse hook that guards design edits. It classifies edits by design dimension and ensures the relevant design context has been read before allowing changes. (Framework references are loaded on demand — Rule 25 — and are not gated.)
+A PreToolUse hook on Edit and Write. One job: new UI shouldn't be invented before the
+product has a design contract — `PDC.md`, which indexes `DESIGN.md`, `design-model.yaml`,
+and `design/components.yaml`. Once the contract exists, the registry loop in /shipmate build
+does the rest; the gate steps aside.
 
-## How It Works
-
-1. **Classify** — extract file path from the pending edit, classify into a dimension:
-   - `ui` — views, screens, components, pages, styles
-   - `motion` — animation, transition, motion files
-   - `copy` — localization, i18n, string resources
-   - `logic` — models, services, utils, API (no design gate)
-   - `none` — tests (no design gate)
-2. **Check PDC** — for design dimensions (`ui`, `motion`, `copy`):
-   - PDC.md missing → **hard block** with message to run `/ship-design init`
-   - PDC.md exists → check if the relevant section has been read this session
-3. **Per-dimension gating** — each dimension has its own lifecycle marker. Reading the motion section doesn't satisfy the UI gate, and vice versa.
-
-## Dimension Classification
-
-| Signal | Dimension | Gate? |
+| The edit | No PDC.md | PDC.md exists |
 |---|---|---|
-| `*/views/*`, `*/components/*`, `*/pages/*`, `*.css` | `ui` | Yes |
-| `*animation*`, `*motion*`, `*transition*` | `motion` | Yes |
-| `*/Localizable*`, `*/i18n/*`, `*/locales/*` | `copy` | Yes |
-| `*/models/*`, `*/services/*`, `*/utils/*`, `*/lib/*` | `logic` | No |
-| `*/test*`, `*.test.*`, `*.spec.*` | `none` | No |
-| Unknown paths | `ui` (safe default) | Yes |
+| Creates a new UI / motion / copy file | **deny** — on-ramp to `/shipmate design` (adopt an existing app's system, or plant a seed) | allow |
+| Changes an existing file | allow — a fix in an existing app is never locked out | allow |
+| Logic, tests, config, design files, Ship memory | allow | allow |
+| Not a Ship project | allow | allow |
 
-## The Forcing Function
+**Two checks, honestly labelled.** The table above is *preventive*: it runs before Edit and Write
+and can refuse them. A shell command (`sed -i`, a script, a heredoc) writes without passing through
+it, so `check-after-shell.sh` runs *after* each Bash call and reports what the gate would have
+refused: a generated file that differs from what `design-model.yaml` emits (re-emitted to a temp file
+and compared — works without configured outputs), or a
+new UI file created without the contract (a file that matches the emitter is the model's output and
+is never flagged). That's *detection* — it can't undo the write. Limits: git projects only; it compares
+against the last commit — staged, unstaged and untracked changes — so ignored files, files outside the
+project, a write reverted or committed within the same command aren't seen; each file version is
+reported once. The
+generated-file rule applies in any project — the header marks the file — while the new-UI rule
+applies only to Ship projects.
 
-When PDC.md does not exist and an edit touches a design dimension, the gate **hard-blocks** with a message to run `/ship-design init`. This creates natural adoption pressure — the system degrades visibly without a design contract. Logic-only edits still work, so a project without PDC.md functions for non-UI work.
+Classification uses the path inside the project, so a project folder named `motion` or
+`components` doesn't change the verdict. No reading receipts or marker files: references are
+loaded on demand (`.claude/team-rules.md` › References on demand) and review judges outcomes. The gate fails open on anything it
+can't parse, and writes nothing in the project (the after-shell check keeps a small "already
+reported" list in the system temp folder).
 
-## State Files
-
-| File | Created by | Meaning |
-|---|---|---|
-| `.claude/.refgate-dim-ui` | Ship commands (after reading UI design section) | UI design section read this session |
-| `.claude/.refgate-dim-motion` | Ship commands (after reading motion section) | Motion section read this session |
-| `.claude/.refgate-dim-copy` | Ship commands (after reading copy section) | Copy section read this session |
-
-## How Design Sections Get Marked as Read
-
-When Ship commands read a design section (e.g., `/ship-build` reads the motion section from PDC.md), they create the dimension marker:
-
-```bash
-touch .claude/.refgate-dim-motion
-```
-
-
-## Session Cleanup
-
-All state files (`.refgate-dim-*`) are cleaned at session start by `ship-sessionstart`. Each new session starts with a clean gate — design sections must be re-read.
-
-## Compatibility
-
-- Works alongside freeze and careful hooks — they all run independently on PreToolUse
-- Does NOT interfere with Read, Grep, Glob, Bash — only blocks Edit and Write
-- Fails open: if path extraction fails or the script errors, the edit is allowed
-- Path-based classification is intentionally heuristic — false positives cost one design doc read (never harmful)
+Works alongside the careful and freeze hooks; never touches Read, Grep, Glob, or Bash.

@@ -1,0 +1,47 @@
+# Framework files Ship no longer ships. The installer (setup.sh / ship-update.sh) removes
+# them from projects on update: an unedited copy is deleted; an edited copy is moved to
+# .ship/backups/<stamp>/ first. User-owned files are never touched, even if listed here.
+#
+# One project-relative path per line. `dir/` retires everything under it; `*` globs work.
+# Only paths inside Ship's namespace (.claude/skills/ship/**, .claude/skills/shipmate/**,
+# .claude/commands/ship-*.md,
+# .claude/skills/ship-*/, .claude/agents/ship-*.md, .claude/team-rules.md) or files that are
+# byte-identical to a past Ship release are acted on. Anything else is ignored with a note.
+#
+# Files Ship installed (listed in a project's .ship/manifest.json) and no longer ships are
+# retired automatically — this list is for projects installed before manifests existed
+# (≤ 2026.09.22) and for anything you want removed even when a user edited it.
+#
+# Filled in by the integrator from each workstream's audit (maintainers/audit/*.md).
+# Examples:
+#   .claude/skills/ship/ios/references/frameworks/
+#   .claude/skills/ship/ios/references/swiftui-core.md
+
+# ── 2026-09 modernization (maintainers/audit/*.md) ─────────────────────────────
+# Review agents moved to real subagents (.claude/agents/ship-*.md)
+.claude/skills/ship/agents/
+# iOS: restricted-license overlap removed; replaced by frameworks.md + swiftui-ship.md + ios-27.md
+.claude/skills/ship/ios/references/frameworks/
+.claude/skills/ship/ios/references/swiftui-core.md
+.claude/skills/ship/ios/references/swift-essentials.md
+# Pre-skills layout copies of the same files (installs ≤ 2026.04)
+references/frameworks/
+references/ios/frameworks/
+references/ios/swiftui-core.md
+references/ios/swift-essentials.md
+references/swiftui-core.md
+references/swift-essentials.md
+# UX: merged into typography.md + color.md, interaction-design.md, layout-responsive.md
+.claude/skills/ship/ux/references/typography-color.md
+.claude/skills/ship/ux/references/touch-interaction.md
+.claude/skills/ship/ux/references/spatial-design.md
+# Motion: replaced by the motion authority's references (animation.md, recipes-*, performance.md, …)
+.claude/skills/ship/motion/references/animation-css.md
+.claude/skills/ship/motion/references/animation-framer-motion.md
+.claude/skills/ship/motion/references/animation-performance.md
+
+# ── 2026-09 one command (maintainers/SHIP-NEXT-PLAN.md, phase 1) ───────────────
+# The 21 /ship-* commands became stages of the /shipmate entry (.claude/skills/shipmate/).
+# Their command files and the .claude/skills/ship-*/SKILL.md mirrors setup.sh installed go.
+.claude/commands/ship-*.md
+.claude/skills/ship-*/SKILL.md
